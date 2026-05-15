@@ -1,9 +1,12 @@
+CREATE DATABASE IF NOT EXISTS practicas;
+USE practicas;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2026 at 07:28 PM
+-- Generation Time: May 15, 2026 at 03:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -260,7 +263,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('U3cJrgkQ2iQIlPRTvnKwZl2hvvjn002Ekg2bsj1P', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJFbDZWdExlT2tBcFdCRW1VSk9CT0o5Tm9reFFZcW9UaHh6WG9hQjZoIiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOm51bGx9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19', 1778779444);
+('1fboPxh4Vrz7yxZ6jxIooiOgUa8y4zdhfcVCPwiF', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJEWGVJQjRKRnhFVXJMZUx0ZHZMVjlzMW1qZmJUSm11SW9JUGVIbXZ2IiwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvMTI3LjAuMC4xOjgwMDAiLCJyb3V0ZSI6ImxvZ2luIn19', 1778788101),
+('aZiNAb7E5wwQuvp3uvRII0AgQGidyBwhTwnF4WCd', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJpMGNIcjBqUjZ0VHY5dVE0TjMwM2FBcTNOU1pWRzRHSkg5TGtiUDlmIiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvMTI3LjAuMC4xOjgwMDBcL2FkbWluXC9kYXNoYm9hcmQifSwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOiJsb2dpbiJ9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19', 1778780829);
 
 -- --------------------------------------------------------
 
@@ -319,10 +323,10 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `correo`, `contraseña`, `activo`, `rol_id`) VALUES
-(1, 'admin@ucol.mx', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1),
-(2, 'coordinador@ucol.mx', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 2),
-(3, 'alumno@ucol.mx', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 3),
-(5, 'empresa@tech.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 4);
+(1, 'admin@ucol.mx', '$2y$12$NT.rcNJxde4yiFCb2L3LAeUXYQZl0j8dNN9RGrfnrSmouKv2NqFuS', 1, 1),
+(2, 'coordinador@ucol.mx', '$2y$12$nD/o.O4bptqTBby1KCqCyOorkqXz8aQ5WuqlALMk5.AAoaD2moY7S', 1, 2),
+(3, 'alumno@ucol.mx', '$2y$12$WtPsK8EB/BVYD3m3zwmnPOwbQeAPBq8.4/LJurEQZHqtLBXKyyqam', 1, 3),
+(5, 'empresa@tech.com', '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 1, 4);
 
 --
 -- Indexes for dumped tables
