@@ -1,58 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/images/logo_verde.png" width="200" alt="UdeC Logo">
 </p>
 
-## About Laravel
+# Plataforma de Prácticas Profesionales
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Plataforma web desarrollada en Laravel para la gestión integral de las Prácticas Profesionales de la Universidad de Colima (UdeC). Esta herramienta facilita la interacción y administración entre estudiantes, empresas, coordinadores y administradores.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Características Principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El sistema está diseñado con una arquitectura basada en roles, permitiendo flujos de trabajo específicos para cada tipo de usuario:
 
-## Learning Laravel
+### 🎓 Estudiantes
+- **Dashboard Personal:** Interfaz intuitiva para seguir el progreso de sus prácticas.
+- **Consulta de Empresas:** Directorio de empresas y convenios disponibles.
+- **Gestión de Solicitudes:** Capacidad de solicitar participación en programas de prácticas y monitorear su estado (pendiente, aceptado, rechazado).
+- **Documentación:** Subida y seguimiento del estado de validación de documentos (cartas de aceptación, planes de trabajo, reportes, evaluaciones).
+- **Métricas:** Monitoreo del progreso personal (días/horas acumuladas) y estado general (no iniciado, en progreso, acreditado).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🏢 Empresas
+- Seguimiento de estudiantes en prácticas dentro de su organización.
+- Validación de reportes y evaluación de desempeño.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 👥 Coordinadores (Personal UdeC)
+- Administración y validación de las solicitudes de los estudiantes.
+- Revisión de la documentación entregada y seguimiento académico.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### ⚙️ Administradores
+- Control total del sistema, gestión de usuarios, roles, empresas y catálogos generales.
 
-## Agentic Development
+## 🛠️ Tecnologías Utilizadas
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- **Backend:** [Laravel](https://laravel.com/) (Framework PHP)
+- **Frontend:** Blade Templates, [Tailwind CSS](https://tailwindcss.com/)
+- **Base de Datos:** SQLite (Configuración inicial)
 
-```bash
-composer require laravel/boost --dev
+## 📦 Instalación y Configuración Local
 
-php artisan boost:install
-```
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/ELNARMOTON79/Plataforma-Practicas-Profesionales.git
+   cd Plataforma-Practicas-Profesionales
+   ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Instala las dependencias de PHP y Node.js:
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Contributing
+3. Configura el archivo de entorno:
+   ```bash
+   cp .env.example .env
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. Genera la clave de la aplicación:
+   ```bash
+   php artisan key:generate
+   ```
 
-## Code of Conduct
+5. Configura tu base de datos en el `.env` (si usas SQLite, asegúrate de crear el archivo `database/database.sqlite`) y luego ejecuta las migraciones:
+   ```bash
+   php artisan migrate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. Compila los assets del frontend (Tailwind CSS, JS):
+   ```bash
+   npm run dev
+   ```
 
-## Security Vulnerabilities
+7. Inicia el servidor de desarrollo local:
+   ```bash
+   php artisan serve
+   ```
+   La aplicación estará disponible en `http://localhost:8000`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🎨 Diseño y UI/UX
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+La interfaz ha sido diseñada para reflejar la identidad visual de la Universidad de Colima, empleando su paleta de colores distintiva. Incluye layouts modernos de pantalla dividida para el login, redirección basada en roles, y paneles de control (`dashboards`) responsive enfocados en la usabilidad y experiencia del usuario.
