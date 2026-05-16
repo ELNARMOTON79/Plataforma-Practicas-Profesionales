@@ -32,7 +32,7 @@ El sistema está diseñado con una arquitectura basada en roles, permitiendo flu
 
 - **Backend:** [Laravel](https://laravel.com/) (Framework PHP)
 - **Frontend:** Blade Templates, [Tailwind CSS](https://tailwindcss.com/)
-- **Base de Datos:** SQLite (Configuración inicial)
+- **Base de Datos:** MySQL / MariaDB (Importar script SQL proporcionado)
 
 ## 📦 Instalación y Configuración Local
 
@@ -58,17 +58,34 @@ El sistema está diseñado con una arquitectura basada en roles, permitiendo flu
    php artisan key:generate
    ```
 
-5. Configura tu base de datos en el `.env` (si usas SQLite, asegúrate de crear el archivo `database/database.sqlite`) y luego ejecuta las migraciones:
+5. Configura tu base de datos:
+   - Crea una base de datos en tu gestor MySQL/MariaDB (por ejemplo, llamada `practicas`).
+   - **Importante:** Importa el archivo SQL del proyecto (`database/practicas.sql`) a tu nueva base de datos. Puedes hacerlo mediante phpMyAdmin, DBeaver, o desde la terminal:
+     ```bash
+     mysql -u tu_usuario -p practicas < database/practicas.sql
+     ```
+   - Abre el archivo `.env` en la raíz del proyecto y ajusta las credenciales de conexión:
+     ```env
+     DB_CONNECTION=mysql
+     DB_HOST=127.0.0.1
+     DB_PORT=3306
+     DB_DATABASE=practicas
+     DB_USERNAME=tu_usuario
+     DB_PASSWORD=tu_contraseña
+     ```
+   *(Nota: La estructura y los usuarios iniciales están en el archivo `practicas.sql`, por lo que **no** se debe ejecutar `php artisan migrate` ni seeders).*
+
+6. Vincula el almacenamiento público (vital para visualizar y cargar documentos de estudiantes):
    ```bash
-   php artisan migrate
+   php artisan storage:link
    ```
 
-6. Compila los assets del frontend (Tailwind CSS, JS):
+7. Compila los recursos del frontend (Tailwind CSS, JS):
    ```bash
    npm run dev
    ```
 
-7. Inicia el servidor de desarrollo local:
+8. Inicia el servidor de desarrollo local:
    ```bash
    php artisan serve
    ```
