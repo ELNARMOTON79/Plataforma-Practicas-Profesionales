@@ -28,6 +28,16 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    Route::get('/admin/config', function () {
+        if (auth()->user()->rol_id != 1) return redirect('/');
+        return view('admin.config');
+    })->name('admin.config');
+
+    Route::get('/admin/usuarios', function () {
+        if (auth()->user()->rol_id != 1) return redirect('/');
+        return view('admin.usuarios');
+    })->name('admin.usuarios');
+
     Route::get('/coordinador/dashboard', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
         return view('coordinador.dashboard');
