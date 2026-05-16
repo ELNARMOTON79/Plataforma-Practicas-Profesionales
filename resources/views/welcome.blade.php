@@ -8,119 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --udc-primary: #4E7D24;
-            --udc-secondary: #6BA53A;
-            --udc-dark: #2E5417;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        /* Animated Background Orbs */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: float 20s infinite ease-in-out alternate;
-            z-index: 0;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--udc-primary);
-            top: -100px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 500px;
-            height: 500px;
-            background: var(--udc-secondary);
-            bottom: -150px;
-            right: -100px;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: #A4D65E;
-            top: 40%;
-            left: 30%;
-            animation-delay: -10s;
-            opacity: 0.4;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
-        }
-
-        /* Glassmorphism */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Input styling */
-        .input-field {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .input-field:focus-within {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(107, 165, 58, 0.15), 0 8px 10px -6px rgba(107, 165, 58, 0.1);
-        }
-
-        /* Animations */
-        .fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Custom Button */
-        .btn-primary {
-            background-size: 200% auto;
-            background-image: linear-gradient(to right, var(--udc-primary) 0%, var(--udc-secondary) 51%, var(--udc-primary) 100%);
-            transition: 0.5s;
-        }
-        .btn-primary:hover {
-            background-position: right center;
-            box-shadow: 0 10px 20px -5px rgba(78, 125, 36, 0.4);
-            transform: translateY(-2px);
-        }
-    </style>
 </head>
-<body class="min-h-screen relative overflow-hidden flex items-center justify-center selection:bg-[#6BA53A] selection:text-white">
+<body class="login-page min-h-screen relative overflow-hidden flex items-center justify-center selection:bg-[#6BA53A] selection:text-white">
 
     <!-- Animated Background -->
     <div class="absolute inset-0 z-0 overflow-hidden bg-[#f1f5f9]">
@@ -153,7 +42,7 @@
                         </span>
                     </h2>
 
-                    <p class="text-gray-600 text-lg max-w-lg mb-10 fade-in-up delay-200 leading-relaxed font-light">
+                    <p class="text-gray-600 text-lg max-w-lg mb-10 fade-in-up delay-200 leading-relaxed font-light text-justify">
                         Una plataforma moderna diseñada para optimizar y dar seguimiento al desarrollo profesional de nuestros estudiantes en el sector laboral.
                     </p>                    
                 </div>
