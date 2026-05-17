@@ -82,4 +82,29 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         if (auth()->user()->rol_id != 4) return redirect('/');
         return view('empresa.dashboard');
     })->name('empresa.dashboard');
+
+    Route::get('/empresa/proyectos', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.proyectos');
+    })->name('empresa.proyectos');
+
+    Route::get('/empresa/solicitudes', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.solicitudes');
+    })->name('empresa.solicitudes');
+
+    Route::get('/empresa/reportes', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.reportes');
+    })->name('empresa.reportes');
+
+    Route::get('/empresa/convenios', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.convenios');
+    })->name('empresa.convenios');
+
+    Route::get('/empresa/perfil', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.perfil');
+    })->name('empresa.perfil');
 });
