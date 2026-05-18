@@ -43,6 +43,36 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('coordinador.dashboard');
     })->name('coordinador.dashboard');
 
+    Route::get('/coordinador/instituciones', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.instituciones');
+    })->name('coordinador.instituciones');
+
+    Route::get('/coordinador/alumnos', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.alumnos');
+    })->name('coordinador.alumnos');
+
+    Route::get('/coordinador/proyectos', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.proyectos');
+    })->name('coordinador.proyectos');
+
+    Route::get('/coordinador/tramites', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.tramites');
+    })->name('coordinador.tramites');
+
+    Route::get('/coordinador/informes', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.informes');
+    })->name('coordinador.informes');
+
+    Route::get('/coordinador/perfil', function () {
+        if (auth()->user()->rol_id != 2) return redirect('/');
+        return view('coordinador.perfil');
+    })->name('coordinador.perfil');
+
     Route::get('/estudiante/dashboard', function () {
         if (auth()->user()->rol_id != 3) return redirect('/');
         return view('estudiante.dashboard');
@@ -52,4 +82,29 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         if (auth()->user()->rol_id != 4) return redirect('/');
         return view('empresa.dashboard');
     })->name('empresa.dashboard');
+
+    Route::get('/empresa/proyectos', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.proyectos');
+    })->name('empresa.proyectos');
+
+    Route::get('/empresa/solicitudes', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.solicitudes');
+    })->name('empresa.solicitudes');
+
+    Route::get('/empresa/reportes', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.reportes');
+    })->name('empresa.reportes');
+
+    Route::get('/empresa/convenios', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.convenios');
+    })->name('empresa.convenios');
+
+    Route::get('/empresa/perfil', function () {
+        if (auth()->user()->rol_id != 4) return redirect('/');
+        return view('empresa.perfil');
+    })->name('empresa.perfil');
 });
