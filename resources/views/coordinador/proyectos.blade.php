@@ -13,6 +13,8 @@
         </button>
     </div>
 
+    <!-- Table & Filters -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 border-t-4 border-[#6BA53A]">
     <!-- Filters & Search -->
     <div class="glass-card rounded-2xl p-4 mb-6">
         <div class="relative w-full">

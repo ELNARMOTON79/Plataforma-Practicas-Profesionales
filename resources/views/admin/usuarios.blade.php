@@ -11,33 +11,33 @@
         </x-slot>
     </x-page-header>
 
-    <!-- Filters & Search -->
-    <div class="glass-card rounded-2xl p-4 fade-in-up delay-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div class="relative w-full sm:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <!-- Users Table & Filters -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
+        <!-- Filters & Search -->
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
+            <div class="relative w-full sm:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors" placeholder="Buscar por nombre, correo o matrícula...">
             </div>
-            <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors" placeholder="Buscar por nombre, correo o matrícula...">
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                    <option value="">Todos los Roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="coordinador">Coordinador</option>
+                    <option value="empresa">Empresa</option>
+                    <option value="alumno">Alumno</option>
+                </select>
+                <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                    <option value="">Estado</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
         </div>
-        
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-            <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                <option value="">Todos los Roles</option>
-                <option value="admin">Administrador</option>
-                <option value="coordinador">Coordinador</option>
-                <option value="empresa">Empresa</option>
-                <option value="alumno">Alumno</option>
-            </select>
-            <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                <option value="">Estado</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-        </div>
-    </div>
 
-    <!-- Users Table -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/50">
