@@ -1,0 +1,1 @@
+Applying changes to reporte and mi_perfil to standardize avatar and dropdown.
