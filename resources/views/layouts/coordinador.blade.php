@@ -14,8 +14,8 @@
 
     <!-- Animated Background -->
     <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div class="orb orb-1 opacity-40"></div>
-        <div class="orb orb-2 opacity-40"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
         <!-- Grid Pattern Overlay -->
         <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wMikiLz48L3N2Zz4=')] opacity-50"></div>
     </div>
@@ -23,7 +23,7 @@
     @include('coordinador.navbar', ['active' => $active ?? ''])
 
     <!-- Main Content -->
-    <main class="relative z-10 flex-1 max-w-[1400px] w-full mx-auto py-10 px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
+    <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto py-10 px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
         @yield('content')
     </main>
 

@@ -1,49 +1,75 @@
-<!-- Top Header -->
-<header class="bg-[#2E5417] text-white px-6 py-3 flex justify-between items-center border-b border-white/10 shadow-md z-20 relative">
-    <!-- Logo -->
-    <div class="flex items-center">
-        <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-12 w-auto object-contain brightness-0 invert">
+<!-- Navigation -->
+<nav class="relative z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm sticky top-0">
+    <!-- Top Bar: Logo & Profile -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100/50">
+        <div class="flex justify-between h-16 items-center">
+            <!-- Left Logo -->
+            <div class="flex items-center shrink-0">
+                <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-10 w-auto object-contain transition-transform hover:scale-105 duration-300">
+                <div class="ml-3 flex flex-col justify-center">
+                    <span class="text-lg font-extrabold text-gray-900 leading-none whitespace-nowrap">Control de Prácticas</span>
+                    <span class="text-[10px] font-bold text-[#4E7D24] uppercase tracking-wider mt-0.5">Coordinación</span>
+                </div>
+            </div>
+            
+            <!-- Right Info & Actions -->
+            <div class="flex items-center gap-4 shrink-0">
+                <!-- User Label (Desktop) -->
+                <div class="hidden md:flex flex-col items-end">
+                    <span class="text-xs font-bold text-gray-900 leading-none">{{ auth()->user()->correo ?? 'Coordinador' }}</span>
+                    <span class="text-[10px] font-medium text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mt-1">Coordinador de Prácticas</span>
+                </div>
+                
+                <!-- Avatar Circular Badge -->
+                <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] p-[2px] shadow-sm">
+                    <div class="h-full w-full rounded-full bg-white flex items-center justify-center">
+                        <svg class="w-4.5 h-4.5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                
+                <!-- Logout Button -->
+                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                    @csrf
+                    <button type="submit" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Cerrar Sesión">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
     
-    <!-- Right Icons -->
-    <div class="flex items-center gap-6">
-        <!-- Notificaciones -->
-        <button class="relative hover:opacity-80 transition">
-            <svg class="w-6 h-6 text-[#A4D65E]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">1</span>
-        </button>
-
-        <!-- Perfil Badge -->
-        <div class="flex items-center bg-[#6BA53A] rounded-full px-3 py-1.5 gap-2 shadow-inner border border-[#4E7D24]/50">
-            <div class="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center bg-white/20">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+    <!-- Bottom Bar: Navigation Links (Desktop) -->
+    <div class="hidden xl:block bg-white/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center h-12 gap-1 py-1">
+                <a href="{{ Route::has('coordinador.dashboard') ? route('coordinador.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Inicio</a>
+                <a href="{{ Route::has('coordinador.instituciones') ? route('coordinador.instituciones') : '#' }}" class="{{ (isset($active) && $active === 'instituciones') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Instituciones</a>
+                <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="{{ (isset($active) && $active === 'alumnos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Alumnos</a>
+                <a href="{{ Route::has('coordinador.proyectos') ? route('coordinador.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Proyectos</a>
+                <a href="{{ Route::has('coordinador.tramites') ? route('coordinador.tramites') : '#' }}" class="{{ (isset($active) && $active === 'tramites') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Trámites</a>
+                <a href="#" class="{{ (isset($active) && $active === 'seguimiento') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Seguimiento</a>
+                <a href="{{ Route::has('coordinador.informes') ? route('coordinador.informes') : '#' }}" class="{{ (isset($active) && $active === 'informes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Informes</a>
+                <a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Mi Perfil</a>
             </div>
-            <span class="text-sm font-semibold text-white drop-shadow-sm">{{ auth()->user()->correo ?? 'Coordinador' }}</span>
         </div>
-
-        <!-- Cerrar Sesión -->
-        <form method="POST" action="{{ route('logout') }}" class="m-0">
-            @csrf
-            <button type="submit" class="text-sm font-medium border border-[#6BA53A] text-[#A4D65E] rounded-full px-5 py-2 hover:bg-[#6BA53A] hover:text-white transition-colors">
-                Cerrar Sesión
-            </button>
-        </form>
     </div>
-</header>
-
-<!-- Sub Navigation -->
-<nav class="bg-[#2E5417] px-6 py-3 shadow-md relative z-10">
-    <ul class="flex flex-wrap items-center gap-2 text-sm font-medium text-white/90">
-        <li>
-            <a href="{{ Route::has('coordinador.dashboard') ? route('coordinador.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Inicio</a>
-        </li>
-        <li><a href="{{ Route::has('coordinador.instituciones') ? route('coordinador.instituciones') : '#' }}" class="{{ (isset($active) && $active === 'instituciones') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Instituciones</a></li>
-        <li><a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="{{ (isset($active) && $active === 'alumnos') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Alumnos</a></li>
-        <li><a href="{{ Route::has('coordinador.proyectos') ? route('coordinador.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Proyectos</a></li>
-        <li><a href="{{ Route::has('coordinador.tramites') ? route('coordinador.tramites') : '#' }}" class="{{ (isset($active) && $active === 'tramites') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Trámites</a></li>
-        <li><a href="#" class="{{ (isset($active) && $active === 'responsables') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Responsables</a></li>
-        <li><a href="#" class="{{ (isset($active) && $active === 'seguimiento') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Seguimiento</a></li>
-        <li><a href="{{ Route::has('coordinador.informes') ? route('coordinador.informes') : '#' }}" class="{{ (isset($active) && $active === 'informes') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Informes</a></li>
-        <li><a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'bg-[#6BA53A] text-white px-5 py-2 rounded-md transition shadow-sm border border-[#4E7D24]/50' : 'px-4 py-2 rounded-md hover:bg-white/10 transition' }}">Mi Perfil</a></li>
-    </ul>
+    
+    <!-- Mobile/Tablet Navigation Scroll (Visible only on screens smaller than xl) -->
+    <div class="xl:hidden border-t border-gray-100 bg-white/95 py-2 overflow-x-auto whitespace-nowrap scrollbar-none flex items-center px-4 gap-2">
+        <a href="{{ Route::has('coordinador.dashboard') ? route('coordinador.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Inicio</a>
+        <a href="{{ Route::has('coordinador.instituciones') ? route('coordinador.instituciones') : '#' }}" class="{{ (isset($active) && $active === 'instituciones') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Instituciones</a>
+        <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="{{ (isset($active) && $active === 'alumnos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Alumnos</a>
+        <a href="{{ Route::has('coordinador.proyectos') ? route('coordinador.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Proyectos</a>
+        <a href="{{ Route::has('coordinador.tramites') ? route('coordinador.tramites') : '#' }}" class="{{ (isset($active) && $active === 'tramites') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Trámites</a>
+        <a href="#" class="{{ (isset($active) && $active === 'responsables') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Responsables</a>
+        <a href="#" class="{{ (isset($active) && $active === 'seguimiento') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Seguimiento</a>
+        <a href="{{ Route::has('coordinador.informes') ? route('coordinador.informes') : '#' }}" class="{{ (isset($active) && $active === 'informes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Informes</a>
+        <a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Mi Perfil</a>
+    </div>
 </nav>
