@@ -75,6 +75,16 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('estudiante.dashboard');
     })->name('estudiante.dashboard');
 
+    Route::get('/estudiante/convenios', function () {
+        if (auth()->user()->rol_id != 3) return redirect('/');
+        return view('estudiante.convenios');
+    })->name('estudiante.convenios');
+
+    Route::get('/estudiante/proyecto', function () {
+        if (auth()->user()->rol_id != 3) return redirect('/');
+        return view('estudiante.proyecto');
+    })->name('estudiante.proyecto');
+
     Route::get('/empresa/dashboard', function () {
         if (auth()->user()->rol_id != 4) return redirect('/');
         return view('empresa.dashboard');
