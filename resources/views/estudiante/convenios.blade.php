@@ -309,7 +309,7 @@
                 if (matchesSearch && matchesSector && matchesStatus) {
                     card.style.display = 'flex';
                 } else {
-                    card.style.style = 'none'; // Fallback
+                    card.style.display = 'none';
                     card.style.setProperty('display', 'none', 'important');
                 }
             }

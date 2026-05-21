@@ -1,236 +1,412 @@
 @extends('layouts.estudiante', ['title' => 'Mi Proyecto de Prácticas - Prácticas Profesionales UdeC', 'active' => 'proyecto'])
 
 @section('content')
-    <!-- Page Header -->
-    <x-page-header title="Seguimiento de Proyecto" description="Monitorea tus horas acumuladas, registra tus actividades y gestiona la documentación de tus prácticas profesionales."></x-page-header>
-
-    <!-- Simulated Notifications -->
+    <!-- Simulated Notifications Toast -->
     <div id="projectSuccessToast" class="hidden fixed top-5 right-5 z-[100] bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-xl max-w-md fade-in-up flex items-start gap-3">
         <div class="p-1 bg-green-100 text-green-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
         <div>
             <h4 class="font-bold text-green-950 text-sm" id="toastTitle">¡Operación Exitosa!</h4>
-            <p class="text-xs text-green-900/90 mt-0.5" id="toastMessage">El documento se ha cargado correctamente para su validación.</p>
+            <p class="text-xs text-green-900/90 mt-0.5" id="toastMessage">Cambios aplicados correctamente en tu proyecto.</p>
         </div>
         <button onclick="document.getElementById('projectSuccessToast').classList.add('hidden')" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
     </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+    <!-- Top Hero Banner (Ancho Completo) -->
+    <div class="glass-card rounded-3xl p-8 relative overflow-hidden bg-gradient-to-r from-white via-white to-[#6BA53A]/5 border border-[#6BA53A]/25 fade-in-up">
+        <div class="absolute -right-10 -top-10 w-44 h-44 bg-[#4E7D24] rounded-full mix-blend-multiply filter blur-2xl opacity-10"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-[10px] font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-2.5 py-0.5 rounded-md border border-[#6BA53A]/20">Fase de Desarrollo</span>
+                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-750 border border-yellow-150">
+                        <span class="relative flex h-1.5 w-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-yellow-500"></span>
+                        </span>
+                        En Curso
+                    </span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">Desarrollo de App Móvil</h1>
+                <p class="text-sm font-bold text-gray-500 mt-1">Tech Solutions de Colima S.A. de C.V.</p>
+            </div>
+
+            <!-- Global Stats Columns inside Hero -->
+            <div class="grid grid-cols-3 gap-6 lg:gap-12 border-t lg:border-t-0 lg:border-l border-gray-200/65 pt-6 lg:pt-0 lg:pl-12">
+                <div>
+                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Horas Totales</span>
+                    <span class="text-2xl font-extrabold text-gray-900 flex items-baseline gap-1">
+                        <span id="heroHoursLabel">120</span>
+                        <span class="text-xs font-semibold text-gray-450">/ 360 h</span>
+                    </span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Días Transcurridos</span>
+                    <span class="text-2xl font-extrabold text-gray-900 flex items-baseline gap-1">
+                        30
+                        <span class="text-xs font-semibold text-gray-450">/ 120 d</span>
+                    </span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expediente</span>
+                    <span class="text-2xl font-extrabold text-[#4E7D24] flex items-baseline gap-1" id="heroDocsLabel">
+                        2
+                        <span class="text-xs font-semibold text-gray-450">/ 6 docs</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Two-Column Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        <!-- Left: Project Info & Progress (1 Column) -->
-        <div class="lg:col-span-1 flex flex-col gap-6">
+        <!-- Left: Objectives, Bitácora & Phases (2 Columns) -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
             
-            <!-- Project Details Card -->
-            <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-white to-[#6BA53A]/5 border border-[#6BA53A]/10 fade-in-up delay-100">
-                <span class="inline-block text-[10px] font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mb-3">Proyecto Activo</span>
-                <h3 class="text-xl font-bold text-gray-900 mb-1">Desarrollo de App Móvil</h3>
-                <p class="text-sm font-bold text-[#4E7D24] mb-4">Tech Solutions S.A.</p>
+            <!-- Objective and Activities -->
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Objetivo y Actividades a Realizar
+                </h3>
                 
-                <div class="border-t border-gray-150/50 pt-4 space-y-3.5 text-xs text-gray-700 font-medium">
+                <div class="space-y-4">
                     <div>
-                        <span class="block text-gray-400 font-bold mb-0.5">Asesor Externo</span>
-                        <span class="text-sm font-bold text-gray-900">Ing. Roberto Medina</span>
-                        <span class="block text-gray-500 mt-0.5">rmedina@techsolutions.com</span>
+                        <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Objetivo General</span>
+                        <p class="text-xs text-gray-700 leading-relaxed font-medium bg-gray-50/50 p-3.5 rounded-2xl border border-gray-150/40">
+                            Diseñar y desarrollar una aplicación móvil híbrida (iOS y Android) para el control y seguimiento interno del inventario de hardware y licencias de software, facilitando la asignación eficiente de recursos tecnológicos.
+                        </p>
                     </div>
-                    <div>
-                        <span class="block text-gray-400 font-bold mb-0.5">Departamento / Área</span>
-                        <span>Departamento de Desarrollo e Innovación</span>
-                    </div>
-                    <div>
-                        <span class="block text-gray-400 font-bold mb-0.5">Periodo</span>
-                        <span>12 de Abril, 2026 - 12 de Agosto, 2026</span>
-                    </div>
-                    <div>
-                        <span class="block text-gray-400 font-bold mb-0.5">Horario Pactado</span>
-                        <span>Lunes a Viernes, 08:00 AM - 01:00 PM</span>
+                    
+                    <div class="border-t border-gray-100 pt-3">
+                        <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">Actividades Autorizadas</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700 font-semibold">
+                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
+                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
+                                <span>Levantamiento de requerimientos</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
+                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
+                                <span>Diseño UX/UI de vistas móviles</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
+                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
+                                <span>Modelado y creación de BD y API</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-[#6BA53A]/20 bg-[#6BA53A]/5">
+                                <input type="checkbox" disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
+                                <span class="text-[#4E7D24]">Programación móvil (Flutter)</span>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
+                                <input type="checkbox" disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
+                                <span>Ejecución de pruebas y QA</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Hours Progress & Simulator Card -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-200">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Seguimiento de Horas
+            <!-- Bitácora de Horas e Actividades -->
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-150">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Bitácora y Reporte de Horas
+                    </span>
+                    <button onclick="toggleBitacoraForm()" id="btnToggleBitacora" class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-1.5 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all flex items-center gap-1 shadow-sm">
+                        Registrar Actividades
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
                 </h3>
-                
-                <div class="bg-white/60 border border-gray-100 rounded-2xl p-5 mb-5 flex flex-col items-center justify-center text-center shadow-inner">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Avance de Horas</span>
-                    <div class="flex items-baseline gap-1 mb-2">
-                        <span class="text-4xl font-extrabold text-gray-900" id="currentHoursVal">120</span>
-                        <span class="text-sm font-medium text-gray-500">/ 360 horas</span>
+
+                <!-- Simulated Form (Hidden by default, expandable) -->
+                <div id="bitacoraFormContainer" class="hidden bg-gray-50 border border-gray-150/50 rounded-2xl p-5 mb-5 space-y-4 fade-in-up">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Añadir Actividad a Bitácora</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="bitacoraDesc" class="block text-[11px] font-bold text-gray-400 mb-1">Descripción de la Tarea</label>
+                            <input type="text" id="bitacoraDesc" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] font-semibold" placeholder="Ej. Diseño de UI para la pantalla de Login...">
+                        </div>
+                        <div>
+                            <label for="bitacoraHours" class="block text-[11px] font-bold text-gray-400 mb-1">Horas Dedicadas</label>
+                            <input type="number" id="bitacoraHours" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] font-bold text-center" value="10" min="1" max="60">
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full" id="hoursPercentageVal">33.3% Completado</span>
-                    
-                    <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100 mt-4">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500" id="hoursProgressBar" style="width: 33.3%"></div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button onclick="toggleBitacoraForm()" class="bg-white border border-gray-200 text-gray-550 text-xs font-bold px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">Cancelar</button>
+                        <button onclick="addBitacoraEntry()" class="bg-[#4E7D24] text-white text-xs font-bold px-5 py-2 rounded-xl hover:bg-[#3A5D1B] transition-all shadow-sm">Guardar Registro</button>
                     </div>
                 </div>
 
-                <!-- Hours Simulator -->
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2.5">Simulador: Registrar Horas</h4>
-                    <div class="flex gap-2">
-                        <input type="number" id="inputHoursSim" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] placeholder-gray-400 font-bold" value="10" min="1" max="100">
-                        <button onclick="simulateAddHours()" class="bg-[#4E7D24] hover:bg-[#3A5D1B] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md">Registrar</button>
+                <!-- Bitacora Table Logs -->
+                <div class="overflow-hidden bg-white/60 border border-gray-100 rounded-2xl shadow-inner">
+                    <table class="min-w-full divide-y divide-gray-200" id="bitacoraTable">
+                        <thead class="bg-gray-50/50">
+                            <tr>
+                                <th scope="col" class="px-5 py-3 text-left text-[10px] font-bold text-gray-450 uppercase tracking-wider">Fecha / Periodo</th>
+                                <th scope="col" class="px-5 py-3 text-left text-[10px] font-bold text-gray-450 uppercase tracking-wider">Actividades Reportadas</th>
+                                <th scope="col" class="px-5 py-3 text-center text-[10px] font-bold text-gray-450 uppercase tracking-wider">Horas</th>
+                                <th scope="col" class="px-5 py-3 text-center text-[10px] font-bold text-gray-450 uppercase tracking-wider">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-transparent divide-y divide-gray-155" id="bitacoraBody">
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 4 (Reciente)</td>
+                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Creación de base de datos relacional en PostgreSQL e integración de llaves foráneas.</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">30 h</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center">
+                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 3</td>
+                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Diseño de prototipo de interfaces de usuario para app móvil en Figma.</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">30 h</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center">
+                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 2</td>
+                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Levantamiento de requerimientos y juntas de análisis de la lógica del sistema.</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">35 h</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center">
+                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 1</td>
+                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Inducción a la empresa y capacitación sobre lineamientos internos del departamento.</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">25 h</td>
+                                <td class="px-5 py-3 whitespace-nowrap text-center">
+                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Right Column: Visual Hours Wheel & Technical Info (1 Column) -->
+        <div class="flex flex-col gap-6">
+            
+            <!-- Circular Progress Ring (Anillo Circular) -->
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-250 flex flex-col items-center justify-center text-center">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6 w-full text-left">Porcentaje de Avance</h3>
+                
+                <!-- Circular Chart SVG -->
+                <div class="relative w-40 h-40 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-95" viewBox="0 0 100 100">
+                        <!-- Background Circle -->
+                        <circle class="text-gray-100" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                        <!-- Foreground Circle -->
+                        <circle class="text-blue-500 transition-all duration-700 ease-out" id="circularProgressRing" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="167.4" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                    </svg>
+                    
+                    <!-- Center Labels -->
+                    <div class="absolute flex flex-col items-center justify-center">
+                        <span class="text-3xl font-extrabold text-gray-900" id="circularHoursText">120 h</span>
+                        <span class="text-[10px] text-gray-450 font-bold uppercase tracking-wider mt-0.5">de 360 totales</span>
                     </div>
-                    <span class="text-[10px] text-gray-400 font-medium block mt-1.5">Suma horas simuladas para probar cómo avanza la barra de progreso.</span>
+                </div>
+
+                <div class="mt-6 w-full bg-blue-50/50 rounded-2xl p-4 border border-blue-100/50">
+                    <span class="block text-xs font-bold text-blue-900 mb-0.5" id="circularPercentageText">33.3% Completado</span>
+                    <span class="text-[11px] text-blue-800/80 font-medium" id="circularHoursRemaining">Faltan 240 horas para acreditar tus prácticas.</span>
+                </div>
+            </div>
+
+            <!-- Ficha Técnica del Convenio y Asesor -->
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-300">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Información del Asesor</h3>
+                
+                <div class="flex items-center gap-3.5 mb-5 pb-5 border-b border-gray-150/50">
+                    <div class="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 shadow-sm border border-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <div>
+                        <span class="block text-sm font-extrabold text-gray-900">Ing. Roberto Medina</span>
+                        <span class="block text-xs text-gray-500 font-semibold mt-0.5">Asesor de Desarrollo, Tech Solutions</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-xs text-gray-700 font-semibold mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400 font-bold">Correo:</span>
+                        <a href="mailto:rmedina@techsolutions.com" class="text-[#4E7D24] hover:underline">rmedina@techsolutions.com</a>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400 font-bold">Departamento:</span>
+                        <span class="text-gray-900">Desarrollo e Innovación</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400 font-bold">Horas Diarias:</span>
+                        <span class="text-gray-900">5 horas diarias</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400 font-bold">Horario:</span>
+                        <span class="text-gray-900">08:00 AM - 01:00 PM</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <a href="mailto:rmedina@techsolutions.com" class="w-full text-center py-3 bg-[#4E7D24] hover:bg-[#3A5D1B] text-white text-xs font-bold rounded-xl transition-all shadow-md">Redactar Correo</a>
+                    <a href="mailto:aramos@ucol.mx" class="w-full text-center py-3 border border-gray-200 hover:bg-gray-55 text-gray-750 text-xs font-bold rounded-xl transition-colors shadow-sm">Reportar con Coordinador</a>
                 </div>
             </div>
 
         </div>
+    </div>
 
-        <!-- Right: Documents Management (2 Columns) -->
-        <div class="lg:col-span-2 flex flex-col gap-6">
+    <!-- Phase-based Digital Folder (Timeline) - Full Width below Grid -->
+    <div class="glass-card rounded-3xl p-6 fade-in-up delay-350">
+        <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Expediente Digital por Fases del Trámite
+        </h3>
+
+        <!-- Phase Groups in 3 Columns on Widescreen -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
             
-            <!-- Documents List Card -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-150 flex-1 flex flex-col">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Manejador de Expediente Digital
-                    </h3>
-                    <span class="text-xs text-gray-500 font-medium bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-1">6 documentos en total</span>
+            <!-- Phase 1: Fase Inicial -->
+            <div class="relative pl-6 border-l-2 border-green-400 flex flex-col gap-4">
+                <!-- Bullet Indicator -->
+                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
+                
+                <h4 class="text-xs font-extrabold text-green-800 uppercase tracking-widest mb-1">Fase Inicial (Apertura)</h4>
+                
+                <!-- Doc 1 -->
+                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex justify-between items-center hover:border-green-300 transition-colors shadow-sm" id="docRow-1">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-green-50 text-green-600 rounded-xl">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-extrabold text-gray-900">Carta de Presentación</h5>
+                            <span class="inline-block text-[9px] font-bold text-green-700 bg-green-50/50 px-2 py-0.5 rounded mt-1">Aprobado</span>
+                        </div>
+                    </div>
+                    <button onclick="simulateViewPdf('Carta de Presentación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 p-2 rounded-xl transition-all" title="Ver Documento">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </button>
                 </div>
 
-                <div class="space-y-4" id="documentsList">
-                    
-                    <!-- Doc 1: Carta de Presentación (Aprobado) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-gray-100 hover:border-green-200/50 transition-colors gap-4" id="docRow-1">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-green-50 text-green-600 rounded-xl">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <!-- Doc 2 -->
+                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex justify-between items-center hover:border-green-300 transition-colors shadow-sm" id="docRow-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-green-50 text-green-600 rounded-xl">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-extrabold text-gray-900">Carta de Aceptación</h5>
+                            <span class="inline-block text-[9px] font-bold text-green-700 bg-green-50/50 px-2 py-0.5 rounded mt-1">Aprobado</span>
+                        </div>
+                    </div>
+                    <button onclick="simulateViewPdf('Carta de Aceptación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 p-2 rounded-xl transition-all" title="Ver Documento">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Phase 2: Fase de Avance -->
+            <div class="relative pl-6 border-l-2 border-yellow-450 flex flex-col gap-4">
+                <!-- Bullet Indicator -->
+                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-yellow-500 rounded-full border-4 border-white shadow-md"></div>
+                
+                <h4 class="text-xs font-extrabold text-yellow-800 uppercase tracking-widest mb-1">Fase de Avance (Ejecución)</h4>
+                
+                <!-- Doc 3 (Plan de Trabajo - Rechazado) -->
+                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-red-300 transition-colors shadow-sm" id="docRow-3">
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-red-50 text-red-500 rounded-xl" id="docIconContainer-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-900 text-sm">1. Carta de Presentación</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Expedida por el coordinador para solicitar formalmente tu espacio.</p>
-                                <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 mt-1.5 border border-green-150">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aprobado
-                                </span>
+                                <h5 class="text-xs font-extrabold text-gray-900">Plan de Trabajo</h5>
+                                <span class="inline-block text-[9px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded mt-1 border border-red-100" id="docBadge-3">Rechazado</span>
                             </div>
                         </div>
-                        <button onclick="simulateViewPdf('Carta de Presentación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                            Ver PDF
+                        <button onclick="simulateViewPdf('Plan de Trabajo', 'Rechazado')" class="text-gray-400 hover:text-gray-700 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
                     </div>
+                    <p class="text-[10px] text-red-500 font-bold mb-3.5 p-2 bg-red-50/50 rounded-xl border border-red-100/50">Motivo: Error en firmas del asesor de empresa.</p>
+                    <div id="docActions-3">
+                        <button onclick="openUploadModal(3, 'Plan de Trabajo')" class="w-full text-center py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-sm">Reemplazar Archivo</button>
+                    </div>
+                </div>
 
-                    <!-- Doc 2: Carta de Aceptación (Aprobado) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-gray-100 hover:border-green-200/50 transition-colors gap-4" id="docRow-2">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-green-50 text-green-600 rounded-xl">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <!-- Doc 4 (Memoria - En revisión) -->
+                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors shadow-sm" id="docRow-4">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-yellow-50 text-yellow-600 rounded-xl" id="docIconContainer-4">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-900 text-sm">2. Carta de Aceptación</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Expedida por la empresa, acreditando que has sido seleccionado.</p>
-                                <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 mt-1.5 border border-green-150">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aprobado
-                                </span>
+                                <h5 class="text-xs font-extrabold text-gray-900">Memoria de Prácticas</h5>
+                                <span class="inline-block text-[9px] font-bold text-yellow-750 bg-yellow-50 px-2 py-0.5 rounded mt-1 border border-yellow-100" id="docBadge-4">En Revisión</span>
                             </div>
                         </div>
-                        <button onclick="simulateViewPdf('Carta de Aceptación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                            Ver PDF
+                        <button onclick="simulateViewPdf('Memoria de Prácticas', 'En Revisión')" class="text-gray-400 hover:text-gray-700 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
                     </div>
+                    <div id="docActions-4">
+                        <button onclick="openUploadModal(4, 'Memoria de Prácticas')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-55 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Doc 3: Plan de Trabajo (Rechazado) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-gray-100 hover:border-red-200/50 transition-colors gap-4" id="docRow-3">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-red-50 text-red-600 rounded-xl">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <!-- Phase 3: Fase Final -->
+            <div class="relative pl-6 border-l-2 border-gray-300 flex flex-col gap-4">
+                <!-- Bullet Indicator -->
+                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-gray-300 rounded-full border-4 border-white shadow-md" id="docBullet-5"></div>
+                
+                <h4 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-1">Fase Final (Cierre y Acreditación)</h4>
+                
+                <!-- Doc 5 (Evaluación - Sin subir) -->
+                <div class="bg-white/60 border border-dashed border-gray-250 rounded-2xl p-4 flex flex-col justify-between hover:border-[#6BA53A]/45 transition-colors shadow-sm" id="docRow-5">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-900 text-sm">3. Plan de Trabajo</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Cronograma detallado con las actividades que realizarás.</p>
-                                <div class="flex flex-col gap-1 items-start mt-1.5">
-                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-red-50 text-red-700 border border-red-150">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Rechazado
-                                    </span>
-                                    <p class="text-[11px] text-red-500 font-semibold bg-red-50/50 px-2 py-1 rounded-lg mt-1 border border-red-100/50">Motivo: Error en firmas. Faltó la firma del asesor externo.</p>
-                                </div>
+                                <h5 class="text-xs font-extrabold text-gray-900">Evaluación de Desempeño</h5>
+                                <span class="inline-block text-[9px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded mt-1 border border-gray-200" id="docBadge-5">Sin Subir</span>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="simulateViewPdf('Plan de Trabajo', 'Rechazado')" class="text-gray-500 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Ver</button>
-                            <button onclick="openUploadModal(3, 'Plan de Trabajo')" class="bg-gray-900 text-white hover:bg-black px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Reemplazar
-                            </button>
-                        </div>
                     </div>
+                    <div id="docActions-5">
+                        <button onclick="openUploadModal(5, 'Evaluación de Desempeño')" class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">Subir Archivo</button>
+                    </div>
+                </div>
 
-                    <!-- Doc 4: Memoria de Prácticas (En revisión / Pendiente) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-gray-100 hover:border-yellow-200/50 transition-colors gap-4" id="docRow-4">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-yellow-50 text-yellow-600 rounded-xl">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <!-- Doc 6 (Carta de término - Sin subir) -->
+                <div class="bg-white/60 border border-dashed border-gray-250 rounded-2xl p-4 flex flex-col justify-between hover:border-[#6BA53A]/45 transition-colors shadow-sm" id="docRow-6">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-6">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-900 text-sm">4. Memoria de Prácticas</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Reporte académico del desarrollo de tus actividades.</p>
-                                <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-750 mt-1.5 border border-yellow-150" id="docBadge-4">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> En Revisión
-                                </span>
+                                <h5 class="text-xs font-extrabold text-gray-900">Carta de Término</h5>
+                                <span class="inline-block text-[9px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded mt-1 border border-gray-200" id="docBadge-6">Sin Subir</span>
                             </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="simulateViewPdf('Memoria de Prácticas', 'En Revisión')" class="text-gray-500 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Ver</button>
-                            <button onclick="openUploadModal(4, 'Memoria de Prácticas')" class="text-gray-900 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                                Re-subir
-                            </button>
                         </div>
                     </div>
-
-                    <!-- Doc 5: Evaluación de Desempeño (Sin Subir) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-dashed border-gray-250 hover:border-[#6BA53A]/40 transition-colors gap-4" id="docRow-5">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-5">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900 text-sm">5. Evaluación de Desempeño</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Evaluación calificada por tu asesor externo de la empresa.</p>
-                                <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 mt-1.5 border border-gray-200" id="docBadge-5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2" id="docActions-5">
-                            <button onclick="openUploadModal(5, 'Evaluación de Desempeño')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Subir Archivo
-                            </button>
-                        </div>
+                    <div id="docActions-6">
+                        <button onclick="openUploadModal(6, 'Carta de Término')" class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">Subir Archivo</button>
                     </div>
-
-                    <!-- Doc 6: Carta de Término (Sin Subir) -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-dashed border-gray-250 hover:border-[#6BA53A]/40 transition-colors gap-4" id="docRow-6">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900 text-sm">6. Carta de Término</h4>
-                                <p class="text-xs text-gray-500 font-medium mt-0.5">Expedida por la empresa para validar la conclusión formal del periodo.</p>
-                                <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 mt-1.5 border border-gray-200" id="docBadge-6">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2" id="docActions-6">
-                            <button onclick="openUploadModal(6, 'Carta de Término')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Subir Archivo
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
@@ -240,7 +416,7 @@
     <!-- Upload Document Modal (Simulated overlay) -->
     <div id="uploadModal" class="hidden fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-md w-full overflow-hidden fade-in-up">
-            <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-5 text-white flex justify-between items-center">
+            <div class="bg-gradient-to-r from-gray-950 to-gray-850 p-5 text-white flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Subir Documento</h3>
                     <p class="text-xs text-gray-300 mt-0.5" id="uploadModalDocName">Cargando...</p>
@@ -262,7 +438,7 @@
             </div>
 
             <div class="p-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
-                <button onclick="closeUploadModal()" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold py-3.5 px-4 rounded-xl text-xs transition-colors shadow-sm">Cancelar</button>
+                <button onclick="closeUploadModal()" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-650 font-bold py-3.5 px-4 rounded-xl text-xs transition-colors shadow-sm">Cancelar</button>
                 <button onclick="submitUpload()" class="flex-1 bg-[#4E7D24] hover:bg-[#3A5D1B] text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md">Subir Archivo</button>
             </div>
         </div>
@@ -281,11 +457,9 @@
                 </button>
             </div>
             
-            <!-- Simulated PDF Document Content -->
             <div class="flex-1 bg-gray-100 overflow-y-auto p-8 flex flex-col items-center justify-start custom-scrollbar">
                 <div class="max-w-2xl w-full bg-white shadow-lg border border-gray-200 rounded-xl p-10 min-h-[750px] relative flex flex-col justify-between">
                     
-                    <!-- PDF Header -->
                     <div class="flex justify-between items-start border-b-2 border-gray-200 pb-5">
                         <div class="flex items-center gap-3">
                             <img src="{{ asset('images/logo_verde.png') }}" alt="Logo" class="h-14 w-auto object-contain">
@@ -301,7 +475,6 @@
                         </div>
                     </div>
 
-                    <!-- PDF Content -->
                     <div class="my-8 flex-1">
                         <h3 class="text-center font-bold text-sm text-gray-800 uppercase tracking-wider mb-6" id="pdfDocDocName">CARTA DE PRESENTACIÓN DE PRÁCTICAS</h3>
                         
@@ -327,7 +500,6 @@
                         </p>
                     </div>
 
-                    <!-- PDF Signatures -->
                     <div class="border-t border-gray-150 pt-5">
                         <div class="grid grid-cols-2 gap-8 text-center">
                             <div class="flex flex-col items-center">
@@ -339,7 +511,7 @@
                             <div class="flex flex-col items-center">
                                 <span class="text-[9px] font-bold text-gray-450 mb-12">RECIBIDO POR LA EMPRESA</span>
                                 <div class="w-32 border-b border-gray-400"></div>
-                                <span class="text-[9px] text-gray-800 font-bold mt-1" id="pdfExternalAdvisorName">Ing. Roberto Medina</span>
+                                <span class="text-[9px] text-gray-800 font-bold mt-1">Ing. Roberto Medina</span>
                                 <span class="text-[8px] text-gray-500 font-semibold">Tech Solutions S.A.</span>
                             </div>
                         </div>
@@ -356,38 +528,112 @@
 
     <!-- Client-side Interactive Logic -->
     <script>
-        // Hours Simulator
-        let currentHours = 120;
+        // Circular Progress Ring calculations
+        const maxCircleOffset = 251.2; // 2 * PI * r = 2 * PI * 40 = 251.2
         const totalHours = 360;
+        let currentHours = 120;
+        let approvedDocs = 2;
 
-        function simulateAddHours() {
-            const input = document.getElementById('inputHoursSim');
-            const added = parseInt(input.value);
+        function updateCircularProgress(newHours) {
+            currentHours = newHours;
             
-            if (isNaN(added) || added <= 0) {
-                alert('Ingresa una cantidad de horas válida mayor a 0.');
-                return;
-            }
-            
-            if (currentHours + added > totalHours) {
-                alert(`No puedes registrar más de las ${totalHours} horas totales.`);
-                return;
-            }
-            
-            currentHours += added;
-            
-            // Update HTML
-            document.getElementById('currentHoursVal').textContent = currentHours;
-            
+            // Limit hours
+            if (currentHours > totalHours) currentHours = totalHours;
+
+            // UI text update
+            document.getElementById('circularHoursText').textContent = `${currentHours} h`;
+            document.getElementById('heroHoursLabel').textContent = currentHours;
+
             const percentage = ((currentHours / totalHours) * 100).toFixed(1);
-            document.getElementById('hoursPercentageVal').textContent = `${percentage}% Completado`;
-            document.getElementById('hoursProgressBar').style.width = `${percentage}%`;
+            document.getElementById('circularPercentageText').textContent = `${percentage}% Completado`;
             
-            // Show Success toast
-            showToast('¡Horas Registradas!', `Has agregado con éxito ${added} horas a tu seguimiento de prácticas.`);
+            const remaining = totalHours - currentHours;
+            if (remaining > 0) {
+                document.getElementById('circularHoursRemaining').textContent = `Faltan ${remaining} horas para acreditar tus prácticas.`;
+            } else {
+                document.getElementById('circularHoursRemaining').textContent = `¡Felicidades! Has cubierto las 360 horas necesarias.`;
+                document.getElementById('circularHoursRemaining').className = "text-[11px] text-green-800/80 font-bold block";
+            }
+
+            // SVG offset update: percentage = 100% means stroke-dashoffset = 0.
+            // stroke-dashoffset = maxCircleOffset - (percentage / 100 * maxCircleOffset)
+            const offset = maxCircleOffset - (currentHours / totalHours * maxCircleOffset);
+            document.getElementById('circularProgressRing').setAttribute('stroke-dashoffset', offset);
         }
 
-        // Upload Modal
+        // Toggle Bitacora Form
+        function toggleBitacoraForm() {
+            const form = document.getElementById('bitacoraFormContainer');
+            const btn = document.getElementById('btnToggleBitacora');
+            
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+                btn.innerHTML = `Cerrar Bitácora <svg class="w-3.5 h-3.5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+            } else {
+                form.classList.add('hidden');
+                btn.innerHTML = `Registrar Actividades <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+            }
+        }
+
+        // Add Bitacora entry dynamically and sum hours
+        let weekCounter = 5;
+        function addBitacoraEntry() {
+            const descInput = document.getElementById('bitacoraDesc');
+            const hoursInput = document.getElementById('bitacoraHours');
+            
+            const desc = descInput.value.trim();
+            const hrs = parseInt(hoursInput.value);
+
+            if (!desc) {
+                alert('Escribe una descripción para la actividad.');
+                return;
+            }
+            if (isNaN(hrs) || hrs <= 0) {
+                alert('Ingresa una cantidad válida de horas.');
+                return;
+            }
+            if (currentHours + hrs > totalHours) {
+                alert(`No puedes registrar más de las ${totalHours} horas totales del proyecto.`);
+                return;
+            }
+
+            // Insert new row into the table body (at the top)
+            const tbody = document.getElementById('bitacoraBody');
+            const newRow = document.createElement('tr');
+            newRow.className = "hover:bg-[#6BA53A]/5 transition-colors fade-in-up";
+            newRow.innerHTML = `
+                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana ${weekCounter} (Reciente)</td>
+                <td class="px-5 py-3 text-xs font-semibold text-gray-700">${desc}</td>
+                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">${hrs} h</td>
+                <td class="px-5 py-3 whitespace-nowrap text-center">
+                    <span class="text-[9px] font-bold text-yellow-750 bg-yellow-50 border border-yellow-150 px-2 py-0.5 rounded-md">Enviado</span>
+                </td>
+            `;
+
+            // Remove the "(Reciente)" tag from the previous top row if exists
+            const prevTopRow = tbody.querySelector('tr');
+            if (prevTopRow) {
+                const dateCell = prevTopRow.querySelector('td');
+                dateCell.textContent = dateCell.textContent.replace(' (Reciente)', '');
+            }
+
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Increment week count
+            weekCounter++;
+            
+            // Update hours globally
+            updateCircularProgress(currentHours + hrs);
+
+            // Reset and close form
+            descInput.value = '';
+            hoursInput.value = '10';
+            toggleBitacoraForm();
+
+            showToast('¡Bitácora Registrada!', `Se han registrado ${hrs} horas para su validación por el asesor externo.`);
+        }
+
+        // Upload Modal handling
         let activeDocId = null;
         let activeDocName = "";
 
@@ -428,68 +674,74 @@
             
             closeUploadModal();
             
-            // Dynamically change row status of activeDocId to "En Revisión" in UI
-            const rowId = `docRow-${activeDocId}`;
             const badgeId = `docBadge-${activeDocId}`;
+            const rowId = `docRow-${activeDocId}`;
             const actionsId = `docActions-${activeDocId}`;
-            const containerId = `docIconContainer-${activeDocId}`;
+            const iconContainerId = `docIconContainer-${activeDocId}`;
             
             const badge = document.getElementById(badgeId);
             const row = document.getElementById(rowId);
-            
+            const actions = document.getElementById(actionsId);
+            const icon = document.getElementById(iconContainerId);
+
+            // Change status to "En Revisión"
             if (badge) {
-                badge.className = "inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-750 mt-1.5 border border-yellow-150";
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> En Revisión`;
+                badge.className = "inline-block text-[9px] font-bold text-yellow-750 bg-yellow-50 px-2 py-0.5 rounded mt-1 border border-yellow-100";
+                badge.textContent = "En Revisión";
             }
-            
-            // If it was "Sin Subir", change border/icon and add view button
+
             if (row.classList.contains('border-dashed')) {
-                row.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border border-gray-100 hover:border-yellow-200/50 transition-colors gap-4";
+                // If it was "Sin Subir", change border/icon and add view button
+                row.className = "bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors";
                 
-                const iconContainer = document.getElementById(containerId);
-                if (iconContainer) {
-                    iconContainer.className = "p-3 bg-yellow-50 text-yellow-600 rounded-xl";
-                    iconContainer.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                if (icon) {
+                    icon.className = "p-2 bg-yellow-50 text-yellow-600 rounded-xl";
+                    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
                 }
                 
-                const actions = document.getElementById(actionsId);
+                // Add header flex container
+                const topDiv = row.querySelector('.flex.items-center.gap-2.mb-4') || row.querySelector('.flex');
+                if (topDiv) {
+                    topDiv.className = "flex items-center justify-between gap-2 mb-4 w-full";
+                    // Append small view button
+                    const viewBtn = document.createElement('button');
+                    viewBtn.onclick = () => simulateViewPdf(activeDocName, 'En Revisión');
+                    viewBtn.className = "text-gray-400 hover:text-gray-700 transition-all";
+                    viewBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
+                    topDiv.appendChild(viewBtn);
+                }
+
                 if (actions) {
-                    actions.innerHTML = `
-                        <button onclick="simulateViewPdf('${activeDocName}', 'En Revisión')" class="text-gray-500 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Ver</button>
-                        <button onclick="openUploadModal(${activeDocId}, '${activeDocName}')" class="text-gray-900 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                            Re-subir
-                        </button>
-                    `;
+                    actions.innerHTML = `<button onclick="openUploadModal(${activeDocId}, '${activeDocName}')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>`;
                 }
             } else if (activeDocId === 3) {
-                // If it was Plan de Trabajo (Rechazado), remove rejected details and change row to En Revisión
-                const parent = row.querySelector('.flex-col');
-                if (parent) {
-                    parent.innerHTML = `
-                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-750 mt-1.5 border border-yellow-150" id="docBadge-3">
-                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> En Revisión
-                        </span>
-                    `;
-                }
-                // Change icon container color to yellow
-                const icon = row.querySelector('.bg-red-50');
+                // If it was Plan de Trabajo (Rechazado), remove the observation block and convert card
+                const obsBox = row.querySelector('p');
+                if (obsBox) obsBox.remove();
+                
                 if (icon) {
-                    icon.className = "p-3 bg-yellow-50 text-yellow-600 rounded-xl";
-                    icon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                    icon.className = "p-2 bg-yellow-50 text-yellow-600 rounded-xl";
+                    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
                 }
-                // Update actions to regular
-                const btnContainer = row.querySelector('.flex.gap-2');
-                if (btnContainer) {
-                    btnContainer.innerHTML = `
-                        <button onclick="simulateViewPdf('Plan de Trabajo', 'En Revisión')" class="text-gray-500 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Ver</button>
-                        <button onclick="openUploadModal(3, 'Plan de Trabajo')" class="text-gray-900 hover:bg-gray-100 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                            Re-subir
-                        </button>
-                    `;
+
+                row.className = "bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors shadow-sm";
+                
+                if (actions) {
+                    actions.innerHTML = `<button onclick="openUploadModal(3, 'Plan de Trabajo')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>`;
+                }
+                
+                // Update top row buttons
+                const header = row.querySelector('.flex.items-start.justify-between.gap-2.mb-3') || row.querySelector('.flex');
+                if (header) {
+                    header.className = "flex items-center justify-between gap-2 mb-4 w-full";
+                    const viewBtn = header.querySelector('button');
+                    if (viewBtn) {
+                        viewBtn.onclick = () => simulateViewPdf('Plan de Trabajo', 'En Revisión');
+                    }
                 }
             }
-            
-            showToast('¡Expediente Actualizado!', `El documento "${activeDocName}" ha sido cargado exitosamente. Ahora su estado es "En Revisión".`);
+
+            showToast('¡Expediente Actualizado!', `El documento "${activeDocName}" ha sido cargado. Su estado de validación ahora es "En Revisión".`);
         }
 
         // View PDF Modal
@@ -504,7 +756,7 @@
             document.getElementById('pdfModal').classList.add('hidden');
         }
 
-        // Toast Helpers
+        // Toast helpers
         function showToast(title, message) {
             document.getElementById('toastTitle').textContent = title;
             document.getElementById('toastMessage').textContent = message;
@@ -512,7 +764,7 @@
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 7000);
+            }, 6000);
         }
     </script>
 @endsection
