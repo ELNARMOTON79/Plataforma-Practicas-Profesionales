@@ -38,10 +38,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.usuarios');
     })->name('admin.usuarios');
 
-    Route::get('/coordinador/dashboard', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.dashboard');
-    })->name('coordinador.dashboard');
+    Route::get('/coordinador/dashboard', [App\Http\Controllers\CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
     Route::get('/coordinador/instituciones', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
