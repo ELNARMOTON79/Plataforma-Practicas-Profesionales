@@ -1,47 +1,43 @@
-<!-- Top Header -->
-<header class="bg-[#005e20] text-white px-6 py-3 flex justify-between items-center border-b border-white/10 shadow-md z-20 relative">
-    <!-- Logo -->
-    <div class="flex items-center">
-        <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-12 w-auto object-contain brightness-0 invert">
-    </div>
-    
-    <!-- Right Icons -->
-    <div class="flex items-center gap-6">
-        <!-- Notificaciones -->
-        <button class="relative hover:opacity-80 transition">
-            <svg class="w-6 h-6 text-[#C29B0C]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">1</span>
-        </button>
-
-        <!-- Perfil Badge -->
-        <div class="flex items-center bg-[#6BA53A] rounded-full px-4 py-2 gap-2 shadow-inner border border-[#4E7D24]/50">
-            <div class="w-7 h-7 rounded-full border border-gray-800 flex items-center justify-center bg-transparent">
-                <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+<!-- Navigation -->
+<nav class="relative z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20">
+            <div class="flex items-center">
+                <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-12 w-auto object-contain transition-transform hover:scale-105 duration-300">
+                <div class="ml-4 hidden sm:flex flex-col justify-center">
+                    <span class="text-xl font-extrabold text-gray-900 leading-tight">Control de Prácticas</span>
+                </div>
             </div>
-            <span class="text-sm font-semibold text-gray-900 drop-shadow-sm">{{ auth()->user()->correo ?? 'Unidad Receptora' }}</span>
+            
+            <div class="hidden lg:flex items-center space-x-1">
+                <a href="{{ route('empresa.dashboard') }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Dashboard</a>
+                <a href="{{ route('empresa.proyectos') }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Proyectos</a>
+                <a href="{{ route('empresa.solicitudes') }}" class="{{ (isset($active) && $active === 'solicitudes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Solicitudes</a>
+                <a href="{{ route('empresa.convenios') }}" class="{{ (isset($active) && $active === 'convenios') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Convenio</a>
+                <a href="{{ route('empresa.reportes') }}" class="{{ (isset($active) && $active === 'reportes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Reportes</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex flex-col items-end">
+                    <span class="text-sm font-bold text-gray-900">{{ auth()->user()->correo ?? 'Representante' }}</span>
+                    <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md mt-1 border border-blue-100">Empresa</span>
+                </div>
+                
+                <a href="{{ route('empresa.perfil') }}" title="Mi Perfil" class="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-500 to-blue-700 p-[2px] shadow-md hover:scale-105 transition-transform">
+                    <div class="h-full w-full rounded-full bg-white flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                </a>
+                
+                <div class="h-8 w-px bg-gray-200 mx-1"></div>
+                
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cerrar Sesión">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </form>
+            </div>
         </div>
-
-        <!-- Cerrar Sesión -->
-        <form method="POST" action="{{ route('logout') }}" class="m-0">
-            @csrf
-            <button type="submit" class="text-sm font-medium border border-white text-white rounded-full px-5 py-2 hover:bg-white hover:text-[#005e20] transition-colors">
-                Cerrar Sesión
-            </button>
-        </form>
     </div>
-</header>
-
-<!-- Sub Navigation -->
-<nav class="bg-[#005e20] px-6 py-3 shadow-md relative z-10">
-    <ul class="flex flex-wrap items-center gap-2 text-sm font-medium text-white/90">
-        <li>
-            <a href="{{ Route::has('empresa.dashboard') ? route('empresa.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Inicio</a>
-        </li>
-        <li><a href="{{ Route::has('empresa.proyectos') ? route('empresa.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Proyectos</a></li>
-        <li><a href="{{ Route::has('empresa.solicitudes') ? route('empresa.solicitudes') : '#' }}" class="{{ (isset($active) && $active === 'solicitudes') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Solicitudes</a></li>
-        <li><a href="{{ Route::has('empresa.convenios') ? route('empresa.convenios') : '#' }}" class="{{ (isset($active) && $active === 'convenios') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Convenios</a></li>
-        <li><a href="{{ Route::has('empresa.reportes') ? route('empresa.reportes') : '#' }}" class="{{ (isset($active) && $active === 'reportes') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Reportes</a></li>
-        <li><a href="#" class="{{ (isset($active) && $active === 'seguimiento') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Seguimiento</a></li>
-        <li><a href="{{ Route::has('empresa.perfil') ? route('empresa.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'bg-[#C29B0C] text-gray-900 px-6 py-2 rounded-md transition shadow-sm font-bold' : 'px-4 py-2 rounded-md hover:bg-white/10 transition text-white' }}">Mi Perfil</a></li>
-    </ul>
 </nav>

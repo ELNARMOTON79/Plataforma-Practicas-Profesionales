@@ -67,7 +67,7 @@
                     <form method="POST" action="{{ route('login.post') }}" class="space-y-6 fade-in-up delay-100">
                         @csrf
                         <div class="space-y-2 input-field group">
-                            <label class="text-sm font-semibold text-gray-700 ml-1">Correo Electrónico</label>
+                            <label for="correo_input" class="text-sm font-semibold text-gray-700 ml-1">Correo Electrónico</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400 group-focus-within:text-[#6BA53A] transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,6 +76,7 @@
                                 </div>
                                 <input
                                     type="email"
+                                    id="correo_input"
                                     name="correo"
                                     value="{{ old('correo') }}"
                                     placeholder="usuario@ucol.mx"
@@ -90,8 +91,8 @@
 
                         <div class="space-y-2 input-field group">
                             <div class="flex items-center justify-between ml-1">
-                                <label class="text-sm font-semibold text-gray-700">Contraseña</label>
-                                <a href="#" class="text-sm font-semibold text-[#6BA53A] hover:text-[#4E7D24] transition-colors">¿Olvidaste tu contraseña?</a>
+                                <label for="password_input" class="text-sm font-semibold text-gray-700">Contraseña</label>
+                                <a href="#" class="text-sm font-semibold text-[#4a8419] hover:text-[#4E7D24] transition-colors">¿Olvidaste tu contraseña?</a>
                             </div>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -103,12 +104,13 @@
                                     type="password"
                                     id="password_input"
                                     name="contraseña"
+                                    aria-label="Contraseña"
                                     placeholder="••••••••"
                                     class="w-full bg-gray-50/50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] block pl-11 pr-12 p-3.5 transition-all outline-none"
                                     required
                                 >
-                                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#6BA53A] focus:outline-none transition-colors duration-300">
-                                    <svg id="eyeIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <button type="button" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#6BA53A] focus:outline-none transition-colors duration-300">
+                                    <svg id="eyeIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
@@ -132,7 +134,7 @@
                     <div class="mt-8 text-center fade-in-up delay-200">
                         <p class="text-sm text-gray-500">
                             ¿Problemas para acceder? <br>
-                            <a href="#" class="font-semibold text-[#6BA53A] hover:text-[#4E7D24] transition-colors">Contacta a soporte técnico</a>
+                            <a href="#" class="font-semibold text-[#4a8419] hover:text-[#4E7D24] transition-colors">Contacta a soporte técnico</a>
                         </p>
                     </div>
                 </div>
@@ -150,7 +152,9 @@
             // toggle the type attribute
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+            togglePassword.setAttribute('aria-label', type === 'text' ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            togglePassword.setAttribute('aria-pressed', type === 'text' ? 'true' : 'false');
+
             // toggle the eye icon
             if (type === 'text') {
                 eyeIcon.innerHTML = `
