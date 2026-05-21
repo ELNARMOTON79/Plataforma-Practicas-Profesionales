@@ -7,11 +7,6 @@
         <p class="text-sm text-gray-500 mt-0.5">{{ $carrera }} — Matrícula: {{ $matricula }}</p>
     </div>
     <div class="flex items-center gap-4">
-        <a href="{{ route('estudiante.notificaciones') }}" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-colors" title="Notificaciones" aria-label="Notificaciones">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-        </a>
         <a href="{{ route('estudiante.miPerfil') }}" class="flex items-center gap-2.5 pl-2 border-l border-gray-200 text-gray-900 hover:text-gray-700 transition-colors">
             <div class="w-9 h-9 rounded-full bg-[#4E7D24] flex items-center justify-center text-white text-sm font-bold shrink-0">
                 {{ $iniciales }}
@@ -23,115 +18,129 @@
 @endsection
 
 @section('content')
-<div class="space-y-6 max-w-6xl mx-auto">
+<div class="w-full space-y-6">
+    <!-- Header / Titles -->
+    <div class="text-left px-2">
+        <h1 class="text-3xl font-extrabold text-gray-900">Nueva Solicitud de Practicas</h1>
+        <p class="text-sm text-gray-500 mt-1">Completa el formulario para registrar tu solicitud</p>
+    </div>
+
+    <!-- Main Card -->
     <div class="bg-white rounded-[32px] shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-8 py-8">
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center">
-                    <h2 class="text-2xl font-bold text-gray-900">Nueva Solicitud de Prácticas</h2>
-                    <p class="text-sm text-gray-500 mt-2">Completa el formulario para registrar tu solicitud</p>
-                </div>
+        <div class="px-8 sm:px-16 md:px-20 py-12">
+            <div class="max-w-7xl mx-auto">
+                <!-- Circular Step Progress Indicator -->
+                <div class="relative flex items-center justify-between w-full max-w-5xl mx-auto mt-4 mb-16">
+                    <!-- Line segment background -->
+                    <div class="absolute left-[16.67%] right-[16.67%] top-7 h-[2px] bg-gray-200 z-0"></div>
+                    
+                    <!-- Line segment active (Paso 1 to Paso 2 is active, so progress line is 50% active) -->
+                    <div class="absolute left-[16.67%] top-7 h-[2px] bg-[#8cc772] z-0 transition-all duration-300" style="width: 50%;"></div>
 
-                <div class="mt-10 grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-4">
-                    <div class="rounded-3xl border border-gray-200 p-5 text-center bg-[#e8f7e9]">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#def1d8] text-[#4E7D24] mb-3">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    <!-- Step 1 (Completed) -->
+                    <div class="relative z-10 flex flex-col items-center w-1/3">
+                        <div class="flex items-center justify-center w-14 h-14 rounded-full border-2 border-[#8cc772] bg-white text-[#4E7D24] shadow-sm transition-all duration-200">
+                            <!-- Ícono de Checkmark -->
+                            <svg class="w-6 h-6 text-[#6BA53A]" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p class="text-sm font-semibold text-[#4E7D24]">Información de la Empresa</p>
+                        <span class="mt-4 text-xs sm:text-sm font-bold text-[#6BA53A] text-center max-w-[150px] leading-tight">Informacion de la Empresa</span>
                     </div>
 
-                    <div class="h-1 w-full bg-[#4E7D24] hidden lg:block"></div>
-
-                    <div class="rounded-3xl border border-[#4E7D24] p-5 text-center bg-[#f2fbf2]">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#4E7D24] border border-[#4E7D24] mb-3">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v10H7z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l5-5 5 5"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6"/>
+                    <!-- Step 2 (Active) -->
+                    <div class="relative z-10 flex flex-col items-center w-1/3">
+                        <div class="flex items-center justify-center w-14 h-14 rounded-full border-2 border-[#8cc772] bg-white text-[#4E7D24] shadow-sm transition-all duration-200">
+                            <!-- Ícono de Detalles (Documento) -->
+                            <svg class="w-6 h-6 text-[#6BA53A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-semibold text-[#4E7D24]">Detalles de la Práctica</p>
+                        <span class="mt-4 text-xs sm:text-sm font-bold text-[#6BA53A] text-center max-w-[150px] leading-tight">Detalles de la Practica</span>
                     </div>
 
-                    <div class="h-1 w-full bg-gray-200 hidden lg:block"></div>
-
-                    <div class="rounded-3xl border border-gray-200 p-5 text-center bg-white">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-3">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15.5V19a2 2 0 002 2h12a2 2 0 002-2v-3.5"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10l5-5 5 5"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v10"/>
+                    <!-- Step 3 (Inactive) -->
+                    <div class="relative z-10 flex flex-col items-center w-1/3">
+                        <div class="flex items-center justify-center w-14 h-14 rounded-full border border-gray-300 bg-white text-gray-400 transition-all duration-200">
+                            <!-- Ícono de Documentación (Subir) -->
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                         </div>
-                        <p class="text-sm font-semibold text-gray-500">Documentación</p>
+                        <span class="mt-4 text-xs sm:text-sm font-semibold text-gray-400 text-center max-w-[150px] leading-tight">Documentacion</span>
                     </div>
                 </div>
 
                 <form action="{{ route('estudiante.nuevaSolicitudDocumentacion') }}" method="GET" class="mt-10 space-y-6">
-                    <div class="grid gap-4 lg:grid-cols-2">
-                        <div class="space-y-3">
-                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                Fecha de Inicio <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="fecha_inicio" placeholder="dd/mm/aaaa" class="w-full rounded-2xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#4E7D24] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/20" />
+                    <div class="grid gap-5">
+                        <!-- Fecha de Inicio & Fecha de Finalización -->
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    Fecha de Inicio <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="fecha_inicio" placeholder="dd/mm/aaaa" class="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#8cc772] focus:outline-none focus:ring-2 focus:ring-[#8cc772]/20 transition-all" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    Fecha de Finalización
+                                </label>
+                                <input type="text" name="fecha_fin" placeholder="dd/mm/aaaa" class="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#8cc772] focus:outline-none focus:ring-2 focus:ring-[#8cc772]/20 transition-all" />
+                            </div>
                         </div>
-                        <div class="space-y-3">
-                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+
+                        <!-- Horas Previstas -->
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                Fecha de Finalización
+                                Horas Previstas <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="fecha_fin" placeholder="dd/mm/aaaa" class="w-full rounded-2xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#4E7D24] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/20" />
+                            <select class="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#8cc772] focus:outline-none focus:ring-2 focus:ring-[#8cc772]/20 transition-all">
+                                <option>Selecciona las horas</option>
+                                <option>80 horas</option>
+                                <option>160 horas</option>
+                                <option>240 horas</option>
+                            </select>
+                        </div>
+
+                        <!-- Descripción de Actividades -->
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/>
+                                </svg>
+                                Descripción de Actividades <span class="text-red-500">*</span>
+                            </label>
+                            <textarea rows="4" placeholder="Describe las actividades que realizarás durante las prácticas..." class="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#8cc772] focus:outline-none focus:ring-2 focus:ring-[#8cc772]/20 transition-all"></textarea>
+                        </div>
+
+                        <!-- Objetivos de la Práctica -->
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Objetivos de la Práctica
+                            </label>
+                            <textarea rows="4" placeholder="¿Qué esperas lograr con esta práctica profesional?" class="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#8cc772] focus:outline-none focus:ring-2 focus:ring-[#8cc772]/20 transition-all"></textarea>
                         </div>
                     </div>
 
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h10"/>
-                            </svg>
-                            Horas Previstas <span class="text-red-500">*</span>
-                        </label>
-                        <select class="w-full rounded-2xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#4E7D24] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/20">
-                            <option>Selecciona las horas</option>
-                            <option>80 horas</option>
-                            <option>160 horas</option>
-                            <option>240 horas</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h8m-8 4h6"/>
-                            </svg>
-                            Descripción de Actividades <span class="text-red-500">*</span>
-                        </label>
-                        <textarea rows="4" placeholder="Describe las actividades que realizarás durante las prácticas..." class="w-full rounded-3xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#4E7D24] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/20"></textarea>
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h8m-8 4h6"/>
-                            </svg>
-                            Objetivos de la Práctica
-                        </label>
-                        <textarea rows="4" placeholder="Qué esperas lograr con esta práctica profesional?" class="w-full rounded-3xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-700 shadow-sm focus:border-[#4E7D24] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/20"></textarea>
-                    </div>
-
-                    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
-                        <a href="{{ route('estudiante.nuevaSolicitud') }}" class="inline-flex items-center justify-center rounded-full border border-[#d3e8d0] bg-[#f5fbf5] px-6 py-3 text-sm font-semibold text-[#4E7D24] shadow-sm transition hover:bg-[#e9f7e9]">
-                            &lt; Anterior
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between items-center pt-4">
+                        <a href="{{ route('estudiante.nuevaSolicitud') }}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50">
+                            <span class="mr-2 font-bold">&lt;</span> Anterior
                         </a>
-                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3b6620] focus:outline-none focus:ring-2 focus:ring-[#4E7D24]/50">
-                            Siguiente
+                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-[#a2d98a] hover:bg-[#8cc772] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-250">
+                            Siguiente <span class="ml-2 font-bold">&gt;</span>
                         </button>
                     </div>
                 </form>

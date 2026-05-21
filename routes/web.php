@@ -58,18 +58,6 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::get('/estudiante/mis-solicitudes', [EstudianteDashboardController::class, 'misSolicitudes'])
         ->name('estudiante.misSolicitudes');
 
-    Route::get('/estudiante/avance-horas', [EstudianteDashboardController::class, 'avanceHoras'])
-        ->name('estudiante.avanceHoras');
-
-    Route::get('/estudiante/mensajes', [EstudianteDashboardController::class, 'mensajes'])
-        ->name('estudiante.mensajes');
-
-    Route::get('/estudiante/notificaciones', [EstudianteDashboardController::class, 'notificaciones'])
-        ->name('estudiante.notificaciones');
-
-    Route::get('/estudiante/reportes', [EstudianteDashboardController::class, 'reportes'])
-        ->name('estudiante.reportes');
-
     Route::get('/estudiante/mi-perfil', [EstudianteDashboardController::class, 'miPerfil'])
         ->name('estudiante.miPerfil');
     Route::post('/estudiante/mi-perfil', [EstudianteDashboardController::class, 'updatePerfil'])
