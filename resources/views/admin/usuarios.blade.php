@@ -4,40 +4,40 @@
     <!-- Header Section -->
     <x-page-header title="Gestión de Usuarios" description="Administra los accesos y roles de la plataforma.">
         <x-slot:actions>
-            <button class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+            <button type="button" onclick="document.getElementById('registerUserModal').classList.remove('hidden')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Registrar Usuario
             </button>
         </x-slot>
     </x-page-header>
 
-    <!-- Filters & Search -->
-    <div class="glass-card rounded-2xl p-4 fade-in-up delay-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div class="relative w-full sm:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <!-- Users Table & Filters -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
+        <!-- Filters & Search -->
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
+            <div class="relative w-full sm:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors" placeholder="Buscar por nombre, correo o matrícula...">
             </div>
-            <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors" placeholder="Buscar por nombre, correo o matrícula...">
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                    <option value="">Todos los Roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="coordinador">Coordinador</option>
+                    <option value="empresa">Empresa</option>
+                    <option value="alumno">Alumno</option>
+                </select>
+                <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                    <option value="">Estado</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
         </div>
-        
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-            <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                <option value="">Todos los Roles</option>
-                <option value="admin">Administrador</option>
-                <option value="coordinador">Coordinador</option>
-                <option value="empresa">Empresa</option>
-                <option value="alumno">Alumno</option>
-            </select>
-            <select class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                <option value="">Estado</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-        </div>
-    </div>
 
-    <!-- Users Table -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/50">
@@ -239,4 +239,131 @@
             </div>
         </div>
     </div>
+    <!-- Modal for User Registration -->
+    <div id="registerUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity bg-gray-500/75 backdrop-blur-sm" aria-hidden="true" onclick="document.getElementById('registerUserModal').classList.add('hidden')"></div>
+
+            <!-- Modal panel -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block w-full max-w-3xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle glass-card">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="text-xl font-bold text-gray-900" id="modal-title">Registrar Nuevo Usuario</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500 transition-colors" onclick="document.getElementById('registerUserModal').classList.add('hidden')">
+                        <span class="sr-only">Cerrar</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div class="px-6 py-6 md:px-8">
+                    <form action="#" method="POST" class="space-y-6">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Información Personal -->
+                            <div class="space-y-5">
+                                <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2">Información del Usuario</h4>
+                                
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                                    <input type="text" id="name" name="name" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Juan Pérez">
+                                </div>
+
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                                    <input type="email" id="email" name="email" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="ejemplo@ucol.mx">
+                                </div>
+
+                                <div>
+                                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema</label>
+                                    <select id="role" name="role" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700" onchange="toggleDynamicFields(this.value)">
+                                        <option value="">Selecciona un rol</option>
+                                        <option value="1">Administrador</option>
+                                        <option value="2">Coordinador</option>
+                                        <option value="3">Alumno</option>
+                                        <option value="4">Empresa</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Seguridad y Detalles -->
+                            <div class="space-y-5">
+                                <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2">Seguridad</h4>
+                                
+                                <div>
+                                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                    <input type="password" id="password" name="password" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="••••••••">
+                                    <p class="mt-1 text-xs text-gray-500">Mínimo 8 caracteres.</p>
+                                </div>
+
+                                <div>
+                                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                                    <input type="password" id="password_confirmation" name="password_confirmation" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="••••••••">
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <label class="flex items-start gap-3">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" class="w-4 h-4 text-[#4E7D24] bg-gray-50 border-gray-300 rounded focus:ring-[#6BA53A]">
+                                        </div>
+                                        <div class="text-sm">
+                                            <span class="text-gray-700 font-medium">Notificar al usuario</span>
+                                            <p class="text-gray-500 text-xs">Enviar credenciales por correo electrónico.</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campos Dinámicos -->
+                        <div id="dynamic-fields-modal" class="mt-6 pt-4 border-t border-gray-100 hidden">
+                            <h4 class="text-md font-bold text-[#4E7D24] mb-4">Información Adicional</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="alumno-field-modal hidden">
+                                    <label for="matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula</label>
+                                    <input type="text" id="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. 20182345">
+                                </div>
+                                <div class="empresa-field-modal hidden">
+                                    <label for="rfc" class="block text-sm font-medium text-gray-700 mb-1">RFC</label>
+                                    <input type="text" id="rfc" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. ABCD123456EF7">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-5 border-t border-gray-100 flex justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('registerUserModal').classList.add('hidden')" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Guardar Usuario
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDynamicFields(value) {
+            const dynamicFields = document.getElementById('dynamic-fields-modal');
+            const alumnoFields = document.querySelectorAll('.alumno-field-modal');
+            const empresaFields = document.querySelectorAll('.empresa-field-modal');
+
+            // Ocultar todos
+            dynamicFields.classList.add('hidden');
+            alumnoFields.forEach(el => el.classList.add('hidden'));
+            empresaFields.forEach(el => el.classList.add('hidden'));
+
+            // Mostrar según selección
+            if (value === '3') { // Alumno
+                dynamicFields.classList.remove('hidden');
+                alumnoFields.forEach(el => el.classList.remove('hidden'));
+            } else if (value === '4') { // Empresa
+                dynamicFields.classList.remove('hidden');
+                empresaFields.forEach(el => el.classList.remove('hidden'));
+            }
+        }
+    </script>
 @endsection

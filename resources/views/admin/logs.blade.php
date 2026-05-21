@@ -1,4 +1,4 @@
-<div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col">
+<div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col min-h-0">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -7,7 +7,7 @@
                         <button class="text-gray-400 hover:text-[#4E7D24]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg></button>
                     </div>
                     
-                    <div class="relative flex-1 overflow-y-auto pr-2 max-h-[600px] space-y-6">
+                    <div class="relative flex-1 min-h-0 overflow-y-auto pr-2 space-y-6">
                         <!-- Timeline Line -->
                         <div class="absolute left-4 top-2 bottom-0 w-px bg-gray-200"></div>
 
