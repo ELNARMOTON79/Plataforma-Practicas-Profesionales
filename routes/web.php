@@ -38,6 +38,11 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.usuarios');
     })->name('admin.usuarios');
 
+    Route::get('/admin/bitacora', function () {
+        if (auth()->user()->rol_id != 1) return redirect('/');
+        return view('admin.bitacora');
+    })->name('admin.bitacora');
+
     Route::get('/coordinador/dashboard', [App\Http\Controllers\CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
     Route::get('/coordinador/instituciones', function () {

@@ -220,21 +220,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Academic Contact -->
-            <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-white to-[#6BA53A]/5 border border-[#6BA53A]/10 fade-in-up delay-400">
-                <h3 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">Contacto de Soporte</h3>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    </div>
-                    <div>
-                        <span class="block text-sm font-bold text-gray-900">Mtro. Alejandro Ramos</span>
-                        <span class="text-[11px] text-gray-500 font-medium">Coordinador de Prácticas</span>
-                    </div>
-                </div>
-                <a href="mailto:aramos@ucol.mx" class="block w-full text-center py-2.5 mt-4 bg-white border border-gray-200 text-xs font-bold text-gray-750 rounded-xl hover:bg-gray-50 transition-colors">Enviar Correo</a>
-            </div>
 
         </div>
     </div>
