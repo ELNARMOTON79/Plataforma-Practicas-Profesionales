@@ -37,6 +37,17 @@ class AuthController extends Controller
                 ])->onlyInput('correo');
             }
 
+            // Check if maintenance mode is active for non-admins
+            if ($user->rol_id !== 1 && \App\Helpers\SystemSettings::get('maintenance_mode', false)) {
+                \App\Helpers\ActivityLogger::log('Autenticación', 'Inicio de Sesión Bloqueado', "Intento de inicio de sesión fallido para {$credentials['correo']} debido a mantenimiento del sistema.", 'warning');
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'correo' => 'El sistema se encuentra temporalmente en mantenimiento. Solo los administradores pueden ingresar.',
+                ])->onlyInput('correo');
+            }
+
             \App\Helpers\ActivityLogger::log('Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', 'success');
 
             // Redirect based on role

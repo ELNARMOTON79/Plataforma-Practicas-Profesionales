@@ -30,13 +30,14 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected dashboard routes
-Route::middleware(['auth', 'prevent-back-history'])->group(function () {
+Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    Route::get('/admin/config', function () {
-        if (auth()->user()->rol_id != 1) return redirect('/');
-        return view('admin.config');
-    })->name('admin.config');
+    Route::get('/admin/config', [App\Http\Controllers\AdminController::class, 'config'])->name('admin.config');
+    Route::post('/admin/config/profile', [App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.config.profile');
+    Route::post('/admin/config/password', [App\Http\Controllers\AdminController::class, 'updatePassword'])->name('admin.config.password');
+    Route::post('/admin/config/settings', [App\Http\Controllers\AdminController::class, 'updateSettings'])->name('admin.config.settings');
+    Route::post('/admin/config/clean-logs', [App\Http\Controllers\AdminController::class, 'cleanLogsNow'])->name('admin.config.clean-logs');
 
     Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'usuarios'])->name('admin.usuarios');
     Route::post('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'storeUsuario'])->name('admin.usuarios.store');

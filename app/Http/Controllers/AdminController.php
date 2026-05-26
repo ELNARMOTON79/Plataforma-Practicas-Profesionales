@@ -187,7 +187,9 @@ class AdminController extends Controller
         }
 
         // Send credentials email
-        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $request->input('name')));
+        if (\App\Helpers\SystemSettings::get('send_emails', true)) {
+            Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $request->input('name')));
+        }
 
         // Log user creation
         $roleNames = [1 => 'Administrador', 2 => 'Coordinador', 3 => 'Alumno', 4 => 'Empresa'];
@@ -295,10 +297,12 @@ class AdminController extends Controller
                 $alumno->save();
 
                 // Enviar Correo
-                try {
-                    Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
-                } catch (\Exception $e) {
-                    \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
+                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
+                    try {
+                        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
+                    } catch (\Exception $e) {
+                        \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
+                    }
                 }
 
                 $createdCount++;
@@ -728,5 +732,204 @@ class AdminController extends Controller
         }
 
         return back()->with('error', 'Formato no soportado.');
+    }
+
+    /**
+     * Show the admin configuration page.
+     */
+    public function config()
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $user = auth()->user();
+        $adminName = $user->coordinador->nombre_completo ?? '';
+        $settings = \App\Helpers\SystemSettings::all();
+
+        return view('admin.config', compact('user', 'adminName', 'settings'));
+    }
+
+    /**
+     * Update the admin profile details.
+     */
+    public function updateProfile(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('usuarios', 'correo')->ignore($user->id),
+            ],
+        ], [
+            'name.required' => 'El nombre completo es requerido.',
+            'name.regex' => 'El nombre completo solo debe contener letras y espacios.',
+            'email.required' => 'El correo electrónico es requerido.',
+            'email.email' => 'El formato del correo electrónico es inválido.',
+            'email.unique' => 'Este correo electrónico ya está registrado en el sistema.',
+        ]);
+
+        // Update User
+        $user->correo = $request->input('email');
+        $user->save();
+
+        // Update Coordinador (personal table)
+        $coordinador = $user->coordinador;
+        if (!$coordinador) {
+            $coordinador = new \App\Models\Coordinador();
+            $coordinador->usuario_id = $user->id;
+        }
+        $coordinador->nombre_completo = $request->input('name');
+        $coordinador->save();
+
+        \App\Helpers\ActivityLogger::log(
+            'Configuración',
+            'Perfil Actualizado',
+            "El administrador actualizó sus datos de perfil: Nombre a '{$coordinador->nombre_completo}' y Correo a '{$user->correo}'.",
+            'success'
+        );
+
+        return redirect()->route('admin.config')->with('success', 'Perfil actualizado correctamente.');
+    }
+
+    /**
+     * Update the admin password.
+     */
+    public function updatePassword(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $user = auth()->user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|string|min:8|confirmed|different:current_password',
+        ], [
+            'current_password.required' => 'La contraseña actual es obligatoria.',
+            'password.required' => 'La nueva contraseña es obligatoria.',
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'password.different' => 'La nueva contraseña debe ser diferente a la contraseña actual.',
+        ]);
+
+        // Verify current password
+        if (!Hash::check($request->input('current_password'), $user->contraseña)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual ingresada no es correcta.']);
+        }
+
+        // Save new password
+        $user->contraseña = Hash::make($request->input('password'));
+        $user->save();
+
+        \App\Helpers\ActivityLogger::log(
+            'Configuración',
+            'Contraseña Cambiada',
+            "El administrador cambió su contraseña de acceso.",
+            'warning'
+        );
+
+        return redirect()->route('admin.config')->with('success', 'Contraseña actualizada correctamente.');
+    }
+
+    /**
+     * Update global system settings.
+     */
+    public function updateSettings(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $request->validate([
+            'clean_logs_days' => 'required|in:30,90,180,365,all',
+        ]);
+
+        $maintenanceMode = $request->boolean('maintenance_mode');
+        $sendEmails = $request->boolean('send_emails');
+        $cleanLogsDays = $request->input('clean_logs_days');
+
+        $oldSettings = \App\Helpers\SystemSettings::all();
+
+        \App\Helpers\SystemSettings::save([
+            'maintenance_mode' => $maintenanceMode,
+            'send_emails' => $sendEmails,
+            'clean_logs_days' => $cleanLogsDays,
+        ]);
+
+        // Log settings changes if any
+        $changes = [];
+        if ($oldSettings['maintenance_mode'] !== $maintenanceMode) {
+            $changes[] = "Modo de Mantenimiento: " . ($maintenanceMode ? 'Activado' : 'Desactivado');
+        }
+        if ($oldSettings['send_emails'] !== $sendEmails) {
+            $changes[] = "Envío de Correos de Credenciales: " . ($sendEmails ? 'Habilitado' : 'Deshabilitado');
+        }
+        if ($oldSettings['clean_logs_days'] !== $cleanLogsDays) {
+            $changes[] = "Retención de Logs: {$cleanLogsDays} días";
+        }
+
+        if (!empty($changes)) {
+            \App\Helpers\ActivityLogger::log(
+                'Configuración',
+                'Parámetros del Sistema Actualizados',
+                "El administrador cambió la configuración del sistema: " . implode(', ', $changes) . ".",
+                'warning'
+            );
+        }
+
+        return redirect()->route('admin.config', ['tab' => 'system'])->with('success', 'Configuración de mantenimiento y preferencias guardada correctamente.');
+    }
+
+    /**
+     * Manually clean logs based on selected retention setting.
+     */
+    public function cleanLogsNow(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $days = \App\Helpers\SystemSettings::get('clean_logs_days', 180);
+
+        if ($days === 'all') {
+            return response()->json([
+                'success' => false,
+                'message' => 'La retención está configurada en "Conservar todos". Cambia el período de retención si deseas limpiar registros antiguos.'
+            ]);
+        }
+
+        $daysCount = intval($days);
+        $cutoffDate = \Carbon\Carbon::now()->subDays($daysCount);
+
+        // Delete from bitacora where timestamp is older than cutoffDate
+        $deleted = \DB::table('bitacora')
+            ->where('timestamp', '<', $cutoffDate)
+            ->delete();
+
+        // Log the cleanup action in Laravel's logs
+        \Log::info("Limpieza manual de bitácora ejecutada por Administrador. Se eliminaron {$deleted} registros anteriores a {$cutoffDate->toDateTimeString()}.");
+
+        // Log the action in the bitacora itself
+        \App\Helpers\ActivityLogger::log(
+            'Sistema',
+            'Limpieza de Bitácora',
+            "Se eliminaron {$deleted} registros de la bitácora anteriores a {$daysCount} días ({$cutoffDate->toDateString()}).",
+            'warning'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Limpieza de bitácora completada. Se eliminaron {$deleted} registros antiguos."
+        ]);
     }
 }
