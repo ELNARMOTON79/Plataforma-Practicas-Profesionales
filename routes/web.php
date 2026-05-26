@@ -40,6 +40,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'usuarios'])->name('admin.usuarios');
     Route::post('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'storeUsuario'])->name('admin.usuarios.store');
+    Route::post('/admin/usuarios/bulk-store', [App\Http\Controllers\AdminController::class, 'bulkStoreUsuarios'])->name('admin.usuarios.bulk-store');
     Route::put('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
     Route::patch('/admin/usuarios/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
 

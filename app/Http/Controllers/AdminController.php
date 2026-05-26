@@ -196,6 +196,132 @@ class AdminController extends Controller
     }
 
     /**
+     * Store bulk uploaded students in the database.
+     */
+    public function bulkStoreUsuarios(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return response()->json(['success' => false, 'errors' => ['No autorizado']], 403);
+        }
+
+        $request->validate([
+            'students' => 'required|array|min:1',
+            'students.*.correo' => 'required|email|max:255',
+            'students.*.matricula' => 'required|string|max:50',
+            'students.*.nombre' => 'required|string|max:255',
+            'students.*.carrera' => 'required|string|max:150',
+            'students.*.semestre' => 'required|integer|min:1|max:12',
+            'students.*.grupo' => 'required|string|max:20',
+        ]);
+
+        $students = $request->input('students');
+        $errors = [];
+        $emails = [];
+        $matriculas = [];
+
+        // 1. Validaciones de unicidad y duplicados
+        foreach ($students as $index => $student) {
+            $rowNum = $index + 1;
+            $correo = trim($student['correo']);
+            $matricula = trim($student['matricula']);
+
+            // Validar correos duplicados en el mismo archivo
+            if (in_array(strtolower($correo), $emails)) {
+                $errors[] = "Fila {$rowNum}: El correo '{$correo}' está duplicado en el archivo.";
+            } else {
+                $emails[] = strtolower($correo);
+            }
+
+            // Validar matrículas duplicadas en el mismo archivo
+            if (in_array(strtolower($matricula), $matriculas)) {
+                $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' está duplicada en el archivo.";
+            } else {
+                $matriculas[] = strtolower($matricula);
+            }
+
+            // Validar contra la base de datos
+            if (User::where('correo', $correo)->exists()) {
+                $errors[] = "Fila {$rowNum}: El correo '{$correo}' ya está registrado en el sistema.";
+            }
+
+            if (\App\Models\Alumno::where('matricula', $matricula)->exists()) {
+                $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' ya está registrada en el sistema.";
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'success' => false,
+                'errors' => $errors
+            ], 422);
+        }
+
+        // 2. Proceso de inserción en transacción
+        \DB::beginTransaction();
+        try {
+            $createdCount = 0;
+            foreach ($students as $student) {
+                $randomPassword = Str::random(10);
+
+                // Crear Usuario
+                $user = new User();
+                $user->correo = trim($student['correo']);
+                $user->contraseña = Hash::make($randomPassword);
+                $user->rol_id = 3; // Alumno/Estudiante
+                $user->activo = true;
+                $user->save();
+
+                // Crear Alumno
+                $alumno = new \App\Models\Alumno();
+                $alumno->usuario_id = $user->id;
+                $alumno->nombre_completo = trim($student['nombre']);
+                $alumno->matricula = trim($student['matricula']);
+                $alumno->carrera = trim($student['carrera']);
+                $alumno->semestre = intval($student['semestre']);
+                $alumno->grupo = trim($student['grupo']);
+                $alumno->activo_practica = 0;
+                $alumno->save();
+
+                // Enviar Correo
+                try {
+                    Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
+                } catch (\Exception $e) {
+                    \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
+                }
+
+                $createdCount++;
+            }
+
+            \DB::commit();
+
+            // Registrar en la bitácora
+            \App\Helpers\ActivityLogger::log(
+                'Usuarios',
+                'Importación Masiva',
+                "Se registraron exitosamente {$createdCount} estudiantes mediante importación masiva.",
+                'success',
+                ['cantidad_importada' => $createdCount]
+            );
+
+            // Guardar mensaje en sesión para mostrar la alerta bonita de redirección
+            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente y se enviaron sus accesos por correo.");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Importación exitosa de {$createdCount} estudiantes."
+            ]);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error("Error al procesar importación masiva de estudiantes: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
      * Update the specified user in the database.
      */
     public function updateUsuario(Request $request, $id)

@@ -4,10 +4,16 @@
     <!-- Header Section -->
     <x-page-header title="Gestión de Usuarios" description="Administra los accesos y roles de la plataforma.">
         <x-slot:actions>
-            <button type="button" onclick="document.getElementById('registerUserModal').classList.remove('hidden')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Registrar Usuario
-            </button>
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="document.getElementById('registerUserModal').classList.remove('hidden')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Registrar Usuario
+                </button>
+                <button type="button" onclick="document.getElementById('bulkUploadModal').classList.remove('hidden')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Subir usuarios
+                </button>
+            </div>
         </x-slot>
     </x-page-header>
 
@@ -47,6 +53,7 @@
 
     @push('modals')
         @include('admin.usuarios.register-modal')
+        @include('admin.usuarios.bulk-upload-modal')
         @include('admin.usuarios.edit-modal')
         @include('admin.usuarios.deactivate-modal')
     @endpush

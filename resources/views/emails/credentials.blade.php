@@ -27,21 +27,23 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
         .header {
-            background: linear-gradient(135deg, #4E7D24 0%, #2E5417 100%);
-            padding: 40px 30px;
+            background-color: #ffffff;
+            padding: 40px 30px 20px 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
-        .header h1 {
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: -0.5px;
+        .header-logo {
+            max-height: 55px;
+            width: auto;
+            display: inline-block;
         }
         .header p {
-            color: #d0e7bd;
+            color: #4E7D24;
             font-size: 14px;
-            margin: 10px 0 0 0;
+            font-weight: 600;
+            margin: 15px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .content {
             padding: 40px 35px;
@@ -130,7 +132,7 @@
         <div class="container">
             <!-- Header -->
             <div class="header">
-                <h1>Universidad de Colima</h1>
+                <img src="{{ $message->embed(public_path('images/logo_verde.png')) }}" alt="Universidad de Colima" class="header-logo" style="max-height: 55px; width: auto; display: inline-block;">
                 <p>Plataforma de Prácticas Profesionales</p>
             </div>
             

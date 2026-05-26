@@ -1,12 +1,11 @@
 <!-- Modal for User Editing -->
-<div id="editUserModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="edit-modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+<div id="editUserModal" class="fixed inset-0 z-[100] hidden overflow-hidden" aria-labelledby="edit-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen p-4 md:p-6 text-center">
         <!-- Background overlay -->
         <div class="fixed inset-0 transition-opacity bg-gray-500/75 backdrop-blur-sm" aria-hidden="true" onclick="closeEditModal()"></div>
 
         <!-- Modal panel -->
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <form id="editUserForm" action="#" method="POST" hx-boost="false" class="inline-block w-full max-w-3xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle glass-card flex flex-col max-h-[calc(100vh-4rem)]">
+        <form id="editUserForm" action="#" method="POST" hx-boost="false" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform glass-card max-h-[calc(100vh-4rem)] z-10">
             @csrf
             @method('PUT')
             <!-- Hidden field for User ID -->
