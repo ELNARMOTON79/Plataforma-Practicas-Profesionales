@@ -28,6 +28,7 @@ class AuthController extends Controller
             $user = Auth::user();
             
             if (!$user->activo) {
+                \App\Helpers\ActivityLogger::log('Autenticación', 'Inicio de Sesión Bloqueado', "Intento de inicio de sesión fallido para la cuenta inactiva: {$credentials['correo']}.", 'warning');
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
@@ -35,6 +36,8 @@ class AuthController extends Controller
                     'correo' => 'Esta cuenta se encuentra inactiva.',
                 ])->onlyInput('correo');
             }
+
+            \App\Helpers\ActivityLogger::log('Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', 'success');
 
             // Redirect based on role
             $roleRoutes = [
@@ -49,6 +52,8 @@ class AuthController extends Controller
             return redirect()->route($route);
         }
 
+        \App\Helpers\ActivityLogger::log('Autenticación', 'Inicio de Sesión Fallido', "Intento de inicio de sesión fallido para la cuenta: {$credentials['correo']}.", 'danger');
+
         return back()->withErrors([
             'correo' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
         ])->onlyInput('correo');
@@ -59,6 +64,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            \App\Helpers\ActivityLogger::log('Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', 'info');
+        }
+        
         Auth::logout();
 
         $request->session()->invalidate();

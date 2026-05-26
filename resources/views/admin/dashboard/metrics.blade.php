@@ -7,11 +7,7 @@
                         </div>
                         <span class="text-sm font-bold text-gray-500 mb-2">Total Alumnos</span>
                         <div class="flex items-end gap-3 mb-2">
-                            <span class="text-4xl font-extrabold text-gray-900">1,248</span>
-                            <span class="flex items-center text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-md mb-1">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                                12%
-                            </span>
+                            <span class="text-4xl font-extrabold text-gray-900">{{ number_format($totalAlumnos) }}</span>
                         </div>
                         <span class="text-xs text-gray-400 font-medium">Activos en prácticas profesionales</span>
                     </div>
@@ -23,7 +19,7 @@
                         </div>
                         <span class="text-sm font-bold text-gray-500 mb-2">Convenios Activos</span>
                         <div class="flex items-end gap-3 mb-2">
-                            <span class="text-4xl font-extrabold text-gray-900">342</span>
+                            <span class="text-4xl font-extrabold text-gray-900">{{ number_format($conveniosActivos) }}</span>
                         </div>
                         <span class="text-xs text-gray-400 font-medium">Empresas e instituciones vinculadas</span>
                     </div>
@@ -35,7 +31,7 @@
                         </div>
                         <span class="text-sm font-bold text-gray-500 mb-2">Solicitudes Pendientes</span>
                         <div class="flex items-end gap-3 mb-2">
-                            <span class="text-4xl font-extrabold text-gray-900">86</span>
+                            <span class="text-4xl font-extrabold text-gray-900">{{ number_format($solicitudesPendientes) }}</span>
                         </div>
                         <span class="text-xs text-gray-400 font-medium">Esperando aprobación de coordinador</span>
                     </div>
@@ -47,7 +43,7 @@
                         </div>
                         <span class="text-sm font-bold text-red-500 mb-2">Alertas del Sistema</span>
                         <div class="flex items-end gap-3 mb-2">
-                            <span class="text-4xl font-extrabold text-red-600">3</span>
+                            <span class="text-4xl font-extrabold text-red-600">{{ number_format($alertasSistema) }}</span>
                         </div>
                         <span class="text-xs text-red-400 font-medium">Convenios por vencer en 30 días</span>
                     </div>

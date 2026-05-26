@@ -1,12 +1,9 @@
-CREATE DATABASE IF NOT EXISTS practicas;
-USE practicas;
-
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 03:17 AM
+-- Generation Time: May 25, 2026 at 07:37 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -23,6 +20,40 @@ SET time_zone = "+00:00";
 --
 -- Database: `practicas`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bitacora`
+--
+
+CREATE TABLE `bitacora` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `level` varchar(20) NOT NULL DEFAULT 'info',
+  `level_name` varchar(50) NOT NULL DEFAULT 'Info',
+  `user` varchar(255) NOT NULL DEFAULT 'Sistema',
+  `user_role` varchar(100) NOT NULL DEFAULT 'Sistema',
+  `user_email` varchar(255) DEFAULT NULL,
+  `module` varchar(100) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`payload`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `bitacora`
+--
+
+INSERT INTO `bitacora` (`id`, `timestamp`, `level`, `level_name`, `user`, `user_role`, `user_email`, `module`, `action`, `description`, `ip`, `user_agent`, `payload`, `created_at`, `updated_at`) VALUES
+(1, '2026-05-25 23:12:19', 'warning', 'Advertencia', 'Usuario Administrador General', 'Administrador', 'admin@ucol.mx', 'Sistema', 'Limpieza de Bitácora', 'El administrador vació todos los registros de la bitácora del sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-25 23:12:19', '2026-05-25 23:12:19'),
+(2, '2026-05-25 23:12:33', 'warning', 'Advertencia', 'Usuario Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Deshabilitado', 'Se cambió el estado del usuario \'rvuelvas@ucol.mx\' a \'Deshabilitado\'.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"correo\": \"rvuelvas@ucol.mx\",\n    \"nuevo_estado\": \"Deshabilitado\"\n}', '2026-05-25 23:12:33', '2026-05-25 23:12:33'),
+(3, '2026-05-25 23:13:41', 'warning', 'Advertencia', 'Usuario Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Habilitado', 'Se cambió el estado del usuario \'rvuelvas@ucol.mx\' a \'Habilitado\'.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"correo\": \"rvuelvas@ucol.mx\",\n    \"nuevo_estado\": \"Habilitado\"\n}', '2026-05-25 23:13:41', '2026-05-25 23:13:41'),
+(4, '2026-05-25 23:27:37', 'success', 'Éxito', 'Usuario Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Creado', 'Se creó el usuario \'Luis Angel\' con el rol \'Coordinador\' y correo \'lalaniz@ucol.mx\'.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"correo\": \"lalaniz@ucol.mx\",\n    \"nombre\": \"Luis Angel\",\n    \"rol\": \"Coordinador\"\n}', '2026-05-25 23:27:37', '2026-05-25 23:27:37');
 
 -- --------------------------------------------------------
 
@@ -75,7 +106,9 @@ CREATE TABLE `documentos` (
   `ur_id` int(10) UNSIGNED NOT NULL,
   `nombre_doc` varchar(255) NOT NULL,
   `ruta_archivo` varchar(500) NOT NULL,
-  `fecha_carga` date NOT NULL DEFAULT curdate()
+  `fecha_carga` date NOT NULL DEFAULT curdate(),
+  `estatus` enum('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
+  `observaciones` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -91,15 +124,17 @@ CREATE TABLE `estudiantes` (
   `matricula` varchar(50) NOT NULL,
   `carrera` varchar(150) NOT NULL,
   `semestre` tinyint(3) UNSIGNED NOT NULL,
-  `grupo` varchar(20) NOT NULL
+  `grupo` varchar(20) NOT NULL,
+  `activo_practica` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `estudiantes`
 --
 
-INSERT INTO `estudiantes` (`id`, `usuario_id`, `nombre_completo`, `matricula`, `carrera`, `semestre`, `grupo`) VALUES
-(1, 3, 'Juan Pérez Alumno', '20191234', 'Ingeniería en Software', 8, 'A');
+INSERT INTO `estudiantes` (`id`, `usuario_id`, `nombre_completo`, `matricula`, `carrera`, `semestre`, `grupo`, `activo_practica`) VALUES
+(1, 3, 'Juan Pérez Alumnos', '20191234', 'Ingeniería de Software', 8, 'A', 0),
+(3, 8, 'Rafael Alexandro Vuelvas', '20205120', 'Ingeniería de Software', 6, 'E', 0);
 
 -- --------------------------------------------------------
 
@@ -188,7 +223,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (4, '2026_05_14_011444_create_alumnos_table', 1),
 (5, '2026_05_14_011445_create_coordinadors_table', 1),
 (6, '2026_05_14_011445_create_empresas_table', 1),
-(7, '2026_05_14_011446_create_administradors_table', 1);
+(7, '2026_05_14_011446_create_administradors_table', 1),
+(8, '2026_05_25_165738_create_bitacora_table', 2);
 
 -- --------------------------------------------------------
 
@@ -220,7 +256,9 @@ CREATE TABLE `personal` (
 
 INSERT INTO `personal` (`id`, `usuario_id`, `nombre_completo`) VALUES
 (1, 1, 'Usuario Administrador General'),
-(2, 2, 'Usuario Coordinador de Prácticas');
+(2, 2, 'Coordinador de Prácticas Profesionales'),
+(3, 6, 'Juan Carlos Prueba'),
+(4, 9, 'Luis Angel');
 
 -- --------------------------------------------------------
 
@@ -263,8 +301,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('1fboPxh4Vrz7yxZ6jxIooiOgUa8y4zdhfcVCPwiF', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJEWGVJQjRKRnhFVXJMZUx0ZHZMVjlzMW1qZmJUSm11SW9JUGVIbXZ2IiwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvMTI3LjAuMC4xOjgwMDAiLCJyb3V0ZSI6ImxvZ2luIn19', 1778788101),
-('aZiNAb7E5wwQuvp3uvRII0AgQGidyBwhTwnF4WCd', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJpMGNIcjBqUjZ0VHY5dVE0TjMwM2FBcTNOU1pWRzRHSkg5TGtiUDlmIiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvMTI3LjAuMC4xOjgwMDBcL2FkbWluXC9kYXNoYm9hcmQifSwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOiJsb2dpbiJ9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19', 1778780829);
+('nGn45R2TDL9Pw5oWWOpk3LyUIIYiDKo3rHtczIsP', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiI3QlRQb1JrcmFSS3NNd2t4UFpOYUxmQ3RMS3VrVEZLckdlOFc4RFAzIiwiX2ZsYXNoIjp7Im5ldyI6W10sIm9sZCI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2FkbWluXC9kYXNoYm9hcmQiLCJyb3V0ZSI6ImFkbWluLmRhc2hib2FyZCJ9LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6MX0=', 1779730350);
 
 -- --------------------------------------------------------
 
@@ -302,7 +339,7 @@ CREATE TABLE `unidades_receptoras` (
 --
 
 INSERT INTO `unidades_receptoras` (`id`, `usuario_id`, `nombre_empresa`, `direccion`, `tipo_persona`) VALUES
-(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro', 'Moral');
+(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro Manzanillo', 'Moral');
 
 -- --------------------------------------------------------
 
@@ -326,11 +363,20 @@ INSERT INTO `usuarios` (`id`, `correo`, `contraseña`, `activo`, `rol_id`) VALUE
 (1, 'admin@ucol.mx', '$2y$12$NT.rcNJxde4yiFCb2L3LAeUXYQZl0j8dNN9RGrfnrSmouKv2NqFuS', 1, 1),
 (2, 'coordinador@ucol.mx', '$2y$12$nD/o.O4bptqTBby1KCqCyOorkqXz8aQ5WuqlALMk5.AAoaD2moY7S', 1, 2),
 (3, 'alumno@ucol.mx', '$2y$12$WtPsK8EB/BVYD3m3zwmnPOwbQeAPBq8.4/LJurEQZHqtLBXKyyqam', 1, 3),
-(5, 'empresa@tech.com', '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 1, 4);
+(5, 'empresa@tech.com', '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 1, 4),
+(6, 'prueba@ucol.mx', '$2y$12$9TsYHSXmvNdWZ92VVzsO7OTVIxZBhFRzpRgF6gNkP87uRL9pWLNHS', 1, 2),
+(8, 'rvuelvas@ucol.mx', '$2y$12$N8UEXMemtR5yLw14IPDRAuPGExMjfwOcUHHBnSCqL2ns79vyq7uF6', 1, 3),
+(9, 'lalaniz@ucol.mx', '$2y$12$dQqz2pjTGydYcAAlHum2IOAd0IJyZQ/gLAsOhuEMhyvKgJIR1ek.e', 1, 2);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `bitacora`
+--
+ALTER TABLE `bitacora`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `cache`
@@ -459,6 +505,12 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT for table `bitacora`
+--
+ALTER TABLE `bitacora`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `convenios`
 --
 ALTER TABLE `convenios`
@@ -474,7 +526,7 @@ ALTER TABLE `documentos`
 -- AUTO_INCREMENT for table `estudiantes`
 --
 ALTER TABLE `estudiantes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -498,13 +550,13 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `personal`
 --
 ALTER TABLE `personal`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -528,7 +580,7 @@ ALTER TABLE `unidades_receptoras`
 -- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables

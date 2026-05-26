@@ -42,4 +42,19 @@ class User extends Authenticatable
             'activo' => 'boolean',
         ];
     }
+
+    public function alumno()
+    {
+        return $this->hasOne(Alumno::class, 'usuario_id');
+    }
+
+    public function coordinador()
+    {
+        return $this->hasOne(Coordinador::class, 'usuario_id');
+    }
+
+    public function empresa()
+    {
+        return $this->hasOne(Empresa::class, 'usuario_id');
+    }
 }

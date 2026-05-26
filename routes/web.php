@@ -23,25 +23,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected dashboard routes
 Route::middleware(['auth', 'prevent-back-history'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        if (auth()->user()->rol_id != 1) return redirect('/');
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::get('/admin/config', function () {
         if (auth()->user()->rol_id != 1) return redirect('/');
         return view('admin.config');
     })->name('admin.config');
 
-    Route::get('/admin/usuarios', function () {
-        if (auth()->user()->rol_id != 1) return redirect('/');
-        return view('admin.usuarios');
-    })->name('admin.usuarios');
+    Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'usuarios'])->name('admin.usuarios');
+    Route::post('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'storeUsuario'])->name('admin.usuarios.store');
+    Route::put('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
+    Route::patch('/admin/usuarios/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
 
-    Route::get('/admin/bitacora', function () {
-        if (auth()->user()->rol_id != 1) return redirect('/');
-        return view('admin.bitacora');
-    })->name('admin.bitacora');
+    Route::get('/admin/bitacora', [App\Http\Controllers\AdminController::class, 'bitacora'])->name('admin.bitacora');
+    Route::post('/admin/bitacora/clear', [App\Http\Controllers\AdminController::class, 'clearBitacora'])->name('admin.bitacora.clear');
+    Route::get('/admin/bitacora/export', [App\Http\Controllers\AdminController::class, 'exportBitacora'])->name('admin.bitacora.export');
 
     Route::get('/coordinador/dashboard', [App\Http\Controllers\CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
