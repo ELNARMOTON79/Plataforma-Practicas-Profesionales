@@ -3,11 +3,11 @@
 
 <!-- JAVASCRIPT FOR INTERACTIVENESS -->
 <script>
-    let currentView = "{{ request('view', 'table') }}";
+    var currentView = "{{ request('view', 'table') }}";
 
     // Toggle between Table view and Timeline view
     function toggleView(view) {
-        currentView = view;
+        currentView = view; 
         const tabTable = document.getElementById('tab-table');
         const tabTimeline = document.getElementById('tab-timeline');
         const containerTable = document.getElementById('container-table-view');

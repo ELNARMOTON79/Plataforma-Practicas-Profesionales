@@ -20,7 +20,7 @@
     }
 
     // Funciones para el modal de edición
-    document.addEventListener('DOMContentLoaded', function() {
+    {
         // Auto-ocultar alerta de éxito a los 5 segundos
         const successAlert = document.getElementById('successAlert');
         if (successAlert) {
@@ -90,7 +90,7 @@
                 document.getElementById('editUserModal').classList.remove('hidden');
             });
         });
-    });
+    }
 
     function closeEditModal() {
         document.getElementById('editUserModal').classList.add('hidden');
@@ -98,7 +98,7 @@
 
     // Auto-reabrir modal de edición con errores de validación si corresponde
     @if($errors->any() && old('id') && old('_method') == 'PUT')
-    document.addEventListener('DOMContentLoaded', function() {
+    {
         const id = "{{ old('id') }}";
         const rolId = "{{ old('role') }}";
         
@@ -124,15 +124,13 @@
 
         // Mostrar modal de edición
         document.getElementById('editUserModal').classList.remove('hidden');
-    });
+    }
     @endif
 
     // Auto-reabrir modal de registro con errores de validación si corresponde
     @if($errors->any() && (!old('id') || old('_method') != 'PUT'))
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleDynamicFields("{{ old('role') }}");
-        document.getElementById('registerUserModal').classList.remove('hidden');
-    });
+    toggleDynamicFields("{{ old('role') }}");
+    document.getElementById('registerUserModal').classList.remove('hidden');
     @endif
 
     // Funciones para el modal de confirmación personalizado
@@ -149,7 +147,7 @@
     }
 
     // Funciones para suspender/reactivar usuarios
-    let userIdToToggle = null;
+    var userIdToToggle = null;
 
     function confirmDeactivate(id, name) {
         userIdToToggle = id;
