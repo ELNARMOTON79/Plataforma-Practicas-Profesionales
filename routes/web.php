@@ -17,6 +17,14 @@ Route::get('/', function () {
     return view('welcome');
 })->name('login');
 
+Route::get('/recuperar-contrasena', function () {
+    return view('recuperar_contraseña');
+})->name('recuperar-contrasena');
+
+Route::post('/recuperar-contrasena', [AuthController::class, 'enviarEnlaceRecuperacion'])->name('recuperar-contrasena.post');
+Route::get('/restablecer-contrasena/{token}', [AuthController::class, 'mostrarFormularioRestablecer'])->name('restablecer-contrasena.form');
+Route::post('/restablecer-contrasena', [AuthController::class, 'restablecerContrasena'])->name('restablecer-contrasena.post');
+
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
