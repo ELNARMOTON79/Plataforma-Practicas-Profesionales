@@ -242,4 +242,47 @@
             }, 300);
         }, 3000);
     }
+
+    // Filtros de caracteres en tiempo real (Keypress e Input event delegation)
+    document.addEventListener('keypress', function(e) {
+        const target = e.target;
+        if (!target || !target.classList) return;
+        
+        let regex = null;
+        if (target.classList.contains('restrict-letters')) {
+            regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+        }
+        
+        if (regex) {
+            // Permitir teclas de navegación y control
+            if (e.key === 'Backspace' || e.key === 'Enter' || e.key === 'Tab' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                return;
+            }
+            if (!regex.test(e.key)) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        const target = e.target;
+        if (!target || !target.classList) return;
+        
+        let regex = null;
+        if (target.classList.contains('restrict-letters')) {
+            regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+        }
+        
+        if (regex) {
+            let newValue = '';
+            for (let char of target.value) {
+                if (regex.test(char)) {
+                    newValue += char;
+                }
+            }
+            if (target.value !== newValue) {
+                target.value = newValue;
+            }
+        }
+    });
 </script>

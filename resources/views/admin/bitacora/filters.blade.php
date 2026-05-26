@@ -8,7 +8,7 @@
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
-            <input type="text" name="search" id="log-search" value="{{ request('search') }}" class="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] text-sm transition-colors" placeholder="Buscar por usuario, IP, descripción, acción...">
+            <input type="text" name="search" id="log-search" value="{{ request('search') }}" class="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] text-sm transition-colors restrict-letters" placeholder="Buscar por usuario, IP, descripción, acción..." pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El buscador solo acepta letras y espacios." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '')">
         </div>
 
         <div class="flex flex-wrap md:flex-nowrap gap-3">

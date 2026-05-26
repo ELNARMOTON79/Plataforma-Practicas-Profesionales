@@ -62,6 +62,10 @@ class AdminController extends Controller
         }
 
         $search = $request->input('search');
+        if ($search) {
+            // Strip any character that is not a letter, number, space, @ or .
+            $search = preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/u', '', $search);
+        }
         $rol = $request->input('rol');
         $estado = $request->input('estado');
         $perPage = $request->input('per_page', 5);
@@ -119,24 +123,32 @@ class AdminController extends Controller
 
         // Base validation rules
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/',
             'email' => 'required|email|max:255|unique:usuarios,correo',
             'role' => 'required|in:1,2,3,4',
         ];
 
         // Dynamic validation rules based on role
         if ($request->input('role') == 3) { // Alumno
-            $rules['matricula'] = 'required|string|max:50|unique:estudiantes,matricula';
+            $rules['matricula'] = 'required|string|max:50|unique:estudiantes,matricula|regex:/^[0-9]+$/';
             $rules['carrera'] = 'required|string|max:150';
             $rules['semestre'] = 'required|integer|min:1|max:12';
-            $rules['grupo'] = 'required|string|max:20';
+            $rules['grupo'] = 'required|string|max:20|regex:/^[a-zA-Z]$/';
         } elseif ($request->input('role') == 4) { // Empresa
-            $rules['nombre_empresa'] = 'required|string|max:255';
-            $rules['direccion'] = 'required|string|max:500';
+            $rules['nombre_empresa'] = 'required|string|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,&-]+$/';
+            $rules['direccion'] = 'required|string|max:500|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,#\/\s-]+$/';
             $rules['tipo_persona'] = 'required|string|in:Física,Moral';
         }
 
-        $request->validate($rules);
+        $messages = [
+            'name.regex' => 'El nombre completo solo debe contener letras y espacios.',
+            'nombre_empresa.regex' => 'El nombre de la empresa solo debe contener letras, números, espacios y caracteres permitidos (.,&-).',
+            'matricula.regex' => 'La matrícula solo debe contener números.',
+            'grupo.regex' => 'El grupo debe ser exactamente una letra.',
+            'direccion.regex' => 'La dirección contiene caracteres no permitidos.',
+        ];
+
+        $request->validate($rules, $messages);
 
         // Generate random secure password (10 characters)
         $randomPassword = Str::random(10);
@@ -334,7 +346,14 @@ class AdminController extends Controller
 
         // Validation
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                $user->rol_id == 4 
+                    ? 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,&-]+$/'
+                    : 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/'
+            ],
             'email' => [
                 'required',
                 'email',
@@ -351,16 +370,36 @@ class AdminController extends Controller
                 'string',
                 'max:50',
                 Rule::unique('estudiantes', 'matricula')->ignore($user->alumno->id ?? 0),
+                'regex:/^[0-9]+$/',
             ];
             $rules['carrera'] = 'required|string|max:150';
             $rules['semestre'] = 'required|integer|min:1|max:12';
-            $rules['grupo'] = 'required|string|max:20';
+            $rules['grupo'] = [
+                'required',
+                'string',
+                'max:20',
+                'regex:/^[a-zA-Z]$/',
+            ];
         } elseif ($user->rol_id == 4) { // Empresa
-            $rules['direccion'] = 'required|string|max:500';
+            $rules['direccion'] = [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,#\/\s-]+$/',
+            ];
             $rules['tipo_persona'] = 'required|string|in:Física,Moral';
         }
 
-        $request->validate($rules);
+        $messages = [
+            'name.regex' => $user->rol_id == 4 
+                ? 'El nombre de la empresa solo debe contener letras, números, espacios y caracteres permitidos (.,&-).'
+                : 'El nombre completo solo debe contener letras y espacios.',
+            'matricula.regex' => 'La matrícula solo debe contener números.',
+            'grupo.regex' => 'El grupo debe ser exactamente una letra.',
+            'direccion.regex' => 'La dirección contiene caracteres no permitidos.',
+        ];
+
+        $request->validate($rules, $messages);
 
         // Update user (basic info)
         $user->correo = $request->input('email');
@@ -464,6 +503,10 @@ class AdminController extends Controller
         }
 
         $search = $request->input('search');
+        if ($search) {
+            // Strip any character that is not a letter or space
+            $search = preg_replace('/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/u', '', $search);
+        }
         $level = $request->input('level');
         $module = $request->input('module');
         $date = $request->input('date');
@@ -551,6 +594,10 @@ class AdminController extends Controller
         $format = strtoupper($request->query('format', 'CSV'));
         
         $search = $request->input('search');
+        if ($search) {
+            // Strip any character that is not a letter or space
+            $search = preg_replace('/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/u', '', $search);
+        }
         $level = $request->input('level');
         $module = $request->input('module');
         $date = $request->input('date');
