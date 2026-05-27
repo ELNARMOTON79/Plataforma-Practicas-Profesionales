@@ -33,6 +33,94 @@ class CoordinadorController extends Controller
     }
 
     /**
+     * List, search, filter and paginate students.
+     */
+    public function alumnos(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $search = $request->input('search');
+        if ($search) {
+            // Strip any invalid characters
+            $search = preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/u', '', $search);
+        }
+        $carrera = $request->input('carrera');
+        $estatus = $request->input('estatus');
+        $perPage = $request->input('per_page', 5);
+
+        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
+            $perPage = 5;
+        }
+
+        $query = Alumno::with('user');
+
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre_completo', 'like', "%{$search}%")
+                  ->orWhere('matricula', 'like', "%{$search}%")
+                  ->orWhere('carrera', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('correo', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Carrera filter
+        if ($carrera) {
+            $query->where('carrera', $carrera);
+        }
+
+        // Estatus filter
+        if ($estatus) {
+            if ($estatus === 'activo') {
+                $query->where('activo_practica', 1)
+                      ->whereHas('user', function($qu) {
+                          $qu->where('activo', 1);
+                      });
+            } elseif ($estatus === 'inactivo') {
+                $query->whereHas('user', function($qu) {
+                    $qu->where('activo', 0);
+                });
+            } elseif ($estatus === 'asignado') {
+                $query->where('activo_practica', 0)
+                      ->whereHas('user', function($qu) {
+                          $qu->where('activo', 1);
+                      })
+                      ->whereExists(function ($qex) {
+                          $qex->select(\DB::raw(1))
+                              ->from('solicitudes')
+                              ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                              ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
+                      });
+            } elseif ($estatus === 'pendiente') {
+                $query->where('activo_practica', 0)
+                      ->whereHas('user', function($qu) {
+                          $qu->where('activo', 1);
+                      })
+                      ->where(function ($qor) {
+                          $qor->whereNotExists(function ($qex) {
+                              $qex->select(\DB::raw(1))
+                                  ->from('solicitudes')
+                                  ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                                  ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
+                          });
+                      });
+            }
+        }
+
+        $alumnos = $query->paginate($perPage);
+
+        // Get unique careers for dynamic select
+        $carrerasDisponibles = Alumno::distinct()->pluck('carrera')->filter()->values();
+
+        return view('coordinador.alumnos', compact('alumnos', 'carrerasDisponibles'));
+    }
+
+
+    /**
      * Register a new student (alumno) from the coordinator dashboard.
      */
     public function storeAlumno(Request $request)
