@@ -59,14 +59,14 @@
         <div class="lg:col-span-3 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-gray-200/50 shadow-sm flex flex-col gap-2">
             <div class="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Menú de Opciones</div>
             
-            <button onclick="switchTab('profile')" id="btn-profile" class="w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200">
+            <button onclick="switchTab('profile')" id="btn-profile" class="w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200 {{ request('tab', 'profile') === 'profile' ? 'text-[#4E7D24] bg-[#6BA53A]/10' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
                 <span>Perfil y Seguridad</span>
             </button>
             
-            <button onclick="switchTab('system')" id="btn-system" class="w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200">
+            <button onclick="switchTab('system')" id="btn-system" class="w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200 {{ request('tab', 'profile') === 'system' ? 'text-[#4E7D24] bg-[#6BA53A]/10' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -79,7 +79,7 @@
         <div class="lg:col-span-9 flex flex-col gap-8">
             
             <!-- TAB 1: Profile & Security -->
-            <div id="tab-profile" class="hidden flex flex-col gap-8">
+            <div id="tab-profile" class="{{ request('tab', 'profile') === 'profile' ? '' : 'hidden' }} flex flex-col gap-8">
                 
                 <!-- Profile Information Card -->
                 <div class="glass-card rounded-3xl p-6 md:p-8 bg-white/70 border border-gray-200/50 shadow-md">
@@ -212,7 +212,7 @@
             </div>
 
             <!-- TAB 2: Maintenance & Preferencias -->
-            <div id="tab-system" class="hidden flex flex-col gap-8">
+            <div id="tab-system" class="{{ request('tab', 'profile') === 'system' ? '' : 'hidden' }} flex flex-col gap-8">
                 
                 <!-- Global Settings Form Card -->
                 <div class="glass-card rounded-3xl p-6 md:p-8 bg-white/70 border border-gray-200/50 shadow-md">
@@ -416,49 +416,30 @@
 
     <!-- Script Block for Tabs & Operations -->
     <script>
-        // Default to 'profile' tab on load unless specified in query parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeTab = urlParams.get('tab') || 'profile';
-        switchTab(activeTab);
-
-        // Auto-dismiss success alert after 5 seconds
-        const successAlert = document.getElementById('successAlert');
-        if (successAlert) {
-            setTimeout(() => {
-                successAlert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                successAlert.style.opacity = '0';
-                successAlert.style.transform = 'translateY(-10px)';
-                setTimeout(() => {
-                    successAlert.remove();
-                }, 500);
-            }, 5000);
-        }
-
         // Tab Switching Logic
         function switchTab(tabId) {
-            // Define all tab lists
             const tabs = ['profile', 'system'];
-            
             tabs.forEach(t => {
                 const view = document.getElementById(`tab-${t}`);
                 const btn = document.getElementById(`btn-${t}`);
+                if (!view || !btn) return;
                 
                 if (t === tabId) {
                     view.classList.remove('hidden');
-                    // Style active button
                     btn.className = "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200 text-[#4E7D24] bg-[#6BA53A]/10";
                 } else {
                     view.classList.add('hidden');
-                    // Style inactive button
                     btn.className = "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-3 transition-all duration-200 text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5";
                 }
             });
         }
+        window.switchTab = switchTab;
 
         // Toggle Switch Dynamic Badges
         function updateToggleBadge(checkboxId, badgeId, checkedText, uncheckedText) {
             const checkbox = document.getElementById(checkboxId);
             const badge = document.getElementById(badgeId);
+            if (!checkbox || !badge) return;
             
             if (checkbox.checked) {
                 badge.innerText = checkedText;
@@ -474,40 +455,53 @@
                 }
             }
         }
+        window.updateToggleBadge = updateToggleBadge;
 
         // Modal Helpers
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
+            if (!modal) return;
             modal.classList.remove('hidden');
             setTimeout(() => {
-                modal.firstElementChild.classList.remove('scale-95');
-                modal.firstElementChild.classList.add('scale-100');
+                if (modal.firstElementChild) {
+                    modal.firstElementChild.classList.remove('scale-95');
+                    modal.firstElementChild.classList.add('scale-100');
+                }
             }, 10);
         }
+        window.openModal = openModal;
 
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
-            modal.firstElementChild.classList.remove('scale-100');
-            modal.firstElementChild.classList.add('scale-95');
+            if (!modal) return;
+            if (modal.firstElementChild) {
+                modal.firstElementChild.classList.remove('scale-100');
+                modal.firstElementChild.classList.add('scale-95');
+            }
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 150);
         }
+        window.closeModal = closeModal;
 
         // Password confirmation helper
         function confirmPasswordChange() {
             const form = document.getElementById('passwordForm');
+            if (!form) return;
             if (form.checkValidity()) {
                 openModal('passwordModal');
             } else {
                 form.reportValidity();
             }
         }
+        window.confirmPasswordChange = confirmPasswordChange;
 
         function submitPasswordForm() {
             closeModal('passwordModal');
-            document.getElementById('passwordForm').submit();
+            const form = document.getElementById('passwordForm');
+            if (form) form.submit();
         }
+        window.submitPasswordForm = submitPasswordForm;
 
         // Toggle password visibility helper
         function togglePasswordVisibility(inputId, btn) {
@@ -535,6 +529,7 @@
                 `;
             }
         }
+        window.togglePasswordVisibility = togglePasswordVisibility;
 
         // Fetch Execute Log Cleanup
         function executeCleanup() {
@@ -544,6 +539,7 @@
             const alertBox = document.getElementById('ajaxAlert');
             const alertMsg = document.getElementById('ajaxAlertMessage');
             const alertIcon = document.getElementById('ajaxAlertIcon');
+            if (!btn || !alertBox || !alertMsg || !alertIcon) return;
             
             // Set loading state
             btn.disabled = true;
@@ -593,6 +589,25 @@
                 // Scroll page back up to show alert nicely
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
+        }
+        window.executeCleanup = executeCleanup;
+
+        // Default to active tab on load/swap unless specified in query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'profile';
+        switchTab(activeTab);
+
+        // Auto-dismiss success alert after 5 seconds
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                successAlert.style.opacity = '0';
+                successAlert.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    successAlert.remove();
+                }, 500);
+            }, 5000);
         }
     </script>
 @endsection
