@@ -1,13 +1,49 @@
 @extends('layouts.coordinador', ['active' => 'dashboard', 'title' => 'Inicio - Coordinador'])
 
 @section('content')
+
+    {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
+    @if(session('success'))
+        <div id="alert-success" class="flex items-start gap-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-sm font-semibold">{{ session('success') }}</p>
+            <button onclick="document.getElementById('alert-success').remove()" class="ml-auto text-green-400 hover:text-green-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div id="alert-error" class="flex items-start gap-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="text-sm font-bold mb-1">Corrige los siguientes errores:</p>
+                <ul class="text-xs space-y-0.5 list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button onclick="document.getElementById('alert-error').remove()" class="ml-auto text-red-400 hover:text-red-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
     <!-- Welcome Header -->
     <x-page-header title="Panel del Coordinador" description="Monitoreo general y gestión de estudiantes en prácticas profesionales.">
         <x-slot:actions>
-            <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+            <button
+                id="btn-abrir-modal-alumno"
+                onclick="document.getElementById('modal-registrar-alumno').classList.remove('hidden')"
+                class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Registrar Alumno
-            </a>
+            </button>
         </x-slot>
     </x-page-header>
 
@@ -66,7 +102,7 @@
         </div>
     </div>
 
-    <!-- Main Grid Content (Balanced 2-Column Layout like Admin) -->
+    <!-- Main Grid Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Quick Students (60%) -->
         <div class="lg:col-span-2 flex flex-col gap-8">
@@ -78,7 +114,7 @@
                     </h2>
                     <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="text-sm font-bold text-[#6BA53A] hover:text-[#4E7D24] transition-colors">Ver todos</a>
                 </div>
-                
+
                 <div class="overflow-hidden bg-white/60 rounded-2xl border border-gray-100 shadow-inner">
                     <table class="min-w-full divide-y divide-gray-200/50">
                         <thead class="bg-gray-50/50">
@@ -100,9 +136,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. de Software
-                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. de Software</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-200">Activo</span>
                                 </td>
@@ -120,9 +154,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. Eléctrico
-                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. Eléctrico</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200">Asignado</span>
                                 </td>
@@ -140,9 +172,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. Mecánico
-                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. Mecánico</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200">Pendiente</span>
                                 </td>
@@ -156,7 +186,7 @@
             </div>
         </div>
 
-        <!-- Right Column: Bitácora de la Coordinación (40%) -->
+        <!-- Right Column: Bitácora (40%) -->
         <div class="flex flex-col gap-8 h-full">
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
@@ -168,12 +198,10 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path></svg>
                     </button>
                 </div>
-                
+
                 <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-6">
-                    <!-- Timeline Vertical Line -->
                     <div class="absolute left-4 top-2 bottom-0 w-px bg-gray-200/75"></div>
 
-                    <!-- Item 1 -->
                     <div class="relative pl-10">
                         <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm ring-4 ring-green-50"></div>
                         <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
@@ -185,7 +213,6 @@
                         </div>
                     </div>
 
-                    <!-- Item 2 -->
                     <div class="relative pl-10">
                         <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white shadow-sm ring-4 ring-blue-50"></div>
                         <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
@@ -197,7 +224,6 @@
                         </div>
                     </div>
 
-                    <!-- Item 3 -->
                     <div class="relative pl-10">
                         <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-yellow-500 rounded-full border-2 border-white shadow-sm ring-4 ring-yellow-50"></div>
                         <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
@@ -209,11 +235,16 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200">
                     Cargar más actividad
                 </button>
             </div>
         </div>
     </div>
+
 @endsection
+
+@push('modals')
+    @include('coordinador.dashboard.register-modal')
+@endpush

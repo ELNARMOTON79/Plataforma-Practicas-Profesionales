@@ -61,6 +61,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
         return view('coordinador.alumnos');
     })->name('coordinador.alumnos');
 
+    Route::post('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
+
     Route::get('/coordinador/proyectos', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
         return view('coordinador.proyectos');

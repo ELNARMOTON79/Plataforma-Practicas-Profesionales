@@ -27,5 +27,8 @@
         @yield('content')
     </main>
 
+    {{-- Modals rendered outside main to avoid stacking context issues --}}
+    @stack('modals')
+
 </body>
 </html>
