@@ -181,7 +181,7 @@ class CoordinadorController extends Controller
             \Log::error("Error al enviar correo de credenciales al alumno {$user->correo}: " . $e->getMessage());
         }
 
-        return redirect()->route('coordinador.dashboard')
+        return redirect()->back()
             ->with('success', "Alumno \"{$request->input('nombre')}\" registrado correctamente. Se enviaron las credenciales a {$request->input('correo')}.");
     }
 }

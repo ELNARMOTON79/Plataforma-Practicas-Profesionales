@@ -1,8 +1,49 @@
 @extends('layouts.coordinador', ['active' => 'alumnos', 'title' => 'Alumnos - Coordinador'])
 
 @section('content')
+    {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
+    @if(session('success'))
+        <div id="alert-success" class="flex items-start gap-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-sm font-semibold">{{ session('success') }}</p>
+            <button onclick="document.getElementById('alert-success').remove()" class="ml-auto text-green-400 hover:text-green-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div id="alert-error" class="flex items-start gap-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="text-sm font-bold mb-1">Corrige los siguientes errores:</p>
+                <ul class="text-xs space-y-0.5 list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button onclick="document.getElementById('alert-error').remove()" class="ml-auto text-red-400 hover:text-red-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
     <!-- Header Section -->
     <x-page-header title="Listado de Alumnos" description="Directorio y gestión de estudiantes en prácticas profesionales.">
+        <x-slot:actions>
+            <button
+                id="btn-abrir-modal-alumno"
+                onclick="document.getElementById('modal-registrar-alumno').classList.remove('hidden')"
+                class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Registrar Alumno
+            </button>
+        </x-slot>
     </x-page-header>
 
     <!-- Main Alumnos Container (Glassmorphic) -->
@@ -121,3 +162,7 @@
     </div>
 
 @endsection
+
+@push('modals')
+    @include('coordinador.dashboard.register-modal')
+@endpush
