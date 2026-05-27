@@ -51,10 +51,7 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
 
     Route::get('/coordinador/dashboard', [App\Http\Controllers\CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
-    Route::get('/coordinador/instituciones', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.instituciones');
-    })->name('coordinador.instituciones');
+    Route::get('/coordinador/instituciones', [App\Http\Controllers\CoordinadorController::class, 'instituciones'])->name('coordinador.instituciones');
 
     Route::get('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'alumnos'])->name('coordinador.alumnos');
 

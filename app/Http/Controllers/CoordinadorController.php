@@ -121,6 +121,117 @@ class CoordinadorController extends Controller
 
 
     /**
+     * List, search, filter and paginate institutions.
+     */
+    public function instituciones(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $search = $request->input('search');
+        if ($search) {
+            $search = preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/u', '', $search);
+        }
+        $perPage = $request->input('per_page', 5);
+
+        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
+            $perPage = 5;
+        }
+
+        $query = DB::table('unidades_receptoras');
+
+        // Apply Search
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre_empresa', 'like', "%{$search}%")
+                  ->orWhere('direccion', 'like', "%{$search}%")
+                  ->orWhere('tipo_persona', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply Sector Filter (Public / Private keywords matching the UI heuristics)
+        $sector = $request->input('sector');
+        if ($sector === 'publico') {
+            $query->where(function($q) {
+                $q->where('nombre_empresa', 'like', '%Ayuntamiento%')
+                  ->orWhere('nombre_empresa', 'like', '%Secretaria%')
+                  ->orWhere('nombre_empresa', 'like', '%Secretaría%')
+                  ->orWhere('nombre_empresa', 'like', '%IMSS%')
+                  ->orWhere('nombre_empresa', 'like', '%DIF%')
+                  ->orWhere('nombre_empresa', 'like', '%Gobierno%')
+                  ->orWhere('nombre_empresa', 'like', '%Universidad%')
+                  ->orWhere('nombre_empresa', 'like', '%Facultad%');
+            });
+        } elseif ($sector === 'privado') {
+            $query->where(function($q) {
+                $q->where('nombre_empresa', 'not like', '%Ayuntamiento%')
+                  ->where('nombre_empresa', 'not like', '%Secretaria%')
+                  ->where('nombre_empresa', 'not like', '%Secretaría%')
+                  ->where('nombre_empresa', 'not like', '%IMSS%')
+                  ->where('nombre_empresa', 'not like', '%DIF%')
+                  ->where('nombre_empresa', 'not like', '%Gobierno%')
+                  ->where('nombre_empresa', 'not like', '%Universidad%')
+                  ->where('nombre_empresa', 'not like', '%Facultad%');
+            });
+        }
+
+        // Apply Tipo Persona Filter (Física / Moral)
+        $tipoPersona = $request->input('tipo_persona');
+        if ($tipoPersona === 'moral') {
+            $query->where(function($q) {
+                $q->where('tipo_persona', 'Moral')
+                  ->orWhere('tipo_persona', 'moral')
+                  ->orWhere('tipo_persona', 'like', '%moral%');
+            });
+        } elseif ($tipoPersona === 'fisica') {
+            $query->where(function($q) {
+                $q->where('tipo_persona', 'Física')
+                  ->orWhere('tipo_persona', 'Fisica')
+                  ->orWhere('tipo_persona', 'fisica')
+                  ->orWhere('tipo_persona', 'like', '%fis%')
+                  ->orWhere('tipo_persona', 'like', '%fís%');
+            });
+        }
+
+        // Apply Convenio Filter (Con convenio / Sin convenio)
+        $convenio = $request->input('convenio');
+        if ($convenio === 'con') {
+            $query->whereExists(function($q) {
+                $q->select(DB::raw(1))
+                  ->from('convenios')
+                  ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+            });
+        } elseif ($convenio === 'sin') {
+            $query->whereNotExists(function($q) {
+                $q->select(DB::raw(1))
+                  ->from('convenios')
+                  ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+            });
+        }
+
+        $instituciones = $query->paginate($perPage);
+
+        // Fetch related data
+        $urIds = $instituciones->pluck('id')->toArray();
+        
+        $convenios = DB::table('convenios')
+            ->whereIn('ur_id', $urIds)
+            ->get()
+            ->groupBy('ur_id');
+            
+        $solicitudesCounts = DB::table('solicitudes')
+            ->whereIn('ur_id', $urIds)
+            ->select('ur_id', DB::raw('count(*) as count'))
+            ->groupBy('ur_id')
+            ->pluck('count', 'ur_id')
+            ->toArray();
+
+        return view('coordinador.instituciones', compact('instituciones', 'convenios', 'solicitudesCounts'));
+    }
+
+
+    /**
      * Register a new student (alumno) from the coordinator dashboard.
      */
     public function storeAlumno(Request $request)
