@@ -57,10 +57,10 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
 
     Route::post('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
 
-    Route::get('/coordinador/proyectos', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.proyectos');
-    })->name('coordinador.proyectos');
+    Route::get('/coordinador/proyectos', [App\Http\Controllers\CoordinadorController::class, 'proyectos'])->name('coordinador.proyectos');
+    Route::post('/coordinador/proyectos', [App\Http\Controllers\CoordinadorController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
+    Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\CoordinadorController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
+    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\CoordinadorController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
     Route::get('/coordinador/tramites', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
