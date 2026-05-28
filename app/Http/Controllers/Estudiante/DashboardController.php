@@ -172,20 +172,26 @@ class DashboardController extends Controller
         $carrera = $estudiante?->carrera ?? '—';
         $iniciales = $this->iniciales($nombre);
 
-        $nombrePartes = preg_split('/\s+/', trim($nombre), 2, PREG_SPLIT_NO_EMPTY);
-        $primerNombre = $nombrePartes[0] ?? $nombre;
-        $apellidos = $nombrePartes[1] ?? '';
+        // Use dedicated columns; fall back to splitting nombre_completo for legacy records
+        if ($estudiante?->primer_nombre !== null) {
+            $primerNombre = $estudiante->primer_nombre;
+            $apellidos    = $estudiante->apellidos ?? '';
+        } else {
+            $partes       = preg_split('/\s+/', trim($nombre), 2, PREG_SPLIT_NO_EMPTY);
+            $primerNombre = $partes[0] ?? $nombre;
+            $apellidos    = $partes[1] ?? '';
+        }
 
         return view('estudiante.mi_perfil', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-            'correo' => $user->correo,
-            'primerNombre' => $primerNombre,
-            'apellidos' => $apellidos,
-            'direccion' => $estudiante?->direccion ?? '',
-            'telefono' => $estudiante?->telefono ?? '',
+            'nombre'      => $nombre,
+            'matricula'   => $matricula,
+            'carrera'     => $carrera,
+            'iniciales'   => $iniciales,
+            'correo'      => $user->correo,
+            'primerNombre'=> $primerNombre,
+            'apellidos'   => $apellidos,
+            'direccion'   => $estudiante?->direccion ?? '',
+            'telefono'    => $estudiante?->telefono ?? '',
         ]);
     }
 
@@ -221,10 +227,11 @@ class DashboardController extends Controller
 
         $nombreCompleto = trim($data['primerNombre'] . ' ' . ($data['apellidos'] ?? ''));
 
+        $estudiante->primer_nombre   = $data['primerNombre'];
+        $estudiante->apellidos       = $data['apellidos'] ?? null;
         $estudiante->nombre_completo = $nombreCompleto;
-        // set optional fields (migration ensures columns exist when applied)
-        $estudiante->direccion = $data['direccion'] ?? null;
-        $estudiante->telefono = $data['telefono'] ?? null;
+        $estudiante->direccion       = $data['direccion'] ?? null;
+        $estudiante->telefono        = $data['telefono'] ?? null;
         $estudiante->save();
 
         // If request is AJAX, return JSON so client can update the UI without reload
