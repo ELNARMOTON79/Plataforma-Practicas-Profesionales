@@ -21,11 +21,11 @@
                     <span class="text-xs font-medium text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mt-1 border border-[#6BA53A]/20">Estudiante</span>
                 </div>
                 
-                <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] p-[2px] shadow-md">
+                <a href="{{ route('estudiante.miPerfil') }}" title="Mi Perfil" class="h-10 w-10 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] p-[2px] shadow-md hover:shadow-lg hover:scale-105 transition-all">
                     <div class="h-full w-full rounded-full bg-white flex items-center justify-center">
                         <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                </div>
+                </a>
                 
                 <div class="h-8 w-px bg-gray-200 mx-1"></div>
                 
