@@ -266,4 +266,28 @@
     @include('coordinador.proyectos.register-modal')
     @include('coordinador.proyectos.view-modal')
     @include('coordinador.proyectos.edit-modal')
+
+    {{-- Re-open correct modal on validation errors --}}
+    @if($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(old('_method') === 'PUT')
+                    const editProjId = "{{ session('edit_proyecto_id') }}";
+                    if (editProjId) {
+                        const form = document.getElementById('form-editar-proyecto');
+                        if (form) form.action = `/coordinador/proyectos/${editProjId}`;
+                        
+                        const displayId = document.getElementById('edit-id-display');
+                        if (displayId) displayId.textContent = '#' + editProjId;
+                        
+                        const editModal = document.getElementById('modal-editar-proyecto');
+                        if (editModal) editModal.classList.remove('hidden');
+                    }
+                @else
+                    const regModal = document.getElementById('modal-registrar-proyecto');
+                    if (regModal) regModal.classList.remove('hidden');
+                @endif
+            });
+        </script>
+    @endif
 @endpush

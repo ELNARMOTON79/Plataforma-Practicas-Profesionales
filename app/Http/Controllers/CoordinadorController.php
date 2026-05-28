@@ -428,28 +428,35 @@ class CoordinadorController extends Controller
 
         $proyecto = Proyecto::findOrFail($id);
 
-        $request->validate([
-            'unidad_receptora_id' => ['required', 'integer', 'exists:unidades_receptoras,id'],
-            'titulo'              => ['required', 'string', 'max:255'],
-            'objetivo'            => ['required', 'string'],
-            'justificacion'       => ['required', 'string'],
-            'actividades'         => ['required', 'string'],
-            'impacto_social'      => ['required', 'string'],
-            'tipo_proyecto'       => ['required', 'string', 'max:150'],
-            'tipo_modalidad'      => ['required', 'string', 'max:150'],
-            'publico_internet'    => ['required', 'in:SI,NO'],
-        ], [
-            'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
-            'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
-            'titulo.required'              => 'El título del proyecto es requerido.',
-            'objetivo.required'            => 'El objetivo es requerido.',
-            'justificacion.required'       => 'La justificación es requerida.',
-            'actividades.required'         => 'Las actividades son requeridas.',
-            'impacto_social.required'      => 'El impacto social es requerido.',
-            'tipo_proyecto.required'       => 'El tipo de proyecto es requerido.',
-            'tipo_modalidad.required'      => 'El tipo de modalidad es requerido.',
-            'publico_internet.required'    => 'Especifica si es público para internet.',
-        ]);
+        try {
+            $request->validate([
+                'unidad_receptora_id' => ['required', 'integer', 'exists:unidades_receptoras,id'],
+                'titulo'              => ['required', 'string', 'max:255'],
+                'objetivo'            => ['required', 'string'],
+                'justificacion'       => ['required', 'string'],
+                'actividades'         => ['required', 'string'],
+                'impacto_social'      => ['required', 'string'],
+                'tipo_proyecto'       => ['required', 'string', 'max:150'],
+                'tipo_modalidad'      => ['required', 'string', 'max:150'],
+                'publico_internet'    => ['required', 'in:SI,NO'],
+            ], [
+                'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
+                'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
+                'titulo.required'              => 'El título del proyecto es requerido.',
+                'objetivo.required'            => 'El objetivo es requerido.',
+                'justificacion.required'       => 'La justificación es requerida.',
+                'actividades.required'         => 'Las actividades son requeridas.',
+                'impacto_social.required'      => 'El impacto social es requerido.',
+                'tipo_proyecto.required'       => 'El tipo de proyecto es requerido.',
+                'tipo_modalidad.required'      => 'El tipo de modalidad es requerido.',
+                'publico_internet.required'    => 'Especifica si es público para internet.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('edit_proyecto_id', $id);
+        }
 
         $proyecto->update([
             'unidad_receptora_id' => $request->input('unidad_receptora_id'),
