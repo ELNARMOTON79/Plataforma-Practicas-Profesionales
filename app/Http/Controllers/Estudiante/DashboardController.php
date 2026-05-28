@@ -27,9 +27,11 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
+        $nombre    = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
         $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
+        $carrera   = $estudiante?->carrera   ?? '—';
+        $semestre  = $estudiante?->semestre  ?? null;
+        $grupo     = $estudiante?->grupo     ?? null;
         $iniciales = $this->iniciales($nombre);
 
         $horasCompletadas = 0;
@@ -54,9 +56,11 @@ class DashboardController extends Controller
             : 0;
 
         return view('estudiante.dashboard', [
-            'nombre' => $nombre,
+            'nombre'    => $nombre,
             'matricula' => $matricula,
-            'carrera' => $carrera,
+            'carrera'   => $carrera,
+            'semestre'  => $semestre,
+            'grupo'     => $grupo,
             'iniciales' => $iniciales,
             'horasCompletadas' => (int) $horasCompletadas,
             'horasMeta' => self::HORAS_META,

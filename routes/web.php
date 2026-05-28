@@ -72,10 +72,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('coordinador.perfil');
     })->name('coordinador.perfil');
 
-    Route::get('/estudiante/dashboard', function () {
-        if (auth()->user()->rol_id != 3) return redirect('/');
-        return view('estudiante.dashboard');
-    })->name('estudiante.dashboard');
+    Route::get('/estudiante/dashboard', [DashboardController::class, 'index'])->name('estudiante.dashboard');
 
     Route::get('/estudiante/convenios', [DashboardController::class, 'convenios'])->name('estudiante.convenios');
     Route::get('/estudiante/mi-perfil', [DashboardController::class, 'miPerfil'])->name('estudiante.miPerfil');
