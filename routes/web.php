@@ -79,10 +79,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
     Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
-    Route::get('/estudiante/proyecto', function () {
-        if (auth()->user()->rol_id != 3) return redirect('/');
-        return view('estudiante.proyecto');
-    })->name('estudiante.proyecto');
+    Route::get('/estudiante/proyecto', [DashboardController::class, 'miProyecto'])->name('estudiante.proyecto');
 
     Route::get('/empresa/dashboard', function () {
         if (auth()->user()->rol_id != 4) return redirect('/');

@@ -145,21 +145,85 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
-        $search = request('q');
+        $search        = trim(request('q', ''));
+        $carreraFilter = trim(request('carrera', ''));
 
         $query = UnidadReceptora::query();
-        if ($search) {
+
+        if (strlen($search) >= 2) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_empresa', 'like', "%{$search}%")
                   ->orWhere('direccion', 'like', "%{$search}%");
             });
         }
 
+        if ($carreraFilter) {
+            $query->whereHas('solicitudes', function ($q) use ($carreraFilter) {
+                $q->whereHas('estudiante', fn ($q2) => $q2->where('carrera', $carreraFilter));
+            });
+        }
+
         $unidades = $query->orderBy('nombre_empresa')->get();
 
+        $carreras = Estudiante::whereNotNull('carrera')
+            ->where('carrera', '!=', '')
+            ->distinct()
+            ->orderBy('carrera')
+            ->pluck('carrera');
+
         return view('estudiante.convenios', [
-            'unidades' => $unidades,
-            'search'   => $search ?? '',
+            'unidades'      => $unidades,
+            'search'        => $search,
+            'carreraFilter' => $carreraFilter,
+            'carreras'      => $carreras,
+        ]);
+    }
+
+    public function miProyecto()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        $nombre    = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
+        $matricula = $estudiante?->matricula ?? '—';
+        $carrera   = $estudiante?->carrera   ?? '—';
+        $iniciales = $this->iniciales($nombre);
+
+        $solicitudActiva  = null;
+        $horasCompletadas = 0;
+        $documentos       = collect();
+
+        if ($estudiante) {
+            $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+                ->whereIn('estatus', ['aprobada', 'en_proceso'])
+                ->with(['unidadReceptora', 'documentos'])
+                ->latest('id')
+                ->first();
+
+            if ($solicitudActiva) {
+                $horasCompletadas = (float) $solicitudActiva->horas()->sum('cantidad_horas');
+                $documentos       = $solicitudActiva->documentos;
+            }
+        }
+
+        $porcentajeHoras = self::HORAS_META > 0
+            ? min(100, round(($horasCompletadas / self::HORAS_META) * 100, 1))
+            : 0;
+
+        return view('estudiante.proyecto', [
+            'nombre'           => $nombre,
+            'matricula'        => $matricula,
+            'carrera'          => $carrera,
+            'iniciales'        => $iniciales,
+            'solicitudActiva'  => $solicitudActiva,
+            'horasCompletadas' => (int) $horasCompletadas,
+            'horasMeta'        => self::HORAS_META,
+            'porcentajeHoras'  => $porcentajeHoras,
+            'documentos'       => $documentos,
         ]);
     }
 

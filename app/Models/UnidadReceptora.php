@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UnidadReceptora extends Model
 {
@@ -16,4 +17,9 @@ class UnidadReceptora extends Model
         'direccion',
         'tipo_persona',
     ];
+
+    public function solicitudes(): HasMany
+    {
+        return $this->hasMany(\App\Models\Solicitud::class, 'ur_id');
+    }
 }
