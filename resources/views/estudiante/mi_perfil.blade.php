@@ -1,4 +1,4 @@
-@extends('layouts.estudiante', ['title' => 'Mi Perfil - Prácticas Profesionales UdeC', 'active' => ''])
+@extends('layouts.estudiante', ['title' => 'Mi Perfil - Prácticas Profesionales UdeC', 'active' => 'perfil'])
 
 @section('content')
 
