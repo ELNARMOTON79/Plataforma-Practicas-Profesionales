@@ -203,10 +203,20 @@ class DashboardController extends Controller
         }
 
         $data = $request->validate([
-            'primerNombre' => 'required|string|max:255',
-            'apellidos' => 'nullable|string|max:255',
-            'direccion' => 'nullable|string|max:500',
-            'telefono' => 'nullable|string|max:50',
+            'primerNombre' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\'\-]+$/u'],
+            'apellidos'    => ['nullable', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\'\-]+$/u'],
+            'telefono'     => ['nullable', 'digits:10'],
+            'direccion'    => ['nullable', 'string', 'max:500'],
+        ], [
+            'primerNombre.required' => 'El nombre es obligatorio.',
+            'primerNombre.min'      => 'El nombre debe tener al menos 2 caracteres.',
+            'primerNombre.max'      => 'El nombre no puede superar los 100 caracteres.',
+            'primerNombre.regex'    => 'El nombre solo puede contener letras y espacios.',
+            'apellidos.min'         => 'Los apellidos deben tener al menos 2 caracteres.',
+            'apellidos.max'         => 'Los apellidos no pueden superar los 100 caracteres.',
+            'apellidos.regex'       => 'Los apellidos solo pueden contener letras y espacios.',
+            'telefono.digits'       => 'El teléfono debe tener exactamente 10 dígitos.',
+            'direccion.max'         => 'La dirección no puede superar los 500 caracteres.',
         ]);
 
         $nombreCompleto = trim($data['primerNombre'] . ' ' . ($data['apellidos'] ?? ''));
