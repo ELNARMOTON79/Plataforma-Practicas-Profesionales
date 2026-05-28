@@ -77,6 +77,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::get('/estudiante/convenios', [DashboardController::class, 'convenios'])->name('estudiante.convenios');
     Route::get('/estudiante/mi-perfil', [DashboardController::class, 'miPerfil'])->name('estudiante.miPerfil');
     Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
+    Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
     Route::get('/estudiante/proyecto', function () {
         if (auth()->user()->rol_id != 3) return redirect('/');

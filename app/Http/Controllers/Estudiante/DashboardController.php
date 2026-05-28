@@ -10,6 +10,7 @@ use App\Models\Solicitud;
 use App\Models\UnidadReceptora;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class DashboardController extends Controller
@@ -248,6 +249,40 @@ class DashboardController extends Controller
         }
 
         return redirect()->route('estudiante.miPerfil')->with('success', 'Perfil actualizado correctamente.');
+    }
+
+    public function changePassword(\Illuminate\Http\Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $request->validate([
+            'current_password' => ['required'],
+            'new_password'     => ['required', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'La contraseña actual es obligatoria.',
+            'new_password.required'     => 'La nueva contraseña es obligatoria.',
+            'new_password.min'          => 'La contraseña debe tener al menos 8 caracteres.',
+            'new_password.confirmed'    => 'Las contraseñas no coinciden.',
+        ]);
+
+        $user = Auth::user();
+
+        if (! Hash::check($request->current_password, $user->getAuthPassword())) {
+            return response()->json([
+                'errors' => ['current_password' => ['La contraseña actual es incorrecta.']],
+            ], 422);
+        }
+
+        $user->contraseña = $request->new_password;
+        $user->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('estudiante.miPerfil')->with('success', 'Contraseña actualizada correctamente.');
     }
 
     public function misSolicitudes()
