@@ -72,10 +72,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
         return view('coordinador.informes');
     })->name('coordinador.informes');
 
-    Route::get('/coordinador/perfil', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.perfil');
-    })->name('coordinador.perfil');
+    Route::get('/coordinador/perfil', [App\Http\Controllers\CoordinadorController::class, 'perfil'])->name('coordinador.perfil');
+    Route::post('/coordinador/perfil/password', [App\Http\Controllers\CoordinadorController::class, 'updatePassword'])->name('coordinador.perfil.password');
 
     Route::get('/estudiante/dashboard', function () {
         if (auth()->user()->rol_id != 3) return redirect('/');
