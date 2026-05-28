@@ -134,6 +134,30 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function convenios()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $search = request('q');
+
+        $query = UnidadReceptora::query();
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_empresa', 'like', "%{$search}%")
+                  ->orWhere('direccion', 'like', "%{$search}%");
+            });
+        }
+
+        $unidades = $query->orderBy('nombre_empresa')->get();
+
+        return view('estudiante.convenios', [
+            'unidades' => $unidades,
+            'search'   => $search ?? '',
+        ]);
+    }
+
     public function miPerfil()
     {
         if (Auth::user()?->rol_id != 3) {

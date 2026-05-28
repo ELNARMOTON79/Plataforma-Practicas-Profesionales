@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CoordinadorController;
+use App\Http\Controllers\Estudiante\DashboardController;
 
 Route::get('/', function () {
     // If the user is already authenticated, redirect them to their dashboard
@@ -38,7 +40,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.usuarios');
     })->name('admin.usuarios');
 
-    Route::get('/coordinador/dashboard', [App\Http\Controllers\CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
+    Route::get('/coordinador/dashboard', [CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
     Route::get('/coordinador/instituciones', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
@@ -75,10 +77,9 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('estudiante.dashboard');
     })->name('estudiante.dashboard');
 
-    Route::get('/estudiante/convenios', function () {
-        if (auth()->user()->rol_id != 3) return redirect('/');
-        return view('estudiante.convenios');
-    })->name('estudiante.convenios');
+    Route::get('/estudiante/convenios', [DashboardController::class, 'convenios'])->name('estudiante.convenios');
+    Route::get('/estudiante/mi-perfil', [DashboardController::class, 'miPerfil'])->name('estudiante.miPerfil');
+    Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
 
     Route::get('/estudiante/proyecto', function () {
         if (auth()->user()->rol_id != 3) return redirect('/');
