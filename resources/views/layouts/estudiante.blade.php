@@ -114,5 +114,6 @@
         @yield('content')
     </main>
 
+    @stack('modals')
 </body>
 </html>
