@@ -151,6 +151,7 @@
 </div>
 
 <script>
+(function() {
     let parsedStudents = [];
 
     // Drag & Drop event bindings
@@ -511,4 +512,12 @@
             document.querySelector('#bulkUploadModal .overflow-y-auto').scrollTop = 0;
         });
     }
+
+    // Expose functions globally for inline HTML event handlers
+    window.handleFileSelect = handleFileSelect;
+    window.clearFile = clearFile;
+    window.closeBulkUploadModal = closeBulkUploadModal;
+    window.downloadBulkTemplate = downloadBulkTemplate;
+    window.submitImport = submitImport;
+})();
 </script>
