@@ -119,15 +119,27 @@
             </div>
 
             <!-- Footer (Fixed) -->
-            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50 flex-shrink-0">
-                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
-                    Cancelar
-                </button>
-                <button type="button" onclick="openConfirmEditModal()" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Actualizar Usuario
-                </button>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+                <div>
+                    <button type="button" onclick="confirmResendCredentials()" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l8-5.333a2 2 0 012.22 0l8 5.333A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-2.25-1.5a2 2 0 00-2.22 0l-2.25 1.5M12 14v2m-3-2v2m6-2v2"></path></svg>
+                        Reenviar Credenciales
+                    </button>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="openConfirmEditModal()" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Actualizar Usuario
+                    </button>
+                </div>
             </div>
+        </form>
+
+        <form id="resendCredentialsForm" method="POST" action="" class="hidden">
+            @csrf
         </form>
     </div>
 </div>

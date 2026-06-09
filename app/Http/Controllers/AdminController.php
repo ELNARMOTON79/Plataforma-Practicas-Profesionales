@@ -498,6 +498,67 @@ class AdminController extends Controller
     }
 
     /**
+     * Generate new password and resend credentials to the specified user.
+     */
+    public function resendCredentials($id)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $user = User::findOrFail($id);
+
+        // Do not allow resetting the main administrator's password this way
+        if ($user->rol_id == 1 && $user->id == auth()->id()) {
+            return redirect()->route('admin.usuarios')->with('error', 'No puedes restablecer tu propia contraseña desde esta sección.');
+        }
+
+        // Generate random secure password (10 characters)
+        $randomPassword = Str::random(10);
+
+        // Update password
+        $user->contraseña = Hash::make($randomPassword);
+        $user->save();
+
+        // Get user's name
+        $name = 'Usuario';
+        if ($user->rol_id == 1 || $user->rol_id == 2) {
+            $name = $user->coordinador->nombre_completo ?? 'Administrador/Coordinador';
+        } elseif ($user->rol_id == 3) {
+            $name = $user->alumno->nombre_completo ?? 'Estudiante';
+        } elseif ($user->rol_id == 4) {
+            $name = $user->empresa->nombre_empresa ?? 'Empresa';
+        }
+
+        // Send credentials email
+        if (\App\Helpers\SystemSettings::get('send_emails', true)) {
+            try {
+                Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $name));
+            } catch (\Exception $e) {
+                \Log::error("Error al reenviar correo de credenciales a {$user->correo}: " . $e->getMessage());
+                return redirect()->route('admin.usuarios')->with('error', 'No se pudo enviar el correo electrónico, pero la contraseña se actualizó correctamente.');
+            }
+        }
+
+        // Log user password reset
+        $roleNames = [1 => 'Administrador', 2 => 'Coordinador', 3 => 'Alumno', 4 => 'Empresa'];
+        $roleName = $roleNames[$user->rol_id] ?? 'Desconocido';
+        \App\Helpers\ActivityLogger::log(
+            'Usuarios',
+            'Credenciales Reenviadas',
+            "Se restableció la contraseña y se reenviaron las credenciales del usuario '{$name}' ({$roleName}) con correo '{$user->correo}'.",
+            'warning',
+            [
+                'correo' => $user->correo,
+                'nombre' => $name,
+                'rol' => $roleName
+            ]
+        );
+
+        return redirect()->route('admin.usuarios')->with('success', "Se han restablecido las credenciales y enviado por correo a {$name} ({$user->correo}).");
+    }
+
+    /**
      * Show the system activity logs.
      */
     public function bitacora(Request $request)

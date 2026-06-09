@@ -97,6 +97,7 @@
                 document.getElementById('edit_role').value = rolId;
                 document.getElementById('edit_role_hidden').value = rolId;
                 document.getElementById('editUserForm').action = "{{ url('admin/usuarios') }}/" + id;
+                document.getElementById('resendCredentialsForm').action = "{{ url('admin/usuarios') }}/" + id + "/resend-credentials";
 
 
                 // Manejo de campos dinámicos
@@ -165,6 +166,7 @@
         
         // Asignar acción al formulario
         document.getElementById('editUserForm').action = "{{ url('admin/usuarios') }}/" + id;
+        document.getElementById('resendCredentialsForm').action = "{{ url('admin/usuarios') }}/" + id + "/resend-credentials";
 
         // Configurar validaciones específicas según el rol al recargar con errores
         const editNameInput = document.getElementById('edit_name');
@@ -278,6 +280,14 @@
     function submitDeactivateUser() {
         if (userIdToToggle) {
             toggleUserStatus(userIdToToggle);
+        }
+    }
+
+    function confirmResendCredentials() {
+        const userName = document.getElementById('edit_name').value;
+        const userEmail = document.getElementById('edit_email').value;
+        if (confirm(`¿Estás seguro de que deseas restablecer la contraseña y reenviar las credenciales a ${userName} (${userEmail})?\n\nEsta acción invalidará su contraseña actual y le enviará un correo con la nueva contraseña generada.`)) {
+            document.getElementById('resendCredentialsForm').submit();
         }
     }
 

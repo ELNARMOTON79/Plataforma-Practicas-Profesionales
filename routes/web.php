@@ -45,6 +45,7 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'storeUsuario'])->name('admin.usuarios.store');
     Route::post('/admin/usuarios/bulk-store', [App\Http\Controllers\AdminController::class, 'bulkStoreUsuarios'])->name('admin.usuarios.bulk-store');
     Route::put('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
+    Route::post('/admin/usuarios/{id}/resend-credentials', [App\Http\Controllers\AdminController::class, 'resendCredentials'])->name('admin.usuarios.resend-credentials');
     Route::patch('/admin/usuarios/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
 
     Route::get('/admin/bitacora', [App\Http\Controllers\AdminController::class, 'bitacora'])->name('admin.bitacora');
