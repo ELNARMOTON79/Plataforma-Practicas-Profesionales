@@ -55,6 +55,7 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::get('/coordinador/dashboard', [CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
 
     Route::get('/coordinador/instituciones', [App\Http\Controllers\CoordinadorController::class, 'instituciones'])->name('coordinador.instituciones');
+    Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\CoordinadorController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
 
     Route::get('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'alumnos'])->name('coordinador.alumnos');
 

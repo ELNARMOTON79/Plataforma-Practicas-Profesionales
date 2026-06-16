@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Alumno;
 use App\Models\Proyecto;
 use App\Mail\CredentialsNotification;
+use App\Mail\NewAssociationNotification;
 
 class CoordinadorController extends Controller
 {
@@ -22,14 +23,20 @@ class CoordinadorController extends Controller
 
         $estudiantesActivos = DB::table('estudiantes')->count();
         $instituciones = DB::table('unidades_receptoras')->count();
-        $tramitesPendientes = DB::table('solicitudes')->count();
-        $proyectosActivos = DB::table('convenios')->count();
+        $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
+        $proyectosActivos = DB::table('convenios')->where('estatus', 'activo')->count();
+
+        // Fetch recent students and logs for the dashboard
+        $recentAlumnos = \App\Models\Alumno::with('user')->orderBy('id', 'desc')->take(3)->get();
+        $recentLogs = \App\Models\Bitacora::orderBy('timestamp', 'desc')->take(5)->get();
 
         return view('coordinador.dashboard', compact(
             'estudiantesActivos',
             'instituciones',
             'tramitesPendientes',
-            'proyectosActivos'
+            'proyectosActivos',
+            'recentAlumnos',
+            'recentLogs'
         ));
     }
 
@@ -123,6 +130,8 @@ class CoordinadorController extends Controller
 
     /**
      * List, search, filter and paginate institutions.
+     * Each company appears once with a COUNT of its reception units.
+     * Equivalent to: SELECT nombre_empresa, COUNT(*) as ur_count ... GROUP BY nombre_empresa
      */
     public function instituciones(Request $request)
     {
@@ -140,7 +149,17 @@ class CoordinadorController extends Controller
             $perPage = 5;
         }
 
-        $query = DB::table('unidades_receptoras');
+        $query = DB::table('unidades_receptoras')
+            ->select([
+                DB::raw('nombre_empresa'),
+                DB::raw('MIN(id) as id'),
+                DB::raw('MIN(usuario_id) as usuario_id'),
+                DB::raw('MIN(direccion) as direccion'),
+                DB::raw('MIN(tipo_persona) as tipo_persona'),
+                DB::raw('MAX(convenio) as convenio'),
+                DB::raw('COUNT(nombre_empresa) as ur_count'),
+            ])
+            ->groupBy('nombre_empresa');
 
         // Apply Search
         if ($search) {
@@ -195,41 +214,51 @@ class CoordinadorController extends Controller
             });
         }
 
-        // Apply Convenio Filter (Con convenio / Sin convenio)
+        // Apply Convenio Filter — checks the convenio field and the convenios table
         $convenio = $request->input('convenio');
         if ($convenio === 'con') {
-            $query->whereExists(function($q) {
-                $q->select(DB::raw(1))
-                  ->from('convenios')
-                  ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+            $query->where(function($q) {
+                $q->where('convenio', '!=', '')
+                  ->orWhereExists(function($sub) {
+                      $sub->select(DB::raw(1))
+                          ->from('convenios')
+                          ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+                  });
             });
         } elseif ($convenio === 'sin') {
-            $query->whereNotExists(function($q) {
-                $q->select(DB::raw(1))
-                  ->from('convenios')
-                  ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+            $query->where(function($q) {
+                $q->where(function($inner) {
+                    $inner->whereNull('convenio')->orWhere('convenio', '');
+                })->whereNotExists(function($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('convenios')
+                        ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
+                });
             });
         }
 
         $instituciones = $query->paginate($perPage);
 
-        // Fetch related data
-        $urIds = $instituciones->pluck('id')->toArray();
-        
-        $convenios = DB::table('convenios')
-            ->whereIn('ur_id', $urIds)
-            ->get()
-            ->groupBy('ur_id');
-            
-        $solicitudesCounts = DB::table('solicitudes')
-            ->whereIn('ur_id', $urIds)
-            ->select('ur_id', DB::raw('count(*) as count'))
-            ->groupBy('ur_id')
-            ->pluck('count', 'ur_id')
-            ->toArray();
+        // Fetch convenios keyed by nombre_empresa for the badge lookup
+        $nombres = $instituciones->pluck('nombre_empresa')->toArray();
 
-        return view('coordinador.instituciones', compact('instituciones', 'convenios', 'solicitudesCounts'));
+        $convenios = DB::table('convenios')
+            ->join('unidades_receptoras', 'convenios.ur_id', '=', 'unidades_receptoras.id')
+            ->whereIn('unidades_receptoras.nombre_empresa', $nombres)
+            ->select('convenios.*', 'unidades_receptoras.nombre_empresa')
+            ->get()
+            ->groupBy('nombre_empresa');
+
+        // Fetch all fields of each unidad_receptora per empresa for the modal
+        $unidades = DB::table('unidades_receptoras')
+            ->whereIn('nombre_empresa', $nombres)
+            ->orderBy('unidad_receptora')
+            ->get()
+            ->groupBy('nombre_empresa');
+
+        return view('coordinador.instituciones', compact('instituciones', 'convenios', 'unidades'));
     }
+
 
 
     /**
@@ -553,5 +582,213 @@ class CoordinadorController extends Controller
         );
 
         return redirect()->route('coordinador.perfil')->with('success', 'Contraseña actualizada correctamente.');
+    }
+
+    /**
+     * Store bulk uploaded institutions in the database.
+     */
+    public function bulkStoreInstituciones(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return response()->json(['success' => false, 'errors' => ['No autorizado']], 403);
+        }
+
+        $request->validate([
+            'instituciones' => 'required|array|min:1',
+            'instituciones.*.correo' => 'required|email|max:255',
+            'instituciones.*.institucion' => 'required|string|max:255',
+            'instituciones.*.direccion' => 'required|string|max:500',
+            'instituciones.*.sistema' => 'nullable|string|max:50',
+            'instituciones.*.sector' => 'nullable|string|max:50',
+            'instituciones.*.unidad_receptora' => 'nullable|string|max:100',
+            'instituciones.*.titular' => 'required|string|max:100',
+            'instituciones.*.cargo' => 'required|string|max:100',
+            'instituciones.*.colonia' => 'nullable|string|max:50',
+            'instituciones.*.cp' => 'nullable|integer',
+            'instituciones.*.estado' => 'nullable|string|max:20',
+            'instituciones.*.municipio' => 'nullable|string|max:100',
+            'instituciones.*.telefono' => 'nullable|string|max:50',
+        ], [
+            'instituciones.*.correo.required' => 'El correo electrónico es obligatorio.',
+            'instituciones.*.correo.email' => 'El formato del correo electrónico es inválido.',
+            'instituciones.*.correo.max' => 'El correo electrónico no debe superar los 255 caracteres.',
+            'instituciones.*.institucion.required' => 'El nombre de la institución es obligatorio.',
+            'instituciones.*.institucion.max' => 'El nombre de la institución no debe superar los 255 caracteres.',
+            'instituciones.*.direccion.required' => 'La dirección es obligatoria.',
+            'instituciones.*.direccion.max' => 'La dirección no debe superar los 500 caracteres.',
+            'instituciones.*.sistema.max' => 'El campo sistema no debe superar los 50 caracteres.',
+            'instituciones.*.sector.max' => 'El campo sector no debe superar los 50 caracteres.',
+            'instituciones.*.unidad_receptora.max' => 'La unidad receptora no debe superar los 100 caracteres.',
+            'instituciones.*.titular.required' => 'El nombre del titular es obligatorio.',
+            'instituciones.*.titular.max' => 'El nombre del titular no debe superar los 100 caracteres.',
+            'instituciones.*.cargo.required' => 'El cargo es obligatorio.',
+            'instituciones.*.cargo.max' => 'El cargo no debe superar los 100 caracteres.',
+            'instituciones.*.colonia.max' => 'La colonia no debe superar los 50 caracteres.',
+            'instituciones.*.cp.integer' => 'El código postal debe ser un número entero.',
+            'instituciones.*.estado.max' => 'El estado no debe superar los 20 caracteres.',
+            'instituciones.*.municipio.max' => 'El municipio no debe superar los 100 caracteres.',
+            'instituciones.*.telefono.max' => 'El teléfono no debe superar los 50 caracteres.',
+        ]);
+
+        $instituciones = $request->input('instituciones');
+
+        // Group institutions by email (case-insensitive) to handle duplicates together
+        $grouped = [];
+        foreach ($instituciones as $inst) {
+            $correo = strtolower(trim($inst['correo']));
+            if (!isset($grouped[$correo])) {
+                $grouped[$correo] = [];
+            }
+            $grouped[$correo][] = $inst;
+        }
+
+        // Database transaction
+        \DB::beginTransaction();
+        try {
+            $createdCount = 0;
+            $skippedCount = 0;
+            $seenInBatch = []; // Track seen combinations in the current request to prevent duplicates in the batch
+
+            foreach ($grouped as $correo => $rows) {
+                // Find if the user already exists in the database
+                $user = User::where('correo', $correo)->first();
+                $isNewUser = false;
+                $randomPassword = null;
+
+                // Validate and filter rows that are already in the DB to avoid duplicates
+                $validRowsToRegister = [];
+                foreach ($rows as $inst) {
+                    $nombreEmpresa = trim($inst['institucion']);
+                    $unidadReceptoraName = trim($inst['unidad_receptora'] ?? '');
+
+                    // Create key for batch checking
+                    $normEmpresa = strtolower(preg_replace('/\s+/', ' ', trim($nombreEmpresa)));
+                    $normUr = strtolower(preg_replace('/\s+/', ' ', trim($unidadReceptoraName)));
+                    $batchKey = $normEmpresa . '|' . $normUr;
+
+                    if (in_array($batchKey, $seenInBatch)) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    $exists = \App\Models\UnidadReceptora::where(DB::raw('LOWER(TRIM(nombre_empresa))'), strtolower($nombreEmpresa))
+                        ->where(function($q) use ($unidadReceptoraName) {
+                            if ($unidadReceptoraName === '') {
+                                $q->whereNull('unidad_receptora')
+                                  ->orWhere(DB::raw('TRIM(unidad_receptora)'), '');
+                            } else {
+                                $q->where(DB::raw('LOWER(TRIM(unidad_receptora))'), strtolower($unidadReceptoraName));
+                            }
+                        })
+                        ->exists();
+
+                    if ($exists) {
+                        $skippedCount++;
+                    } else {
+                        $seenInBatch[] = $batchKey;
+                        $validRowsToRegister[] = $inst;
+                    }
+                }
+
+                // If all units for this email already exist, we skip user creation / association.
+                if (empty($validRowsToRegister)) {
+                    continue;
+                }
+
+                if (!$user) {
+                    $randomPassword = Str::random(10);
+                    $user = new User();
+                    $user->correo = $correo;
+                    $user->contraseña = Hash::make($randomPassword);
+                    $user->rol_id = 4; // Empresa/Institución
+                    $user->activo = true;
+                    $user->save();
+                    $isNewUser = true;
+                }
+
+                // Collect units registered for this email to include in the notification
+                $unitsAdded = [];
+
+                foreach ($validRowsToRegister as $inst) {
+                    // Create UnidadReceptora
+                    $ur = new \App\Models\UnidadReceptora();
+                    $ur->usuario_id = $user->id;
+                    $ur->nombre_empresa = trim($inst['institucion']);
+                    $ur->direccion = trim($inst['direccion']);
+                    $ur->tipo_persona = 'Moral'; // Default standard value for Mexican institutions/companies
+                    $ur->sistema = trim($inst['sistema'] ?? '');
+                    $ur->sector = trim($inst['sector'] ?? '');
+                    $ur->unidad_receptora = trim($inst['unidad_receptora'] ?? '');
+                    $ur->titular = trim($inst['titular'] ?? '');
+                    $ur->cargo = trim($inst['cargo'] ?? '');
+                    $ur->colonia = trim($inst['colonia'] ?? '');
+                    $ur->cp = intval($inst['cp'] ?? 0);
+                    $ur->estado = trim($inst['estado'] ?? '');
+                    $ur->municipio = trim($inst['municipio'] ?? '');
+                    $ur->telefono = trim($inst['telefono'] ?? '');
+                    $ur->convenio = 'Con Convenio';
+                    $ur->save();
+
+                    $unitsAdded[] = [
+                        'nombre_empresa' => $ur->nombre_empresa,
+                        'unidad_receptora' => $ur->unidad_receptora ?: 'General'
+                    ];
+
+                    $createdCount++;
+                }
+
+                // Use the titular name of the first entry in this email group
+                $titularName = trim($validRowsToRegister[0]['titular']);
+
+                // Send Credentials or Association Notification Email
+                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
+                    try {
+                        if ($isNewUser) {
+                            // Send access credentials and list of units
+                            Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $titularName, $unitsAdded));
+                        } else {
+                            // Send new association notification to existing user
+                            Mail::to($user->correo)->send(new NewAssociationNotification($user, $titularName, $unitsAdded));
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error("Error al enviar correo de notificación a {$user->correo} en carga masiva de instituciones: " . $e->getMessage());
+                    }
+                }
+            }
+
+            \DB::commit();
+
+            // Log activity
+            \App\Helpers\ActivityLogger::log(
+                'Instituciones',
+                'Importación Masiva',
+                "Se registraron exitosamente {$createdCount} instituciones mediante importación masiva. Omitidas: {$skippedCount}.",
+                'success',
+                ['cantidad_importada' => $createdCount, 'cantidad_omitida' => $skippedCount]
+            );
+
+            if ($createdCount > 0) {
+                $msg = "Se han registrado {$createdCount} instituciones correctamente.";
+                if ($skippedCount > 0) {
+                    $msg .= " ({$skippedCount} fueron omitidas por estar registradas previamente).";
+                }
+                session()->flash('success', $msg);
+            } else {
+                session()->flash('info', "No se importó ningún registro nuevo. Todas las {$skippedCount} unidades receptoras del archivo ya estaban registradas.");
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Importación exitosa. Creadas: {$createdCount}, Omitidas: {$skippedCount}."
+            ]);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error("Error al procesar importación masiva de instituciones: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+            ], 500);
+        }
     }
 }

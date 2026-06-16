@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tus Credenciales de Acceso</title>
+    <title>Nueva Unidad Receptora Asociada</title>
     <style>
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
@@ -62,28 +62,32 @@
             margin-top: 0;
             margin-bottom: 20px;
         }
-        .credentials-card {
+        .units-card {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 24px;
             margin: 25px 0;
         }
-        .credential-row {
+        .unit-row {
             margin-bottom: 12px;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 12px;
         }
-        .credential-row:last-child {
+        .unit-row:last-child {
             margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
         }
-        .credential-label {
-            font-size: 12px;
+        .unit-label {
+            font-size: 11px;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
         }
-        .credential-value {
-            font-size: 16px;
+        .unit-value {
+            font-size: 15px;
             color: #0f172a;
             font-weight: 600;
             margin-top: 2px;
@@ -119,12 +123,6 @@
             color: #64748b;
             margin: 0;
         }
-        .warning-text {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 20px !important;
-            line-height: 1.5;
-        }
     </style>
 </head>
 <body>
@@ -139,36 +137,24 @@
             <!-- Content -->
             <div class="content">
                 <h2>¡Hola, {{ $name }}!</h2>
-                <p>Te damos la bienvenida al sistema de Prácticas Profesionales de la UdeC. Un administrador ha creado tu cuenta. A continuación, se detallan tus credenciales de acceso temporal:</p>
-
-                @if(!empty($units))
-                <p>Se han registrado y asociado a tu cuenta las siguientes unidades receptoras:</p>
-                <ul style="color: #525f7f; font-size: 14px; line-height: 1.6; padding-left: 20px; margin-bottom: 25px;">
-                    @foreach($units as $unit)
-                        <li style="margin-bottom: 6px;">
-                            <strong>{{ $unit['unidad_receptora'] }}</strong> - {{ $unit['nombre_empresa'] }}
-                        </li>
-                    @endforeach
-                </ul>
-                @endif
+                <p>Te informamos que se han asociado nuevas unidades receptoras a tu cuenta en la Plataforma de Prácticas Profesionales de la UdeC. Ya que tu correo ya se encuentra registrado, puedes acceder a ellas con tus credenciales de acceso habituales.</p>
                 
-                <!-- Credentials -->
-                <div class="credentials-card">
-                    <div class="credential-row">
-                        <div class="credential-label">Correo Electrónico</div>
-                        <div class="credential-value">{{ $user->correo }}</div>
-                    </div>
-                    <div class="credential-row" style="margin-top: 15px;">
-                        <div class="credential-label">Contraseña Temporal</div>
-                        <div class="credential-value" style="font-family: monospace; font-size: 18px; letter-spacing: 0.5px; color: #4E7D24;">{{ $password }}</div>
-                    </div>
+                <!-- Associated Units -->
+                <div class="units-card">
+                    <p style="margin-top: 0; margin-bottom: 15px; font-weight: bold; color: #4E7D24; font-size: 14px;">Nuevas Unidades Receptoras Vinculadas:</p>
+                    @foreach($units as $unit)
+                        <div class="unit-row">
+                            <div class="unit-label">Unidad Receptora</div>
+                            <div class="unit-value">{{ $unit['unidad_receptora'] }}</div>
+                            <div class="unit-label" style="margin-top: 4px;">Institución</div>
+                            <div class="unit-value" style="font-size: 13px; font-weight: normal; color: #525f7f;">{{ $unit['nombre_empresa'] }}</div>
+                        </div>
+                    @endforeach
                 </div>
-
-                <p class="warning-text"><strong>* Nota de Seguridad:</strong> Por razones de seguridad, te recomendamos cambiar esta contraseña temporal desde tu panel de usuario al iniciar sesión por primera vez.</p>
                 
                 <!-- Button -->
                 <div class="button-container">
-                    <a href="{{ url('/') }}" class="btn-primary" target="_blank">Iniciar Sesión</a>
+                    <a href="{{ url('/') }}" class="btn-primary" target="_blank">Acceder al Sistema</a>
                 </div>
             </div>
             

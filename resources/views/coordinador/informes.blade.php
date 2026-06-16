@@ -7,7 +7,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Panel 1: Configuración -->
-        <div class="glass-card rounded-3xl p-8 border-t-4 border-[#6BA53A] shadow-sm hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-3xl p-8">
             <div class="mb-6">
                 <h2 class="text-xl font-extrabold text-gray-800 flex items-center gap-2">
                     <div class="bg-[#6BA53A]/10 p-2 rounded-lg">
@@ -23,7 +23,7 @@
                 <div>
                     <label for="tipo-reporte" class="block text-sm font-bold text-gray-700 mb-2">Tipo de Reporte</label>
                     <div class="relative">
-                        <select id="tipo-reporte" name="tipo_reporte" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner appearance-none cursor-pointer">
+                        <select id="tipo-reporte" name="tipo_reporte" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700 outline-none cursor-pointer appearance-none font-medium">
                             <option>Reporte de Estudiantes Activos</option>
                             <option>Reporte de Instituciones</option>
                             <option>Reporte de Proyectos</option>
@@ -35,7 +35,7 @@
                 <div>
                     <label for="filtro-carrera" class="block text-sm font-bold text-gray-700 mb-2">Carrera</label>
                     <div class="relative">
-                        <select id="filtro-carrera" name="carrera" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner appearance-none cursor-pointer">
+                        <select id="filtro-carrera" name="carrera" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700 outline-none cursor-pointer appearance-none font-medium">
                             <option value="">Todas las carreras</option>
                             <option>Ingeniería de Software</option>
                             <option>Ingeniería en Computación</option>
@@ -48,7 +48,7 @@
                 <div>
                     <label for="filtro-genero" class="block text-sm font-bold text-gray-700 mb-2">Género</label>
                     <div class="relative">
-                        <select id="filtro-genero" name="genero" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner appearance-none cursor-pointer">
+                        <select id="filtro-genero" name="genero" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700 outline-none cursor-pointer appearance-none font-medium">
                             <option value="">Todos los géneros</option>
                             <option>Femenino</option>
                             <option>Masculino</option>
@@ -60,7 +60,7 @@
         </div>
 
         <!-- Panel 2: Exportación -->
-        <div class="glass-card rounded-3xl p-8 border-t-4 border-[#4E7D24] shadow-sm hover:shadow-md transition-shadow flex flex-col">
+        <div class="glass-card rounded-3xl p-8 flex flex-col">
             <div class="mb-8">
                 <h2 class="text-xl font-extrabold text-gray-800 flex items-center gap-2">
                     <div class="bg-[#4E7D24]/10 p-2 rounded-lg">

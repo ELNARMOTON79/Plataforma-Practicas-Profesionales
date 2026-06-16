@@ -4,33 +4,37 @@
 
     {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
     @if(session('success'))
-        <div id="alert-success" class="flex items-start gap-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        <div id="successAlert" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 fade-in-up">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-sm font-semibold">{{ session('success') }}</p>
-            <button onclick="document.getElementById('alert-success').remove()" class="ml-auto text-green-400 hover:text-green-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
     @endif
 
     @if($errors->any())
-        <div id="alert-error" class="flex items-start gap-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <p class="text-sm font-bold mb-1">Corrige los siguientes errores:</p>
-                <ul class="text-xs space-y-0.5 list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        <div id="errorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-2 transition-all duration-300 fade-in-up">
+            <div class="flex items-center gap-3 w-full">
+                <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-bold text-sm">Por favor corrige los siguientes errores:</span>
+                <button onclick="document.getElementById('errorAlert').remove()" class="text-red-500 hover:text-red-800 transition-colors ml-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <button onclick="document.getElementById('alert-error').remove()" class="ml-auto text-red-400 hover:text-red-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <ul class="list-disc pl-9 text-xs font-semibold space-y-1 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -122,64 +126,50 @@
                                 <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
                                 <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Carrera</th>
                                 <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
-                                <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Proyecto</th>
+                                <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="bg-transparent divide-y divide-gray-200/40">
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">JD</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Jazmín Domínguez Marcos</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20206744</div>
+                            @forelse($recentAlumnos as $alumno)
+                                @php
+                                    $nombre = $alumno->nombre_completo ?? 'Estudiante';
+                                    $avatarText = 'AL';
+                                    if ($nombre) {
+                                        $words = explode(' ', trim($nombre));
+                                        $avatarText = strtoupper(substr($words[0] ?? '', 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
+                                    }
+                                @endphp
+                                <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">
+                                                {{ $avatarText }}
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-bold text-gray-900 leading-tight">{{ $nombre }}</div>
+                                                <div class="text-xs text-gray-500">Cuenta: {{ $alumno->matricula }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. de Software</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-200">Activo</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Ver Registro</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">AH</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Alejandro Herrera Ruiz</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20194852</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. Eléctrico</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200">Asignado</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Ver Registro</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 font-bold">MF</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Mariana Flores Silva</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20213094</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">Ing. Mecánico</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200">Pendiente</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#38bdf8] hover:bg-[#0284c7] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Registrar</button>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold uppercase">
+                                        {{ $alumno->carrera }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $alumno->estatus_class }}">
+                                            {{ $alumno->estatus }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
+                                        <a href="{{ route('coordinador.alumnos', ['search' => $alumno->matricula]) }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105 inline-block">Ver Registro</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
+                                        No hay estudiantes registrados recientemente.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -194,55 +184,74 @@
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Bitácora de Actividades
                     </h3>
-                    <button class="text-gray-400 hover:text-[#4E7D24] transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path></svg>
-                    </button>
                 </div>
 
                 <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-6">
                     <div class="absolute left-4 top-2 bottom-0 w-px bg-gray-200/75"></div>
 
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm ring-4 ring-green-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Solicitud Aprobada</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 2 horas</span>
+                    @forelse($recentLogs as $log)
+                        @php
+                            $dotColor = 'bg-gray-400 ring-gray-50';
+                            if ($log->level === 'success') {
+                                $dotColor = 'bg-green-500 ring-green-50';
+                            } elseif ($log->level === 'info') {
+                                $dotColor = 'bg-blue-500 ring-blue-50';
+                            } elseif ($log->level === 'warning') {
+                                $dotColor = 'bg-amber-500 ring-amber-50';
+                            } elseif ($log->level === 'danger') {
+                                $dotColor = 'bg-red-500 ring-red-50';
+                            }
+                        @endphp
+                        <div class="relative pl-10">
+                            <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ring-4 {{ $dotColor }}"></div>
+                            <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
+                                <div class="flex justify-between items-start mb-1 gap-2">
+                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">{{ $log->action }}</h4>
+                                    <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">{{ $log->timestamp ? $log->timestamp->diffForHumans() : '' }}</span>
+                                </div>
+                                <p class="text-xs text-gray-600 font-medium">{{ $log->description }}</p>
+                                <div class="text-[9px] text-gray-400 mt-1 font-semibold">Módulo: {{ $log->module }} | IP: {{ $log->ip }}</div>
                             </div>
-                            <p class="text-xs text-gray-600 font-medium">Aprobaste la solicitud del estudiante <span class="font-bold text-gray-800">Jazmín Domínguez</span> para <span class="font-bold text-[#4E7D24]">H. Ayuntamiento de Colima</span>.</p>
                         </div>
-                    </div>
-
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white shadow-sm ring-4 ring-blue-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Convenio Registrado</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 4 horas</span>
-                            </div>
-                            <p class="text-xs text-gray-600 font-medium">Se vinculó exitosamente a <span class="font-bold text-gray-800">Ternium México S.A.</span> como nueva unidad receptora.</p>
+                    @empty
+                        <div class="text-center py-8 text-sm text-gray-500 font-medium">
+                            No hay actividades registradas en el sistema.
                         </div>
-                    </div>
-
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-yellow-500 rounded-full border-2 border-white shadow-sm ring-4 ring-yellow-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Solicitud Recibida</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 6 horas</span>
-                            </div>
-                            <p class="text-xs text-gray-600 font-medium">El alumno <span class="font-bold text-gray-800">Mariana Flores</span> envió documentos para revisión inicial.</p>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
 
-                <button class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200">
-                    Cargar más actividad
-                </button>
+                <a href="{{ Route::has('admin.bitacora') ? route('admin.bitacora') : '#' }}" class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200 text-center block">
+                    Ver Bitácora Completa
+                </a>
             </div>
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alerta de éxito a los 5 segundos
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        successAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            // Auto-ocultar alerta de error a los 5 segundos
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        errorAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
 @endsection
 
 @push('modals')

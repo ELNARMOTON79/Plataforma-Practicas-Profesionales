@@ -1,11 +1,9 @@
-CREATE DATABASE IF NOT EXISTS `practicas` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `practicas`;
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 27, 2026 at 02:44 PM
+-- Generation Time: Jun 16, 2026 at 08:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -129,7 +127,75 @@ INSERT INTO `bitacora` (`id`, `timestamp`, `level`, `level_name`, `user`, `user_
 (75, '2026-05-27 00:22:23', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-27 00:22:23', '2026-05-27 00:22:23'),
 (76, '2026-05-27 00:22:34', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-27 00:22:34', '2026-05-27 00:22:34'),
 (77, '2026-05-27 00:22:55', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-27 00:22:55', '2026-05-27 00:22:55'),
-(78, '2026-05-27 00:23:04', 'success', 'Éxito', 'Tech Solutions S.A. de C.V.', 'Empresa', 'empresa@tech.com', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-27 00:23:04', '2026-05-27 00:23:04');
+(78, '2026-05-27 00:23:04', 'success', 'Éxito', 'Tech Solutions S.A. de C.V.', 'Empresa', 'empresa@tech.com', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-27 00:23:04', '2026-05-27 00:23:04'),
+(79, '2026-05-28 00:59:36', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 00:59:36', '2026-05-28 00:59:36'),
+(80, '2026-05-28 01:00:02', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 01:00:02', '2026-05-28 01:00:02'),
+(81, '2026-05-28 01:00:12', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 01:00:12', '2026-05-28 01:00:12'),
+(82, '2026-05-28 01:49:43', 'info', 'Info', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 01:49:43', '2026-05-28 01:49:43'),
+(83, '2026-05-28 04:51:40', 'info', 'Info', 'rvuelvas@ucol.mx', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:51:40', '2026-05-28 04:51:40'),
+(84, '2026-05-28 04:51:48', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:51:48', '2026-05-28 04:51:48'),
+(85, '2026-05-28 04:51:51', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:51:51', '2026-05-28 04:51:51'),
+(86, '2026-05-28 04:51:57', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:51:57', '2026-05-28 04:51:57'),
+(87, '2026-05-28 04:51:59', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:51:59', '2026-05-28 04:51:59'),
+(88, '2026-05-28 04:52:17', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:52:17', '2026-05-28 04:52:17'),
+(89, '2026-05-28 04:52:19', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:52:19', '2026-05-28 04:52:19'),
+(90, '2026-05-28 04:52:21', 'success', 'Éxito', 'admin@ucol.mx', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:52:21', '2026-05-28 04:52:21'),
+(91, '2026-05-28 04:52:55', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:52:55', '2026-05-28 04:52:55'),
+(92, '2026-05-28 04:53:02', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:53:02', '2026-05-28 04:53:02'),
+(93, '2026-05-28 04:53:06', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 04:53:06', '2026-05-28 04:53:06'),
+(94, '2026-05-28 05:05:11', 'info', 'Info', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 05:05:11', '2026-05-28 05:05:11'),
+(95, '2026-05-28 05:05:19', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 05:05:19', '2026-05-28 05:05:19'),
+(96, '2026-05-28 05:06:25', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 05:06:25', '2026-05-28 05:06:25'),
+(97, '2026-05-28 05:06:39', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 05:06:39', '2026-05-28 05:06:39'),
+(98, '2026-05-28 13:32:35', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 13:32:35', '2026-05-28 13:32:35'),
+(99, '2026-05-28 13:39:19', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Creado', 'Se creó el usuario \'Fernando\' con el rol \'Alumno\' y correo \'fbenitez2@ucol.mx\'.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"correo\": \"fbenitez2@ucol.mx\",\n    \"nombre\": \"Fernando\",\n    \"rol\": \"Alumno\"\n}', '2026-05-28 13:39:19', '2026-05-28 13:39:19'),
+(100, '2026-05-28 13:40:28', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 13:40:28', '2026-05-28 13:40:28'),
+(101, '2026-05-28 13:41:09', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: fbenitez2@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 13:41:09', '2026-05-28 13:41:09'),
+(102, '2026-05-28 13:41:56', 'success', 'Éxito', 'Fernando', 'Alumno', 'fbenitez2@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 13:41:56', '2026-05-28 13:41:56'),
+(103, '2026-05-28 13:42:33', 'info', 'Info', 'Fernando', 'Alumno', 'fbenitez2@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 13:42:33', '2026-05-28 13:42:33'),
+(104, '2026-05-28 13:43:50', 'success', 'Éxito', 'Fernando', 'Alumno', 'fbenitez2@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', NULL, '2026-05-28 13:43:50', '2026-05-28 13:43:50'),
+(105, '2026-05-28 13:43:55', 'info', 'Info', 'Fernando', 'Alumno', 'fbenitez2@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', NULL, '2026-05-28 13:43:55', '2026-05-28 13:43:55'),
+(106, '2026-05-28 13:44:18', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', NULL, '2026-05-28 13:44:18', '2026-05-28 13:44:18'),
+(107, '2026-05-28 13:49:01', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Modificado', 'Se actualizaron los datos del usuario \'Fernando\' (Alumno) con correo \'fbenitez2@ucol.mx\'.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', '{\n    \"correo\": \"fbenitez2@ucol.mx\",\n    \"nombre\": \"Fernando\",\n    \"rol\": \"Alumno\"\n}', '2026-05-28 13:49:01', '2026-05-28 13:49:01'),
+(108, '2026-05-28 13:50:12', 'warning', 'Advertencia', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Deshabilitado', 'Se cambió el estado del usuario \'fbenitez2@ucol.mx\' a \'Deshabilitado\'.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', '{\n    \"correo\": \"fbenitez2@ucol.mx\",\n    \"nuevo_estado\": \"Deshabilitado\"\n}', '2026-05-28 13:50:12', '2026-05-28 13:50:12'),
+(109, '2026-05-28 13:50:38', 'warning', 'Advertencia', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Usuarios', 'Usuario Habilitado', 'Se cambió el estado del usuario \'fbenitez2@ucol.mx\' a \'Habilitado\'.', '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36', '{\n    \"correo\": \"fbenitez2@ucol.mx\",\n    \"nuevo_estado\": \"Habilitado\"\n}', '2026-05-28 13:50:38', '2026-05-28 13:50:38'),
+(110, '2026-05-28 15:00:19', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:00:19', '2026-05-28 15:00:19'),
+(111, '2026-05-28 15:00:32', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:00:32', '2026-05-28 15:00:32'),
+(112, '2026-05-28 15:36:08', 'info', 'Info', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:36:08', '2026-05-28 15:36:08'),
+(113, '2026-05-28 15:36:15', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:36:15', '2026-05-28 15:36:15'),
+(114, '2026-05-28 15:42:26', 'warning', 'Advertencia', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Configuración', 'Parámetros del Sistema Actualizados', 'El administrador cambió la configuración del sistema: Modo de Mantenimiento: Activado.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:42:26', '2026-05-28 15:42:26'),
+(115, '2026-05-28 15:42:43', 'warning', 'Advertencia', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Configuración', 'Parámetros del Sistema Actualizados', 'El administrador cambió la configuración del sistema: Modo de Mantenimiento: Desactivado.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 15:42:43', '2026-05-28 15:42:43'),
+(116, '2026-05-28 19:15:32', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:15:32', '2026-05-28 19:15:32'),
+(117, '2026-05-28 19:22:02', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:22:02', '2026-05-28 19:22:02');
+INSERT INTO `bitacora` (`id`, `timestamp`, `level`, `level_name`, `user`, `user_role`, `user_email`, `module`, `action`, `description`, `ip`, `user_agent`, `payload`, `created_at`, `updated_at`) VALUES
+(118, '2026-05-28 19:22:12', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:22:12', '2026-05-28 19:22:12'),
+(119, '2026-05-28 19:40:25', 'info', 'Info', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:40:25', '2026-05-28 19:40:25'),
+(120, '2026-05-28 19:40:31', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:40:31', '2026-05-28 19:40:31'),
+(121, '2026-05-28 19:46:11', 'info', 'Info', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:46:11', '2026-05-28 19:46:11'),
+(122, '2026-05-28 19:46:18', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:46:18', '2026-05-28 19:46:18'),
+(123, '2026-05-28 19:56:29', 'info', 'Info', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:56:29', '2026-05-28 19:56:29'),
+(124, '2026-05-28 19:56:38', 'success', 'Éxito', 'Tech Solutions S.A. de C.V.', 'Empresa', 'empresa@tech.com', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-05-28 19:56:38', '2026-05-28 19:56:38'),
+(125, '2026-06-09 04:38:50', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-06-09 04:38:50', '2026-06-09 04:38:50'),
+(126, '2026-06-09 05:08:17', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-06-09 05:08:17', '2026-06-09 05:08:17'),
+(127, '2026-06-09 05:08:25', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-06-09 05:08:25', '2026-06-09 05:08:25'),
+(128, '2026-06-09 05:13:39', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: alumno@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-09 05:13:39', '2026-06-09 05:13:39'),
+(129, '2026-06-09 05:13:43', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: alumno@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-09 05:13:43', '2026-06-09 05:13:43'),
+(130, '2026-06-09 05:13:51', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: admin@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-09 05:13:51', '2026-06-09 05:13:51'),
+(131, '2026-06-09 05:13:56', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-09 05:13:56', '2026-06-09 05:13:56'),
+(132, '2026-06-09 05:52:07', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 05:52:07', '2026-06-09 05:52:07'),
+(133, '2026-06-09 05:58:09', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 05:58:09', '2026-06-09 05:58:09'),
+(134, '2026-06-09 06:09:56', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 06:09:56', '2026-06-09 06:09:56'),
+(135, '2026-06-09 06:10:07', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 06:10:07', '2026-06-09 06:10:07'),
+(136, '2026-06-09 06:10:08', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 06:10:08', '2026-06-09 06:10:08'),
+(137, '2026-06-09 06:27:17', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 06:27:17', '2026-06-09 06:27:17'),
+(138, '2026-06-09 06:27:18', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 2 instituciones mediante importación masiva.', '127.0.0.1', 'Symfony', '{\n    \"cantidad_importada\": 2\n}', '2026-06-09 06:27:18', '2026-06-09 06:27:18'),
+(139, '2026-06-09 06:30:01', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 5 instituciones mediante importación masiva.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 5\n}', '2026-06-09 06:30:01', '2026-06-09 06:30:01'),
+(140, '2026-06-09 18:10:39', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', NULL, '2026-06-09 18:10:39', '2026-06-09 18:10:39'),
+(141, '2026-06-09 18:12:03', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 5 instituciones mediante importación masiva.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 5\n}', '2026-06-09 18:12:03', '2026-06-09 18:12:03'),
+(142, '2026-06-09 18:17:42', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 5 instituciones mediante importación masiva. Omitidas: 0.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 5,\n    \"cantidad_omitida\": 0\n}', '2026-06-09 18:17:42', '2026-06-09 18:17:42'),
+(143, '2026-06-09 18:17:51', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 0 instituciones mediante importación masiva. Omitidas: 5.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 0,\n    \"cantidad_omitida\": 5\n}', '2026-06-09 18:17:51', '2026-06-09 18:17:51'),
+(144, '2026-06-09 18:18:51', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 1 instituciones mediante importación masiva. Omitidas: 5.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 1,\n    \"cantidad_omitida\": 5\n}', '2026-06-09 18:18:51', '2026-06-09 18:18:51'),
+(145, '2026-06-16 18:08:24', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-16 18:08:24', '2026-06-16 18:08:24');
 
 -- --------------------------------------------------------
 
@@ -197,10 +263,14 @@ CREATE TABLE `estudiantes` (
   `id` int(10) UNSIGNED NOT NULL,
   `usuario_id` int(10) UNSIGNED NOT NULL,
   `nombre_completo` varchar(255) NOT NULL,
+  `primer_nombre` varchar(150) DEFAULT NULL,
+  `apellidos` varchar(150) DEFAULT NULL,
   `matricula` varchar(50) NOT NULL,
   `carrera` varchar(150) NOT NULL,
   `semestre` tinyint(3) UNSIGNED NOT NULL,
   `grupo` varchar(20) NOT NULL,
+  `direccion` varchar(500) DEFAULT NULL,
+  `telefono` varchar(50) DEFAULT NULL,
   `activo_practica` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -208,29 +278,10 @@ CREATE TABLE `estudiantes` (
 -- Dumping data for table `estudiantes`
 --
 
-INSERT INTO `estudiantes` (`id`, `usuario_id`, `nombre_completo`, `matricula`, `carrera`, `semestre`, `grupo`, `activo_practica`) VALUES
-(1, 3, 'Juan Pérez Alumno', '20191234', 'Ingeniería de Software', 8, 'A', 0),
-(13, 26, 'AGUILAR GUSTAVO SALVADOR', '20202735', 'Ingeniería de Software', 6, 'E', 0),
-(14, 27, 'ALANIZ MURGUIA LUIS ANGEL', '20235947', 'Ingeniería de Software', 6, 'E', 0),
-(15, 28, 'Arcega Rodriguez Eduardo', '20236225', 'Ingeniería de Software', 6, 'E', 0),
-(16, 29, 'CABRALES LÓPEZ ANNELISE NAJARA', '20212407', 'Ingeniería de Software', 6, 'E', 0),
-(17, 30, 'CARMONA CERNAS FLOR JAQUELINE', '20200944', 'Ingeniería de Software', 6, 'E', 0),
-(18, 31, 'CEJA AYALA GUSTAVO', '20202783', 'Ingeniería de Software', 6, 'E', 0),
-(19, 32, 'CRUZ VILLANUEVA DANIEL', '20192469', 'Ingeniería de Software', 6, 'E', 0),
-(20, 33, 'DOMINGUEZ MARCOS JAZMIN', '20206744', 'Ingeniería de Software', 6, 'E', 0),
-(21, 34, 'Elizaldi Romero Alfredo', '20235731', 'Ingeniería de Software', 6, 'E', 0),
-(22, 35, 'ENRIQUEZ TINOCO JESUS ANTONIO', '20201458', 'Ingeniería de Software', 6, 'E', 0),
-(23, 36, 'FELIX CUEVAS EDSON LEONARDO', '20191393', 'Ingeniería de Software', 6, 'E', 0),
-(24, 37, 'Flores Lopez Adrian', '20173360', 'Ingeniería de Software', 6, 'E', 0),
-(25, 38, 'GONZALEZ GONZALEZ ALAN EDUARDO', '20190990', 'Ingeniería de Software', 6, 'E', 0),
-(26, 39, 'GUTIERREZ RUA GERARDO ADONAI', '20151366', 'Ingeniería de Software', 6, 'E', 0),
-(27, 40, 'GUZMAN MARQUEZ HEIDY SAMANTHA', '20181243', 'Ingeniería de Software', 6, 'E', 0),
-(28, 41, 'HUITRON VARELA MIGUEL ANGEL', '20191410', 'Ingeniería de Software', 6, 'E', 0),
-(29, 42, 'LARIOS ROSAS VICTOR JOSUE', '20201026', 'Ingeniería de Software', 6, 'E', 0),
-(30, 43, 'MEDINA LÓPEZ BRISA CRISTAL', '20235846', 'Ingeniería de Software', 6, 'E', 0),
-(31, 44, 'RIVERA MEZA JESUS GUADALUPE', '20235867', 'Ingeniería de Software', 6, 'E', 0),
-(33, 46, 'Larios de la Cruz Maria Jose', '20226295', 'Ingeniero en Mecatronica', 8, 'C', 0),
-(34, 47, 'Rafael Alexandro Vuelvas', '20205120', 'Ingeniería de Software', 6, 'E', 0);
+INSERT INTO `estudiantes` (`id`, `usuario_id`, `nombre_completo`, `primer_nombre`, `apellidos`, `matricula`, `carrera`, `semestre`, `grupo`, `direccion`, `telefono`, `activo_practica`) VALUES
+(1, 3, 'Juan Pérez Alumno', NULL, NULL, '20191234', 'Ingeniería de Software', 8, 'A', NULL, NULL, 0),
+(34, 47, 'Rafael Alexandro Vuelvas', NULL, NULL, '20205120', 'Ingeniería de Software', 6, 'E', NULL, NULL, 0),
+(35, 48, 'Fernando', NULL, NULL, '20242526', 'Ingeniería de Software', 4, 'D', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -320,7 +371,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (5, '2026_05_14_011445_create_coordinadors_table', 1),
 (6, '2026_05_14_011445_create_empresas_table', 1),
 (7, '2026_05_14_011446_create_administradors_table', 1),
-(8, '2026_05_25_165738_create_bitacora_table', 2);
+(8, '2026_05_25_165738_create_bitacora_table', 2),
+(9, '2026_05_19_000000_add_contacto_to_estudiantes', 3),
+(10, '2026_05_27_000000_add_nombre_fields_to_estudiantes', 3),
+(11, '2026_05_27_183624_create_proyectos_table', 3);
 
 -- --------------------------------------------------------
 
@@ -353,6 +407,32 @@ CREATE TABLE `personal` (
 INSERT INTO `personal` (`id`, `usuario_id`, `nombre_completo`) VALUES
 (1, 1, 'Administrador General'),
 (2, 2, 'Coordinador de Prácticas Profesionales');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `proyectos`
+--
+
+CREATE TABLE `proyectos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `unidad_receptora_id` int(10) UNSIGNED NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `objetivo` text NOT NULL,
+  `justificacion` text NOT NULL,
+  `actividades` text NOT NULL,
+  `impacto_social` text NOT NULL,
+  `tipo_proyecto` varchar(150) NOT NULL,
+  `tipo_modalidad` varchar(150) NOT NULL,
+  `plan` varchar(50) NOT NULL,
+  `ciclo_escolar` varchar(100) NOT NULL,
+  `cupos_totales` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `cupos_ocupados` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `publico_internet` enum('SI','NO') NOT NULL DEFAULT 'SI',
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -395,9 +475,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('B7CXjbYSULBScr5EXFxA9qZgzhgaCOr7ndcMqJbq', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', 'eyJfdG9rZW4iOiJXN3M4WTdQaDFVZGRaMTdJTVVNcGFXVHJkTUxDZzJ5aGpzcUR5YmdmIiwiX2ZsYXNoIjp7Im5ldyI6W10sIm9sZCI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDAiLCJyb3V0ZSI6ImxvZ2luIn19', 1779834493),
-('T2qrqAiHU30bU8yiWuR8Rdfry75PoztPfoyrnNPf', 5, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJzSThTbmUxeXBjNk56TGROTkRqRFk1R0dWMFlWYVN1MzVTb0xRMGtJIiwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2VtcHJlc2FcL2Rhc2hib2FyZCIsInJvdXRlIjoiZW1wcmVzYS5kYXNoYm9hcmQifSwibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiOjV9', 1779841464),
-('VELcbpORvf9XuCzFfZRyEtfKH7sivYEsC36IZ2RX', NULL, '127.0.0.1', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Mobile Safari/537.36', 'eyJfdG9rZW4iOiJyc0NkcDdYVVV1RGlaZ3RZN290Q0hCbndBaFhLNG85eWdJZXowTXNnIiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwIiwicm91dGUiOiJsb2dpbiJ9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19', 1779844356);
+('CaxtKZLInvuh6bmq0XBd2VVndqYIwLlK2XIUtJv6', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJrWVdqNm9xQVl0NFo1NGZKS3UwMzg4WXBOdXlDQ0Y4Q2oybEY3YWtRIiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9pbnN0aXR1Y2lvbmVzP3BhZ2U9MSJ9LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9pbnN0aXR1Y2lvbmVzP3BhZ2U9MiZwZXJfcGFnZT01Iiwicm91dGUiOiJjb29yZGluYWRvci5pbnN0aXR1Y2lvbmVzIn0sIl9mbGFzaCI6eyJvbGQiOltdLCJuZXciOltdfSwibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiOjJ9', 1781029211),
+('sC1ABXOWDOmgEm5DHBZB1Awj7EWvFtJ5OybXq6wM', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJOWEtzdTgxbWx2b0hUbWx1eE1TWVNMbjZnV2lPWjMzTVF3eXBSU3U1IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvZGFzaGJvYXJkIiwicm91dGUiOiJjb29yZGluYWRvci5kYXNoYm9hcmQifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781633372);
 
 -- --------------------------------------------------------
 
@@ -427,15 +506,26 @@ CREATE TABLE `unidades_receptoras` (
   `usuario_id` int(10) UNSIGNED NOT NULL,
   `nombre_empresa` varchar(255) NOT NULL,
   `direccion` varchar(500) NOT NULL,
-  `tipo_persona` varchar(50) NOT NULL COMMENT 'Física o Moral'
+  `tipo_persona` varchar(50) NOT NULL COMMENT 'Física o Moral',
+  `sistema` varchar(50) NOT NULL,
+  `sector` varchar(50) NOT NULL,
+  `unidad_receptora` varchar(100) NOT NULL,
+  `titular` varchar(100) NOT NULL,
+  `cargo` varchar(100) NOT NULL,
+  `colonia` varchar(50) NOT NULL,
+  `cp` int(5) NOT NULL,
+  `estado` varchar(20) NOT NULL,
+  `municipio` varchar(100) NOT NULL,
+  `telefono` varchar(50) NOT NULL,
+  `convenio` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `unidades_receptoras`
 --
 
-INSERT INTO `unidades_receptoras` (`id`, `usuario_id`, `nombre_empresa`, `direccion`, `tipo_persona`) VALUES
-(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro Manzanillo', 'Moral');
+INSERT INTO `unidades_receptoras` (`id`, `usuario_id`, `nombre_empresa`, `direccion`, `tipo_persona`, `sistema`, `sector`, `unidad_receptora`, `titular`, `cargo`, `colonia`, `cp`, `estado`, `municipio`, `telefono`, `convenio`) VALUES
+(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro Manzanillo', 'Moral', '', '', '', '', '', '', 0, '', '0', '', '');
 
 -- --------------------------------------------------------
 
@@ -460,27 +550,8 @@ INSERT INTO `usuarios` (`id`, `correo`, `contraseña`, `activo`, `rol_id`) VALUE
 (2, 'coordinador@ucol.mx', '$2y$12$nD/o.O4bptqTBby1KCqCyOorkqXz8aQ5WuqlALMk5.AAoaD2moY7S', 1, 2),
 (3, 'alumno@ucol.mx', '$2y$12$cm5JoZ341msAnEIhlv5Ul.WUo0YtE0k9UqJfJWKrnZ8QcMHxNq.ni', 1, 3),
 (5, 'empresa@tech.com', '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 1, 4),
-(26, 'gaguilar7@ucol.mx', '$2y$12$Eb4kpJiHOyzuwh7RmuSbDe7Zqg3fDKC3BcEm30eUNAWcbiI6UNr6G', 1, 3),
-(27, 'lalaniz@ucol.mx', '$2y$12$qHTWR/FhKqKBSjP5U8Vku.2CH6XMPU7gN5zN/Xymh9Er7ukPhyhei', 1, 3),
-(28, 'earcega@ucol.mx', '$2y$12$VDrvYHrCvxv37tnpsmsXX.wcb.fsxY//lZw0vXEdNEK0csiLU1oSK', 1, 3),
-(29, 'acabrales@ucol.mx', '$2y$12$XoyzMcXVp9f15FMNAONfw.aF4vy7VLCAK1fDI6C/KMK1ICsZIDkq.', 1, 3),
-(30, 'fcarmona0@ucol.mx', '$2y$12$nvtwSu803duGdlq/G9/DcOZkM3TKmiZ0wunV8MJ3qn0ZrI/JpUydK', 1, 3),
-(31, 'gceja2@ucol.mx', '$2y$12$KSCDI89wXT.lDJYc1LC88eKFeUY./x96zwObnrSm662Iw09uJEnFO', 1, 3),
-(32, 'dcruz0@ucol.mx', '$2y$12$V/k5AiwhXQgaTomQnUnVCOBfnVHsywLEQh4RPSiir5fEFj6AOoyJm', 1, 3),
-(33, 'jdominguez13@ucol.mx', '$2y$12$mVIMwx.W7xYqtJ6cjnEIJ.O06/l3eZoP9KHpCmY8qKJY.LMnlRP4a', 1, 3),
-(34, 'aelizaldi@ucol.mx', '$2y$12$AyxrDNFjNwSje5HI0E.QduTSzSaEtNgCgm/j8kohQfQU9aVvcMFaq', 1, 3),
-(35, 'jenriquez0@ucol.mx', '$2y$12$fxqX59JeteWe35t.trd7PeuD3rSbC7eCUROtpTLfPPd2FSJmVkn02', 1, 3),
-(36, 'efelix@ucol.mx', '$2y$12$8P4eC8P0yOkrRaAqR6gTsuDaBuoyBaMKbAV9czLI4LwSeLlZyXpDy', 1, 3),
-(37, 'aflores59@ucol.mx', '$2y$12$FafotjCpaJzOyhrdaQ3As.mE6DUKCHyd7/c7ZjUoC6Z5/srSewcui', 1, 3),
-(38, 'agonzalez156@ucol.mx', '$2y$12$wTB2B7ANIegAj6DNynxLRuwnesSAsfb0lkPtBm9r9/V1CUneInGRS', 1, 3),
-(39, 'ggutierrez0@ucol.mx', '$2y$12$EX0dusSixR7QXrA5YN7Fi.WU6EcUTwh568wbrx0bGaRtr/9HjRYO6', 1, 3),
-(40, 'hguzman2@ucol.mx', '$2y$12$HHMAeseLOB3ONN0KbUfdzullUNKro90xDJmLDZXPS8rbOGChY53Fe', 1, 3),
-(41, 'mhuitron0@ucol.mx', '$2y$12$8ykOB3liVYat6ezk4aeRX.GNB5Hw4FgA2DCeqJv6XGq25e0Kj3KHO', 1, 3),
-(42, 'vlarios10@ucol.mx', '$2y$12$RXVcm1ir3sPDf7yKmZ6IYO6JAG2Va0Y/4gAJOcDSS7/nxcEYxMd2S', 1, 3),
-(43, 'bmedina1@ucol.mx', '$2y$12$nbrhvncB2VGxOUIQ5PfBxOWygyKXj8cC0kiE0EKJlkNOaWWX919FW', 1, 3),
-(44, 'jrivera7@ucol.mx', '$2y$12$RHNht9yIQkswmAyKjIBtK.cxBYnwTluPgVv1hlia9vnhhUU9dm4Sq', 1, 3),
-(46, 'mlarios23@ucol.mx', '$2y$12$HvUV/MmFakqowT4FqKkhQupghMstRBurJtYo/LfNZ7fDJ5GuWhSuS', 1, 3),
-(47, 'rvuelvas@ucol.mx', '$2y$12$xXY4Rt.Ge29Xo.RF4guDdurJ8M6ogEoFZ6Rqatt3UvqElb6uPajxa', 1, 3);
+(47, 'rvuelvas@ucol.mx', '$2y$12$xXY4Rt.Ge29Xo.RF4guDdurJ8M6ogEoFZ6Rqatt3UvqElb6uPajxa', 1, 3),
+(48, 'fbenitez2@ucol.mx', '$2y$12$5xDpR9xdRUjY3N7lMLRcQ.m/OPYPZ5/PP.klugq3lEeRrOZowU8.q', 1, 3);
 
 --
 -- Indexes for dumped tables
@@ -578,6 +649,13 @@ ALTER TABLE `personal`
   ADD KEY `fk_personal_usuario` (`usuario_id`);
 
 --
+-- Indexes for table `proyectos`
+--
+ALTER TABLE `proyectos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `proyectos_unidad_receptora_id_foreign` (`unidad_receptora_id`);
+
+--
 -- Indexes for table `roles`
 --
 ALTER TABLE `roles`
@@ -622,7 +700,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT for table `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
 
 --
 -- AUTO_INCREMENT for table `convenios`
@@ -640,7 +718,7 @@ ALTER TABLE `documentos`
 -- AUTO_INCREMENT for table `estudiantes`
 --
 ALTER TABLE `estudiantes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -664,13 +742,19 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `personal`
 --
 ALTER TABLE `personal`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `proyectos`
+--
+ALTER TABLE `proyectos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -688,13 +772,13 @@ ALTER TABLE `solicitudes`
 -- AUTO_INCREMENT for table `unidades_receptoras`
 --
 ALTER TABLE `unidades_receptoras`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- Constraints for dumped tables
@@ -730,6 +814,12 @@ ALTER TABLE `horas`
 --
 ALTER TABLE `personal`
   ADD CONSTRAINT `fk_personal_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `proyectos`
+--
+ALTER TABLE `proyectos`
+  ADD CONSTRAINT `proyectos_unidad_receptora_id_foreign` FOREIGN KEY (`unidad_receptora_id`) REFERENCES `unidades_receptoras` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `solicitudes`

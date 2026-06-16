@@ -3,33 +3,37 @@
 @section('content')
     {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
     @if(session('success'))
-        <div id="alert-success" class="flex items-start gap-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        <div id="successAlert" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 fade-in-up">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-sm font-semibold">{{ session('success') }}</p>
-            <button onclick="document.getElementById('alert-success').remove()" class="ml-auto text-green-400 hover:text-green-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
     @endif
 
     @if($errors->any())
-        <div id="alert-error" class="flex items-start gap-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <p class="text-sm font-bold mb-1">Corrige los siguientes errores:</p>
-                <ul class="text-xs space-y-0.5 list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        <div id="errorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-2 transition-all duration-300 fade-in-up">
+            <div class="flex items-center gap-3 w-full">
+                <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-bold text-sm">Por favor corrige los siguientes errores:</span>
+                <button onclick="document.getElementById('errorAlert').remove()" class="text-red-500 hover:text-red-800 transition-colors ml-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <button onclick="document.getElementById('alert-error').remove()" class="ml-auto text-red-400 hover:text-red-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <ul class="list-disc pl-9 text-xs font-semibold space-y-1 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -43,13 +47,14 @@
         </x-slot>
     </x-page-header>
     <!-- Table Container (Glassmorphic) -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 border-t-4 border-[#6BA53A] fade-in-up delay-100 shadow-sm">
+    <!-- Table Container (Glassmorphic) -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
                <!-- Filters & Search -->
-        <form method="GET" action="{{ route('coordinador.proyectos') }}" class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6 w-full">
+        <form method="GET" action="{{ route('coordinador.proyectos') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6 w-full">
             <!-- Left side: Show entries -->
-            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full lg:w-auto">
+            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full md:w-auto">
                 <span>Mostrar</span>
-                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-1.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
                     <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                     <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
@@ -60,9 +65,9 @@
             </div>
 
             <!-- Right side: Search and Filters -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                 <!-- Plan Select -->
-                <select name="plan" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="plan" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="">Todos los Planes</option>
                     <option value="E906" {{ request('plan') == 'E906' ? 'selected' : '' }}>PLAN E906</option>
                     <option value="E907" {{ request('plan') == 'E907' ? 'selected' : '' }}>PLAN E907</option>
@@ -70,14 +75,14 @@
                 </select>
 
                 <!-- Cupo Select -->
-                <select name="cupo" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="cupo" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="">Todos los Cupos</option>
                     <option value="disponible" {{ request('cupo') == 'disponible' ? 'selected' : '' }}>DISPONIBLE</option>
                     <option value="lleno" {{ request('cupo') == 'lleno' ? 'selected' : '' }}>CUPO LLENO</option>
                 </select>
 
                 <!-- Acceso / Estatus Select -->
-                <select name="acceso" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="acceso" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="">Todos los Accesos</option>
                     <option value="activo" {{ request('acceso') == 'activo' ? 'selected' : '' }}>ACCESO ACTIVO</option>
                     <option value="inactivo" {{ request('acceso') == 'inactivo' ? 'selected' : '' }}>ACCESO INACTIVO</option>
@@ -88,7 +93,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm shadow-sm transition-all" placeholder="Buscar por nombre o ID...">
+                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors restrict-search" placeholder="Buscar...">
                 </div>
                 <button type="submit" class="hidden">Buscar</button>
             </div>
@@ -96,7 +101,7 @@
 
         <!-- Table -->
         <div class="overflow-x-auto">
-            <table id="proyectos-table" class="min-w-full divide-y divide-gray-200/50">
+            <table id="proyectos-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/50">
                     <tr>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Proyecto</th>
@@ -108,32 +113,37 @@
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-transparent divide-y divide-gray-100/50">
+                <tbody class="bg-transparent divide-y divide-gray-100">
                     @forelse($proyectos as $proyecto)
                         @php
                             $esLleno = $proyecto->cupos_ocupados >= $proyecto->cupos_totales;
                             $esVacio = $proyecto->cupos_ocupados == 0;
+                            
                             $badgeClass = $esLleno 
-                                ? 'bg-sky-50 text-sky-700 border-sky-200' 
-                                : ($esVacio ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+                                ? 'bg-sky-50 text-sky-700 border-sky-100' 
+                                : ($esVacio ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-amber-50 text-amber-700 border-amber-100');
+                                
+                            $dotClass = $esLleno
+                                ? 'bg-sky-500'
+                                : ($esVacio ? 'bg-gray-400' : 'bg-amber-500');
                         @endphp
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group project-row">
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">
+                        <tr class="transition-colors group {{ !$proyecto->activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }} project-row">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }}">
                                 #{{ $proyecto->id }}
                             </td>
                             <td class="px-3 py-4 text-left max-w-[220px] whitespace-normal">
-                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
-                                <div class="text-[10px] text-gray-400 uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
+                                <div class="text-xs font-bold {{ $proyecto->activo ? 'text-gray-900 group-hover:text-[#4E7D24]' : 'text-gray-400' }} transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
+                                <div class="text-[10px] {{ $proyecto->activo ? 'text-gray-400' : 'text-gray-300' }} uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
-                                <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
+                                <div class="text-xs {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }} font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs text-gray-500 font-bold tracking-wide">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs {{ $proyecto->activo ? 'text-gray-500' : 'text-gray-400' }} font-bold tracking-wide">
                                 {{ $proyecto->ciclo_escolar }}
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <span class="px-3 py-1 inline-flex text-[11px] leading-5 font-bold rounded-lg border shadow-sm {{ $badgeClass }}">
-                                    {{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg border {{ $badgeClass }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }} mr-1.5 mt-1.5"></span> {{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}
                                 </span>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
@@ -150,12 +160,12 @@
                                 </div>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-3">
-                                    <button type="button" onclick="abrirEditarProyecto('{{ $proyecto->id }}')" class="text-[#6BA53A] hover:text-[#4E7D24] hover:scale-110 transition-transform animate-hover cursor-pointer" title="Editar proyecto {{ $proyecto->id }}" aria-label="Editar proyecto {{ $proyecto->id }}">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <div class="flex justify-center gap-2">
+                                    <button type="button" onclick="abrirEditarProyecto('{{ $proyecto->id }}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all" title="Editar proyecto {{ $proyecto->id }}" aria-label="Editar proyecto {{ $proyecto->id }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="text-[#38bdf8] hover:text-[#0284c7] hover:scale-110 transition-transform animate-hover cursor-pointer" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -258,6 +268,28 @@
 
                 document.getElementById('modal-editar-proyecto').classList.remove('hidden');
             };
+
+            // Auto-ocultar alerta de éxito a los 5 segundos
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        successAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            // Auto-ocultar alerta de error a los 5 segundos
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        errorAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
         });
     </script>
 @endsection

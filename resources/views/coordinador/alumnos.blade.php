@@ -3,33 +3,37 @@
 @section('content')
     {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
     @if(session('success'))
-        <div id="alert-success" class="flex items-start gap-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        <div id="successAlert" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 fade-in-up">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-sm font-semibold">{{ session('success') }}</p>
-            <button onclick="document.getElementById('alert-success').remove()" class="ml-auto text-green-400 hover:text-green-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
     @endif
 
     @if($errors->any())
-        <div id="alert-error" class="flex items-start gap-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 mb-6 shadow-sm fade-in-up">
-            <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <p class="text-sm font-bold mb-1">Corrige los siguientes errores:</p>
-                <ul class="text-xs space-y-0.5 list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        <div id="errorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-2 transition-all duration-300 fade-in-up">
+            <div class="flex items-center gap-3 w-full">
+                <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-bold text-sm">Por favor corrige los siguientes errores:</span>
+                <button onclick="document.getElementById('errorAlert').remove()" class="text-red-500 hover:text-red-800 transition-colors ml-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <button onclick="document.getElementById('alert-error').remove()" class="ml-auto text-red-400 hover:text-red-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <ul class="list-disc pl-9 text-xs font-semibold space-y-1 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -47,14 +51,14 @@
     </x-page-header>
 
     <!-- Main Alumnos Container (Glassmorphic) -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 border-t-4 border-[#6BA53A] fade-in-up delay-100 shadow-sm">
+    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
         
         <!-- Filters & Search -->
-        <form method="GET" action="{{ route('coordinador.alumnos') }}" class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6 w-full">
+        <form method="GET" action="{{ route('coordinador.alumnos') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6 w-full">
             <!-- Left side: Show entries -->
-            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full lg:w-auto">
+            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full md:w-auto">
                 <span>Mostrar</span>
-                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-1.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="5" {{ request('per_page', '5') == '5' ? 'selected' : '' }}>5</option>
                     <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
                     <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
@@ -65,9 +69,9 @@
             </div>
 
             <!-- Right side: Filters & Search -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                 <!-- Carrera Select -->
-                <select name="carrera" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="carrera" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="">Todas las Carreras</option>
                     @foreach($carrerasDisponibles as $carr)
                         <option value="{{ $carr }}" {{ request('carrera') == $carr ? 'selected' : '' }}>{{ strtoupper($carr) }}</option>
@@ -75,7 +79,7 @@
                 </select>
 
                 <!-- Estatus Select -->
-                <select name="estatus" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-bold rounded-xl bg-white/50 text-gray-700 shadow-sm transition-all">
+                <select name="estatus" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
                     <option value="">Todos los Estatus</option>
                     <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>ACTIVO</option>
                     <option value="asignado" {{ request('estatus') == 'asignado' ? 'selected' : '' }}>ASIGNADO</option>
@@ -88,65 +92,95 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm shadow-sm transition-all" placeholder="Buscar por nombre o cuenta" pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
+                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
                 </div>
                 <button type="submit" class="hidden">Buscar</button>
             </div>
         </form>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/50">
+            <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/50">
                     <tr>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Cuenta</th>
-                        <th scope="col" class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[150px] whitespace-normal">Nombre del Estudiante</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[140px] whitespace-normal">Plantel</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[120px] whitespace-normal">Sem. Inscripción</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sem / Gpo</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sexo</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[130px] whitespace-normal">Carrera</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Estatus</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acción</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Carrera y Grupo</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-transparent divide-y divide-gray-100/50">
+                <tbody class="bg-transparent divide-y divide-gray-100">
                     @forelse($alumnos as $alumno)
                         @php
-                            $esFemenino = preg_match('/(Jazmín|Jazmin|Mariana|Diana|Sofía|Sofia|Flor|Jaqueline|Brisa|María|Maria|Annelise|Najara)/i', $alumno->nombre_completo);
+                            $nombre = $alumno->nombre_completo;
+                            $avatarText = 'AL';
+                            if ($nombre) {
+                                $words = explode(' ', trim($nombre));
+                                $avatarText = strtoupper(substr($words[0] ?? '', 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
+                            }
+                            
+                            $activo = $alumno->user && $alumno->user->activo;
+                            
+                            // Avatar background dynamic classes matching the status
+                            $avatarBg = 'bg-gray-100 text-gray-600';
+                            $estatus = $alumno->estatus;
+                            if (!$activo) {
+                                $avatarBg = 'bg-gray-100 text-gray-400';
+                            } elseif ($estatus == 'ACTIVO') {
+                                $avatarBg = 'bg-green-100 text-green-700';
+                            } elseif ($estatus == 'ASIGNADO') {
+                                $avatarBg = 'bg-blue-100 text-blue-700';
+                            } elseif ($estatus == 'PENDIENTE') {
+                                $avatarBg = 'bg-yellow-100 text-yellow-700';
+                            }
                         @endphp
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">
-                                {{ $alumno->matricula }}
+                        <tr class="transition-colors group {{ !$activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 md:h-12 md:w-12 rounded-full {{ $avatarBg }} flex items-center justify-center font-bold shadow-sm">
+                                        {{ $avatarText }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-bold {{ $activo ? 'text-gray-900 group-hover:text-[#4E7D24]' : 'text-gray-400' }} transition-colors leading-tight uppercase">{{ $alumno->nombre_completo }}</div>
+                                        <div class="text-xs {{ $activo ? 'text-gray-500' : 'text-gray-400' }}">{{ $alumno->user->correo ?? '' }}</div>
+                                        <div class="text-[10px] {{ $activo ? 'text-gray-400' : 'text-gray-300' }} font-semibold tracking-wide">Matrícula: {{ $alumno->matricula }}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-3 py-4 whitespace-normal text-left max-w-[150px]">
-                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors leading-tight uppercase break-words">{{ $alumno->nombre_completo }}</div>
-                                <div class="text-[10px] text-gray-400 normal-case">{{ $alumno->user->correo ?? '' }}</div>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-bold {{ $activo ? 'text-gray-800' : 'text-gray-400' }} uppercase leading-none mb-1">{{ $alumno->carrera }}</div>
+                                <div class="text-xs {{ $activo ? 'text-gray-500' : 'text-gray-400' }} font-semibold">{{ $alumno->semestre }}° Semestre, Grupo "{{ $alumno->grupo }}"</div>
+                                <div class="text-[10px] {{ $activo ? 'text-gray-400' : 'text-gray-300' }} font-semibold uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA</div>
                             </td>
-                            <td class="px-3 py-4 text-center max-w-[140px] whitespace-normal">
-                                <div class="text-[10px] text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA</div>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if(!$activo)
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-gray-100 text-gray-400 border border-gray-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5 mt-1.5"></span> Inactivo
+                                    </span>
+                                @elseif($estatus == 'ACTIVO')
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> Activo
+                                    </span>
+                                @elseif($estatus == 'ASIGNADO')
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5 mt-1.5"></span> Asignado
+                                    </span>
+                                @elseif($estatus == 'PENDIENTE')
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mr-1.5 mt-1.5"></span> Pendiente
+                                    </span>
+                                @endif
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500 uppercase">
-                                AGO-2026/ENE-2027
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-800">
-                                {{ $alumno->semestre }}°{{ $alumno->grupo }}
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">
-                                {{ $esFemenino ? 'FEMENINO' : 'MASCULINO' }}
-                            </td>
-                            <td class="px-3 py-4 text-center max-w-[130px] whitespace-normal">
-                                <div class="text-xs text-gray-600 font-semibold leading-tight break-words uppercase">{{ $alumno->carrera }}</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $alumno->estatus_class }}">{{ $alumno->estatus }}</span>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <button class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition-all hover:scale-105 uppercase tracking-wider">Ver Registro</button>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end gap-2">
+                                    <button class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all" title="Ver Registro">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
+                            <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
                                 No se encontraron estudiantes con los criterios de búsqueda seleccionados.
                             </td>
                         </tr>
@@ -161,6 +195,31 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alerta de éxito a los 5 segundos
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        successAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            // Auto-ocultar alerta de error a los 5 segundos
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        errorAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
 @endsection
 
 @push('modals')
