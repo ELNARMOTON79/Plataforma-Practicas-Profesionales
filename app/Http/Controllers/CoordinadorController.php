@@ -791,4 +791,121 @@ class CoordinadorController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Store bulk uploaded students in the database.
+     */
+    public function bulkStoreAlumnos(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return response()->json(['success' => false, 'errors' => ['No autorizado']], 403);
+        }
+
+        $request->validate([
+            'students'           => 'required|array|min:1',
+            'students.*.correo'  => 'required|email|max:255',
+            'students.*.matricula' => 'required|string|max:50',
+            'students.*.nombre'  => 'required|string|max:255',
+            'students.*.carrera' => 'required|string|max:150',
+            'students.*.semestre' => 'required|integer|min:1|max:12',
+            'students.*.grupo'   => 'required|string|max:20',
+        ]);
+
+        $students   = $request->input('students');
+        $errors     = [];
+        $emails     = [];
+        $matriculas = [];
+
+        // Validate uniqueness and duplicates within the file
+        foreach ($students as $index => $student) {
+            $rowNum   = $index + 1;
+            $correo   = trim($student['correo']);
+            $matricula = trim($student['matricula']);
+
+            if (in_array(strtolower($correo), $emails)) {
+                $errors[] = "Fila {$rowNum}: El correo '{$correo}' está duplicado en el archivo.";
+            } else {
+                $emails[] = strtolower($correo);
+            }
+
+            if (in_array(strtolower($matricula), $matriculas)) {
+                $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' está duplicada en el archivo.";
+            } else {
+                $matriculas[] = strtolower($matricula);
+            }
+
+            if (User::where('correo', $correo)->exists()) {
+                $errors[] = "Fila {$rowNum}: El correo '{$correo}' ya está registrado en el sistema.";
+            }
+
+            if (Alumno::where('matricula', $matricula)->exists()) {
+                $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' ya está registrada en el sistema.";
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json(['success' => false, 'errors' => $errors], 422);
+        }
+
+        // Insert inside a transaction
+        DB::beginTransaction();
+        try {
+            $createdCount = 0;
+            foreach ($students as $student) {
+                $randomPassword = Str::random(10);
+
+                $user = new User();
+                $user->correo    = trim($student['correo']);
+                $user->contraseña = Hash::make($randomPassword);
+                $user->rol_id    = 3; // Alumno
+                $user->activo    = true;
+                $user->save();
+
+                $alumno = new Alumno();
+                $alumno->usuario_id      = $user->id;
+                $alumno->nombre_completo = trim($student['nombre']);
+                $alumno->matricula       = trim($student['matricula']);
+                $alumno->carrera         = trim($student['carrera']);
+                $alumno->semestre        = intval($student['semestre']);
+                $alumno->grupo           = strtoupper(trim($student['grupo']));
+                $alumno->activo_practica = 0;
+                $alumno->save();
+
+                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
+                    try {
+                        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
+                    } catch (\Exception $e) {
+                        \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
+                    }
+                }
+
+                $createdCount++;
+            }
+
+            DB::commit();
+
+            \App\Helpers\ActivityLogger::log(
+                'Alumnos',
+                'Importación Masiva',
+                "Se registraron exitosamente {$createdCount} estudiantes mediante importación masiva.",
+                'success',
+                ['cantidad_importada' => $createdCount]
+            );
+
+            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente y se enviaron sus accesos por correo.");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Importación exitosa de {$createdCount} estudiantes."
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Error al procesar importación masiva de estudiantes (coordinador): " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+            ], 500);
+        }
+    }
 }

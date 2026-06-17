@@ -58,6 +58,7 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\CoordinadorController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
 
     Route::get('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'alumnos'])->name('coordinador.alumnos');
+    Route::post('/coordinador/alumnos/bulk-store', [App\Http\Controllers\CoordinadorController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk-store');
 
     Route::post('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
 
