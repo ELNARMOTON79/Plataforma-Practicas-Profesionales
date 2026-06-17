@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 16, 2026 at 08:12 PM
+-- Generation Time: Jun 17, 2026 at 06:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -195,7 +195,10 @@ INSERT INTO `bitacora` (`id`, `timestamp`, `level`, `level_name`, `user`, `user_
 (142, '2026-06-09 18:17:42', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 5 instituciones mediante importación masiva. Omitidas: 0.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 5,\n    \"cantidad_omitida\": 0\n}', '2026-06-09 18:17:42', '2026-06-09 18:17:42'),
 (143, '2026-06-09 18:17:51', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 0 instituciones mediante importación masiva. Omitidas: 5.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 0,\n    \"cantidad_omitida\": 5\n}', '2026-06-09 18:17:51', '2026-06-09 18:17:51'),
 (144, '2026-06-09 18:18:51', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 1 instituciones mediante importación masiva. Omitidas: 5.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 1,\n    \"cantidad_omitida\": 5\n}', '2026-06-09 18:18:51', '2026-06-09 18:18:51'),
-(145, '2026-06-16 18:08:24', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-16 18:08:24', '2026-06-16 18:08:24');
+(145, '2026-06-16 18:08:24', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-16 18:08:24', '2026-06-16 18:08:24'),
+(146, '2026-06-16 18:33:05', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 6 instituciones mediante importación masiva. Omitidas: 0.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 6,\n    \"cantidad_omitida\": 0\n}', '2026-06-16 18:33:05', '2026-06-16 18:33:05'),
+(147, '2026-06-16 19:22:33', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-16 19:22:33', '2026-06-16 19:22:33'),
+(148, '2026-06-17 04:43:32', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-17 04:43:32', '2026-06-17 04:43:32');
 
 -- --------------------------------------------------------
 
@@ -475,8 +478,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('CaxtKZLInvuh6bmq0XBd2VVndqYIwLlK2XIUtJv6', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 OPR/131.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJrWVdqNm9xQVl0NFo1NGZKS3UwMzg4WXBOdXlDQ0Y4Q2oybEY3YWtRIiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9pbnN0aXR1Y2lvbmVzP3BhZ2U9MSJ9LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9pbnN0aXR1Y2lvbmVzP3BhZ2U9MiZwZXJfcGFnZT01Iiwicm91dGUiOiJjb29yZGluYWRvci5pbnN0aXR1Y2lvbmVzIn0sIl9mbGFzaCI6eyJvbGQiOltdLCJuZXciOltdfSwibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiOjJ9', 1781029211),
-('sC1ABXOWDOmgEm5DHBZB1Awj7EWvFtJ5OybXq6wM', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJOWEtzdTgxbWx2b0hUbWx1eE1TWVNMbjZnV2lPWjMzTVF3eXBSU3U1IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvZGFzaGJvYXJkIiwicm91dGUiOiJjb29yZGluYWRvci5kYXNoYm9hcmQifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781633372);
+('3pBBQyfs3HiEWX7aO3BeuC4NT0KFlcqYDCISG8my', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJvMlV3eTN1cjBqb0VmWjBzVkdpd1plQWNMOUV3amJpNUxrSEtwUmh1IiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9wcm95ZWN0b3MifSwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvZGFzaGJvYXJkIiwicm91dGUiOiJjb29yZGluYWRvci5kYXNoYm9hcmQifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781671494),
+('KEBeJbjj2hObN72s1pTMuJq6KSeBsemRkiHamLqS', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'eyJfdG9rZW4iOiJkcXN1a1F4VktWbXh5Q1pPaVc5VVV1VHBpUlZJNlNYV252RkVlMGlkIiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9hZG1pblwvYml0YWNvcmE/ZGF0ZT0mbGV2ZWw9Jm1vZHVsZT0mc2VhcmNoPSZ2aWV3PXRhYmxlIiwicm91dGUiOiJhZG1pbi5iaXRhY29yYSJ9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX0sImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjoxfQ==', 1781637935),
+('sC1ABXOWDOmgEm5DHBZB1Awj7EWvFtJ5OybXq6wM', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJOWEtzdTgxbWx2b0hUbWx1eE1TWVNMbjZnV2lPWjMzTVF3eXBSU3U1IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvcHJveWVjdG9zIiwicm91dGUiOiJjb29yZGluYWRvci5wcm95ZWN0b3MifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781638878);
 
 -- --------------------------------------------------------
 
@@ -525,7 +529,13 @@ CREATE TABLE `unidades_receptoras` (
 --
 
 INSERT INTO `unidades_receptoras` (`id`, `usuario_id`, `nombre_empresa`, `direccion`, `tipo_persona`, `sistema`, `sector`, `unidad_receptora`, `titular`, `cargo`, `colonia`, `cp`, `estado`, `municipio`, `telefono`, `convenio`) VALUES
-(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro Manzanillo', 'Moral', '', '', '', '', '', '', 0, '', '0', '', '');
+(4, 5, 'Tech Solutions S.A. de C.V.', 'Av. Tecnológico 123, Col. Centro Manzanillo', 'Moral', 'ESTATAL', 'publico', 'Facultad de Ingenieria Electromecanica', 'Mtro. Juan', 'Director', 'El naranjo', 28989, 'Colima', 'Manzanillo', '3122337959', 'Con Convenio'),
+(36, 60, 'Universidad de Colima', 'Av. Universidad 333', 'Moral', 'ESTATAL', 'PÚBLICO', 'Facultad de Telemática', 'Mtro. Gerardo Alcaraz', 'Director', 'Las Víboras', 28040, 'Colima', 'Manzanillo', '3123161100', 'Con Convenio'),
+(37, 60, 'SECRETARIA DE EDUCACIÓN. DELEGACIÓN FEDERAL', 'SECTOR 7 #100', 'Moral', 'FEDERAL', 'EDUCATIVO EXTERNO', 'JARDÍN DE NIÑOS CUITLÁHUAC TM', 'LEP. MARIELA ALEJANDRA FERREYRA RAMÍREZ', 'DIRECTORA', 'SAN PEDRITO', 28259, 'COLIMA', 'MANZANILLO', '3143321369', 'Con Convenio'),
+(38, 61, 'Tech Solutions S.A. de C.V.', 'Av. Constitución 450', 'Moral', 'PRIVADA', 'PRIVADO', 'Departamento de Sistemas', 'Ing. Roberto Gomez', 'Gerente TI', 'Lomas de Circunvalación', 28010, 'Colima', 'Manzanillo', '3123154400', 'Con Convenio'),
+(39, 61, 'ISSSTE', 'Av. Parotas, Rosa Morada S/N. Barrio I', 'Moral', 'FEDERAL', 'PÚBLICO', 'HOSPITAL ISSSTE MANZANILLO', 'DR. FERNANDO PARRALES ÁNGELES', 'DIRECTOR GENERAL DE CLÍNICA HOSPITAL ISSSTE MANZANILLO', 'Valle De Las Garzas', 28219, 'Colima', 'Manzanillo', '3143365121', 'Con Convenio'),
+(40, 62, 'SECRETARIA DE EDUCACIÓN. DELEGACIÓN FEDERAL', 'RIO DEL FUERTE #100', 'Moral', 'FEDERAL', 'EDUCATIVO EXTERNO', 'BACHILLERATO EMSAD NO. 4 “EMILIANO ZAPATA”', 'ING. OSCAR MAURICIO FARIAS GOMEZ', 'SUBDIRECTOR DEL PLANTEL', 'LA CENTRAL', 28868, 'COLIMA', 'MANZANILLO', '3122106384', 'Con Convenio'),
+(41, 63, 'SECRETARIA DE EDUCACIÓN. DELEGACIÓN FEDERAL', 'Calle Aguila 122 Fracc. Paraíso', 'Moral', 'FEDERAL', 'EDUCATIVO EXTERNO', 'CENTRO DE CAPACITACIÓN PARA EL TRABAJO INDUSTRIAL NO. 34', 'GLADYS PATRICIA JIMÉNEZ ZEPEDA', 'DIRECTORA', 'Salagua', 28869, 'Colima', 'Manzanillo', '314 1218445', 'Con Convenio');
 
 -- --------------------------------------------------------
 
@@ -551,7 +561,11 @@ INSERT INTO `usuarios` (`id`, `correo`, `contraseña`, `activo`, `rol_id`) VALUE
 (3, 'alumno@ucol.mx', '$2y$12$cm5JoZ341msAnEIhlv5Ul.WUo0YtE0k9UqJfJWKrnZ8QcMHxNq.ni', 1, 3),
 (5, 'empresa@tech.com', '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 1, 4),
 (47, 'rvuelvas@ucol.mx', '$2y$12$xXY4Rt.Ge29Xo.RF4guDdurJ8M6ogEoFZ6Rqatt3UvqElb6uPajxa', 1, 3),
-(48, 'fbenitez2@ucol.mx', '$2y$12$5xDpR9xdRUjY3N7lMLRcQ.m/OPYPZ5/PP.klugq3lEeRrOZowU8.q', 1, 3);
+(48, 'fbenitez2@ucol.mx', '$2y$12$5xDpR9xdRUjY3N7lMLRcQ.m/OPYPZ5/PP.klugq3lEeRrOZowU8.q', 1, 3),
+(60, 'moffa543@gmail.com', '$2y$12$JB52kx6oEaErSfV4d0YNPO2ZCP43eyianqHo1wXXd/CpweuKQF80i', 1, 4),
+(61, 'uchihamadara6949@gmail.com', '$2y$12$7yLAd4McdmgZUd//vTYDN.DA6B.nyC6VugdKEENXlSz3g.oZC3d2y', 1, 4),
+(62, 'rafaelalexandro6949@gmail.com', '$2y$12$L1yW6ur7mcTfHrYsHCYDAukrzQuqKfIXjuj0Gcf5EYFaB2Ct.VfXu', 1, 4),
+(63, 'rafaelalex6949@gmail.com', '$2y$12$es3dpSTyyIFtYUPPgoLCYeSAnKVVlZgyZ40obUCY.rGg.wO2PN40G', 1, 4);
 
 --
 -- Indexes for dumped tables
@@ -700,7 +714,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT for table `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=149;
 
 --
 -- AUTO_INCREMENT for table `convenios`
@@ -772,13 +786,13 @@ ALTER TABLE `solicitudes`
 -- AUTO_INCREMENT for table `unidades_receptoras`
 --
 ALTER TABLE `unidades_receptoras`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- Constraints for dumped tables
