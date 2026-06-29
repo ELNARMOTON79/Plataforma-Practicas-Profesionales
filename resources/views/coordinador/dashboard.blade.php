@@ -113,26 +113,26 @@
             <div class="glass-card rounded-3xl p-8 fade-in-up delay-200 shadow-sm border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-6 h-6 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        Gestión Rápida de Estudiantes
+                        <svg class="w-6 h-6 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        Trámites y Alumnos Pendientes
                     </h2>
-                    <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="text-sm font-bold text-[#6BA53A] hover:text-[#4E7D24] transition-colors">Ver todos</a>
+                    <span class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ count($pendientesPorAtender) }} pendientes</span>
                 </div>
 
-                <div class="overflow-hidden bg-white/60 rounded-2xl border border-gray-100 shadow-inner">
+                <div class="overflow-x-auto bg-white/60 rounded-2xl border border-gray-100 shadow-inner">
                     <table class="min-w-full divide-y divide-gray-200/50">
                         <thead class="bg-gray-50/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Carrera</th>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
-                                <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acción</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Asunto / Estatus</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detalles</th>
+                                <th scope="col" class="px-4 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="bg-transparent divide-y divide-gray-200/40">
-                            @forelse($recentAlumnos as $alumno)
+                            @forelse($pendientesPorAtender as $pendiente)
                                 @php
-                                    $nombre = $alumno->nombre_completo ?? 'Estudiante';
+                                    $nombre = $pendiente->estudiante->nombre_completo ?? 'Estudiante';
                                     $avatarText = 'AL';
                                     if ($nombre) {
                                         $words = explode(' ', trim($nombre));
@@ -140,33 +140,38 @@
                                     }
                                 @endphp
                                 <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">
                                                 {{ $avatarText }}
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-bold text-gray-900 leading-tight">{{ $nombre }}</div>
-                                                <div class="text-xs text-gray-500">Cuenta: {{ $alumno->matricula }}</div>
+                                                <div class="text-xs text-gray-500">Cuenta: {{ $pendiente->estudiante?->matricula ?? '' }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold uppercase">
-                                        {{ $alumno->carrera }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $alumno->estatus_class }}">
-                                            {{ $alumno->estatus }}
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $pendiente->badge_class }}">
+                                            {{ $pendiente->badge_text }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                        <a href="{{ route('coordinador.alumnos', ['search' => $alumno->matricula]) }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105 inline-block">Ver Registro</a>
+                                    <td class="px-4 py-3 text-xs text-gray-600 font-semibold uppercase max-w-[150px] truncate">
+                                        {{ $pendiente->detalle }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium">
+                                        <a href="{{ $pendiente->link }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105 inline-block">
+                                            {{ $pendiente->accion_label }}
+                                        </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
-                                        No hay estudiantes registrados recientemente.
+                                    <td colspan="4" class="px-4 py-12 text-center text-sm text-gray-500 font-medium">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="text-gray-600">¡Todo al día! No hay trámites ni registros pendientes.</span>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
