@@ -110,8 +110,11 @@
                 <thead class="bg-gray-50/50">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Carrera y Grupo</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Plantel y Carrera</th>
+                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Sem. Inscripción</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sexo</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
+                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Proyecto</th>
                     </tr>
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-100">
@@ -140,9 +143,10 @@
                             }
                         @endphp
                         <tr class="transition-colors group {{ !$activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }}">
+                            <!-- Estudiante -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 md:h-12 md:w-12 rounded-full {{ $avatarBg }} flex items-center justify-center font-bold shadow-sm">
+                                    <div class="flex-shrink-0 h-10 w-10 md:h-12 md:w-12 rounded-full {{ $avatarBg }} flex items-center justify-center font-bold shadow-sm text-sm">
                                         {{ $avatarText }}
                                     </div>
                                     <div class="ml-4">
@@ -152,11 +156,31 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold {{ $activo ? 'text-gray-800' : 'text-gray-400' }} uppercase leading-none mb-1">{{ $alumno->carrera }}</div>
-                                <div class="text-xs {{ $activo ? 'text-gray-500' : 'text-gray-400' }} font-semibold">{{ $alumno->semestre }}° Semestre, Grupo "{{ $alumno->grupo }}"</div>
-                                <div class="text-[10px] {{ $activo ? 'text-gray-400' : 'text-gray-300' }} font-semibold uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA</div>
+                            <!-- Plantel y Carrera -->
+                            <td class="px-6 py-4 whitespace-normal">
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 leading-none">FACULTAD DE INGENIERÍA ELECTROMECÁNICA</div>
+                                <div class="text-sm font-bold text-gray-800 uppercase mb-0.5 leading-tight">{{ $alumno->carrera }}</div>
+                                <div class="text-xs text-gray-500 font-semibold">{{ $alumno->semestre }}° Semestre, Grupo "{{ $alumno->grupo }}"</div>
                             </td>
+                            <!-- Sem. Inscripción -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-700">
+                                @php
+                                    $solicitud = \DB::table('solicitudes')
+                                        ->where('estudiante_id', $alumno->id)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
+                                @endphp
+                                @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
+                                    <span class="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-lg">{{ $alumno->semestre }}</span>
+                                @else
+                                    <span class="text-gray-400">SIN REGISTRO</span>
+                                @endif
+                            </td>
+                            <!-- Sexo -->
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-600 uppercase">
+                                {{ $alumno->sexo }}
+                            </td>
+                            <!-- Estatus -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if(!$activo)
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-gray-100 text-gray-400 border border-gray-200">
@@ -176,10 +200,22 @@
                                     </span>
                                 @endif
                             </td>
+                            <!-- Proyecto -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
+                                    <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow transition-all uppercase">
+                                        Ver Registro
+                                    </a>
+                                @else
+                                    <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow transition-all uppercase">
+                                        Registrar
+                                    </a>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
+                            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
                                 No se encontraron estudiantes con los criterios de búsqueda seleccionados.
                             </td>
                         </tr>

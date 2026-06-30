@@ -324,6 +324,10 @@
     <script>
         // ── DataTables ──────────────────────────────────────────────
         $(document).ready(function() {
+            // Get URL parameter "search"
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchVal = urlParams.get('search') || '';
+
             const dtConfig = {
                 searching: true,
                 lengthChange: false,
@@ -339,9 +343,6 @@
                 ...dtConfig,
                 columnDefs: [{ orderable: false, targets: [5, 6] }]
             });
-            $('#search-solicitudes').on('keyup', function() {
-                tablaSolicitudes.search(this.value).draw();
-            });
 
             // Documentos Pendientes
             let tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
@@ -353,6 +354,23 @@
             let tablaDocsValidados = $('#documentos-validados-table').DataTable({
                 ...dtConfig,
                 columnDefs: [{ orderable: false, targets: [3, 4] }]
+            });
+
+            // Apply search from URL if present
+            if (searchVal) {
+                const decodedSearch = decodeURIComponent(searchVal);
+                
+                // Pre-populate search fields and trigger DataTables filter
+                $('#search-solicitudes').val(decodedSearch);
+                tablaSolicitudes.search(decodedSearch).draw();
+
+                $('#search-documentos').val(decodedSearch);
+                tablaDocsPendientes.search(decodedSearch).draw();
+                tablaDocsValidados.search(decodedSearch).draw();
+            }
+
+            $('#search-solicitudes').on('keyup', function() {
+                tablaSolicitudes.search(this.value).draw();
             });
 
             // Búsqueda unificada para el tab de documentos
