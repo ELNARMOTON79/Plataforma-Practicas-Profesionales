@@ -57,7 +57,15 @@
                     </span>
                     <input type="password" id="current_password" name="current_password"
                         placeholder="Tu contraseña actual"
-                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-4 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-12 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                    <button type="button" onclick="togglePasswordVisibility('current_password','icon_current_password')"
+                        aria-label="Mostrar contraseña"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#4E7D24] focus:outline-none">
+                        <svg id="icon_current_password" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
                 </div>
                 <p id="error-current_password" class="hidden mt-1.5 text-xs text-red-500 font-medium"></p>
             </div>
@@ -73,7 +81,15 @@
                     </span>
                     <input type="password" id="new_password" name="new_password"
                         placeholder="Mínimo 8 caracteres"
-                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-4 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-12 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                    <button type="button" onclick="togglePasswordVisibility('new_password','icon_new_password')"
+                        aria-label="Mostrar contraseña"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#4E7D24] focus:outline-none">
+                        <svg id="icon_new_password" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
                 </div>
                 <p id="error-new_password" class="hidden mt-1.5 text-xs text-red-500 font-medium"></p>
             </div>
@@ -89,7 +105,15 @@
                     </span>
                     <input type="password" id="new_password_confirmation" name="new_password_confirmation"
                         placeholder="Repite la nueva contraseña"
-                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-4 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 pl-10 pr-12 py-3 text-sm text-gray-800 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A]" />
+                    <button type="button" onclick="togglePasswordVisibility('new_password_confirmation','icon_new_password_confirmation')"
+                        aria-label="Mostrar contraseña"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#4E7D24] focus:outline-none">
+                        <svg id="icon_new_password_confirmation" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
                 </div>
                 <p id="error-new_password_confirmation" class="hidden mt-1.5 text-xs text-red-500 font-medium"></p>
             </div>
@@ -190,6 +214,25 @@
     document.getElementById('success-modal').addEventListener('click', function(e) {
         if (e.target === this) closeSuccessModal();
     });
+
+    function togglePasswordVisibility(inputId, iconId) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+
+        var isPassword = input.getAttribute('type') === 'password';
+        input.setAttribute('type', isPassword ? 'text' : 'password');
+
+        var icon = document.getElementById(iconId);
+        if (!icon) return;
+
+        if (isPassword) {
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M9.88 9.88a3 3 0 104.24 4.24" />\n<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.94 17.94A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a10.05 10.05 0 011.547-3.018m2.79-2.79A9.956 9.956 0 0112 5c4.478 0 8.269 2.943 9.543 7a10.05 10.05 0 01-1.993 3.314" />';
+            icon.parentElement.setAttribute('aria-label', 'Ocultar contraseña');
+        } else {
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />\n<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+            icon.parentElement.setAttribute('aria-label', 'Mostrar contraseña');
+        }
+    }
 
     // ── Password change ───────────────────────────────────────────────────────
     function setPwError(id, msg) {
