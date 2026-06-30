@@ -41,9 +41,17 @@
     <!-- Header Section -->
     <x-page-header title="Listado de Instituciones" description="Gestiona las empresas e instituciones vinculadas a las prácticas profesionales">
         <x-slot:actions>
-            <button onclick="openBulkUploadModal()" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+            <button
+                onclick="openBulkUploadModal()"
+                class="bg-white text-[#4E7D24] border border-[#4E7D24] hover:bg-[#6BA53A]/5 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Importar Instituciones
+            </button>
+            <button
+                onclick="document.getElementById('modal-registrar-institucion').classList.remove('hidden')"
+                class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Nueva Institución
+                Registrar Institución
             </button>
         </x-slot>
     </x-page-header>
@@ -294,19 +302,20 @@
             document.getElementById('unidadesModalTitle').textContent = empresa;
 
             const fields = [
-                { key: 'unidad_receptora', label: 'Unidad Receptora' },
-                { key: 'titular',          label: 'Titular' },
-                { key: 'cargo',            label: 'Cargo' },
-                { key: 'telefono',         label: 'Teléfono' },
-                { key: 'direccion',        label: 'Dirección' },
-                { key: 'colonia',          label: 'Colonia' },
-                { key: 'cp',              label: 'C.P.' },
-                { key: 'municipio',        label: 'Municipio' },
-                { key: 'estado',           label: 'Estado' },
-                { key: 'tipo_persona',     label: 'Tipo Persona' },
-                { key: 'sistema',          label: 'Sistema' },
-                { key: 'sector',           label: 'Sector' },
-                { key: 'convenio',         label: 'Convenio' },
+                { key: 'unidad_receptora',  label: 'Unidad Receptora' },
+                { key: 'titular',           label: 'Titular' },
+                { key: 'cargo',             label: 'Cargo' },
+                { key: 'telefono',          label: 'Teléfono' },
+                { key: 'direccion',         label: 'Dirección' },
+                { key: 'colonia',           label: 'Colonia' },
+                { key: 'cp',                label: 'C.P.' },
+                { key: 'municipio',         label: 'Municipio' },
+                { key: 'estado',            label: 'Estado' },
+                { key: 'tipo_persona',      label: 'Tipo Persona' },
+                { key: 'sistema',           label: 'Sistema' },
+                { key: 'sector',            label: 'Sector' },
+                { key: 'convenio',          label: 'Convenio' },
+                { key: 'fecha_vencimiento', label: 'Fecha de Vencimiento' },
             ];
 
             const body = document.getElementById('unidadesModalBody');
@@ -331,8 +340,17 @@
                     grid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-3';
 
                     fields.slice(1).forEach(function (field) {
-                        const val = ur[field.key];
+                        let val = ur[field.key];
                         if (!val && val !== 0) return;
+
+                        // Format date if key is fecha_vencimiento
+                        if (field.key === 'fecha_vencimiento' && typeof val === 'string') {
+                            const parts = val.split('-');
+                            if (parts.length === 3) {
+                                val = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            }
+                        }
+
                         const item = document.createElement('div');
                         item.innerHTML = `
                             <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">${field.label}</span>
@@ -361,4 +379,5 @@
     </script>
 
     @include('coordinador.instituciones.bulk-upload-modal')
+    @include('coordinador.instituciones.register-modal')
 @endsection
