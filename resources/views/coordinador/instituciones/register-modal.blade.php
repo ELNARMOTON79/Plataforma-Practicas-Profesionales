@@ -2,18 +2,31 @@
 <div id="modal-registrar-institucion" class="fixed inset-0 z-[100] hidden overflow-hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen p-4 md:p-6 text-center">
         <!-- Background overlay -->
-        <div class="fixed inset-0 transition-opacity bg-gray-500/75 backdrop-blur-sm" aria-hidden="true" onclick="document.getElementById('modal-registrar-institucion').classList.add('hidden')"></div>
+        <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-registrar-institucion').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-registrar-institucion" action="{{ route('coordinador.instituciones.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform glass-card max-h-[calc(100vh-4rem)] z-10">
+        <form id="form-registrar-institucion" action="{{ route('coordinador.instituciones.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-                <h3 class="text-xl font-bold text-gray-900" id="modal-title">Registrar Nueva Institución</h3>
-                <button type="button" class="text-gray-400 hover:text-gray-500 transition-colors" onclick="document.getElementById('modal-registrar-institucion').classList.add('hidden')">
-                    <span class="sr-only">Cerrar</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <!-- Header (Gradient Green Banner) -->
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <div class="text-left">
+                        <h2 id="modal-title" class="text-lg font-bold text-white leading-tight">Registrar Nueva Institución</h2>
+                        <p class="text-green-100 text-xs">Completa los campos para dar de alta la institución en el sistema</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        onclick="document.getElementById('modal-registrar-institucion').classList.add('hidden')"
+                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
             

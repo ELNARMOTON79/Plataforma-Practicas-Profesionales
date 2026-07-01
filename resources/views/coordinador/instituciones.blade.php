@@ -247,45 +247,6 @@
         });
     </script>
 
-    {{-- Modal: Unidades Receptoras --}}
-    <div id="unidadesModal" class="fixed inset-0 z-[100] hidden overflow-hidden" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="fixed inset-0 bg-gray-500/75 backdrop-blur-sm" onclick="closeUnidadesModal()"></div>
-            <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10">
-
-                {{-- Header --}}
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-[#4E7D24]/10 p-2 rounded-xl text-[#4E7D24]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        </div>
-                        <div>
-                            <h3 id="unidadesModalTitle" class="text-base font-bold text-gray-900">Unidades Receptoras</h3>
-                            <p class="text-xs text-gray-500">Detalle completo de todas las unidades registradas</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeUnidadesModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-
-                {{-- Body --}}
-                <div class="px-6 py-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-                    <div id="unidadesModalBody" class="space-y-4">
-                        {{-- Filled by JS --}}
-                    </div>
-                </div>
-
-                {{-- Footer --}}
-                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
-                    <button type="button" onclick="closeUnidadesModal()" class="px-5 py-2 bg-[#4E7D24] text-white text-sm font-bold rounded-xl hover:bg-[#2E5417] transition-colors">
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Modal: Unidades Receptoras
         document.addEventListener('DOMContentLoaded', function () {
@@ -377,7 +338,48 @@
             if (navbar) navbar.style.zIndex = '';
         }
     </script>
+@endsection
 
+@push('modals')
     @include('coordinador.instituciones.bulk-upload-modal')
     @include('coordinador.instituciones.register-modal')
-@endsection
+
+    {{-- Modal: Unidades Receptoras --}}
+    <div id="unidadesModal" class="fixed inset-0 z-[100] hidden overflow-hidden" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-gray-950/60 backdrop-blur-md" onclick="closeUnidadesModal()"></div>
+            <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col">
+
+                {{-- Header (Gradient Green Banner) --}}
+                <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-2 rounded-xl text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <div class="text-left">
+                            <h3 id="unidadesModalTitle" class="text-lg font-bold text-white leading-tight">Unidades Receptoras</h3>
+                            <p class="text-green-100 text-xs">Detalle completo de todas las unidades registradas</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeUnidadesModal()" class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <div class="px-6 py-6 md:px-8 overflow-y-auto flex-grow custom-scrollbar">
+                    <div id="unidadesModalBody" class="space-y-4">
+                        {{-- Filled by JS --}}
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end flex-shrink-0">
+                    <button type="button" onclick="closeUnidadesModal()" class="px-5 py-2 bg-[#4E7D24] text-white text-sm font-bold rounded-xl hover:bg-[#2E5417] transition-colors">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush

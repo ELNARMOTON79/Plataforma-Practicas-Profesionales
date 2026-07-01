@@ -114,7 +114,7 @@
                         <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Sem. Inscripción</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sexo</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
-                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Proyecto</th>
+                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-100">
@@ -156,11 +156,18 @@
                                     </div>
                                 </div>
                             </td>
+
                             <!-- Plantel y Carrera -->
                             <td class="px-6 py-4 whitespace-normal">
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 leading-none">FACULTAD DE INGENIERÍA ELECTROMECÁNICA</div>
                                 <div class="text-sm font-bold text-gray-800 uppercase mb-0.5 leading-tight">{{ $alumno->carrera }}</div>
                                 <div class="text-xs text-gray-500 font-semibold">{{ $alumno->semestre }}° Semestre, Grupo "{{ $alumno->grupo }}"</div>
+                                @if($alumno->asesor)
+                                    <div class="text-[10px] text-[#4E7D24] font-bold mt-1.5 uppercase leading-tight">Asesor: {{ $alumno->asesor }}</div>
+                                @endif
+                                @if($alumno->coasesor)
+                                    <div class="text-[10px] text-gray-500 font-semibold uppercase leading-tight">Coasesor: {{ $alumno->coasesor }}</div>
+                                @endif
                             </td>
                             <!-- Sem. Inscripción -->
                             <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-700">
@@ -200,17 +207,22 @@
                                     </span>
                                 @endif
                             </td>
-                            <!-- Proyecto -->
+                            <!-- Acciones -->
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
-                                    <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow transition-all uppercase">
-                                        Ver Registro
-                                    </a>
-                                @else
-                                    <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow transition-all uppercase">
-                                        Registrar
-                                    </a>
-                                @endif
+                                <div class="flex items-center justify-center gap-2">
+                                    @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
+                                        <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow transition-all uppercase">
+                                            Ver Registro
+                                        </a>
+                                    @else
+                                        <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow transition-all uppercase">
+                                            Registrar
+                                        </a>
+                                    @endif
+                                    <button type="button" onclick="abrirEditarAlumno('{{ $alumno->id }}')" class="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all shadow-sm" title="Editar alumno {{ $alumno->nombre_completo }}" aria-label="Editar alumno">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -231,6 +243,58 @@
     </div>
 
     <script>
+        // Dictionary with student details for editing modal
+        const alumnoDetails = {
+            @foreach($alumnos as $alumno)
+                "{{ $alumno->id }}": {
+                    id: "{{ $alumno->id }}",
+                    nombre: "{{ addslashes($alumno->nombre_completo) }}",
+                    correo: "{{ addslashes($alumno->user->correo ?? '') }}",
+                    matricula: "{{ addslashes($alumno->matricula) }}",
+                    carrera: "{{ addslashes($alumno->carrera) }}",
+                    semestre: "{{ $alumno->semestre }}",
+                    grupo: "{{ addslashes($alumno->grupo) }}",
+                    asesor: "{{ addslashes($alumno->asesor ?? '') }}",
+                    coasesor: "{{ addslashes($alumno->coasesor ?? '') }}"
+                },
+            @endforeach
+        };
+
+        function abrirEditarAlumno(id) {
+            const alumno = alumnoDetails[id];
+            if (!alumno) return;
+
+            // Populate form fields
+            document.getElementById('edit-alumno-id').value = alumno.id;
+            document.getElementById('edit-alumno-nombre').value = alumno.nombre;
+            document.getElementById('edit-alumno-correo').value = alumno.correo;
+            document.getElementById('edit-alumno-matricula').value = alumno.matricula;
+            document.getElementById('edit-alumno-carrera').value = alumno.carrera;
+            document.getElementById('edit-alumno-semestre').value = alumno.semestre;
+            document.getElementById('edit-alumno-grupo').value = alumno.grupo;
+            document.getElementById('edit-alumno-asesor').value = alumno.asesor;
+            document.getElementById('edit-alumno-coasesor').value = alumno.coasesor;
+
+            // Update form action route
+            const form = document.getElementById('form-editar-alumno');
+            form.action = `/coordinador/alumnos/${id}`;
+
+            // Remove any old validation/error styles
+            const serverErrors = form.querySelectorAll('.server-error');
+            serverErrors.forEach(err => err.remove());
+            
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.classList.remove('input-invalid', 'input-valid', 'border-red-400', 'bg-red-50');
+            });
+            
+            const errorParagraphs = form.querySelectorAll('p[id^="error-edit-alumno-"]');
+            errorParagraphs.forEach(p => p.classList.add('hidden'));
+
+            // Show edit modal
+            document.getElementById('modal-editar-alumno').classList.remove('hidden');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-ocultar alerta de éxito a los 5 segundos
             const successAlert = document.getElementById('successAlert');
@@ -259,5 +323,6 @@
 
 @push('modals')
     @include('coordinador.dashboard.register-modal')
+    @include('coordinador.dashboard.edit-modal')
     @include('coordinador.alumnos.bulk-upload-modal')
 @endpush

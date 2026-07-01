@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Alumno;
 use App\Mail\CredentialsNotification;
+use Illuminate\Validation\Rule;
 
 class AlumnoController extends Controller
 {
@@ -109,7 +110,6 @@ class AlumnoController extends Controller
         if (auth()->user()->rol_id != 2) {
             return redirect('/');
         }
-
         $request->validate([
             'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
             'correo'    => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
@@ -117,6 +117,8 @@ class AlumnoController extends Controller
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
+            'asesor'    => ['nullable', 'string', 'max:255'],
+            'coasesor'  => ['nullable', 'string', 'max:255'],
         ], [
             'nombre.required'       => 'El nombre completo es requerido.',
             'nombre.regex'          => 'El nombre solo debe contener letras y espacios.',
@@ -151,8 +153,9 @@ class AlumnoController extends Controller
         $alumno->semestre        = $request->input('semestre');
         $alumno->grupo           = strtoupper($request->input('grupo'));
         $alumno->activo_practica = 0;
+        $alumno->asesor          = $request->input('asesor');
+        $alumno->coasesor        = $request->input('coasesor');
         $alumno->save();
-
         // Send credentials email
         try {
             Mail::to($user->correo)->send(
@@ -281,5 +284,69 @@ class AlumnoController extends Controller
                 'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
             ], 500);
         }
+    }
+
+    /**
+     * Update an existing student (alumno) from the coordinator dashboard.
+     */
+    public function updateAlumno(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $alumno = Alumno::findOrFail($id);
+        $user = $alumno->user;
+
+        if (!$user) {
+            return redirect()->back()->withErrors(['error' => 'No se encontró la cuenta del usuario asociada a este alumno.']);
+        }
+
+        $request->validate([
+            'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
+            'correo'    => ['required', 'email', 'max:255', Rule::unique('usuarios', 'correo')->ignore($user->id)],
+            'matricula' => ['required', 'string', 'max:50', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id), 'regex:/^[0-9]+$/'],
+            'carrera'   => ['required', 'string', 'max:150'],
+            'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
+            'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
+            'asesor'    => ['nullable', 'string', 'max:255'],
+            'coasesor'  => ['nullable', 'string', 'max:255'],
+        ], [
+            'nombre.required'       => 'El nombre completo es requerido.',
+            'nombre.regex'          => 'El nombre solo debe contener letras y espacios.',
+            'correo.required'       => 'El correo electrónico es requerido.',
+            'correo.email'          => 'El formato del correo es inválido.',
+            'correo.unique'         => 'Este correo ya está registrado por otro usuario.',
+            'matricula.required'    => 'La matrícula es requerida.',
+            'matricula.unique'      => 'Esta matrícula ya está registrada por otro alumno.',
+            'matricula.regex'       => 'La matrícula solo debe contener números.',
+            'semestre.min'          => 'El semestre debe ser entre 1 y 12.',
+            'semestre.max'          => 'El semestre debe ser entre 1 y 12.',
+            'grupo.regex'           => 'El grupo debe ser exactamente una letra.',
+        ]);
+
+        // Update user account
+        $user->correo = $request->input('correo');
+        $user->save();
+
+        // Update student profile
+        $alumno->nombre_completo = $request->input('nombre');
+        $alumno->matricula       = $request->input('matricula');
+        $alumno->carrera         = $request->input('carrera');
+        $alumno->semestre        = $request->input('semestre');
+        $alumno->grupo           = strtoupper($request->input('grupo'));
+        $alumno->asesor          = $request->input('asesor');
+        $alumno->coasesor        = $request->input('coasesor');
+        $alumno->save();
+
+        // Log action in activity bitacora
+        \App\Helpers\ActivityLogger::log(
+            'Alumnos',
+            'Alumno Modificado',
+            "El coordinador actualizó los datos del alumno '{$alumno->nombre_completo}' (Matrícula: {$alumno->matricula}).",
+            'info'
+        );
+
+        return redirect()->back()->with('success', "Alumno \"{$alumno->nombre_completo}\" actualizado correctamente.");
     }
 }

@@ -2,10 +2,10 @@
 <div id="modal-registrar-alumno" class="fixed inset-0 z-[100] hidden overflow-hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen p-4 md:p-6 text-center">
         <!-- Background overlay -->
-        <div class="fixed inset-0 transition-opacity bg-gray-500/75 backdrop-blur-sm" aria-hidden="true" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"></div>
+        <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform glass-card max-h-[calc(100vh-4rem)] z-10">
+        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
             <!-- Style for shake animation and input states -->
@@ -30,12 +30,25 @@
                 }
             </style>
 
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-                <h3 class="text-xl font-bold text-gray-900" id="modal-title">Registrar Nuevo Alumno</h3>
-                <button type="button" class="text-gray-400 hover:text-gray-500 transition-colors" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')">
-                    <span class="sr-only">Cerrar</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <!-- Header (Gradient Green Banner) -->
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-left">
+                        <h2 id="modal-title" class="text-lg font-bold text-white leading-tight">Registrar Nuevo Alumno</h2>
+                        <p class="text-green-100 text-xs">Completa los campos para dar de alta al estudiante en el sistema</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"
+                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
             
@@ -114,6 +127,26 @@
                             <input type="text" id="alumno-grupo" name="grupo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-letters-only uppercase" placeholder="Ej. A" value="{{ old('grupo') }}" required pattern="^[a-zA-Z]$" maxlength="1" title="El grupo debe ser exactamente una letra.">
                             <p id="error-alumno-grupo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('grupo')
+                                <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Asesor -->
+                        <div>
+                            <label for="alumno-asesor" class="block text-sm font-medium text-gray-700 mb-1">Asesor Académico</label>
+                            <input type="text" id="alumno-asesor" name="asesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Dr. Juan Carlos" value="{{ old('asesor') }}">
+                            <p id="error-alumno-asesor" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                            @error('asesor')
+                                <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Coasesor -->
+                        <div>
+                            <label for="alumno-coasesor" class="block text-sm font-medium text-gray-700 mb-1">Coasesor</label>
+                            <input type="text" id="alumno-coasesor" name="coasesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Mtra. Ana María" value="{{ old('coasesor') }}">
+                            <p id="error-alumno-coasesor" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                            @error('coasesor')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
                             @enderror
                         </div>
@@ -219,6 +252,22 @@
                 validate: (val) => {
                     if (!val.trim()) return 'El grupo es requerido.';
                     if (!/^[a-zA-Z]$/.test(val)) return 'El grupo debe ser exactamente una letra.';
+                    return '';
+                }
+            },
+            asesor: {
+                el: document.getElementById('alumno-asesor'),
+                error: document.getElementById('error-alumno-asesor'),
+                validate: (val) => {
+                    if (val.trim() && val.trim().length < 3) return 'El nombre del asesor debe tener al menos 3 caracteres.';
+                    return '';
+                }
+            },
+            coasesor: {
+                el: document.getElementById('alumno-coasesor'),
+                error: document.getElementById('error-alumno-coasesor'),
+                validate: (val) => {
+                    if (val.trim() && val.trim().length < 3) return 'El nombre del coasesor debe tener al menos 3 caracteres.';
                     return '';
                 }
             }
