@@ -10,9 +10,12 @@ use App\Models\Solicitud;
 use App\Models\UnidadReceptora;
 use App\Models\Convenio;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -266,6 +269,83 @@ class DashboardController extends Controller
             'horasMeta'        => self::HORAS_META,
             'porcentajeHoras'  => $porcentajeHoras,
             'documentos'       => $documentos,
+        ]);
+    }
+
+    public function subirDocumento(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        $user = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            return response()->json(['error' => 'Estudiante no encontrado.'], 404);
+        }
+
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva) {
+            return response()->json(['error' => 'No hay una solicitud de prácticas activa.'], 404);
+        }
+
+        $allowedDocs = [
+            'Carta de Presentación',
+            'Carta de Aceptación',
+            'Plan de Trabajo',
+            'Memoria de Prácticas',
+            'Evaluación de Desempeño',
+            'Carta de Término',
+        ];
+
+        $validated = $request->validate([
+            'nombre_doc' => ['required', 'string', Rule::in($allowedDocs)],
+            'archivo' => ['required', 'file', 'mimes:pdf', 'max:5120'],
+        ], [
+            'nombre_doc.required' => 'El nombre del documento es requerido.',
+            'nombre_doc.in' => 'El tipo de documento no es válido.',
+            'archivo.required' => 'Debes seleccionar un archivo PDF.',
+            'archivo.file' => 'El archivo seleccionado no es válido.',
+            'archivo.mimes' => 'Solo se permiten archivos PDF.',
+            'archivo.max' => 'El archivo no puede exceder 5 MB.',
+        ]);
+
+        $archivo = $request->file('archivo');
+        $filename = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $archivo->getClientOriginalExtension();
+        $storagePath = 'documentos/estudiante_' . $user->id;
+        $path = $archivo->storeAs($storagePath, $filename, 'public');
+
+        if (! $path) {
+            return response()->json(['error' => 'No se pudo guardar el archivo en el servidor.'], 500);
+        }
+
+        $documento = $solicitudActiva->documentos()->firstOrNew([
+            'nombre_doc' => $validated['nombre_doc'],
+        ]);
+
+        if ($documento->exists && $documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
+            Storage::disk('public')->delete($documento->ruta_archivo);
+        }
+
+        $documento->solicitud_id = $solicitudActiva->id;
+        $documento->ur_id = $solicitudActiva->ur_id;
+        $documento->ruta_archivo = $path;
+        $documento->fecha_carga = Carbon::now()->toDateString();
+        $documento->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documento subido correctamente.',
+            'documento' => [
+                'nombre_doc' => $documento->nombre_doc,
+                'ruta_archivo' => asset('storage/' . $path),
+                'fecha_carga' => Carbon::parse($documento->fecha_carga)->format('d/m/Y'),
+            ],
         ]);
     }
 
