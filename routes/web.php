@@ -82,6 +82,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     Route::get('/estudiante/proyecto', [DashboardController::class, 'miProyecto'])->name('estudiante.proyecto');
     Route::post('/estudiante/proyecto/documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
+    Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
 
     Route::get('/empresa/dashboard', function () {

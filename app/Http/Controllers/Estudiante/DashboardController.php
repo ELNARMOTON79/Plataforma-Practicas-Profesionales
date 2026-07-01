@@ -351,6 +351,49 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function eliminarDocumento($id)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        $user = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            return response()->json(['error' => 'Estudiante no encontrado.'], 404);
+        }
+
+        $documento = Documento::find($id);
+
+        if (! $documento) {
+            return response()->json(['error' => 'Documento no encontrado.'], 404);
+        }
+
+        // Verify that the document belongs to the student's active request
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva || $documento->solicitud_id !== $solicitudActiva->id) {
+            return response()->json(['error' => 'No tienes permiso para eliminar este documento.'], 403);
+        }
+
+        // Delete the file from storage
+        if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
+            Storage::disk('public')->delete($documento->ruta_archivo);
+        }
+
+        // Delete the document record
+        $documento->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documento eliminado correctamente.',
+        ]);
+    }
+
     public function miPerfil()
     {
         if (Auth::user()?->rol_id != 3) {

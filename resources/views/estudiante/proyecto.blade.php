@@ -147,10 +147,20 @@
                                     Subir
                                 </button>
                             @else
-                                <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="shrink-0 text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
-                                    Ver PDF
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                </a>
+                                <div class="shrink-0 flex items-center gap-2">
+                                    <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
+                                        Ver PDF
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </a>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Editar
+                                    </button>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Eliminar
+                                    </button>
+                                </div>
                             @endif
                         </div>
                     @endforeach
@@ -298,6 +308,60 @@
             var toast = document.getElementById('projectSuccessToast');
             toast.classList.remove('hidden');
             setTimeout(function() { toast.classList.add('hidden'); }, 6000);
+        }
+
+        function deleteDocument(button) {
+            var docName = button.getAttribute('data-docname');
+            var docId = button.getAttribute('data-docid');
+
+            if (!confirm('¿Está seguro de que desea eliminar "' + docName + '"? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            var deleteUrl = '{{ route("estudiante.eliminarDocumento", ":id") }}'.replace(':id', docId);
+
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (!response.ok) {
+                        throw data;
+                    }
+                    return data;
+                });
+            })
+            .then(function(data) {
+                showToast('¡Documento eliminado!', data.message || 'El documento se eliminó correctamente.');
+                clearDocumentState(docName);
+            })
+            .catch(function(error) {
+                if (error && error.error) {
+                    alert(error.error);
+                } else {
+                    alert('Ocurrió un error al eliminar el documento. Intenta nuevamente.');
+                }
+            });
+        }
+
+        function clearDocumentState(nombreDoc) {
+            var card = document.querySelector('[data-doc-name="' + nombreDoc + '"]');
+            if (card) {
+                var statusBadge = card.querySelector('[data-doc-status]');
+                if (statusBadge) {
+                    statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir';
+                    statusBadge.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1';
+                }
+                var actionArea = card.parentElement.querySelector('[data-doc-action]')?.parentElement;
+                if (actionArea) {
+                    actionArea.innerHTML = '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>Subir</button>';
+                }
+            }
         }
 
         function updateDocumentState(nombreDoc, documento) {
