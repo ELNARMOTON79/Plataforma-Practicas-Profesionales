@@ -79,7 +79,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
 
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.informes');
+        $carreras = \App\Models\Alumno::distinct()->pluck('carrera')->filter()->values();
+        return view('coordinador.informes', compact('carreras'));
     })->name('coordinador.informes');
 
     Route::get('/coordinador/perfil', [App\Http\Controllers\Coordinador\PerfilController::class, 'perfil'])->name('coordinador.perfil');
