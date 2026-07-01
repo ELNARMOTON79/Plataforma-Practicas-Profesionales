@@ -5,18 +5,20 @@
 
     @if($solicitudActiva)
 
-    {{-- Toast notification --}}
-    <div id="projectSuccessToast" class="hidden fixed top-5 right-5 z-[100] bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-xl max-w-md fade-in-up flex items-start gap-3">
-        <div class="p-1 bg-green-100 text-green-600 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    {{-- Toast notification (compact style) --}}
+    <div id="projectSuccessToast" class="hidden fixed top-5 right-5 z-[100]">
+        <div id="projectSuccessToastCard" class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-2xl shadow-md max-w-sm flex items-start gap-3 transform transition-all duration-300 opacity-0 translate-y-2">
+            <div class="p-2 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div class="flex-1">
+                <h4 id="toastTitle" class="font-bold text-sm">¡Operación Exitosa!</h4>
+                <p id="toastMessage" class="text-xs text-green-900/80 mt-0.5">Mensaje</p>
+            </div>
+            <button id="toastCloseBtn" class="ml-3 text-green-700 hover:text-green-900 p-1 rounded-full">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-        <div>
-            <h4 class="font-bold text-green-950 text-sm" id="toastTitle">¡Operación Exitosa!</h4>
-            <p class="text-xs text-green-900/90 mt-0.5" id="toastMessage"></p>
-        </div>
-        <button onclick="document.getElementById('projectSuccessToast').classList.add('hidden')" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
     </div>
 
     <div id="projectData" data-current-hours="{{ $horasCompletadas ?? 0 }}" data-total-hours="{{ $horasMeta ?? 480 }}" data-porcentaje="{{ $porcentajeHoras ?? 0 }}" data-upload-url="{{ route('estudiante.subirDocumento') }}">
@@ -303,11 +305,37 @@
         }
 
         function showToast(title, message) {
+            var toast = document.getElementById('projectSuccessToast');
+            var card = document.getElementById('projectSuccessToastCard');
             document.getElementById('toastTitle').textContent = title;
             document.getElementById('toastMessage').textContent = message;
-            var toast = document.getElementById('projectSuccessToast');
+
+            // show
             toast.classList.remove('hidden');
-            setTimeout(function() { toast.classList.add('hidden'); }, 6000);
+            // force reflow then animate in
+            void card.offsetWidth;
+            card.classList.remove('opacity-0', 'translate-y-2');
+            card.classList.add('opacity-100', 'translate-y-0');
+
+            // clear previous timeout
+            if (window._projectToastTimeout) clearTimeout(window._projectToastTimeout);
+            window._projectToastTimeout = setTimeout(function() {
+                // animate out
+                card.classList.remove('opacity-100', 'translate-y-0');
+                card.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(function() { toast.classList.add('hidden'); }, 300);
+            }, 4200);
+
+            // close button
+            var closeBtn = document.getElementById('toastCloseBtn');
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    if (window._projectToastTimeout) clearTimeout(window._projectToastTimeout);
+                    card.classList.remove('opacity-100', 'translate-y-0');
+                    card.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(function() { toast.classList.add('hidden'); }, 200);
+                };
+            }
         }
 
         function deleteDocument(button) {
@@ -349,6 +377,26 @@
             });
         }
 
+        function buildUploadButtonHTML(nombreDoc) {
+            return '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>' +
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>' +
+                'Subir</button>';
+        }
+
+        function buildDocumentActionsHTML(nombreDoc, rutaArchivo, documentoId) {
+            return '<a href="' + rutaArchivo + '" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" data-doc-action>' +
+                    'Ver PDF <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' +
+                '</a>' +
+                '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>' +
+                    'Editar' +
+                '</button>' +
+                '<button type="button" data-docname="' + nombreDoc + '" data-docid="' + documentoId + '" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>' +
+                    'Eliminar' +
+                '</button>';
+        }
+
         function clearDocumentState(nombreDoc) {
             var card = document.querySelector('[data-doc-name="' + nombreDoc + '"]');
             if (card) {
@@ -357,9 +405,9 @@
                     statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir';
                     statusBadge.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1';
                 }
-                var actionArea = card.parentElement.querySelector('[data-doc-action]')?.parentElement;
+                var actionArea = card.querySelector('[data-doc-action-area]');
                 if (actionArea) {
-                    actionArea.innerHTML = '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>Subir</button>';
+                    actionArea.innerHTML = buildUploadButtonHTML(nombreDoc);
                 }
             }
         }
@@ -371,6 +419,7 @@
             }
 
             var statusEl = card.querySelector('[data-doc-status]');
+            var wasPreviouslyUploaded = statusEl && statusEl.textContent.includes('Subido');
             if (statusEl) {
                 statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-150 mt-1';
                 statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Subido — ' + documento.fecha_carga;
@@ -382,18 +431,13 @@
                 iconEl.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
             }
 
-            var actionEl = card.querySelector('[data-doc-action]');
-            if (actionEl) {
-                var anchor = document.createElement('a');
-                anchor.setAttribute('href', documento.ruta_archivo);
-                anchor.setAttribute('target', '_blank');
-                anchor.className = 'shrink-0 text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1';
-                anchor.innerHTML = 'Ver PDF <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>';
-                actionEl.replaceWith(anchor);
+            var actionArea = card.querySelector('[data-doc-action-area]');
+            if (actionArea) {
+                actionArea.innerHTML = buildDocumentActionsHTML(nombreDoc, documento.ruta_archivo, documento.id);
             }
 
             var countEl = document.getElementById('uploadedCountBadge');
-            if (countEl) {
+            if (countEl && !wasPreviouslyUploaded) {
                 var currentCount = parseInt(countEl.textContent || '0', 10);
                 if (!isNaN(currentCount)) {
                     countEl.textContent = (currentCount + 1) + ' subido(s)';

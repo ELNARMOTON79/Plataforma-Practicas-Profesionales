@@ -344,6 +344,7 @@ class DashboardController extends Controller
             'success' => true,
             'message' => 'Documento subido correctamente.',
             'documento' => [
+                'id' => $documento->id,
                 'nombre_doc' => $documento->nombre_doc,
                 'ruta_archivo' => asset('storage/' . $path),
                 'fecha_carga' => Carbon::parse($documento->fecha_carga)->format('d/m/Y'),
