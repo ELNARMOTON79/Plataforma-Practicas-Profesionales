@@ -8,6 +8,7 @@ use App\Models\Estudiante;
 use App\Models\Hora;
 use App\Models\Solicitud;
 use App\Models\UnidadReceptora;
+use App\Models\Convenio;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -37,19 +38,56 @@ class DashboardController extends Controller
 
         $horasCompletadas = 0;
         $solicitudesActivas = 0;
+        $solicitudesPendientes = 0;
         $documentosPendientes = 0;
+        $documentosStatus = [];
+        $activeSolicitud = null;
+        $hasPracticaActiva = false;
 
         if ($estudiante) {
-            $solicitudIds = Solicitud::where('estudiante_id', $estudiante->id)
-                ->whereIn('estatus', ['pendiente', 'aprobada', 'en_proceso'])
-                ->pluck('id');
+            $solicitudesActivas = Solicitud::where('estudiante_id', $estudiante->id)
+                ->whereIn('estatus', ['aprobada', 'en_proceso'])
+                ->count();
 
-            $solicitudesActivas = $solicitudIds->count();
+            $solicitudesPendientes = Solicitud::where('estudiante_id', $estudiante->id)
+                ->where('estatus', 'pendiente')
+                ->count();
 
-            $horasCompletadas = (float) Hora::whereIn('solicitud_id', $solicitudIds)->sum('cantidad_horas');
+            $activeSolicitud = Solicitud::where('estudiante_id', $estudiante->id)
+                ->whereIn('estatus', ['aprobada', 'en_proceso'])
+                ->with('documentos')
+                ->latest('id')
+                ->first();
 
-            $totalDocs = Documento::whereIn('solicitud_id', $solicitudIds)->count();
-            $documentosPendientes = max(0, ($solicitudesActivas * self::DOCS_REQUERIDOS) - $totalDocs);
+            if ($activeSolicitud) {
+                $hasPracticaActiva = true;
+                $horasCompletadas = (float) $activeSolicitud->horas()->sum('cantidad_horas');
+
+                $requiredDocuments = [
+                    'Carta de Presentación',
+                    'Carta de Aceptación',
+                    'Memoria de Prácticas',
+                    'Carta de Término',
+                ];
+
+                $documentosStatus = collect($requiredDocuments)->map(function ($required) use ($activeSolicitud) {
+                    $document = $activeSolicitud->documentos->first(function ($doc) use ($required) {
+                        return mb_strtolower(trim($doc->nombre_doc)) === mb_strtolower(trim($required));
+                    });
+
+                    $uploaded = $document !== null;
+
+                    return [
+                        'nombre' => $required,
+                        'status' => $uploaded ? 'subido' : 'pendiente',
+                        'label' => $uploaded ? 'Subido' : 'Sin subir',
+                        'color' => $uploaded ? 'green' : 'gray',
+                        'fecha' => $uploaded && $document->fecha_carga ? $document->fecha_carga->format('d M Y') : null,
+                    ];
+                })->all();
+
+                $documentosPendientes = collect($documentosStatus)->where('status', 'pendiente')->count();
+            }
         }
 
         $porcentajeHoras = self::HORAS_META > 0
@@ -67,7 +105,11 @@ class DashboardController extends Controller
             'horasMeta' => self::HORAS_META,
             'porcentajeHoras' => $porcentajeHoras,
             'solicitudesActivas' => $solicitudesActivas,
+            'solicitudesPendientes' => $solicitudesPendientes,
             'documentosPendientes' => $documentosPendientes,
+            'documentosStatus' => $documentosStatus,
+            'activeSolicitud' => $activeSolicitud,
+            'hasPracticaActiva' => $hasPracticaActiva,
             'actividadReciente' => $this->actividadReciente($estudiante),
             'proximosVencimientos' => $this->proximosVencimientos($estudiante),
         ]);
@@ -148,7 +190,7 @@ class DashboardController extends Controller
         $search        = trim(request('q', ''));
         $carreraFilter = trim(request('carrera', ''));
 
-        $query = UnidadReceptora::query();
+        $query = UnidadReceptora::with('convenios');
 
         if (strlen($search) >= 2) {
             $query->where(function ($q) use ($search) {
@@ -270,7 +312,12 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
-        $user = Auth::user();
+        $authUser = Auth::user();
+        if (! $authUser instanceof \App\Models\User) {
+            return redirect('/');
+        }
+
+        $user = $authUser;
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
         if (! $estudiante) {
             $estudiante = new Estudiante();
@@ -331,7 +378,12 @@ class DashboardController extends Controller
             'new_password.confirmed'    => 'Las contraseñas no coinciden.',
         ]);
 
-        $user = Auth::user();
+        $authUser = Auth::user();
+        if (! $authUser instanceof \App\Models\User) {
+            return redirect('/');
+        }
+
+        $user = $authUser;
 
         if (! Hash::check($request->current_password, $user->getAuthPassword())) {
             return response()->json([

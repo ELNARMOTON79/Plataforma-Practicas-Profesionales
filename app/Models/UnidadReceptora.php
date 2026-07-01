@@ -22,4 +22,9 @@ class UnidadReceptora extends Model
     {
         return $this->hasMany(\App\Models\Solicitud::class, 'ur_id');
     }
+
+    public function convenios(): HasMany
+    {
+        return $this->hasMany(\App\Models\Convenio::class, 'ur_id');
+    }
 }

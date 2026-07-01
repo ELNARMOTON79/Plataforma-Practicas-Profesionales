@@ -80,6 +80,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
     Route::get('/estudiante/proyecto', [DashboardController::class, 'miProyecto'])->name('estudiante.proyecto');
+    Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
 
     Route::get('/empresa/dashboard', function () {
         if (auth()->user()->rol_id != 4) return redirect('/');

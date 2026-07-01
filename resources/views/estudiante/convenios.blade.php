@@ -98,11 +98,40 @@
                                 {{ $unidad->direccion }}
                             </p>
                         @endif
+
+                        {{-- Convenios --}}
+                        @if($unidad->convenios->isNotEmpty())
+                            <div class="mt-4 space-y-2">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Convenios disponibles:</p>
+                                @foreach($unidad->convenios as $convenio)
+                                    @php
+                                        $esVigente = $convenio->estatus === 'activo' && $convenio->fecha_termino > now()->toDateString();
+                                    @endphp
+                                    <div class="text-xs bg-gray-50 border border-gray-150 rounded-lg p-2.5 flex justify-between items-start gap-2">
+                                        <div>
+                                            <p class="font-semibold text-gray-700">{{ $convenio->codigo_convenio }}</p>
+                                            <p class="text-gray-500 mt-0.5">{{ $convenio->fecha_inicio->format('d/m/Y') }} - {{ $convenio->fecha_termino->format('d/m/Y') }}</p>
+                                        </div>
+                                        <span class="shrink-0 px-2 py-1 rounded text-white text-[10px] font-bold {{ $esVigente ? 'bg-green-500' : 'bg-gray-400' }}">
+                                            {{ $esVigente ? 'Vigente' : 'Vencido' }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-xs text-gray-400 mt-4 italic">Sin convenios registrados</p>
+                        @endif
                     </div>
 
                     <div class="pt-4 border-t border-gray-100/50 flex items-center justify-between">
                         <span class="text-xs text-gray-400 font-medium">{{ $unidad->tipo_persona ? ucfirst($unidad->tipo_persona) : '' }}</span>
-                        <button class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm">
+                        <button
+                            type="button"
+                            data-unidad='{{ json_encode($unidad->only(['id', 'nombre_empresa', 'direccion', 'tipo_persona']), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                            data-convenios='{{ json_encode($unidad->convenios, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                            onclick="showConvenioModal(this)"
+                            class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
+                        >
                             Ver detalle
                         </button>
                     </div>
@@ -134,5 +163,69 @@
                 err.classList.add('hidden');
             }
         });
+
+        function showConvenioModal(button) {
+            const unidad = JSON.parse(button.getAttribute('data-unidad') || '{}');
+            const convenios = JSON.parse(button.getAttribute('data-convenios') || '[]');
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 min-h-screen bg-black/50 flex items-center justify-center z-50 p-4';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.onclick = function(e) {
+                if (e.target === modal) modal.remove();
+            };
+
+            let conveniosHTML = '';
+            if (convenios && convenios.length > 0) {
+                conveniosHTML = convenios.map(c => {
+                    const esVigente = c.estatus === 'activo' && new Date(c.fecha_termino) > new Date();
+                    return `
+                        <div class="border border-gray-150 rounded-2xl p-4 mb-3 bg-gray-50">
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <div>
+                                    <p class="font-bold text-gray-900">${c.codigo_convenio}</p>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <strong>Vigencia:</strong> ${new Date(c.fecha_inicio).toLocaleDateString('es-MX')} - ${new Date(c.fecha_termino).toLocaleDateString('es-MX')}
+                                    </p>
+                                </div>
+                                <span class="inline-flex items-center gap-1 text-xs font-bold ${esVigente ? 'text-green-700 bg-green-50 border-green-100' : 'text-gray-600 bg-gray-100 border-gray-200'} border px-2.5 py-1 rounded-full shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full ${esVigente ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                                    ${esVigente ? 'Vigente' : 'Vencido'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                conveniosHTML = '<p class="text-gray-400 text-sm">Sin convenios registrados</p>';
+            }
+
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+                    <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-gray-900">${unidad.nombre_empresa}</h2>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-6 pb-4 border-b border-gray-100">
+                            <p class="text-sm text-gray-600 mb-2"><strong>Dirección:</strong></p>
+                            <p class="text-gray-900 font-medium">${unidad.direccion || 'No especificada'}</p>
+                            <p class="text-sm text-gray-600 mt-3"><strong>Tipo:</strong> <span class="font-medium">${unidad.tipo_persona ? unidad.tipo_persona.charAt(0).toUpperCase() + unidad.tipo_persona.slice(1) : 'No especificado'}</span></p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Convenios Disponibles</h3>
+                            ${conveniosHTML}
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="w-full mt-6 px-6 py-3 bg-[#4E7D24] text-white font-bold rounded-xl hover:bg-[#3b6620] transition-colors">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
     </script>
 @endsection

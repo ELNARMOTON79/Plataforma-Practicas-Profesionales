@@ -19,6 +19,7 @@
         </button>
     </div>
 
+    <div id="projectData" data-current-hours="{{ $horasCompletadas ?? 0 }}" data-total-hours="{{ $horasMeta ?? 480 }}" data-porcentaje="{{ $porcentajeHoras ?? 0 }}">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
 
         {{-- Left column --}}
@@ -80,16 +81,8 @@
                         <span class="text-sm font-medium text-gray-500">/ {{ $horasMeta }} horas</span>
                     </div>
                     <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full" id="hoursPercentageVal">{{ $porcentajeHoras }}% Completado</span>
-                    <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100 mt-4">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500" id="hoursProgressBar" style="width: {{ $porcentajeHoras }}%"></div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2.5">Registrar Horas</h4>
-                    <div class="flex gap-2">
-                        <input type="number" id="inputHoursSim" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] placeholder-gray-400 font-bold" value="10" min="1" max="100">
-                        <button onclick="simulateAddHours()" class="bg-[#4E7D24] hover:bg-[#3A5D1B] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md">Registrar</button>
+                        <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100 mt-4">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500" id="hoursProgressBar"></div>
                     </div>
                 </div>
             </div>
@@ -125,7 +118,7 @@
                 <div class="space-y-4">
                     @foreach($tiposDoc as $i => $tipo)
                         @php $doc = $docsSubidos[$tipo['nombre']] ?? null; @endphp
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
+                        <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
                             <div class="flex items-center gap-4">
                                 <div class="p-3 rounded-xl {{ $doc ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400' }}">
                                     @if($doc)
@@ -138,18 +131,18 @@
                                     <h4 class="font-bold text-gray-900 text-sm">{{ $i + 1 }}. {{ $tipo['nombre'] }}</h4>
                                     <p class="text-xs text-gray-500 font-medium mt-0.5">{{ $tipo['desc'] }}</p>
                                     @if($doc)
-                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 mt-1.5 border border-green-150">
+                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-150 mt-1">
                                             <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Subido — {{ \Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') }}
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 mt-1.5 border border-gray-200">
+                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1">
                                             <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir
                                         </span>
                                     @endif
                                 </div>
                             </div>
                             @if(!$doc)
-                                <button onclick="openUploadModal('{{ $tipo['nombre'] }}')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                                <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                     Subir
                                 </button>
@@ -214,25 +207,19 @@
     @endif
 
     <script>
-        var currentHours = {{ $horasCompletadas ?? 0 }};
-        var totalHours   = {{ $horasMeta ?? 480 }};
-
-        function simulateAddHours() {
-            var input = document.getElementById('inputHoursSim');
-            var added = parseInt(input.value);
-            if (isNaN(added) || added <= 0) { alert('Ingresa una cantidad válida mayor a 0.'); return; }
-            if (currentHours + added > totalHours) { alert('No puedes superar las ' + totalHours + ' horas totales.'); return; }
-            currentHours += added;
-            document.getElementById('currentHoursVal').textContent = currentHours;
-            var pct = ((currentHours / totalHours) * 100).toFixed(1);
-            document.getElementById('hoursPercentageVal').textContent = pct + '% Completado';
-            document.getElementById('hoursProgressBar').style.width = pct + '%';
-            showToast('¡Horas Registradas!', 'Has agregado ' + added + ' horas a tu seguimiento.');
-        }
+        var projectEl = document.getElementById('projectData');
+        var currentHours = parseInt(projectEl?.dataset.currentHours || 0, 10);
+        var totalHours   = parseInt(projectEl?.dataset.totalHours || 480, 10);
 
         var activeDocName = '';
 
-        function openUploadModal(docName) {
+        function openUploadModal(trigger) {
+            var docName = '';
+            if (typeof trigger === 'string') {
+                docName = trigger;
+            } else if (trigger && trigger.getAttribute) {
+                docName = trigger.getAttribute('data-docname') || trigger.dataset.docname || '';
+            }
             activeDocName = docName;
             document.getElementById('uploadModalDocName').textContent = docName;
             document.getElementById('uploadFileText').textContent = 'Seleccionar Archivo PDF';
@@ -259,6 +246,7 @@
                 alert('Por favor selecciona un archivo PDF.');
                 return;
             }
+
             closeUploadModal();
             showToast('¡Documento Enviado!', '"' + activeDocName + '" ha sido enviado para revisión.');
         }

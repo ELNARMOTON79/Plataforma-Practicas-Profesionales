@@ -29,7 +29,7 @@
                     </p>
                 </div>
             </div>
-            @if($solicitudesActivas > 0)
+            @if($hasPracticaActiva)
             <div class="flex gap-4 items-center w-full lg:w-auto">
                 <div class="bg-white/95 px-6 py-3.5 rounded-2xl shadow-sm border border-gray-100 flex-1 lg:flex-initial flex items-center gap-4 hover:shadow-md transition-shadow">
                     <div class="flex flex-col">
@@ -40,6 +40,35 @@
                                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#4E7D24]"></span>
                             </span>
                             En Curso
+                        </span>
+                    </div>
+                </div>
+            </div>
+            @elseif($solicitudesPendientes > 0)
+            <div class="flex gap-4 items-center w-full lg:w-auto">
+                <div class="bg-white/95 px-6 py-3.5 rounded-2xl shadow-sm border border-gray-100 flex-1 lg:flex-initial flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Estatus General</span>
+                        <span class="text-base font-extrabold text-blue-600 flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-200 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+                            </span>
+                            En Revisión
+                        </span>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="flex gap-4 items-center w-full lg:w-auto">
+                <div class="bg-white/95 px-6 py-3.5 rounded-2xl shadow-sm border border-gray-100 flex-1 lg:flex-initial flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Estatus General</span>
+                        <span class="text-base font-extrabold text-gray-500 flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-gray-400"></span>
+                            </span>
+                            Sin solicitud activa
                         </span>
                     </div>
                 </div>
@@ -55,13 +84,13 @@
         <div class="lg:col-span-2 flex flex-col gap-6">
             
             <!-- Progress Section -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
+            <div id="progressSection" class="glass-card rounded-3xl p-6 fade-in-up delay-100" data-porcentaje="{{ $porcentajeHoras ?? 0 }}" data-docswidth="{{ $documentosPendientes === 0 ? 100 : (($documentosStatus ? (100 - ($documentosPendientes / count($documentosStatus) * 100)) : 0)) }}">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Progreso del Periodo de Prácticas
                     </h2>
-                    @if($solicitudesActivas > 0)
+                    @if($hasPracticaActiva)
                     <a href="{{ route('estudiante.proyecto') }}" class="text-xs font-bold text-[#4E7D24] hover:text-[#2E5417] hover:underline flex items-center gap-0.5">
                         Ver Detalles
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -69,7 +98,7 @@
                     @endif
                 </div>
 
-                @if($solicitudesActivas > 0)
+                @if($hasPracticaActiva)
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- Hours -->
                     <div class="bg-white/60 p-5 rounded-2xl border border-gray-100 flex flex-col justify-between">
@@ -82,7 +111,7 @@
                             <span class="text-sm font-medium text-gray-500">/ {{ $horasMeta }} horas</span>
                         </div>
                         <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100">
-                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full" style="width: {{ $porcentajeHoras }}%"></div>
+                            <div id="hoursProgressBar" class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full"></div>
                         </div>
                     </div>
                     <!-- Pending docs -->
@@ -100,9 +129,16 @@
                             <span class="text-sm font-medium text-gray-500">por entregar</span>
                         </div>
                         <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100">
-                            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] h-full rounded-full" style="width: {{ $documentosPendientes === 0 ? 100 : 0 }}%"></div>
+                            <div id="docsProgressBar" class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] h-full rounded-full"></div>
                         </div>
                     </div>
+                </div>
+                @elseif($solicitudesPendientes > 0)
+                <div class="flex flex-col items-center justify-center py-8 text-center">
+                    <svg class="w-12 h-12 text-blue-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p class="text-sm font-semibold text-blue-600">Solicitud en revisión</p>
+                    <p class="text-xs text-gray-300 mt-1">Tu solicitud está pendiente de aprobación. El progreso aparecerá cuando sea aprobada.</p>
+                    <a href="{{ route('estudiante.misSolicitudes') }}" class="mt-4 text-xs font-bold text-[#4E7D24] hover:underline">Ver mi solicitud →</a>
                 </div>
                 @else
                 <div class="flex flex-col items-center justify-center py-8 text-center">
@@ -121,44 +157,33 @@
                     Estatus de Expediente de Documentos
                 </h2>
 
-                @if($solicitudesActivas > 0)
+                @if($hasPracticaActiva)
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-green-50 text-green-600 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    @foreach($documentosStatus as $documento)
+                        <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 rounded-xl {{ $documento['status'] === 'subido' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400' }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $documento['status'] === 'subido' ? 'M5 13l4 4L19 7' : 'M12 4.5v15m7.5-7.5h-15' }}"></path></svg>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-750">{{ $documento['nombre'] }}</div>
+                                    @if($documento['fecha'])
+                                        <div class="text-[11px] text-gray-400">Cargado {{ $documento['fecha'] }}</div>
+                                    @endif
+                                </div>
                             </div>
-                            <span class="text-sm font-semibold text-gray-750">Carta de Presentación</span>
+                            <span class="text-[10px] font-bold {{ $documento['status'] === 'subido' ? 'text-green-700 bg-green-50 border border-green-150' : 'text-gray-500 bg-gray-50 border border-gray-200' }} px-2 py-0.5 rounded-md">
+                                 {{ $documento['label'] }}
+                            </span>
                         </div>
-                        <span class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Aprobado</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-green-50 text-green-600 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-750">Carta de Aceptación</span>
-                        </div>
-                        <span class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Aprobado</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-yellow-50 text-yellow-600 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-750">Memoria de Prácticas</span>
-                        </div>
-                        <span class="text-[10px] font-bold text-yellow-700 bg-yellow-50 border border-yellow-150 px-2 py-0.5 rounded-md">En Revisión</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gray-50 text-gray-400 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-750">Carta de Término</span>
-                        </div>
-                        <span class="text-[10px] font-bold text-gray-500 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md">Sin Subir</span>
-                    </div>
+                    @endforeach
+                </div>
+                @elseif($solicitudesPendientes > 0)
+                <div class="flex flex-col items-center justify-center py-8 text-center">
+                    <svg class="w-12 h-12 text-blue-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p class="text-sm font-semibold text-blue-600">Solicitud en revisión</p>
+                    <p class="text-xs text-gray-300 mt-1">Los documentos estarán disponibles una vez que tu solicitud sea aprobada.</p>
+                    <a href="{{ route('estudiante.misSolicitudes') }}" class="mt-4 text-xs font-bold text-[#4E7D24] hover:underline">Ver mi solicitud →</a>
                 </div>
                 @else
                 <div class="flex flex-col items-center justify-center py-8 text-center">
@@ -206,7 +231,7 @@
                     Mi Solicitud de Proyecto
                 </h3>
 
-                @if($solicitudesActivas > 0)
+                @if($hasPracticaActiva)
                 <div class="bg-gradient-to-br from-green-50 to-green-100/50 border border-green-150 rounded-2xl p-5 flex flex-col items-center text-center shadow-inner">
                     <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 text-[#4E7D24] shadow-sm border border-green-50">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -214,6 +239,15 @@
                     <h4 class="font-bold text-green-950 mb-1">Solicitud Activa</h4>
                     <p class="text-xs text-green-900/90 font-medium mb-3">Tienes {{ $solicitudesActivas }} solicitud(es) en proceso.</p>
                     <a href="{{ route('estudiante.proyecto') }}" class="w-full text-center py-2.5 bg-[#4E7D24] text-white text-xs font-bold rounded-xl hover:bg-[#3d6320] transition-colors block">Ver mis solicitudes</a>
+                </div>
+                @elseif($solicitudesPendientes > 0)
+                <div class="bg-blue-50 rounded-2xl p-5 flex flex-col items-center text-center shadow-inner border border-blue-100">
+                    <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 text-blue-600 shadow-sm border border-blue-100">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h4 class="font-bold text-blue-900 mb-1">Solicitud en Revisión</h4>
+                    <p class="text-xs text-blue-900/90 font-medium mb-3">Tienes {{ $solicitudesPendientes }} solicitud(es) pendientes.</p>
+                    <a href="{{ route('estudiante.misSolicitudes') }}" class="w-full text-center py-2.5 bg-[#4E7D24] text-white text-xs font-bold rounded-xl hover:bg-[#3d6320] transition-colors block">Ver mi solicitud</a>
                 </div>
                 @else
                 <div class="flex flex-col items-center justify-center py-8 text-center">
@@ -244,4 +278,22 @@
 
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                var container = document.getElementById('progressSection');
+                if (!container) return;
+                var porcentajeHoras = parseFloat(container.getAttribute('data-porcentaje')) || 0;
+                var docsWidth = parseFloat(container.getAttribute('data-docswidth')) || 0;
+
+                var hoursBar = document.getElementById('hoursProgressBar');
+                if (hoursBar) hoursBar.style.width = porcentajeHoras + '%';
+
+                var docsBar = document.getElementById('docsProgressBar');
+                if (docsBar) docsBar.style.width = docsWidth + '%';
+            } catch (e) {
+                console.error('Error setting progress widths', e);
+            }
+        });
+    </script>
 @endsection
