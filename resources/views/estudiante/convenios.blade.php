@@ -169,9 +169,7 @@
             const convenios = JSON.parse(button.getAttribute('data-convenios') || '[]');
 
             const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 min-h-screen bg-black/50 flex items-center justify-center z-50 p-4';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
+            modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-auto';
             modal.onclick = function(e) {
                 if (e.target === modal) modal.remove();
             };
@@ -181,16 +179,16 @@
                 conveniosHTML = convenios.map(c => {
                     const esVigente = c.estatus === 'activo' && new Date(c.fecha_termino) > new Date();
                     return `
-                        <div class="border border-gray-150 rounded-2xl p-4 mb-3 bg-gray-50">
-                            <div class="flex justify-between items-start gap-2 mb-2">
+                        <div class="border border-gray-150 rounded-3xl p-4 mb-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <div class="flex flex-col sm:flex-row justify-between items-start gap-3">
                                 <div>
-                                    <p class="font-bold text-gray-900">${c.codigo_convenio}</p>
-                                    <p class="text-sm text-gray-500 mt-1">
+                                    <p class="font-semibold text-black">${c.codigo_convenio}</p>
+                                    <p class="text-sm text-black/70 mt-1">
                                         <strong>Vigencia:</strong> ${new Date(c.fecha_inicio).toLocaleDateString('es-MX')} - ${new Date(c.fecha_termino).toLocaleDateString('es-MX')}
                                     </p>
                                 </div>
-                                <span class="inline-flex items-center gap-1 text-xs font-bold ${esVigente ? 'text-green-700 bg-green-50 border-green-100' : 'text-gray-600 bg-gray-100 border-gray-200'} border px-2.5 py-1 rounded-full shrink-0">
-                                    <span class="w-1.5 h-1.5 rounded-full ${esVigente ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                                <span class="inline-flex items-center gap-2 text-xs font-semibold ${esVigente ? 'text-green-700 bg-green-50 border border-green-100' : 'text-gray-600 bg-gray-100 border border-gray-200'} px-3 py-1 rounded-full shrink-0">
+                                    <span class="w-2 h-2 rounded-full ${esVigente ? 'bg-green-500' : 'bg-gray-400'}"></span>
                                     ${esVigente ? 'Vigente' : 'Vencido'}
                                 </span>
                             </div>
@@ -198,33 +196,46 @@
                     `;
                 }).join('');
             } else {
-                conveniosHTML = '<p class="text-gray-400 text-sm">Sin convenios registrados</p>';
+                conveniosHTML = '<p class="text-black text-sm">Sin convenios registrados</p>';
             }
 
             modal.innerHTML = `
-                <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-                    <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-                        <h2 class="text-2xl font-bold text-gray-900">${unidad.nombre_empresa}</h2>
-                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                <div class="relative w-full max-w-3xl bg-white rounded-[32px] shadow-2xl border border-white/60 overflow-hidden">
+                    <div class="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm text-black/70">Empresa</p>
+                            <h2 class="text-2xl font-bold text-black leading-tight">${unidad.nombre_empresa}</h2>
+                        </div>
+                        <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
-                    <div class="p-6">
-                        <div class="mb-6 pb-4 border-b border-gray-100">
-                            <p class="text-sm text-gray-600 mb-2"><strong>Dirección:</strong></p>
-                            <p class="text-gray-900 font-medium">${unidad.direccion || 'No especificada'}</p>
-                            <p class="text-sm text-gray-600 mt-3"><strong>Tipo:</strong> <span class="font-medium">${unidad.tipo_persona ? unidad.tipo_persona.charAt(0).toUpperCase() + unidad.tipo_persona.slice(1) : 'No especificado'}</span></p>
+                    <div class="p-6 space-y-6">
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="rounded-3xl bg-[#F7FDF1] border border-green-100 p-4">
+                                <p class="text-xs uppercase tracking-wide text-black font-semibold mb-2">Dirección</p>
+                                <p class="text-sm text-black">${unidad.direccion || 'No especificada'}</p>
+                            </div>
+                            <div class="rounded-3xl bg-[#F5FAFF] border border-blue-100 p-4">
+                                <p class="text-xs uppercase tracking-wide text-black font-semibold mb-2">Tipo</p>
+                                <p class="text-sm text-black">${unidad.tipo_persona ? unidad.tipo_persona.charAt(0).toUpperCase() + unidad.tipo_persona.slice(1) : 'No especificado'}</p>
+                            </div>
                         </div>
+
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Convenios Disponibles</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Convenios Disponibles</h3>
                             ${conveniosHTML}
                         </div>
-                        <button onclick="this.closest('.fixed').remove()" class="w-full mt-6 px-6 py-3 bg-[#4E7D24] text-white font-bold rounded-xl hover:bg-[#3b6620] transition-colors">
-                            Cerrar
-                        </button>
+
+                        <div class="pt-4 border-t border-gray-100">
+                            <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#4E7D24]/10 hover:bg-[#3B6620] transition-all">
+                                Cerrar
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
+            modal.classList.add('convenio-modal-root');
             document.body.appendChild(modal);
         }
     </script>
