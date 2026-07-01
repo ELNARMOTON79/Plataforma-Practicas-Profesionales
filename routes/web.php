@@ -72,6 +72,11 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
         return view('coordinador.tramites');
     })->name('coordinador.tramites');
 
+    Route::get('/coordinador/seguimiento', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'index'])->name('coordinador.seguimiento');
+    Route::get('/coordinador/seguimiento/{id}', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'show'])->name('coordinador.seguimiento.show');
+    Route::post('/coordinador/seguimiento/{id}/save-notes', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveNotes'])->name('coordinador.seguimiento.save-notes');
+    Route::post('/coordinador/seguimiento/{id}/save-responsable', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveResponsable'])->name('coordinador.seguimiento.save-responsable');
+
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
         return view('coordinador.informes');
