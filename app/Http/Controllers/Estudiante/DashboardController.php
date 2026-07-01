@@ -21,7 +21,7 @@ class DashboardController extends Controller
 {
     public const HORAS_META = 480;
 
-    private const DOCS_REQUERIDOS = 4;
+    private const DOCS_REQUERIDOS = 6;
 
     public function index()
     {
@@ -69,7 +69,9 @@ class DashboardController extends Controller
                 $requiredDocuments = [
                     'Carta de Presentación',
                     'Carta de Aceptación',
+                    'Plan de Trabajo',
                     'Memoria de Prácticas',
+                    'Evaluación de Desempeño',
                     'Carta de Término',
                 ];
 
