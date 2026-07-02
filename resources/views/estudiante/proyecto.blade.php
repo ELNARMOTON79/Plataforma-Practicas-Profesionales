@@ -201,6 +201,34 @@
         </div>
     </div>
 
+    {{-- Delete Confirmation Modal --}}
+    <div id="deleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-sm w-full overflow-hidden">
+            <div class="p-7 text-center">
+                <div class="mx-auto mb-5 w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Eliminar documento</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    ¿Estás seguro de que deseas eliminar
+                    <span id="deleteModalDocName" class="font-semibold text-gray-800"></span>?
+                    <br>Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="px-7 pb-7 flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition-colors">
+                    Cancelar
+                </button>
+                <button id="deleteModalConfirmBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
     @else
     {{-- Empty state --}}
     <div class="glass-card rounded-3xl p-14 text-center fade-in-up delay-100">
@@ -339,13 +367,26 @@
             }
         }
 
+        var _pendingDelete = null;
+
         function deleteDocument(button) {
             var docName = button.getAttribute('data-docname');
             var docId = button.getAttribute('data-docid');
+            _pendingDelete = { docName: docName, docId: docId };
+            document.getElementById('deleteModalDocName').textContent = '"' + docName + '"';
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
 
-            if (!confirm('¿Está seguro de que desea eliminar "' + docName + '"? Esta acción no se puede deshacer.')) {
-                return;
-            }
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            _pendingDelete = null;
+        }
+
+        document.getElementById('deleteModalConfirmBtn').addEventListener('click', function() {
+            if (!_pendingDelete) return;
+            var docName = _pendingDelete.docName;
+            var docId   = _pendingDelete.docId;
+            closeDeleteModal();
 
             var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             var deleteUrl = '{{ route("estudiante.eliminarDocumento", ":id") }}'.replace(':id', docId);
@@ -354,14 +395,13 @@
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
             })
             .then(function(response) {
                 return response.json().then(function(data) {
-                    if (!response.ok) {
-                        throw data;
-                    }
+                    if (!response.ok) { throw data; }
                     return data;
                 });
             })
@@ -376,7 +416,7 @@
                     alert('Ocurrió un error al eliminar el documento. Intenta nuevamente.');
                 }
             });
-        }
+        });
 
         function buildUploadButtonHTML(nombreDoc) {
             return '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>' +
