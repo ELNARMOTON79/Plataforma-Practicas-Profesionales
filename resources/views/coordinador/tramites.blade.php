@@ -4,17 +4,31 @@
     <!-- Header Section -->
     <x-page-header title="Trámites y Expedientes" description="Gestiona las solicitudes de inicio de prácticas y la validación de documentos oficiales." />
 
+    {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
+    @if(session('success'))
+        <div id="successAlert" class="mb-6 mt-4 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 animate-fade-in">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    @endif
 
     <!-- Tabs Navigation -->
     <div class="border-b border-gray-200 mb-6 mt-4">
         <nav class="-mb-px flex space-x-8" aria-label="Navegación de trámites">
             <button onclick="switchTab('solicitudes')" id="tab-solicitudes" class="border-[#6BA53A] text-[#4E7D24] whitespace-nowrap py-4 px-2 border-b-4 font-extrabold text-sm transition-colors flex items-center gap-2">
                 Solicitudes de Prácticas
-                <span class="bg-red-100 text-red-700 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">3</span>
+                <span class="bg-red-100 text-red-700 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">{{ $solicitudes->count() }}</span>
             </button>
             <button onclick="switchTab('documentos')" id="tab-documentos" class="border-transparent text-gray-500 hover:text-[#4E7D24] hover:border-gray-300 whitespace-nowrap py-4 px-2 border-b-4 font-bold text-sm transition-colors flex items-center gap-2">
                 Validación de Documentos
-                <span class="bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">5</span>
+                <span class="bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">{{ isset($documentosPendientes) ? $documentosPendientes->count() : 5 }}</span>
             </button>
         </nav>
     </div>
@@ -36,7 +50,7 @@
         <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
             <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-6 h-6 text-[#6BA53A]" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Solicitudes Pendientes
+                Solicitudes de Prácticas Registradas
             </h2>
             <div class="overflow-x-auto">
                 <table id="solicitudes-table" class="min-w-full divide-y divide-gray-200">
@@ -52,84 +66,59 @@
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        <!-- Row 1 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">DOMINGUEZ MARCOS JAZMIN</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">20206744</td>
-                            <td class="px-3 py-4 text-center whitespace-normal max-w-[160px]">
-                                <div class="text-xs text-gray-600 font-semibold leading-tight break-words">H. AYUNTAMIENTO DE COLIMA</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">AGO-2026/ENE-2027</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-800">20 Hrs</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center min-w-[180px]">
-                                <label for="obs-sol-1" class="sr-only">Observaciones para Dominguez Marcos Jazmin</label>
-                                <input type="text" id="obs-sol-1" aria-label="Observaciones para Dominguez Marcos Jazmin" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Dominguez Marcos Jazmin" aria-label="Aprobar solicitud de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Dominguez Marcos Jazmin" aria-label="Rechazar solicitud de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Row 2 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">HERRERA RUIZ ALEJANDRO</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">20194852</td>
-                            <td class="px-3 py-4 text-center whitespace-normal max-w-[160px]">
-                                <div class="text-xs text-gray-600 font-semibold leading-tight break-words">TERNIUM MÉXICO S.A. DE C.V.</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">AGO-2026/ENE-2027</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-800">20 Hrs</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center min-w-[180px]">
-                                <label for="obs-sol-2" class="sr-only">Observaciones para Herrera Ruiz Alejandro</label>
-                                <input type="text" id="obs-sol-2" aria-label="Observaciones para Herrera Ruiz Alejandro" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Herrera Ruiz Alejandro" aria-label="Aprobar solicitud de Herrera Ruiz Alejandro">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Herrera Ruiz Alejandro" aria-label="Rechazar solicitud de Herrera Ruiz Alejandro">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Row 3 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">FLORES SILVA MARIANA</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">20213094</td>
-                            <td class="px-3 py-4 text-center whitespace-normal max-w-[160px]">
-                                <div class="text-xs text-gray-600 font-semibold leading-tight break-words">IMSS - DELEGACIÓN COLIMA</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">AGO-2026/ENE-2027</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-800">20 Hrs</td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center min-w-[180px]">
-                                <label for="obs-sol-3" class="sr-only">Observaciones para Flores Silva Mariana</label>
-                                <input type="text" id="obs-sol-3" aria-label="Observaciones para Flores Silva Mariana" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Flores Silva Mariana" aria-label="Aprobar solicitud de Flores Silva Mariana">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Flores Silva Mariana" aria-label="Rechazar solicitud de Flores Silva Mariana">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        @forelse($solicitudes as $solicitud)
+                            @php
+                                $statusMap = [
+                                    'aprobada' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'label' => 'Aprobada'],
+                                    'rechazada' => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'border' => 'border-red-200', 'label' => 'Rechazada'],
+                                    'en_proceso' => ['bg' => 'bg-sky-50', 'text' => 'text-sky-700', 'border' => 'border-sky-200', 'label' => 'En proceso'],
+                                    'pendiente' => ['bg' => 'bg-yellow-50', 'text' => 'text-yellow-800', 'border' => 'border-yellow-200', 'label' => 'Pendiente'],
+                                    'finalizada' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'border' => 'border-indigo-200', 'label' => 'Finalizada'],
+                                ];
+                                $st = $statusMap[$solicitud->estatus] ?? $statusMap['pendiente'];
+                                $inicioMes = strtoupper($solicitud->fecha_inicio ? str_replace('.', '', $solicitud->fecha_inicio->translatedFormat('M-Y')) : '');
+                                $finMes = strtoupper($solicitud->fecha_fin ? str_replace('.', '', $solicitud->fecha_fin->translatedFormat('M-Y')) : '');
+                                $periodo = ($inicioMes && $finMes) ? "{$inicioMes}/{$finMes}" : 'AGO-2026/ENE-2027';
+                                $nombreEstudiante = strtoupper($solicitud->estudiante?->nombre_completo ?? 'ESTUDIANTE NO REGISTRADO');
+                            @endphp
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
+                                <td class="px-3 py-4 whitespace-nowrap text-center">
+                                    <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">{{ $nombreEstudiante }}</div>
+                                    <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border {{ $st['bg'] }} {{ $st['text'] }} {{ $st['border'] }}">
+                                        {{ strtoupper($st['label']) }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">{{ $solicitud->estudiante?->matricula ?? 'N/A' }}</td>
+                                <td class="px-3 py-4 text-center whitespace-normal max-w-[160px]">
+                                    <div class="text-xs text-gray-600 font-semibold leading-tight break-words">{{ strtoupper($solicitud->unidadReceptora?->nombre_empresa ?? ($solicitud->responsable ?? 'NO ESPECIFICADA')) }}</div>
+                                </td>
+                                <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">{{ $periodo }}</td>
+                                <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-800">20 Hrs</td>
+                                <td class="px-3 py-4 whitespace-nowrap text-center min-w-[180px]">
+                                    <label for="obs-sol-{{ $solicitud->id }}" class="sr-only">Observaciones para {{ $nombreEstudiante }}</label>
+                                    <input type="text" id="obs-sol-{{ $solicitud->id }}" value="{{ $solicitud->observaciones }}" aria-label="Observaciones para {{ $nombreEstudiante }}" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
+                                </td>
+                                <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <div class="flex justify-center gap-2">
+                                        <button type="button" onclick="abrirModalConfirmacion('{{ $solicitud->id }}', '{{ addslashes($nombreEstudiante) }}', 'aprobada')" class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all cursor-pointer" title="Aprobar solicitud de {{ $nombreEstudiante }}" aria-label="Aprobar solicitud de {{ $nombreEstudiante }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </button>
+                                        <button type="button" onclick="abrirModalConfirmacion('{{ $solicitud->id }}', '{{ addslashes($nombreEstudiante) }}', 'rechazada')" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all cursor-pointer" title="Rechazar solicitud de {{ $nombreEstudiante }}" aria-label="Rechazar solicitud de {{ $nombreEstudiante }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 font-medium">
+                                    <div class="flex flex-col items-center justify-center gap-2">
+                                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <span>No hay solicitudes de prácticas registradas en el sistema.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -387,5 +376,61 @@
                 document.getElementById('tab-documentos').classList.remove('border-transparent', 'text-gray-500', 'font-bold');
             }
         }
+
+        // ── Modal de Confirmación de Estatus ─────────────────────────
+        function abrirModalConfirmacion(id, nombreEstudiante, accion) {
+            const modal = document.getElementById('modal-confirmar-estatus');
+            const form = document.getElementById('form-confirmar-estatus');
+            const inputEstatus = document.getElementById('modal-input-estatus');
+            const inputObs = document.getElementById('modal-input-observaciones');
+            const header = document.getElementById('confirm-modal-header');
+            const actionText = document.getElementById('confirm-action-text');
+            const studentName = document.getElementById('confirm-student-name');
+            const iconApprove = document.getElementById('confirm-icon-approve');
+            const iconReject = document.getElementById('confirm-icon-reject');
+            const submitBtn = document.getElementById('confirm-submit-btn');
+            const subtitle = document.getElementById('confirm-modal-subtitle');
+
+            form.action = `/coordinador/solicitudes/${id}/estatus`;
+            inputEstatus.value = accion;
+            studentName.textContent = nombreEstudiante;
+            subtitle.textContent = `Gestión de Solicitud #${id}`;
+
+            // Tomar observaciones previas si se escribieron en la fila de la tabla
+            const filaObs = document.getElementById('obs-sol-' + id);
+            if (filaObs && filaObs.value) {
+                inputObs.value = filaObs.value;
+            } else {
+                inputObs.value = '';
+            }
+
+            if (accion === 'aprobada') {
+                header.className = 'px-8 py-6 flex items-center justify-between transition-colors duration-300 bg-gradient-to-r from-[#4E7D24] to-[#6BA53A]';
+                actionText.textContent = 'APROBAR';
+                actionText.className = 'font-extrabold uppercase text-[#4E7D24]';
+                iconApprove.classList.remove('hidden');
+                iconReject.classList.add('hidden');
+                submitBtn.className = 'px-6 py-2.5 rounded-xl bg-[#4E7D24] hover:bg-[#3d631c] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2';
+                submitBtn.innerHTML = '<span>Sí, Aprobar Solicitud</span>';
+            } else {
+                header.className = 'px-8 py-6 flex items-center justify-between transition-colors duration-300 bg-gradient-to-r from-red-600 to-red-500';
+                actionText.textContent = 'RECHAZAR';
+                actionText.className = 'font-extrabold uppercase text-red-600';
+                iconApprove.classList.add('hidden');
+                iconReject.classList.remove('hidden');
+                submitBtn.className = 'px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2';
+                submitBtn.innerHTML = '<span>Sí, Rechazar Solicitud</span>';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function cerrarModalConfirmacion() {
+            document.getElementById('modal-confirmar-estatus').classList.add('hidden');
+        }
     </script>
 @endsection
+
+@push('modals')
+    @include('coordinador.tramites.confirm-modal')
+@endpush

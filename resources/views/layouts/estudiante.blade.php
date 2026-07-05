@@ -114,6 +114,8 @@
         @yield('content')
     </main>
 
+    <x-estudiante.modal-unidad-receptora />
     @stack('modals')
+    @stack('scripts')
 </body>
 </html>

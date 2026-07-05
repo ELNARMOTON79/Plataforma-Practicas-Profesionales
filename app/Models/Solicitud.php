@@ -20,6 +20,11 @@ class Solicitud extends Model
         'fecha_fin',
         'estatus',
         'observaciones',
+        'titulo',
+        'objetivo',
+        'justificacion',
+        'actividades',
+        'impacto_social',
     ];
 
     protected $casts = [

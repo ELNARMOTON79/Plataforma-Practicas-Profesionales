@@ -62,10 +62,25 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-100/50 flex items-center justify-between">
-                        <span class="text-xs text-gray-400 font-medium">{{ $unidad->nombre_empresa }}</span>
-                        <a href="{{ route('estudiante.convenios') }}" class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm">
-                            Ver detalle
-                        </a>
+                        <span class="text-xs text-gray-400 font-medium truncate max-w-[130px]" title="{{ $unidad->nombre_empresa }}">{{ $unidad->nombre_empresa }}</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" 
+                                    data-unidad="{{ json_encode($unidad) }}"
+                                    onclick="openUnidadModal(JSON.parse(this.getAttribute('data-unidad')))" 
+                                    class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-1.5 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm cursor-pointer">
+                                Ver detalle
+                            </button>
+                            @if(isset($tieneSolicitud) && $tieneSolicitud)
+                            <button type="button" disabled class="text-xs font-bold text-gray-400 bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-xl cursor-not-allowed select-none" title="Ya cuentas con una solicitud registrada (Límite: 1)">
+                                Solicitud activa
+                            </button>
+                            @else
+                            <a href="{{ route('estudiante.nuevaSolicitud', ['ur_id' => $unidad->id]) }}" 
+                               class="text-xs font-bold text-white bg-[#4E7D24] px-3 py-1.5 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm">
+                                Iniciar solicitud
+                            </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endforeach

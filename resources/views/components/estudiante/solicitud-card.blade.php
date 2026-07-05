@@ -52,9 +52,20 @@
         <p class="mt-3 text-sm leading-6 text-gray-600">{{ $comment }}</p>
     </div>
 
+    @php
+        $unidadData = $solicitud->unidadReceptora ?: [
+            'nombre_empresa' => $solicitud->responsable ?? 'Empresa no especificada',
+            'direccion' => 'Información de dirección no disponible en este registro',
+            'tipo_persona' => 'N/A',
+            'sector' => 'N/A'
+        ];
+    @endphp
     <div class="mt-6 flex justify-end">
-        <a href="#" class="inline-flex items-center gap-2 rounded-full border border-[#4E7D24] bg-white px-4 py-2 text-sm font-semibold text-[#4E7D24] transition hover:bg-[#f3fbf1]">
+        <button type="button" 
+                data-unidad="{{ json_encode($unidadData) }}"
+                onclick="openUnidadModal(JSON.parse(this.getAttribute('data-unidad')))" 
+                class="inline-flex items-center gap-2 rounded-full border border-[#4E7D24] bg-white px-4 py-2 text-sm font-semibold text-[#4E7D24] transition hover:bg-[#f3fbf1] cursor-pointer">
             Ver Detalles
-        </a>
+        </button>
     </div>
 </div>

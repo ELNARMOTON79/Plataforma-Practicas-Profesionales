@@ -67,10 +67,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\CoordinadorController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
     Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\CoordinadorController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
-    Route::get('/coordinador/tramites', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.tramites');
-    })->name('coordinador.tramites');
+    Route::get('/coordinador/tramites', [App\Http\Controllers\CoordinadorController::class, 'tramites'])->name('coordinador.tramites');
+    Route::patch('/coordinador/solicitudes/{id}/estatus', [App\Http\Controllers\CoordinadorController::class, 'updateSolicitudEstatus'])->name('coordinador.solicitudes.update-estatus');
 
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
@@ -87,10 +85,14 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
     Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
-    Route::get('/estudiante/proyecto', function () {
-        if (auth()->user()->rol_id != 3) return redirect('/');
-        return view('estudiante.proyecto');
-    })->name('estudiante.proyecto');
+    Route::get('/estudiante/nueva-solicitud', [DashboardController::class, 'createSolicitud'])->name('estudiante.nuevaSolicitud');
+    Route::post('/estudiante/nueva-solicitud', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
+    Route::get('/estudiante/nueva-solicitud/detalles', [DashboardController::class, 'detallesSolicitud'])->name('estudiante.nuevaSolicitudDetalles');
+    Route::get('/estudiante/nueva-solicitud/documentacion', [DashboardController::class, 'documentacionSolicitud'])->name('estudiante.nuevaSolicitudDocumentacion');
+    Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
+    Route::get('/estudiante/notificaciones', [DashboardController::class, 'notificaciones'])->name('estudiante.notificaciones');
+
+    Route::get('/estudiante/proyecto', [DashboardController::class, 'proyecto'])->name('estudiante.proyecto');
 
     Route::get('/empresa/dashboard', function () {
         if (auth()->user()->rol_id != 4) return redirect('/');

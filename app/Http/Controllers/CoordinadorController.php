@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Alumno;
 use App\Models\Proyecto;
+use App\Models\Solicitud;
+use App\Models\Documento;
 use App\Mail\CredentialsNotification;
 use App\Mail\NewAssociationNotification;
 
@@ -956,5 +958,54 @@ class CoordinadorController extends Controller
                 'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
             ], 500);
         }
+    }
+
+    /**
+     * Display tramites (applications and documents) for coordinator.
+     */
+    public function tramites()
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $solicitudes = Solicitud::with(['estudiante', 'unidadReceptora'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $documentosPendientes = Documento::with(['solicitud.estudiante'])
+            ->where('estatus', 'pendiente')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $documentosValidados = Documento::with(['solicitud.estudiante'])
+            ->whereIn('estatus', ['aprobado', 'rechazado', 'validado'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('coordinador.tramites', compact('solicitudes', 'documentosPendientes', 'documentosValidados'));
+    }
+
+    /**
+     * Update estatus and observaciones for a solicitud.
+     */
+    public function updateSolicitudEstatus(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $request->validate([
+            'estatus' => 'required|in:aprobada,rechazada,pendiente,en_proceso,finalizada',
+            'observaciones' => 'nullable|string|max:50',
+        ]);
+
+        $solicitud = Solicitud::findOrFail($id);
+        $solicitud->estatus = $request->estatus;
+        $solicitud->observaciones = $request->observaciones ?? '';
+        $solicitud->save();
+
+        $accion = $request->estatus === 'aprobada' ? 'aprobada' : ($request->estatus === 'rechazada' ? 'rechazada' : 'actualizada');
+        return redirect()->route('coordinador.tramites')->with('success', "La solicitud #{$solicitud->id} ha sido {$accion} exitosamente.");
     }
 }
