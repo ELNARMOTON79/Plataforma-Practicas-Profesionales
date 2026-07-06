@@ -265,7 +265,7 @@ CREATE TABLE `documentos` (
   `ur_id` int(10) UNSIGNED NOT NULL,
   `nombre_doc` varchar(255) NOT NULL,
   `ruta_archivo` varchar(500) NOT NULL,
-  `fecha_carga` date NOT NULL DEFAULT curdate(),
+  `fecha_carga` date NOT NULL DEFAULT (curdate()),
   `estatus` enum('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
   `observaciones` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

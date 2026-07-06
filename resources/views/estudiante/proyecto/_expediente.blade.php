@@ -49,7 +49,7 @@
                 :doc-id="1"
                 title="Carta de Presentación"
                 status="system"
-                on-generate="simulateViewPdf('Carta de Presentación', 'Generado por Sistema')" />
+                on-generate="window.open('{{ route('estudiante.cartaPresentacion', $solicitud->id) }}', '_blank')" />
 
             <x-estudiante.doc-card
                 :doc-id="2"

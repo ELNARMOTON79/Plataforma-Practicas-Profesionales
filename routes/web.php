@@ -67,8 +67,9 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\CoordinadorController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
     Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\CoordinadorController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
-    Route::get('/coordinador/tramites', [App\Http\Controllers\CoordinadorController::class, 'tramites'])->name('coordinador.tramites');
-    Route::patch('/coordinador/solicitudes/{id}/estatus', [App\Http\Controllers\CoordinadorController::class, 'updateSolicitudEstatus'])->name('coordinador.solicitudes.update-estatus');
+    Route::get('/coordinador/tramites', [CoordinadorController::class, 'tramites'])->name('coordinador.tramites');
+    Route::post('/coordinador/solicitudes/{id}/aprobar', [CoordinadorController::class, 'aprobarSolicitud'])->name('coordinador.solicitudes.aprobar');
+    Route::post('/coordinador/solicitudes/{id}/rechazar', [CoordinadorController::class, 'rechazarSolicitud'])->name('coordinador.solicitudes.rechazar');
 
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
@@ -90,6 +91,7 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::get('/estudiante/nueva-solicitud/detalles', [DashboardController::class, 'detallesSolicitud'])->name('estudiante.nuevaSolicitudDetalles');
     Route::get('/estudiante/nueva-solicitud/documentacion', [DashboardController::class, 'documentacionSolicitud'])->name('estudiante.nuevaSolicitudDocumentacion');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
+    Route::get('/estudiante/solicitudes/{id}/carta-presentacion', [DashboardController::class, 'cartaPresentacion'])->name('estudiante.cartaPresentacion');
     Route::get('/estudiante/notificaciones', [DashboardController::class, 'notificaciones'])->name('estudiante.notificaciones');
 
     Route::get('/estudiante/proyecto', [DashboardController::class, 'proyecto'])->name('estudiante.proyecto');

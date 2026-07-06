@@ -46,149 +46,132 @@
             </button>
         </x-slot>
     </x-page-header>
-    <!-- Table Container (Glassmorphic) -->
-    <!-- Table Container (Glassmorphic) -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
-               <!-- Filters & Search -->
-        <form method="GET" action="{{ route('coordinador.proyectos') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6 w-full">
-            <!-- Left side: Show entries -->
-            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full md:w-auto">
-                <span>Mostrar</span>
-                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-1.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                </select>
-                <span>registros</span>
+
+    <!-- Table Container for Approved Applications (Solicitudes Aprobadas) -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 mt-8 fade-in-up delay-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide">Prácticas Asignadas (Solicitudes Aprobadas)</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Estudiantes asignados a proyectos propuestos que han sido aprobados por el coordinador</p>
             </div>
-
-            <!-- Right side: Search and Filters -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <!-- Plan Select -->
-                <select name="plan" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="">Todos los Planes</option>
-                    <option value="E906" {{ request('plan') == 'E906' ? 'selected' : '' }}>PLAN E906</option>
-                    <option value="E907" {{ request('plan') == 'E907' ? 'selected' : '' }}>PLAN E907</option>
-                    <option value="E908" {{ request('plan') == 'E908' ? 'selected' : '' }}>PLAN E908</option>
-                </select>
-
-                <!-- Cupo Select -->
-                <select name="cupo" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="">Todos los Cupos</option>
-                    <option value="disponible" {{ request('cupo') == 'disponible' ? 'selected' : '' }}>DISPONIBLE</option>
-                    <option value="lleno" {{ request('cupo') == 'lleno' ? 'selected' : '' }}>CUPO LLENO</option>
-                </select>
-
-                <!-- Acceso / Estatus Select -->
-                <select name="acceso" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="">Todos los Accesos</option>
-                    <option value="activo" {{ request('acceso') == 'activo' ? 'selected' : '' }}>ACCESO ACTIVO</option>
-                    <option value="inactivo" {{ request('acceso') == 'inactivo' ? 'selected' : '' }}>ACCESO INACTIVO</option>
-                </select>
-
-                <!-- Search Input -->
-                <div class="relative w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors restrict-search" placeholder="Buscar...">
-                </div>
-                <button type="submit" class="hidden">Buscar</button>
-            </div>
-        </form>
+            <span class="px-3 py-1 text-xs font-bold rounded-lg bg-green-50 text-green-700 border border-green-200 uppercase">
+                {{ $solicitudesAprobadas->count() }} Activas
+            </span>
+        </div>
 
         <!-- Table -->
         <div class="overflow-x-auto">
-            <table id="proyectos-table" class="min-w-full divide-y divide-gray-200">
+            <table id="solicitudes-aprobadas-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50/50">
                     <tr>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Proyecto</th>
-                        <th scope="col" class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[220px] whitespace-normal">Nombre del Proyecto</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[180px] whitespace-normal">Plantel / Plan</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Ciclo Escolar</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Alumnos / Cupo</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Activo Internet</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Estudiante</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">No. Cuenta</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Institución</th>
+                        <th scope="col" class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[220px] whitespace-normal">Proyecto Propuesto</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Periodo</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Detalles</th>
                     </tr>
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-100">
-                    @forelse($proyectos as $proyecto)
-                        @php
-                            $esLleno = $proyecto->cupos_ocupados >= $proyecto->cupos_totales;
-                            $esVacio = $proyecto->cupos_ocupados == 0;
-                            
-                            $badgeClass = $esLleno 
-                                ? 'bg-sky-50 text-sky-700 border-sky-100' 
-                                : ($esVacio ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-amber-50 text-amber-700 border-amber-100');
-                                
-                            $dotClass = $esLleno
-                                ? 'bg-sky-500'
-                                : ($esVacio ? 'bg-gray-400' : 'bg-amber-500');
-                        @endphp
-                        <tr class="transition-colors group {{ !$proyecto->activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }} project-row">
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }}">
-                                #{{ $proyecto->id }}
+                    @forelse($solicitudesAprobadas as $sol)
+                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
+                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">
+                                    {{ mb_strtoupper($sol->estudiante->nombre_completo ?? 'Sin Nombre') }}
+                                </div>
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">
+                                {{ $sol->estudiante->matricula ?? '—' }}
+                            </td>
+                            <td class="px-3 py-4 text-center whitespace-normal max-w-[160px]">
+                                <div class="text-xs text-gray-600 font-semibold leading-tight break-words uppercase">
+                                    {{ mb_strtoupper($sol->unidadReceptora->nombre_empresa ?? 'No especificada') }}
+                                </div>
                             </td>
                             <td class="px-3 py-4 text-left max-w-[220px] whitespace-normal">
-                                <div class="text-xs font-bold {{ $proyecto->activo ? 'text-gray-900 group-hover:text-[#4E7D24]' : 'text-gray-400' }} transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
-                                <div class="text-[10px] {{ $proyecto->activo ? 'text-gray-400' : 'text-gray-300' }} uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
+                                <div class="text-xs font-bold text-gray-800 uppercase leading-snug break-words">
+                                    {{ $sol->titulo ?? 'Sin título' }}
+                                </div>
+                                <div class="text-[10px] text-gray-400 uppercase mt-0.5">Resp: {{ $sol->responsable ?? '—' }}</div>
                             </td>
-                            <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
-                                <div class="text-xs {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }} font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs {{ $proyecto->activo ? 'text-gray-500' : 'text-gray-400' }} font-bold tracking-wide">
-                                {{ $proyecto->ciclo_escolar }}
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">
+                                {{ $sol->fecha_inicio ? $sol->fecha_inicio->format('d/m/Y') : '—' }} - {{ $sol->fecha_fin ? $sol->fecha_fin->format('d/m/Y') : '—' }}
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg border {{ $badgeClass }}">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }} mr-1.5 mt-1.5"></span> {{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}
-                                </span>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <!-- Toggle switch with HTMX -->
-                                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
-                                    <input type="checkbox" name="toggle" id="toggle{{ $proyecto->id }}" 
-                                           hx-patch="/coordinador/proyectos/{{ $proyecto->id }}/toggle-status"
-                                           hx-trigger="change"
-                                           hx-headers='{"X-CSRF-TOKEN": "{{ csrf_token() }}"}'
-                                           aria-label="Activar acceso a internet - Proyecto {{ $proyecto->id }}" 
-                                           class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" 
-                                           {{ $proyecto->activo ? 'checked' : '' }}/>
-                                    <label for="toggle{{ $proyecto->id }}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"><span class="sr-only">Activo</span></label>
-                                </div>
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button type="button" onclick="abrirEditarProyecto('{{ $proyecto->id }}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all" title="Editar proyecto {{ $proyecto->id }}" aria-label="Editar proyecto {{ $proyecto->id }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                </div>
+                                <button onclick="verDetallesSolicitud({{ $sol->id }})" class="px-4 py-2 bg-[#6BA53A]/10 text-[#4E7D24] hover:bg-[#6BA53A]/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 mx-auto" title="Ver detalles de la solicitud">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    Ver Detalles
+                                </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
-                                No se encontraron proyectos con los criterios de búsqueda seleccionados.
+                            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
+                                No hay solicitudes de prácticas aprobadas actualmente.
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
-        <div class="mt-6">
-            {{ $proyectos->appends(request()->query())->links() }}
-        </div>
     </div>
 
     <!-- Vanilla Javascript Dynamic Engine -->
     <script>
+        // Build JS dictionary dynamically for approved solicitudes
+        const solicitudesData = {
+            @foreach($solicitudesAprobadas as $sol)
+                "{{ $sol->id }}": {
+                    estudiante: "{{ e($sol->estudiante->nombre_completo ?? 'Sin Nombre') }}",
+                    matricula: "{{ e($sol->estudiante->matricula ?? '—') }}",
+                    carrera: "{{ e($sol->estudiante->carrera ?? '—') }}",
+                    semestre: "{{ e($sol->estudiante->semestre ?? '—') }}",
+                    grupo: "{{ e($sol->estudiante->grupo ?? '—') }}",
+                    unidad: "{{ e($sol->unidadReceptora->nombre_empresa ?? 'No especificada') }}",
+                    departamento: "{{ e($sol->unidadReceptora->unidad_receptora ?? 'General') }}",
+                    responsable: "{{ e($sol->responsable ?? '—') }}",
+                    inicio: "{{ $sol->fecha_inicio ? $sol->fecha_inicio->format('d/m/Y') : '—' }}",
+                    fin: "{{ $sol->fecha_fin ? $sol->fecha_fin->format('d/m/Y') : '—' }}",
+                    estatus: "{{ $sol->estatus }}",
+                    titulo: "{{ e($sol->titulo ?? 'Sin título') }}",
+                    objetivo: {!! json_encode($sol->objetivo ?? '—') !!},
+                    justificacion: {!! json_encode($sol->justificacion ?? '—') !!},
+                    actividades: {!! json_encode($sol->actividades ?? '—') !!},
+                    impacto: {!! json_encode($sol->impacto_social ?? '—') !!}
+                },
+            @endforeach
+        };
+
+        window.verDetallesSolicitud = function(id) {
+            const sol = solicitudesData[id];
+            if (!sol) return;
+
+            document.getElementById('view-sol-estudiante').textContent = sol.estudiante;
+            document.getElementById('view-sol-estudiante-sub').textContent = 'Estudiante: ' + sol.estudiante + ' | Cuenta: ' + sol.matricula;
+            document.getElementById('view-sol-matricula').textContent = sol.matricula;
+            document.getElementById('view-sol-carrera').textContent = sol.carrera;
+            document.getElementById('view-sol-semestre').textContent = sol.semestre;
+            document.getElementById('view-sol-grupo').textContent = sol.grupo;
+            document.getElementById('view-sol-unidad').textContent = sol.unidad + (sol.departamento ? ' (' + sol.departamento + ')' : '');
+            document.getElementById('view-sol-responsable').textContent = sol.responsable;
+            document.getElementById('view-sol-inicio').textContent = sol.inicio;
+            document.getElementById('view-sol-fin').textContent = sol.fin;
+            document.getElementById('view-sol-titulo').textContent = sol.titulo;
+            document.getElementById('view-sol-objetivo').textContent = sol.objetivo;
+            document.getElementById('view-sol-justificacion').textContent = sol.justificacion;
+            document.getElementById('view-sol-actividades').textContent = sol.actividades;
+            document.getElementById('view-sol-impacto').textContent = sol.impacto;
+
+            const badge = document.getElementById('view-sol-estatus-badge');
+            if (badge) {
+                badge.textContent = sol.estatus;
+                badge.className = 'px-2 py-0.5 inline-flex text-[10px] leading-5 font-bold rounded-lg uppercase border bg-green-50 text-green-700 border-green-200';
+            }
+
+            document.getElementById('modal-ver-solicitud').classList.remove('hidden');
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             // Build JS mock dictionary dynamically from Eloquent items for view & edit modals prefilling
             const projectDetails = {
@@ -298,6 +281,7 @@
     @include('coordinador.proyectos.register-modal')
     @include('coordinador.proyectos.view-modal')
     @include('coordinador.proyectos.edit-modal')
+    @include('coordinador.tramites.view-modal')
 
     {{-- Re-open correct modal on validation errors --}}
     @if($errors->any())

@@ -1,66 +1,77 @@
-<!-- Modal de Confirmación para Estatus de Solicitud -->
-<div id="modal-confirmar-estatus" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<!-- Modal: Confirmar Aprobación -->
+<div id="modal-confirmar-aprobar" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Backdrop -->
     <div class="fixed inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity duration-300"
-         onclick="cerrarModalConfirmacion()"></div>
+         onclick="document.getElementById('modal-confirmar-aprobar').classList.add('hidden')"></div>
 
     <!-- Modal Positioning -->
-    <div class="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden transform transition-all duration-300 scale-100 flex flex-col">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden transform transition-all duration-300 p-6 space-y-4">
             
-            <!-- Header -->
-            <div id="confirm-modal-header" class="px-8 py-6 flex items-center justify-between transition-colors duration-300 bg-gradient-to-r from-[#4E7D24] to-[#6BA53A]">
-                <div class="flex items-center gap-3">
-                    <div id="confirm-modal-icon-bg" class="bg-white/20 p-2.5 rounded-xl">
-                        <svg id="confirm-icon-approve" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        <svg id="confirm-icon-reject" class="w-6 h-6 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </div>
-                    <div>
-                        <h2 id="confirm-modal-title" class="text-lg font-bold text-white uppercase tracking-wide leading-tight">Confirmar Acción</h2>
-                        <p id="confirm-modal-subtitle" class="text-white/80 text-xs mt-0.5">Gestión de Solicitud</p>
-                    </div>
-                </div>
-                <button type="button" 
-                        onclick="cerrarModalConfirmacion()"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10 cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
             </div>
 
-            <!-- Body -->
-            <form id="form-confirmar-estatus" method="POST" action="" hx-boost="false">
+            <div class="text-center">
+                <h3 class="text-base font-bold text-gray-900 leading-6">Aprobar Solicitud de Prácticas</h3>
+                <p class="text-xs text-gray-500 mt-2">¿Estás seguro de que deseas aprobar esta solicitud? El trámite pasará a estar activo para el estudiante.</p>
+            </div>
+
+            <form id="form-aprobar-solicitud" hx-boost="false" method="POST" action="" class="flex gap-3 mt-4">
                 @csrf
-                @method('PATCH')
-                <input type="hidden" name="estatus" id="modal-input-estatus" value="">
+                <button type="button" 
+                        onclick="document.getElementById('modal-confirmar-aprobar').classList.add('hidden')"
+                        class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-all">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        class="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all">
+                    Aprobar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
-                <div class="px-8 py-6 space-y-5 text-gray-800">
-                    <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-4 text-sm leading-relaxed text-gray-700">
-                        ¿Estás seguro de que deseas <span id="confirm-action-text" class="font-extrabold uppercase text-[#4E7D24]">APROBAR</span> la solicitud de prácticas profesionales del estudiante <span id="confirm-student-name" class="font-extrabold text-gray-900">ESTUDIANTE</span>?
-                    </div>
+<!-- Modal: Confirmar Rechazo -->
+<div id="modal-confirmar-rechazar" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity duration-300"
+         onclick="document.getElementById('modal-confirmar-rechazar').classList.add('hidden')"></div>
 
-                    <div>
-                        <label for="modal-input-observaciones" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                            Observaciones / Comentarios para el Estudiante
-                        </label>
-                        <textarea name="observaciones" id="modal-input-observaciones" rows="3" 
-                                  class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all focus:outline-none placeholder-gray-400" 
-                                  placeholder="Escribe aquí observaciones opcionales que verá el alumno..."></textarea>
-                        <p class="text-[11px] text-gray-400 mt-1">Este comentario se guardará en la solicitud y será visible en la plataforma.</p>
-                    </div>
+    <!-- Modal Positioning -->
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden transform transition-all duration-300 p-6 space-y-4">
+            
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+
+            <div class="text-center">
+                <h3 class="text-base font-bold text-gray-900 leading-6">Rechazar Solicitud de Prácticas</h3>
+                <p class="text-xs text-gray-500 mt-2">¿Estás seguro de que deseas rechazar esta solicitud? Podés dejar una nota explicando el motivo para orientar al alumno.</p>
+            </div>
+
+            <form id="form-rechazar-solicitud" hx-boost="false" method="POST" action="" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="obs-rechazo" class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Motivo del Rechazo / Observaciones</label>
+                    <textarea id="obs-rechazo" name="observaciones" rows="3" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50/50 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none" placeholder="Escribí los motivos del rechazo aquí..."></textarea>
                 </div>
-
-                <!-- Footer -->
-                <div class="flex items-center justify-end gap-3 border-t border-gray-100 px-8 py-5 bg-gray-50/40">
+                
+                <div class="flex gap-3">
                     <button type="button" 
-                            onclick="cerrarModalConfirmacion()"
-                            class="px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-sm font-bold shadow-sm transition-all cursor-pointer">
+                            onclick="document.getElementById('modal-confirmar-rechazar').classList.add('hidden')"
+                            class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-all">
                         Cancelar
                     </button>
-                    <button type="submit" id="confirm-submit-btn"
-                            class="px-6 py-2.5 rounded-xl bg-[#4E7D24] hover:bg-[#3d631c] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2">
-                        <span>Confirmar</span>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all">
+                        Rechazar
                     </button>
                 </div>
             </form>

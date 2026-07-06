@@ -396,6 +396,31 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function cartaPresentacion($id)
+    {
+        if (Auth::user()?->rol_id != 3 && Auth::user()?->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $user = Auth::user();
+        $solicitud = Solicitud::with(['estudiante', 'unidadReceptora'])->findOrFail($id);
+
+        // Security ownership check for student role
+        if ($user->rol_id == 3) {
+            $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+            if (!$estudiante || $solicitud->estudiante_id != $estudiante->id) {
+                abort(403, 'No autorizado.');
+            }
+        }
+
+        // Check if solicitud is approved
+        if (!in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'])) {
+            return redirect()->back()->with('error', 'La solicitud debe estar aprobada para generar la carta de presentación.');
+        }
+
+        return view('estudiante.carta_presentacion', compact('solicitud'));
+    }
+
     public function proyecto()
     {
         if (Auth::user()?->rol_id != 3) {

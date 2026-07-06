@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Alumno;
 use App\Models\Proyecto;
-use App\Models\Solicitud;
-use App\Models\Documento;
 use App\Mail\CredentialsNotification;
 use App\Mail\NewAssociationNotification;
 
@@ -89,6 +87,86 @@ class CoordinadorController extends Controller
             'recentLogs',
             'pendientesPorAtender'
         ));
+    }
+
+    /**
+     * Show the tramites (procedures) page with practice applications.
+     */
+    public function tramites()
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $solicitudes = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
+            ->where('estatus', 'pendiente')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $documentosPendientes = \App\Models\Documento::with(['solicitud.estudiante'])
+            ->where('estatus', 'pendiente')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $documentosValidados = \App\Models\Documento::with(['solicitud.estudiante'])
+            ->whereIn('estatus', ['aprobado', 'rechazado'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('coordinador.tramites', compact('solicitudes', 'documentosPendientes', 'documentosValidados'));
+    }
+
+    /**
+     * Approve a student's practice application.
+     */
+    public function aprobarSolicitud(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $solicitud = \App\Models\Solicitud::findOrFail($id);
+        $solicitud->estatus = 'aprobada';
+        $solicitud->save();
+
+        // Log activity
+        \App\Helpers\ActivityLogger::log(
+            'Solicitudes',
+            'Aprobación',
+            "Se aprobó la solicitud de prácticas profesionales del alumno {$solicitud->estudiante->nombre_completo}.",
+            'success',
+            ['solicitud_id' => $id]
+        );
+
+        return redirect()->back()->with('success', "La solicitud de {$solicitud->estudiante->nombre_completo} ha sido aprobada correctamente.");
+    }
+
+    /**
+     * Reject a student's practice application.
+     */
+    public function rechazarSolicitud(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $solicitud = \App\Models\Solicitud::findOrFail($id);
+        $solicitud->estatus = 'rechazada';
+        if ($request->has('observaciones')) {
+            $solicitud->observaciones = $request->input('observaciones');
+        }
+        $solicitud->save();
+
+        // Log activity
+        \App\Helpers\ActivityLogger::log(
+            'Solicitudes',
+            'Rechazo',
+            "Se rechazó la solicitud de prácticas profesionales del alumno {$solicitud->estudiante->nombre_completo}.",
+            'warning',
+            ['solicitud_id' => $id, 'observaciones' => $solicitud->observaciones]
+        );
+
+        return redirect()->back()->with('warning', "La solicitud de {$solicitud->estudiante->nombre_completo} ha sido rechazada.");
     }
 
     /**
@@ -437,7 +515,12 @@ class CoordinadorController extends Controller
             ->orderBy('nombre_empresa', 'asc')
             ->get();
 
-        return view('coordinador.proyectos', compact('proyectos', 'unidadesReceptoras'));
+        $solicitudesAprobadas = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
+            ->where('estatus', 'aprobada')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('coordinador.proyectos', compact('proyectos', 'unidadesReceptoras', 'solicitudesAprobadas'));
     }
 
     /**
@@ -958,54 +1041,5 @@ class CoordinadorController extends Controller
                 'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
             ], 500);
         }
-    }
-
-    /**
-     * Display tramites (applications and documents) for coordinator.
-     */
-    public function tramites()
-    {
-        if (auth()->user()->rol_id != 2) {
-            return redirect('/');
-        }
-
-        $solicitudes = Solicitud::with(['estudiante', 'unidadReceptora'])
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $documentosPendientes = Documento::with(['solicitud.estudiante'])
-            ->where('estatus', 'pendiente')
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $documentosValidados = Documento::with(['solicitud.estudiante'])
-            ->whereIn('estatus', ['aprobado', 'rechazado', 'validado'])
-            ->orderBy('id', 'desc')
-            ->get();
-
-        return view('coordinador.tramites', compact('solicitudes', 'documentosPendientes', 'documentosValidados'));
-    }
-
-    /**
-     * Update estatus and observaciones for a solicitud.
-     */
-    public function updateSolicitudEstatus(Request $request, $id)
-    {
-        if (auth()->user()->rol_id != 2) {
-            return redirect('/');
-        }
-
-        $request->validate([
-            'estatus' => 'required|in:aprobada,rechazada,pendiente,en_proceso,finalizada',
-            'observaciones' => 'nullable|string|max:50',
-        ]);
-
-        $solicitud = Solicitud::findOrFail($id);
-        $solicitud->estatus = $request->estatus;
-        $solicitud->observaciones = $request->observaciones ?? '';
-        $solicitud->save();
-
-        $accion = $request->estatus === 'aprobada' ? 'aprobada' : ($request->estatus === 'rechazada' ? 'rechazada' : 'actualizada');
-        return redirect()->route('coordinador.tramites')->with('success', "La solicitud #{$solicitud->id} ha sido {$accion} exitosamente.");
     }
 }

@@ -60,7 +60,15 @@
             'sector' => 'N/A'
         ];
     @endphp
-    <div class="mt-6 flex justify-end">
+    <div class="mt-6 flex justify-end gap-3">
+        @if(in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
+            <a href="{{ route('estudiante.cartaPresentacion', $solicitud->id) }}" 
+               target="_blank" 
+               class="inline-flex items-center gap-2 rounded-full bg-[#4E7D24] px-4 py-2 text-sm font-semibold text-white shadow-md hover:shadow-lg transition hover:bg-[#3b6620] cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Carta de Presentación
+            </a>
+        @endif
         <button type="button" 
                 data-unidad="{{ json_encode($unidadData) }}"
                 onclick="openUnidadModal(JSON.parse(this.getAttribute('data-unidad')))" 
