@@ -95,7 +95,6 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
     Route::get('/estudiante/solicitudes/{id}/carta-presentacion', [DashboardController::class, 'cartaPresentacion'])->name('estudiante.cartaPresentacion');
     Route::get('/estudiante/solicitudes/{id}/plan-trabajo', [DashboardController::class, 'planTrabajo'])->name('estudiante.planTrabajo');
-    Route::get('/estudiante/notificaciones', [DashboardController::class, 'notificaciones'])->name('estudiante.notificaciones');
 
     Route::get('/estudiante/proyecto', [DashboardController::class, 'proyecto'])->name('estudiante.proyecto');
     Route::post('/estudiante/proyecto/subir-documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
