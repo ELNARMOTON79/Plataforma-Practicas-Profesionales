@@ -92,6 +92,137 @@ class CoordinadorController extends Controller
     /**
      * Show the tramites (procedures) page with practice applications.
      */
+    public function informes()
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+        return view('coordinador.informes');
+    }
+
+    /**
+     * Export reports (PDF / Excel) based on filters.
+     */
+    public function exportInformes(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $format = strtoupper($request->query('format', 'PDF'));
+        $tipoReporte = $request->query('tipo_reporte', 'Reporte de Estudiantes Activos');
+        $carrera = $request->query('carrera');
+        $genero = $request->query('genero');
+
+        // Logic to fetch data based on $tipoReporte
+        $filterLabels = [];
+        $filterLabels[] = "Tipo: {$tipoReporte}";
+
+        if ($tipoReporte === 'Reporte de Instituciones') {
+            $data = DB::table('unidades_receptoras')
+                ->select([
+                    DB::raw('nombre_empresa'),
+                    DB::raw('MIN(id) as id'),
+                    DB::raw('MIN(direccion) as direccion'),
+                    DB::raw('MIN(tipo_persona) as tipo_persona'),
+                ])
+                ->groupBy('nombre_empresa')
+                ->get();
+        } elseif ($tipoReporte === 'Reporte de Proyectos') {
+            $data = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
+                ->where('estatus', 'aprobada')
+                ->orderBy('id', 'desc')
+                ->get();
+        } else {
+            // Default: Reporte de Estudiantes Activos (solo asignados)
+            $query = Alumno::with('user');
+            if ($carrera) {
+                $query->where('carrera', $carrera);
+                $filterLabels[] = "Carrera: {$carrera}";
+            }
+            if ($genero) {
+                // Si la BD tuviera género, se filtraría aquí
+                $filterLabels[] = "Género: {$genero}";
+            }
+            $filterLabels[] = "Estado: Asignado";
+            
+            // Filtramos la colección por el atributo dinámico del modelo
+            $data = $query->get()->filter(function ($alumno) {
+                return $alumno->estatus === 'ASIGNADO';
+            })->values();
+        }
+
+        if ($format === 'PDF') {
+            $user = auth()->user();
+            $coordinadorName = $user->coordinador->nombre_completo ?? $user->correo;
+            
+            $filterText = implode(' | ', $filterLabels);
+            
+            return view('coordinador.informes_pdf', compact('data', 'coordinadorName', 'filterText', 'tipoReporte'));
+        }
+
+        if ($format === 'EXCEL') {
+            $filename = "reporte_" . date('Ymd_His') . ".csv";
+            
+            $headers = [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0'
+            ];
+
+            $callback = function() use ($data, $tipoReporte) {
+                $file = fopen('php://output', 'w');
+                // Añadir BOM para que Excel lea los caracteres especiales (tildes, eñes)
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+                if ($tipoReporte === 'Reporte de Instituciones') {
+                    fputcsv($file, ['Empresa / Institucion', 'Direccion', 'Tipo Persona']);
+                    foreach ($data as $item) {
+                        fputcsv($file, [
+                            $item->nombre_empresa,
+                            $item->direccion,
+                            $item->tipo_persona
+                        ]);
+                    }
+                } elseif ($tipoReporte === 'Reporte de Proyectos') {
+                    fputcsv($file, ['Estudiante', 'Matricula', 'Institucion', 'Proyecto Propuesto', 'Fecha Inicio', 'Fecha Fin']);
+                    foreach ($data as $item) {
+                        fputcsv($file, [
+                            $item->estudiante->nombre_completo ?? 'Sin Nombre',
+                            $item->estudiante->matricula ?? 'N/A',
+                            $item->unidadReceptora->nombre_empresa ?? 'N/A',
+                            $item->titulo ?? 'Sin titulo',
+                            $item->fecha_inicio ? $item->fecha_inicio->format('d/m/Y') : 'N/A',
+                            $item->fecha_fin ? $item->fecha_fin->format('d/m/Y') : 'N/A'
+                        ]);
+                    }
+                } else {
+                    fputcsv($file, ['Nombre Completo', 'Correo', 'Matricula', 'Carrera', 'Semestre', 'Grupo']);
+                    foreach ($data as $item) {
+                        fputcsv($file, [
+                            $item->nombre_completo,
+                            $item->user->correo ?? 'N/A',
+                            $item->matricula,
+                            $item->carrera,
+                            $item->semestre,
+                            $item->grupo
+                        ]);
+                    }
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        }
+
+        return back()->with('error', 'Formato no soportado.');
+    }
+
+    /**
+     * Show the tramites (procedures) page with practice applications.
+     */
     public function tramites()
     {
         if (auth()->user()->rol_id != 2) {

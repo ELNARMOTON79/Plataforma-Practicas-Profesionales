@@ -394,6 +394,7 @@
                     firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
+        });
     });
 </script>
         </div>

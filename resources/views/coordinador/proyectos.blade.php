@@ -120,31 +120,31 @@
     <!-- Vanilla Javascript Dynamic Engine -->
     <script>
         // Build JS dictionary dynamically for approved solicitudes
-        const solicitudesData = {
+        window.solicitudesData = {
             @foreach($solicitudesAprobadas as $sol)
                 "{{ $sol->id }}": {
-                    estudiante: "{{ e($sol->estudiante->nombre_completo ?? 'Sin Nombre') }}",
-                    matricula: "{{ e($sol->estudiante->matricula ?? '—') }}",
-                    carrera: "{{ e($sol->estudiante->carrera ?? '—') }}",
-                    semestre: "{{ e($sol->estudiante->semestre ?? '—') }}",
-                    grupo: "{{ e($sol->estudiante->grupo ?? '—') }}",
-                    unidad: "{{ e($sol->unidadReceptora->nombre_empresa ?? 'No especificada') }}",
-                    departamento: "{{ e($sol->unidadReceptora->unidad_receptora ?? 'General') }}",
-                    responsable: "{{ e($sol->responsable ?? '—') }}",
-                    inicio: "{{ $sol->fecha_inicio ? $sol->fecha_inicio->format('d/m/Y') : '—' }}",
-                    fin: "{{ $sol->fecha_fin ? $sol->fecha_fin->format('d/m/Y') : '—' }}",
-                    estatus: "{{ $sol->estatus }}",
-                    titulo: "{{ e($sol->titulo ?? 'Sin título') }}",
-                    objetivo: {!! json_encode($sol->objetivo ?? '—') !!},
-                    justificacion: {!! json_encode($sol->justificacion ?? '—') !!},
-                    actividades: {!! json_encode($sol->actividades ?? '—') !!},
-                    impacto: {!! json_encode($sol->impacto_social ?? '—') !!}
+                    estudiante: @json($sol->estudiante->nombre_completo ?? 'Sin Nombre'),
+                    matricula: @json($sol->estudiante->matricula ?? '—'),
+                    carrera: @json($sol->estudiante->carrera ?? '—'),
+                    semestre: @json($sol->estudiante->semestre ?? '—'),
+                    grupo: @json($sol->estudiante->grupo ?? '—'),
+                    unidad: @json($sol->unidadReceptora->nombre_empresa ?? 'No especificada'),
+                    departamento: @json($sol->unidadReceptora->unidad_receptora ?? 'General'),
+                    responsable: @json($sol->responsable ?? '—'),
+                    inicio: @json($sol->fecha_inicio ? $sol->fecha_inicio->format('d/m/Y') : '—'),
+                    fin: @json($sol->fecha_fin ? $sol->fecha_fin->format('d/m/Y') : '—'),
+                    estatus: @json($sol->estatus),
+                    titulo: @json($sol->titulo ?? 'Sin título'),
+                    objetivo: @json($sol->objetivo ?? '—'),
+                    justificacion: @json($sol->justificacion ?? '—'),
+                    actividades: @json($sol->actividades ?? '—'),
+                    impacto: @json($sol->impacto_social ?? '—')
                 },
             @endforeach
         };
 
         window.verDetallesSolicitud = function(id) {
-            const sol = solicitudesData[id];
+            const sol = window.solicitudesData[id];
             if (!sol) return;
 
             document.getElementById('view-sol-estudiante').textContent = sol.estudiante;
@@ -177,20 +177,20 @@
             const projectDetails = {
                 @foreach($proyectos as $proyecto)
                     "{{ $proyecto->id }}": {
-                        id: "{{ $proyecto->id }}",
-                        titulo: "{{ $proyecto->titulo }}",
-                        unidad: "{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}",
-                        unidadId: "{{ $proyecto->unidad_receptora_id }}",
-                        tipoProyecto: "{{ $proyecto->tipo_proyecto }}",
-                        tipoModalidad: "{{ $proyecto->tipo_modalidad }}",
+                        id: @json($proyecto->id),
+                        titulo: @json($proyecto->titulo),
+                        unidad: @json(optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad'),
+                        unidadId: @json($proyecto->unidad_receptora_id),
+                        tipoProyecto: @json($proyecto->tipo_proyecto),
+                        tipoModalidad: @json($proyecto->tipo_modalidad),
                         objetivo: @json($proyecto->objetivo),
                         justificacion: @json($proyecto->justificacion),
                         actividades: @json($proyecto->actividades),
                         impactoSocial: @json($proyecto->impacto_social),
-                        publicoInternet: "{{ $proyecto->publico_internet }}",
-                        plan: "{{ $proyecto->plan }}",
-                        ciclo: "{{ $proyecto->ciclo_escolar }}",
-                        cupo: "{{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}"
+                        publicoInternet: @json($proyecto->publico_internet),
+                        plan: @json($proyecto->plan),
+                        ciclo: @json($proyecto->ciclo_escolar),
+                        cupo: @json($proyecto->cupos_ocupados . ' / ' . $proyecto->cupos_totales)
                     },
                 @endforeach
             };

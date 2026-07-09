@@ -109,7 +109,7 @@
 
     <!-- Script to Auto-dismiss success alert after 5 seconds -->
     <script>
-        const successAlert = document.getElementById('successAlert');
+        var successAlert = document.getElementById('successAlert');
         if (successAlert) {
             setTimeout(() => {
                 successAlert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';

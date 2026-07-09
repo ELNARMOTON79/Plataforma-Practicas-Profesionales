@@ -73,7 +73,7 @@
 
             <div class="space-y-4 flex-grow flex flex-col justify-center">
                 <!-- PDF Export -->
-                <button class="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-4" aria-label="Exportar reporte a PDF">
+                <button type="button" onclick="exportarReporte('PDF')" class="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-4" aria-label="Exportar reporte a PDF">
                     <div class="bg-white/20 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-inner">
                         <svg class="w-8 h-8 text-white" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     </div>
@@ -84,7 +84,7 @@
                 </button>
 
                 <!-- Excel Export -->
-                <button class="w-full group bg-gradient-to-r from-[#2E5417] to-[#4E7D24] hover:from-[#1f380f] hover:to-[#2E5417] text-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-4" aria-label="Exportar reporte a Excel">
+                <button onclick="exportarReporte('Excel')" class="w-full group bg-gradient-to-r from-[#2E5417] to-[#4E7D24] hover:from-[#1f380f] hover:to-[#2E5417] text-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-4" aria-label="Exportar reporte a Excel">
                     <div class="bg-white/20 p-3 rounded-xl group-hover:scale-110 transition-transform shadow-inner">
                         <svg class="w-8 h-8 text-white" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </div>
@@ -107,4 +107,25 @@
             padding-right: 2.5rem;
         }
     </style>
+
+    <script>
+        function exportarReporte(formato) {
+            const tipoReporte = document.getElementById('tipo-reporte').value;
+            const carrera = document.getElementById('filtro-carrera').value;
+            const genero = document.getElementById('filtro-genero').value;
+
+            // Construir la URL con los filtros apuntando a la nueva ruta de exportación
+            const url = new URL("{{ route('coordinador.informes.export') }}");
+            url.searchParams.set('format', formato);
+            url.searchParams.set('tipo_reporte', tipoReporte);
+            if (carrera) url.searchParams.set('carrera', carrera);
+            if (genero) url.searchParams.set('genero', genero);
+
+            if (formato === 'PDF') {
+                window.open(url.toString(), '_blank');
+            } else if (formato === 'Excel') {
+                window.location.href = url.toString();
+            }
+        }
+    </script>
 @endsection

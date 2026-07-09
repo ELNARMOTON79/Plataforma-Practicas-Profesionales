@@ -268,32 +268,32 @@
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script>
         // Build JS dictionary dynamically from Eloquent items for view modal prefilling
-        const solicitudesData = {
+        window.solicitudesData = {
             @foreach($solicitudes as $solicitud)
                 "{{ $solicitud->id }}": {
-                    estudiante: "{{ e($solicitud->estudiante->nombre_completo ?? 'Sin Nombre') }}",
-                    matricula: "{{ e($solicitud->estudiante->matricula ?? '—') }}",
-                    carrera: "{{ e($solicitud->estudiante->carrera ?? '—') }}",
-                    semestre: "{{ e($solicitud->estudiante->semestre ?? '—') }}",
-                    grupo: "{{ e($solicitud->estudiante->grupo ?? '—') }}",
-                    unidad: "{{ e($solicitud->unidadReceptora->nombre_empresa ?? 'No especificada') }}",
-                    departamento: "{{ e($solicitud->unidadReceptora->unidad_receptora ?? 'General') }}",
-                    responsable: "{{ e($solicitud->responsable ?? '—') }}",
-                    inicio: "{{ $solicitud->fecha_inicio ? $solicitud->fecha_inicio->format('d/m/Y') : '—' }}",
-                    fin: "{{ $solicitud->fecha_fin ? $solicitud->fecha_fin->format('d/m/Y') : '—' }}",
-                    estatus: "{{ $solicitud->estatus }}",
-                    titulo: "{{ e($solicitud->titulo ?? 'Sin título') }}",
-                    objetivo: {!! json_encode($solicitud->objetivo ?? '—') !!},
-                    justificacion: {!! json_encode($solicitud->justificacion ?? '—') !!},
-                    actividades: {!! json_encode($solicitud->actividades ?? '—') !!},
-                    impacto: {!! json_encode($solicitud->impacto_social ?? '—') !!},
-                    observaciones: {!! json_encode($solicitud->observaciones ?? 'Ninguna') !!}
+                    estudiante: @json($solicitud->estudiante->nombre_completo ?? 'Sin Nombre'),
+                    matricula: @json($solicitud->estudiante->matricula ?? '—'),
+                    carrera: @json($solicitud->estudiante->carrera ?? '—'),
+                    semestre: @json($solicitud->estudiante->semestre ?? '—'),
+                    grupo: @json($solicitud->estudiante->grupo ?? '—'),
+                    unidad: @json($solicitud->unidadReceptora->nombre_empresa ?? 'No especificada'),
+                    departamento: @json($solicitud->unidadReceptora->unidad_receptora ?? 'General'),
+                    responsable: @json($solicitud->responsable ?? '—'),
+                    inicio: @json($solicitud->fecha_inicio ? $solicitud->fecha_inicio->format('d/m/Y') : '—'),
+                    fin: @json($solicitud->fecha_fin ? $solicitud->fecha_fin->format('d/m/Y') : '—'),
+                    estatus: @json($solicitud->estatus),
+                    titulo: @json($solicitud->titulo ?? 'Sin título'),
+                    objetivo: @json($solicitud->objetivo ?? '—'),
+                    justificacion: @json($solicitud->justificacion ?? '—'),
+                    actividades: @json($solicitud->actividades ?? '—'),
+                    impacto: @json($solicitud->impacto_social ?? '—'),
+                    observaciones: @json($solicitud->observaciones ?? 'Ninguna')
                 },
             @endforeach
         };
 
         window.verDetallesSolicitud = function(id) {
-            const sol = solicitudesData[id];
+            const sol = window.solicitudesData[id];
             if (!sol) return;
 
             document.getElementById('view-sol-estudiante').textContent = sol.estudiante;
@@ -359,7 +359,7 @@
         };
 
         // Auto-dismiss alerts
-        const successAlert = document.getElementById('successAlert');
+        var successAlert = document.getElementById('successAlert');
         if (successAlert) {
             setTimeout(() => {
                 successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
@@ -367,7 +367,7 @@
             }, 5000);
         }
 
-        const warningAlert = document.getElementById('warningAlert');
+        var warningAlert = document.getElementById('warningAlert');
         if (warningAlert) {
             setTimeout(() => {
                 warningAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');

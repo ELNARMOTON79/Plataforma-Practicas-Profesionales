@@ -73,10 +73,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/coordinador/documentos/{id}/aprobar', [CoordinadorController::class, 'aprobarDocumento'])->name('coordinador.documentos.aprobar');
     Route::post('/coordinador/documentos/{id}/rechazar', [CoordinadorController::class, 'rechazarDocumento'])->name('coordinador.documentos.rechazar');
 
-    Route::get('/coordinador/informes', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.informes');
-    })->name('coordinador.informes');
+    Route::get('/coordinador/informes', [CoordinadorController::class, 'informes'])->name('coordinador.informes');
+    Route::get('/coordinador/informes/export', [CoordinadorController::class, 'exportInformes'])->name('coordinador.informes.export');
 
     Route::get('/coordinador/perfil', [App\Http\Controllers\CoordinadorController::class, 'perfil'])->name('coordinador.perfil');
     Route::post('/coordinador/perfil/password', [App\Http\Controllers\CoordinadorController::class, 'updatePassword'])->name('coordinador.perfil.password');
