@@ -17,6 +17,8 @@ class Documento extends Model
         'nombre_doc',
         'ruta_archivo',
         'fecha_carga',
+        'estatus',
+        'observaciones',
     ];
 
     protected $casts = [

@@ -3,7 +3,7 @@
      Variables: $solicitud
      Depends on: <x-estudiante.doc-card /> component, JS functions openUploadModal / simulateViewPdf
 --}}
-<div class="glass-card rounded-3xl p-6 fade-in-up delay-350">
+<div class="glass-card rounded-3xl p-6 fade-in-up delay-350" id="expediente-digital">
     <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
         <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,6 +36,19 @@
         </div>
     @endunless
 
+    @php
+        $documentosCargados = $solicitud ? $solicitud->documentos->keyBy('nombre_doc') : collect([]);
+        
+        $getOnView = function($docName) use ($documentosCargados) {
+            $doc = $documentosCargados->get($docName);
+            if (!$doc) return '';
+            $url = str_starts_with($doc->ruta_archivo, 'http')
+                ? $doc->ruta_archivo
+                : asset($doc->ruta_archivo);
+            return "window.open('" . $url . "', '_blank')";
+        };
+    @endphp
+
     {{-- Phase columns — blurred/disabled when not approved --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative
                 {{ !$solicitudActiva ? 'opacity-45 pointer-events-none select-none blur-[1px]' : '' }}">
@@ -48,14 +61,17 @@
             <x-estudiante.doc-card
                 :doc-id="1"
                 title="Carta de Presentación"
-                status="system"
-                on-generate="window.open('{{ route('estudiante.cartaPresentacion', $solicitud->id) }}', '_blank')" />
+                status="{{ $expediente['Carta de Presentación'] ?? 'pending' }}"
+                on-generate="window.open('{{ route('estudiante.cartaPresentacion', $solicitud->id) }}', '_blank')"
+                on-upload="openUploadModal(1, 'Carta de Presentación')"
+                on-view="{!! $getOnView('Carta de Presentación') !!}" />
 
             <x-estudiante.doc-card
                 :doc-id="2"
                 title="Carta de Aceptación"
-                status="pending"
-                on-upload="openUploadModal(2, 'Carta de Aceptación')" />
+                status="{{ $expediente['Carta de Aceptación'] ?? 'pending' }}"
+                on-upload="openUploadModal(2, 'Carta de Aceptación')"
+                on-view="{!! $getOnView('Carta de Aceptación') !!}" />
         </div>
 
         {{-- Phase 2: Ejecución --}}
@@ -66,14 +82,17 @@
             <x-estudiante.doc-card
                 :doc-id="3"
                 title="Plan de Trabajo"
-                status="pending"
-                on-upload="openUploadModal(3, 'Plan de Trabajo')" />
+                status="{{ $expediente['Plan de Trabajo'] ?? 'pending' }}"
+                on-generate="window.open('{{ route('estudiante.planTrabajo', $solicitud->id) }}', '_blank')"
+                on-upload="openUploadModal(3, 'Plan de Trabajo')"
+                on-view="{!! $getOnView('Plan de Trabajo') !!}" />
 
             <x-estudiante.doc-card
                 :doc-id="4"
                 title="Memoria de Prácticas"
-                status="pending"
-                on-upload="openUploadModal(4, 'Memoria de Prácticas')" />
+                status="{{ $expediente['Memoria de Prácticas'] ?? 'pending' }}"
+                on-upload="openUploadModal(4, 'Memoria de Prácticas')"
+                on-view="{!! $getOnView('Memoria de Prácticas') !!}" />
         </div>
 
         {{-- Phase 3: Cierre --}}
@@ -84,14 +103,16 @@
             <x-estudiante.doc-card
                 :doc-id="5"
                 title="Evaluación de Desempeño"
-                status="pending"
-                on-upload="openUploadModal(5, 'Evaluación de Desempeño')" />
+                status="{{ $expediente['Evaluación de Desempeño'] ?? 'pending' }}"
+                on-upload="openUploadModal(5, 'Evaluación de Desempeño')"
+                on-view="{!! $getOnView('Evaluación de Desempeño') !!}" />
 
             <x-estudiante.doc-card
                 :doc-id="6"
                 title="Carta de Término"
-                status="pending"
-                on-upload="openUploadModal(6, 'Carta de Término')" />
+                status="{{ $expediente['Carta de Término'] ?? 'pending' }}"
+                on-upload="openUploadModal(6, 'Carta de Término')"
+                on-view="{!! $getOnView('Carta de Término') !!}" />
         </div>
 
     </div>

@@ -48,6 +48,7 @@
         activeDocName = docName;
 
         document.getElementById('uploadModalDocName').textContent = docName;
+        document.getElementById('uploadDocNameInput').value       = docName;
         document.getElementById('uploadFileText').textContent     = 'Seleccionar Archivo PDF';
         document.getElementById('simPdfInput').value              = '';
 
@@ -88,59 +89,7 @@
             return;
         }
 
-        closeUploadModal();
-
-        const badge   = document.getElementById(`docBadge-${activeDocId}`);
-        const row     = document.getElementById(`docRow-${activeDocId}`);
-        const actions = document.getElementById(`docActions-${activeDocId}`);
-        const icon    = document.getElementById(`docIconContainer-${activeDocId}`);
-
-        // Update badge to "En Revisión"
-        if (badge) {
-            badge.className  = 'inline-block text-[9px] font-bold text-yellow-700 bg-yellow-50 px-2 py-0.5 rounded mt-1 border border-yellow-100';
-            badge.textContent = 'En Revisión';
-        }
-
-        // Update card appearance
-        if (row && row.classList.contains('border-dashed')) {
-            row.className = 'bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors shadow-sm';
-
-            if (icon) {
-                icon.className = 'p-2 bg-yellow-50 text-yellow-600 rounded-xl';
-                icon.innerHTML = `
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>`;
-            }
-
-            // Append view button to header
-            const topDiv = row.querySelector('.flex.items-center.gap-2.mb-4') ?? row.querySelector('.flex');
-            if (topDiv) {
-                topDiv.className = 'flex items-center justify-between gap-2 mb-4 w-full';
-                const viewBtn = document.createElement('button');
-                viewBtn.onclick   = () => simulateViewPdf(activeDocName, 'En Revisión');
-                viewBtn.className = 'text-gray-400 hover:text-gray-700 transition-all';
-                viewBtn.innerHTML = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>`;
-                topDiv.appendChild(viewBtn);
-            }
-
-            if (actions) {
-                actions.innerHTML = `
-                    <button onclick="openUploadModal(${activeDocId}, '${activeDocName}')"
-                            class="w-full text-center py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">
-                        Volver a Subir
-                    </button>`;
-            }
-        }
-
-        showToast('¡Expediente Actualizado!', `El documento "${activeDocName}" ha sido cargado. Su estado es "En Revisión".`);
+        document.getElementById('uploadDocumentForm').submit();
     }
 
     // ─────────────────────────────────────────────────────────────

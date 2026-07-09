@@ -70,6 +70,8 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::get('/coordinador/tramites', [CoordinadorController::class, 'tramites'])->name('coordinador.tramites');
     Route::post('/coordinador/solicitudes/{id}/aprobar', [CoordinadorController::class, 'aprobarSolicitud'])->name('coordinador.solicitudes.aprobar');
     Route::post('/coordinador/solicitudes/{id}/rechazar', [CoordinadorController::class, 'rechazarSolicitud'])->name('coordinador.solicitudes.rechazar');
+    Route::post('/coordinador/documentos/{id}/aprobar', [CoordinadorController::class, 'aprobarDocumento'])->name('coordinador.documentos.aprobar');
+    Route::post('/coordinador/documentos/{id}/rechazar', [CoordinadorController::class, 'rechazarDocumento'])->name('coordinador.documentos.rechazar');
 
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
@@ -92,9 +94,11 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::get('/estudiante/nueva-solicitud/documentacion', [DashboardController::class, 'documentacionSolicitud'])->name('estudiante.nuevaSolicitudDocumentacion');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
     Route::get('/estudiante/solicitudes/{id}/carta-presentacion', [DashboardController::class, 'cartaPresentacion'])->name('estudiante.cartaPresentacion');
+    Route::get('/estudiante/solicitudes/{id}/plan-trabajo', [DashboardController::class, 'planTrabajo'])->name('estudiante.planTrabajo');
     Route::get('/estudiante/notificaciones', [DashboardController::class, 'notificaciones'])->name('estudiante.notificaciones');
 
     Route::get('/estudiante/proyecto', [DashboardController::class, 'proyecto'])->name('estudiante.proyecto');
+    Route::post('/estudiante/proyecto/subir-documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
 
     Route::get('/empresa/dashboard', function () {
         if (auth()->user()->rol_id != 4) return redirect('/');

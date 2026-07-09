@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -38,18 +40,106 @@ class DashboardController extends Controller
         $horasCompletadas = 0;
         $solicitudesActivas = 0;
         $documentosPendientes = 0;
+        $porcentajeDocumentos = 0;
+        $expediente = [];
 
         if ($estudiante) {
-            $solicitudIds = Solicitud::where('estudiante_id', $estudiante->id)
-                ->whereIn('estatus', ['pendiente', 'aprobada', 'en_proceso'])
-                ->pluck('id');
+            $solicitud = Solicitud::where('estudiante_id', $estudiante->id)
+                ->orderByDesc('id')
+                ->first();
 
-            $solicitudesActivas = $solicitudIds->count();
+            if ($solicitud && in_array($solicitud->estatus, ['pendiente', 'aprobada', 'en_proceso', 'finalizada'])) {
+                $solicitudesActivas = 1;
+                $horasCompletadas = (float) Hora::where('solicitud_id', $solicitud->id)->sum('cantidad_horas');
+                
+                // Mapear el expediente digital de documentos del alumno
+                $documentosCargados = Documento::where('solicitud_id', $solicitud->id)->get()->keyBy('nombre_doc');
 
-            $horasCompletadas = (float) Hora::whereIn('solicitud_id', $solicitudIds)->sum('cantidad_horas');
+                // 1. Carta de Presentación (Generada por sistema)
+                $isApprovedSolicitud = in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']);
+                $statusPres = $isApprovedSolicitud ? 'system' : 'pending';
+                
+                $expediente[] = [
+                    'title' => 'Carta de Presentación',
+                    'status' => $statusPres,
+                    'label' => $statusPres === 'system' ? 'Listo para Generar' : 'Bloqueado',
+                    'badgeClass' => $statusPres === 'system' ? 'text-blue-700 bg-blue-50/80 border-blue-150' : 'text-gray-500 bg-gray-50 border-gray-200',
+                    'iconBg' => $statusPres === 'system' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-400',
+                ];
 
-            $totalDocs = Documento::whereIn('solicitud_id', $solicitudIds)->count();
-            $documentosPendientes = max(0, ($solicitudesActivas * self::DOCS_REQUERIDOS) - $totalDocs);
+                // Los otros 5 documentos a subir por el estudiante
+                $docsALoad = [
+                    'Carta de Aceptación',
+                    'Plan de Trabajo',
+                    'Memoria de Prácticas',
+                    'Evaluación de Desempeño',
+                    'Carta de Término',
+                ];
+
+                $aprobadosCount = ($statusPres === 'approved') ? 1 : 0;
+                $previousAprobada = ($statusPres === 'approved');
+
+                foreach ($docsALoad as $docName) {
+                    $dbDoc = $documentosCargados->get($docName);
+                    
+                    if ($dbDoc) {
+                        if ($dbDoc->estatus === 'aprobado') {
+                            $status = 'approved';
+                            $label = 'Aprobado';
+                            $badgeClass = 'text-green-700 bg-green-50 border-green-200';
+                            $iconBg = 'bg-green-50 text-green-600';
+                            $aprobadosCount++;
+                        } elseif ($dbDoc->estatus === 'pendiente') {
+                            $status = 'review';
+                            $label = 'En Revisión';
+                            $badgeClass = 'text-yellow-700 bg-yellow-50 border-yellow-100';
+                            $iconBg = 'bg-yellow-50 text-yellow-600';
+                        } else {
+                            // rechazado
+                            $status = 'rejected';
+                            $label = 'Rechazado';
+                            $badgeClass = 'text-red-700 bg-red-50 border-red-200';
+                            $iconBg = 'bg-red-50 text-red-600';
+                        }
+                    } else {
+                        if (!$previousAprobada) {
+                            $status = 'locked';
+                            $label = 'Bloqueado';
+                            $badgeClass = 'text-gray-400 bg-gray-100 border-gray-200';
+                            $iconBg = 'bg-gray-100 text-gray-400';
+                        } else {
+                            if ($docName === 'Plan de Trabajo' && $isApprovedSolicitud) {
+                                $status = 'system';
+                                $label = 'Listo para Generar';
+                                $badgeClass = 'text-blue-700 bg-blue-50/80 border-blue-150';
+                                $iconBg = 'bg-blue-50 text-blue-600';
+                            } else {
+                                $status = 'pending';
+                                $label = 'Sin Subir';
+                                $badgeClass = 'text-gray-500 bg-gray-50 border-gray-200';
+                                $iconBg = 'bg-gray-50 text-gray-400';
+                            }
+                        }
+                    }
+
+                    $expediente[] = [
+                        'title' => $docName,
+                        'status' => $status,
+                        'label' => $label,
+                        'badgeClass' => $badgeClass,
+                        'iconBg' => $iconBg,
+                    ];
+                    
+                    $previousAprobada = ($dbDoc && $dbDoc->estatus === 'aprobado');
+                }
+
+                // Cálculo exacto de pendientes y porcentaje total
+                $docsAprobadosCount = Documento::where('solicitud_id', $solicitud->id)
+                    ->where('estatus', 'aprobado')
+                    ->count();
+                $documentosPendientes = max(0, 5 - $docsAprobadosCount);
+                $porcentajeDocumentos = (int) round(($aprobadosCount / 6) * 100);
+            }
         }
 
         $porcentajeHoras = self::HORAS_META > 0
@@ -68,6 +158,9 @@ class DashboardController extends Controller
             'porcentajeHoras' => $porcentajeHoras,
             'solicitudesActivas' => $solicitudesActivas,
             'documentosPendientes' => $documentosPendientes,
+            'porcentajeDocumentos' => $porcentajeDocumentos,
+            'expediente' => $expediente,
+            'solicitud' => $solicitud,
             'actividadReciente' => $this->actividadReciente($estudiante),
             'proximosVencimientos' => $this->proximosVencimientos($estudiante),
         ]);
@@ -421,6 +514,36 @@ class DashboardController extends Controller
         return view('estudiante.carta_presentacion', compact('solicitud'));
     }
 
+    public function planTrabajo($id)
+    {
+        if (Auth::user()?->rol_id != 3 && Auth::user()?->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $user = Auth::user();
+        $solicitud = Solicitud::with(['estudiante', 'unidadReceptora'])->findOrFail($id);
+
+        // Security ownership check for student role
+        if ($user->rol_id == 3) {
+            $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+            if (!$estudiante || $solicitud->estudiante_id != $estudiante->id) {
+                abort(403, 'No autorizado.');
+            }
+        }
+
+        // Check if solicitud is approved
+        if (!in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'])) {
+            return redirect()->back()->with('error', 'La solicitud debe estar aprobada para generar el plan de trabajo.');
+        }
+
+        // Get coordinator details
+        $coordinador = User::where('rol_id', 2)->first();
+        $coordinadorName = $coordinador?->coordinador?->nombre_completo ?? 'Coordinador de Prácticas Profesionales';
+        $coordinadorEmail = $coordinador?->correo ?? 'correo@ucol.mx';
+
+        return view('estudiante.plan_trabajo', compact('solicitud', 'coordinadorName', 'coordinadorEmail'));
+    }
+
     public function proyecto()
     {
         if (Auth::user()?->rol_id != 3) {
@@ -456,6 +579,73 @@ class DashboardController extends Controller
         $totalDocsSubidos = $documentos->count();
         $totalDocsMeta = 6;
 
+        $expediente = [];
+        if ($solicitud) {
+            $documentosCargados = $solicitud->documentos->keyBy('nombre_doc');
+
+            // 1. Carta de Presentación
+            $isApprovedSolicitud = in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']);
+            $dbPres = $documentosCargados->get('Carta de Presentación');
+            if ($dbPres) {
+                if ($dbPres->estatus === 'aprobado') {
+                    $statusCartaPres = 'approved';
+                } elseif ($dbPres->estatus === 'pendiente') {
+                    $statusCartaPres = 'review';
+                } else {
+                    $statusCartaPres = 'rejected';
+                }
+            } else {
+                $statusCartaPres = $isApprovedSolicitud ? 'system' : 'pending';
+            }
+            $expediente['Carta de Presentación'] = $statusCartaPres;
+
+            // Los otros 5 documentos
+            $docsALoad = [
+                'Carta de Aceptación',
+                'Plan de Trabajo',
+                'Memoria de Prácticas',
+                'Evaluación de Desempeño',
+                'Carta de Término',
+            ];
+
+            $previousAprobada = ($statusCartaPres === 'approved');
+
+            foreach ($docsALoad as $docName) {
+                $dbDoc = $documentosCargados->get($docName);
+                if ($dbDoc) {
+                    if ($dbDoc->estatus === 'aprobado') {
+                        $status = 'approved';
+                    } elseif ($dbDoc->estatus === 'pendiente') {
+                        $status = 'review';
+                    } else {
+                        $status = 'rejected';
+                    }
+                } else {
+                    if (!$previousAprobada) {
+                        $status = 'locked';
+                    } else {
+                        if ($docName === 'Plan de Trabajo' && $isApprovedSolicitud) {
+                            $status = 'system';
+                        } else {
+                            $status = 'pending';
+                        }
+                    }
+                }
+                $expediente[$docName] = $status;
+                
+                $previousAprobada = ($dbDoc && $dbDoc->estatus === 'aprobado');
+            }
+        } else {
+            $expediente = [
+                'Carta de Presentación' => 'pending',
+                'Carta de Aceptación'   => 'pending',
+                'Plan de Trabajo'       => 'pending',
+                'Memoria de Prácticas'  => 'pending',
+                'Evaluación de Desempeño' => 'pending',
+                'Carta de Término'      => 'pending',
+            ];
+        }
+
         $objetivosTexto = $solicitud?->objetivo
             ?? 'Desarrollo de actividades del plan de trabajo institucional en la unidad receptora.';
 
@@ -480,6 +670,7 @@ class DashboardController extends Controller
             'totalDocsMeta' => $totalDocsMeta,
             'objetivosTexto' => $objetivosTexto,
             'actividadesLista' => $actividadesLista,
+            'expediente' => $expediente,
         ]);
     }
 
@@ -598,5 +789,96 @@ class DashboardController extends Controller
             'finalizada' => 'finalizada',
             default => $estatus,
         };
+    }
+
+    public function subirDocumento(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $request->validate([
+            'solicitud_id' => 'required|exists:solicitudes,id',
+            'nombre_doc' => 'required|string',
+            'archivo' => 'required|file|mimes:pdf|max:5120', // max 5MB PDF
+        ], [
+            'archivo.required' => 'Debes seleccionar un archivo PDF.',
+            'archivo.mimes' => 'El archivo debe estar en formato PDF.',
+            'archivo.max' => 'El archivo no debe pesar más de 5MB.',
+        ]);
+
+        $user = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+        if (!$estudiante) {
+            return back()->with('error', 'No se encontró el perfil de estudiante.');
+        }
+
+        $solicitud = Solicitud::where('id', $request->input('solicitud_id'))
+            ->where('estudiante_id', $estudiante->id)
+            ->firstOrFail();
+
+        // Save file in public/documentos
+        $file = $request->file('archivo');
+        $fileName = 'solicitud_' . $solicitud->id . '_' . Str::slug($request->input('nombre_doc')) . '_' . time() . '.pdf';
+        
+        $dbPath = '';
+        $uploadedToDrive = false;
+
+        // Intentar subir a Google Drive
+        try {
+            $driveService = new \App\Services\GoogleDriveService();
+            $driveResult = $driveService->uploadFile($file->getRealPath(), $fileName, $file->getMimeType());
+            if ($driveResult) {
+                $dbPath = $driveResult['link'];
+                $uploadedToDrive = true;
+            }
+        } catch (\Exception $driveEx) {
+            \Log::error('Carga fallida a Google Drive, usando respaldo local: ' . $driveEx->getMessage());
+        }
+
+        // Si la carga a Drive no está configurada o falló, usar almacenamiento local
+        if (!$uploadedToDrive) {
+            $file->storeAs('documentos', $fileName, 'public');
+            $dbPath = 'storage/documentos/' . $fileName;
+        }
+
+        // Check if document already exists
+        $documento = Documento::where('solicitud_id', $solicitud->id)
+            ->where('nombre_doc', $request->input('nombre_doc'))
+            ->first();
+
+        if ($documento) {
+            // Eliminar el archivo local anterior si existía y no era un link de Drive
+            if ($documento->ruta_archivo && !str_starts_with($documento->ruta_archivo, 'http')) {
+                $oldPath = str_replace('storage/documentos/', 'documentos/', $documento->ruta_archivo);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+
+            $documento->update([
+                'ruta_archivo' => $dbPath,
+                'fecha_carga' => now(),
+                'estatus' => 'pendiente',
+                'observaciones' => null,
+            ]);
+        } else {
+            Documento::create([
+                'solicitud_id' => $solicitud->id,
+                'ur_id' => $solicitud->ur_id,
+                'nombre_doc' => $request->input('nombre_doc'),
+                'ruta_archivo' => $dbPath,
+                'fecha_carga' => now(),
+                'estatus' => 'pendiente',
+            ]);
+        }
+
+        \App\Helpers\ActivityLogger::log(
+            'Expediente',
+            'Carga Documento',
+            "El estudiante cargó el documento '{$request->input('nombre_doc')}' para su revisión.",
+            'info',
+            ['solicitud_id' => $solicitud->id, 'documento' => $request->input('nombre_doc')]
+        );
+
+        return redirect()->route('estudiante.proyecto')->with('success', "El documento '{$request->input('nombre_doc')}' se ha subido correctamente para verificación.");
     }
 }

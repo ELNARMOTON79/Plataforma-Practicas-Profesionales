@@ -185,14 +185,14 @@
                                     </div>
                                 </td>
                                 <td class="px-3 py-4 whitespace-nowrap text-center min-w-[180px]">
-                                    <input type="text" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" value="{{ $doc->observaciones }}" placeholder="Sin notas..." readonly>
+                                    <input type="text" id="obs-doc-{{ $doc->id }}" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" value="{{ $doc->observaciones }}" placeholder="Sin notas...">
                                 </td>
                                 <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center gap-2">
-                                        <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all opacity-50 cursor-not-allowed" disabled>
+                                        <button onclick="confirmarAprobarDoc({{ $doc->id }})" class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all cursor-pointer" title="Aprobar documento" aria-label="Aprobar documento">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         </button>
-                                        <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all opacity-50 cursor-not-allowed" disabled>
+                                        <button onclick="confirmarRechazarDoc({{ $doc->id }})" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all cursor-pointer" title="Rechazar documento" aria-label="Rechazar documento">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                         </button>
                                     </div>
@@ -341,6 +341,23 @@
             document.getElementById('modal-confirmar-rechazar').classList.remove('hidden');
         };
 
+        window.confirmarAprobarDoc = function(id) {
+            const form = document.getElementById('form-aprobar-documento');
+            form.action = `/coordinador/documentos/${id}/aprobar`;
+            document.getElementById('modal-confirmar-aprobar-doc').classList.remove('hidden');
+        };
+
+        window.confirmarRechazarDoc = function(id) {
+            const form = document.getElementById('form-rechazar-documento');
+            form.action = `/coordinador/documentos/${id}/rechazar`;
+            // Pre-fill observations from the editable input in the row
+            const obsInput = document.getElementById('obs-doc-' + id);
+            if (obsInput) {
+                document.getElementById('obs-rechazo-doc').value = obsInput.value;
+            }
+            document.getElementById('modal-confirmar-rechazar-doc').classList.remove('hidden');
+        };
+
         // Auto-dismiss alerts
         const successAlert = document.getElementById('successAlert');
         if (successAlert) {
@@ -440,4 +457,72 @@
 @push('modals')
     @include('coordinador.tramites.view-modal')
     @include('coordinador.tramites.confirm-modal')
+
+    {{-- Modal: Confirmar Aprobación de Documento --}}
+    <div id="modal-confirmar-aprobar-doc" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity duration-300"
+             onclick="document.getElementById('modal-confirmar-aprobar-doc').classList.add('hidden')"></div>
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden transform transition-all duration-300 p-6 space-y-4">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-base font-bold text-gray-900 leading-6">Aprobar Documento</h3>
+                    <p class="text-xs text-gray-500 mt-2">¿Estás seguro de que deseas aprobar este documento? El estudiante será notificado del cambio de estatus.</p>
+                </div>
+                <form id="form-aprobar-documento" hx-boost="false" method="POST" action="" class="flex gap-3 mt-4">
+                    @csrf
+                    <button type="button"
+                            onclick="document.getElementById('modal-confirmar-aprobar-doc').classList.add('hidden')"
+                            class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all">
+                        Aprobar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Confirmar Rechazo de Documento --}}
+    <div id="modal-confirmar-rechazar-doc" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity duration-300"
+             onclick="document.getElementById('modal-confirmar-rechazar-doc').classList.add('hidden')"></div>
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden transform transition-all duration-300 p-6 space-y-4">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-base font-bold text-gray-900 leading-6">Rechazar Documento</h3>
+                    <p class="text-xs text-gray-500 mt-2">El documento será marcado como rechazado. Podés dejar una nota con el motivo para orientar al alumno.</p>
+                </div>
+                <form id="form-rechazar-documento" hx-boost="false" method="POST" action="" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label for="obs-rechazo-doc" class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Motivo del Rechazo / Observaciones</label>
+                        <textarea id="obs-rechazo-doc" name="observaciones" rows="3" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50/50 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none" placeholder="Escribí los motivos del rechazo aquí..."></textarea>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button"
+                                onclick="document.getElementById('modal-confirmar-rechazar-doc').classList.add('hidden')"
+                                class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-all">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all">
+                            Rechazar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endpush

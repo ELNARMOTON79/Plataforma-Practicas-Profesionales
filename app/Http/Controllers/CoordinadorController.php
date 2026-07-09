@@ -170,6 +170,61 @@ class CoordinadorController extends Controller
     }
 
     /**
+     * Approve a document uploaded by a student.
+     */
+    public function aprobarDocumento(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $doc = \App\Models\Documento::findOrFail($id);
+        $doc->estatus = 'aprobado';
+        $doc->save();
+
+        $studentName = $doc->solicitud->estudiante->nombre_completo ?? 'desconocido';
+
+        \App\Helpers\ActivityLogger::log(
+            'Documentos',
+            'Aprobación',
+            "Se aprobó el documento \"{$doc->nombre_doc}\" del alumno {$studentName}.",
+            'success',
+            ['documento_id' => $id]
+        );
+
+        return redirect()->back()->with('success', "El documento \"{$doc->nombre_doc}\" fue aprobado correctamente.");
+    }
+
+    /**
+     * Reject a document uploaded by a student.
+     */
+    public function rechazarDocumento(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $doc = \App\Models\Documento::findOrFail($id);
+        $doc->estatus = 'rechazado';
+        if ($request->has('observaciones')) {
+            $doc->observaciones = $request->input('observaciones');
+        }
+        $doc->save();
+
+        $studentName = $doc->solicitud->estudiante->nombre_completo ?? 'desconocido';
+
+        \App\Helpers\ActivityLogger::log(
+            'Documentos',
+            'Rechazo',
+            "Se rechazó el documento \"{$doc->nombre_doc}\" del alumno {$studentName}.",
+            'warning',
+            ['documento_id' => $id, 'observaciones' => $doc->observaciones]
+        );
+
+        return redirect()->back()->with('warning', "El documento \"{$doc->nombre_doc}\" fue rechazado.");
+    }
+
+    /**
      * List, search, filter and paginate students.
      */
     public function alumnos(Request $request)

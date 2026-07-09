@@ -44,6 +44,33 @@
         </button>
     </div>
 
+    @if(session('success'))
+        <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-lg mb-6 fade-in-up flex items-start gap-3">
+            <div class="p-1 bg-green-100 text-green-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-green-950 text-sm">¡Operación Exitosa!</h4>
+                <p class="text-xs text-green-900/90 mt-0.5">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-lg mb-6 fade-in-up flex items-start gap-3">
+            <div class="p-1 bg-red-100 text-red-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-red-950 text-sm">Error</h4>
+                <p class="text-xs text-red-900/90 mt-0.5">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+
     @if(!$solicitud)
         @include('estudiante.proyecto._empty-state')
     @else
