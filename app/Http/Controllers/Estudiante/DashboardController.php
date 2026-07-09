@@ -82,37 +82,16 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        if ($estudiante && $estudiante->solicitudes()->exists()) {
-            return redirect()->route('estudiante.misSolicitudes')->with('error', 'Ya cuentas con una solicitud registrada. Solo se permite una por estudiante.');
-        }
-
         $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
         $matricula = $estudiante?->matricula ?? '—';
         $carrera = $estudiante?->carrera ?? '—';
         $iniciales = $this->iniciales($nombre);
 
-        $unidades = UnidadReceptora::with('user')->orderBy('nombre_empresa')->get();
-        $urId = request('ur_id');
-        $unidadSelected = null;
-
-        if ($urId && is_numeric($urId)) {
-            $unidadSelected = UnidadReceptora::with('user')->find($urId);
-        } elseif (request('empresa_nombre')) {
-            $unidadSelected = new UnidadReceptora([
-                'nombre_empresa' => request('empresa_nombre'),
-                'direccion'      => request('empresa_direccion'),
-                'titular'        => request('supervisor_nombre'),
-                'telefono'       => request('supervisor_telefono'),
-            ]);
-        }
-
         return view('estudiante.nueva_solicitud', [
-            'nombre'         => $nombre,
-            'matricula'      => $matricula,
-            'carrera'        => $carrera,
-            'iniciales'      => $iniciales,
-            'unidades'       => $unidades,
-            'unidadSelected' => $unidadSelected,
+            'nombre' => $nombre,
+            'matricula' => $matricula,
+            'carrera' => $carrera,
+            'iniciales' => $iniciales,
         ]);
     }
 
@@ -125,10 +104,6 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        if ($estudiante && $estudiante->solicitudes()->exists()) {
-            return redirect()->route('estudiante.misSolicitudes')->with('error', 'Ya cuentas con una solicitud registrada. Solo se permite una por estudiante.');
-        }
-
         $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
         $matricula = $estudiante?->matricula ?? '—';
         $carrera = $estudiante?->carrera ?? '—';
@@ -140,51 +115,6 @@ class DashboardController extends Controller
             'carrera' => $carrera,
             'iniciales' => $iniciales,
         ]);
-    }
-
-    public function storeSolicitud(\Illuminate\Http\Request $request)
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        if (! $estudiante) {
-            return redirect()->route('estudiante.dashboard')->with('error', 'No se encontró el perfil de estudiante.');
-        }
-
-        if ($estudiante->solicitudes()->exists()) {
-            return redirect()->route('estudiante.misSolicitudes')->with('error', 'Ya cuentas con una solicitud registrada. Solo se permite una por estudiante.');
-        }
-
-        $request->validate([
-            'ur_id'        => 'required',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin'    => 'required|date',
-            'titulo'       => 'required|string|max:255',
-            'objetivo'     => 'required|string',
-            'justificacion'=> 'required|string',
-            'actividades'  => 'required|string',
-            'impacto_social' => 'required|string',
-        ]);
-
-        Solicitud::create([
-            'estudiante_id' => $estudiante->id,
-            'ur_id'         => $request->input('ur_id'),
-            'responsable'   => $request->input('supervisor_nombre', 'Supervisor de práctica'),
-            'fecha_inicio'  => $request->input('fecha_inicio'),
-            'fecha_fin'     => $request->input('fecha_fin'),
-            'estatus'       => 'pendiente',
-            'titulo'        => $request->input('titulo'),
-            'objetivo'      => $request->input('objetivo'),
-            'justificacion' => $request->input('justificacion'),
-            'actividades'   => $request->input('actividades'),
-            'impacto_social'=> $request->input('impacto_social'),
-        ]);
-
-        return redirect()->route('estudiante.misSolicitudes')->with('solicitud_registrada', true);
     }
 
     public function documentacionSolicitud()
@@ -227,14 +157,9 @@ class DashboardController extends Controller
 
         $unidades = $query->orderBy('nombre_empresa')->get();
 
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-        $tieneSolicitud = $estudiante?->solicitudes()->exists() ?? false;
-
         return view('estudiante.convenios', [
             'unidades' => $unidades,
             'search'   => $search ?? '',
-            'tieneSolicitud' => $tieneSolicitud,
         ]);
     }
 
@@ -393,90 +318,6 @@ class DashboardController extends Controller
             'carrera' => $estudiante->carrera,
             'iniciales' => $this->iniciales($estudiante->nombre_completo),
             'solicitudes' => $solicitudes,
-        ]);
-    }
-
-    public function proyecto()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        $solicitud = $estudiante ? $estudiante->solicitudes()->with(['unidadReceptora', 'horas', 'documentos'])->orderByDesc('id')->first() : null;
-
-        $horasCompletadas = $solicitud ? (float) $solicitud->horas()->sum('cantidad_horas') : 0;
-        $horasMeta = self::HORAS_META;
-        $porcentajeHoras = $horasMeta > 0 ? min(100, (float) round(($horasCompletadas / $horasMeta) * 100, 1)) : 0;
-        $horasFaltantes = max(0, $horasMeta - $horasCompletadas);
-
-        $diasTranscurridos = 0;
-        $diasTotales = 80;
-        if ($solicitud && $solicitud->fecha_inicio) {
-            $inicio = Carbon::parse($solicitud->fecha_inicio);
-            $hoy = Carbon::now();
-            if ($hoy->greaterThanOrEqualTo($inicio)) {
-                $diasTranscurridos = min($diasTotales, (int) $inicio->diffInWeekdays($hoy));
-            }
-        }
-
-        $documentos = $solicitud ? $solicitud->documentos : collect([]);
-        $totalDocsSubidos = $documentos->count();
-        $totalDocsMeta = 6;
-
-        $objetivosTexto = $solicitud?->objetivo
-            ?? 'Desarrollo de actividades del plan de trabajo institucional en la unidad receptora.';
-
-        $actividadesLista = $solicitud?->actividades
-            ? array_filter(array_map('trim', preg_split('/[\r\n]+/', $solicitud->actividades)))
-            : ['Actividades afines al perfil de egreso y lineamientos de la institución'];
-
-        return view('estudiante.proyecto', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-            'solicitud' => $solicitud,
-            'horasCompletadas' => $horasCompletadas,
-            'horasMeta' => $horasMeta,
-            'porcentajeHoras' => $porcentajeHoras,
-            'horasFaltantes' => $horasFaltantes,
-            'diasTranscurridos' => $diasTranscurridos,
-            'diasTotales' => $diasTotales,
-            'documentos' => $documentos,
-            'totalDocsSubidos' => $totalDocsSubidos,
-            'totalDocsMeta' => $totalDocsMeta,
-            'objetivosTexto' => $objetivosTexto,
-            'actividadesLista' => $actividadesLista,
-        ]);
-    }
-
-    public function notificaciones()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        return view('estudiante.notificaciones', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
         ]);
     }
 

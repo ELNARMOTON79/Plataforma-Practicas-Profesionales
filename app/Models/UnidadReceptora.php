@@ -27,9 +27,4 @@ class UnidadReceptora extends Model
         'telefono',
         'convenio',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'usuario_id');
-    }
 }

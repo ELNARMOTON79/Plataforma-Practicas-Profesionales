@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 05, 2026 at 02:43 AM
+-- Generation Time: Jun 17, 2026 at 06:48 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -198,21 +198,7 @@ INSERT INTO `bitacora` (`id`, `timestamp`, `level`, `level_name`, `user`, `user_
 (145, '2026-06-16 18:08:24', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-16 18:08:24', '2026-06-16 18:08:24'),
 (146, '2026-06-16 18:33:05', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Instituciones', 'Importación Masiva', 'Se registraron exitosamente 6 instituciones mediante importación masiva. Omitidas: 0.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', '{\n    \"cantidad_importada\": 6,\n    \"cantidad_omitida\": 0\n}', '2026-06-16 18:33:05', '2026-06-16 18:33:05'),
 (147, '2026-06-16 19:22:33', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', NULL, '2026-06-16 19:22:33', '2026-06-16 19:22:33'),
-(148, '2026-06-17 04:43:32', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-17 04:43:32', '2026-06-17 04:43:32'),
-(149, '2026-07-04 04:14:33', 'info', 'Info', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Solicitud de Recuperación', 'Se envió un correo de restablecimiento de contraseña a la dirección: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 04:14:33', '2026-07-04 04:14:33'),
-(150, '2026-07-04 04:16:39', 'info', 'Info', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Solicitud de Recuperación', 'Se envió un correo de restablecimiento de contraseña a la dirección: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 04:16:39', '2026-07-04 04:16:39'),
-(151, '2026-07-04 16:32:33', 'info', 'Info', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Solicitud de Recuperación', 'Se envió un correo de restablecimiento de contraseña a la dirección: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:32:33', '2026-07-04 16:32:33'),
-(152, '2026-07-04 16:34:13', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:34:13', '2026-07-04 16:34:13'),
-(153, '2026-07-04 16:34:18', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:34:18', '2026-07-04 16:34:18'),
-(154, '2026-07-04 16:35:55', 'info', 'Info', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:35:55', '2026-07-04 16:35:55'),
-(155, '2026-07-04 16:36:03', 'success', 'Éxito', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:36:03', '2026-07-04 16:36:03'),
-(156, '2026-07-04 16:36:54', 'info', 'Info', 'Administrador General', 'Administrador', 'admin@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:36:54', '2026-07-04 16:36:54'),
-(157, '2026-07-04 16:37:02', 'danger', 'Error', 'Sistema', 'Sistema', 'system@ucol.mx', 'Autenticación', 'Inicio de Sesión Fallido', 'Intento de inicio de sesión fallido para la cuenta: rvuelvas@ucol.mx.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:37:02', '2026-07-04 16:37:02'),
-(158, '2026-07-04 16:37:06', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 16:37:06', '2026-07-04 16:37:06'),
-(159, '2026-07-04 21:39:33', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 21:39:33', '2026-07-04 21:39:33'),
-(160, '2026-07-04 22:39:51', 'info', 'Info', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Cierre de Sesión', 'El usuario cerró su sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 22:39:51', '2026-07-04 22:39:51'),
-(161, '2026-07-04 22:40:00', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-07-04 22:40:00', '2026-07-04 22:40:00'),
-(162, '2026-07-04 23:29:22', 'success', 'Éxito', 'Rafael Alexandro Vuelvas', 'Alumno', 'rvuelvas@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', NULL, '2026-07-04 23:29:22', '2026-07-04 23:29:22');
+(148, '2026-06-17 04:43:32', 'success', 'Éxito', 'Coordinador de Prácticas Profesionales', 'Coordinador', 'coordinador@ucol.mx', 'Autenticación', 'Inicio de Sesión', 'El usuario inició sesión en el sistema.', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', NULL, '2026-06-17 04:43:32', '2026-06-17 04:43:32');
 
 -- --------------------------------------------------------
 
@@ -391,9 +377,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (8, '2026_05_25_165738_create_bitacora_table', 2),
 (9, '2026_05_19_000000_add_contacto_to_estudiantes', 3),
 (10, '2026_05_27_000000_add_nombre_fields_to_estudiantes', 3),
-(11, '2026_05_27_183624_create_proyectos_table', 3),
-(12, '2026_06_19_000000_add_missing_columns_to_unidades_receptoras_table', 4),
-(13, '2026_07_04_000000_add_practice_fields_to_solicitudes', 4);
+(11, '2026_05_27_183624_create_proyectos_table', 3);
 
 -- --------------------------------------------------------
 
@@ -406,13 +390,6 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `password_reset_tokens`
---
-
-INSERT INTO `password_reset_tokens` (`email`, `token`, `created_at`) VALUES
-('rvuelvas@ucol.mx', 'bzTVdZjOwVxJniXTS0JrtbUMrORV0F9x3E2GnlDGU1gZrr709Sd5orDM4L2f', '2026-07-04 16:32:29');
 
 -- --------------------------------------------------------
 
@@ -501,8 +478,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('arczyTk5MTq4AypnvLruBddktoePfRASO76Ddr30', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJWY3J2bGRKMUZTdEVJRkVQUmdyeVhCZlBOeUFkUDJrVVJVM0VITlZDIiwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJfcHJldmlvdXMiOnsidXJsIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC90cmFtaXRlcyIsInJvdXRlIjoiY29vcmRpbmFkb3IudHJhbWl0ZXMifSwibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiOjJ9', 1783212151),
-('by4cMoaoIJZzZ7cdYVH95EkLrbVqCALXZt8g7UVH', 47, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', 'eyJfdG9rZW4iOiJKYVlESmt3cmJPOTdBblhHaHplUVIxdmtJenFiT3hWQksxbWVYcUNiIiwibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiOjQ3LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX0sIl9wcmV2aW91cyI6eyJ1cmwiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvZXN0dWRpYW50ZVwvbWlzLXNvbGljaXR1ZGVzIiwicm91dGUiOiJlc3R1ZGlhbnRlLm1pc1NvbGljaXR1ZGVzIn19', 1783209695);
+('3pBBQyfs3HiEWX7aO3BeuC4NT0KFlcqYDCISG8my', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJvMlV3eTN1cjBqb0VmWjBzVkdpd1plQWNMOUV3amJpNUxrSEtwUmh1IiwidXJsIjp7ImludGVuZGVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwMDBcL2Nvb3JkaW5hZG9yXC9wcm95ZWN0b3MifSwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvZGFzaGJvYXJkIiwicm91dGUiOiJjb29yZGluYWRvci5kYXNoYm9hcmQifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781671494),
+('KEBeJbjj2hObN72s1pTMuJq6KSeBsemRkiHamLqS', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'eyJfdG9rZW4iOiJkcXN1a1F4VktWbXh5Q1pPaVc5VVV1VHBpUlZJNlNYV252RkVlMGlkIiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9hZG1pblwvYml0YWNvcmE/ZGF0ZT0mbGV2ZWw9Jm1vZHVsZT0mc2VhcmNoPSZ2aWV3PXRhYmxlIiwicm91dGUiOiJhZG1pbi5iaXRhY29yYSJ9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX0sImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjoxfQ==', 1781637935),
+('sC1ABXOWDOmgEm5DHBZB1Awj7EWvFtJ5OybXq6wM', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0 (Edition std-2)', 'eyJfdG9rZW4iOiJOWEtzdTgxbWx2b0hUbWx1eE1TWVNMbjZnV2lPWjMzTVF3eXBSU3U1IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4MDAwXC9jb29yZGluYWRvclwvcHJveWVjdG9zIiwicm91dGUiOiJjb29yZGluYWRvci5wcm95ZWN0b3MifSwiX2ZsYXNoIjp7Im9sZCI6W10sIm5ldyI6W119LCJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI6Mn0=', 1781638878);
 
 -- --------------------------------------------------------
 
@@ -515,23 +493,11 @@ CREATE TABLE `solicitudes` (
   `estudiante_id` int(10) UNSIGNED NOT NULL,
   `ur_id` int(10) UNSIGNED NOT NULL,
   `responsable` varchar(255) NOT NULL,
-  `titulo` varchar(255) DEFAULT NULL,
-  `objetivo` text DEFAULT NULL,
-  `justificacion` text DEFAULT NULL,
-  `actividades` text DEFAULT NULL,
-  `impacto_social` text DEFAULT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
   `estatus` enum('pendiente','aprobada','rechazada','en_proceso','finalizada') NOT NULL DEFAULT 'pendiente',
-  `observaciones` varchar(50) NOT NULL
+  `observaciones` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `solicitudes`
---
-
-INSERT INTO `solicitudes` (`id`, `estudiante_id`, `ur_id`, `responsable`, `titulo`, `objetivo`, `justificacion`, `actividades`, `impacto_social`, `fecha_inicio`, `fecha_fin`, `estatus`, `observaciones`) VALUES
-(3, 34, 37, 'LEP. MARIELA ALEJANDRA FERREYRA RAMÍREZ', 'Mantenimiento y optimización de sistemas de control de seguridad de embarcaciones mediante automatización y gestión técnica.', 'Desarrollar y aplicar competencias técnicas en el área de mantenimiento y automatización de sistemas marítimos, mediante la reparación de tableros de control de propulsión, el reemplazo y verificación de sensores de temperatura y humo, así como la intervención en sistemas basados en PLC. Asimismo, fortalecer habilidades administrativas relacionadas con la gestión de mantenimiento, control de registros y organización de información técnica, contribuyendo a la mejora de la eficiencia operativa, seguridad y confiabilidad de los sistemas a bordo.', 'La realización de prácticas profesionales en el ámbito de sistemas de control marítimos es fundamental para consolidar los conocimientos teóricos adquiridos durante la formación académica, llevándolos a un entorno real de aplicación. Las actividades desarrolladas, tanto técnicas como administrativas, permiten comprender la importancia del mantenimiento preventivo y correctivo en sistemas críticos, así como el uso de tecnologías de automatización para garantizar la operación segura de los barcos.', '- Mantenimiento Técnico Mantenimiento especializado: Sistemas de alarmas, arneses eléctricos y sensores en motogeneradores y patrullas. Diagnóstico de propulsión: Verificación de paneles de control (PCP) y monitoreo de unidades de superficie. - Gestión Administrativa Documentación técnica: Elaboración de reportes de servicio, informes técnicos y gestión de expedientes. Control operativo: Manejo de órdenes de trabajo a través de la plataforma SICREMA. - Logística y Suministros Gestión de compras: Elaboración de cotizaciones, anexos técnicos y estudios de mercado con proveedores. Control de inventarios: Resguardo y administración de refacciones eléctricas y electrónicas.', 'Las actividades realizadas durante mis prácticas profesionales generan un impacto social significativo al contribuir directamente a la seguridad, confiabilidad y continuidad operativa en sistemas marítimos. La reparación de tableros del sistema de control de propulsión asegura el correcto funcionamiento del barco, evitando fallas críticas que podrían poner en riesgo a la tripulación, la carga y el medio ambiente.', '2026-07-24', '2026-11-18', 'pendiente', '');
 
 -- --------------------------------------------------------
 
@@ -748,7 +714,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT for table `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=163;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=149;
 
 --
 -- AUTO_INCREMENT for table `convenios`
@@ -790,7 +756,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `personal`
@@ -814,7 +780,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `solicitudes`
 --
 ALTER TABLE `solicitudes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `unidades_receptoras`
