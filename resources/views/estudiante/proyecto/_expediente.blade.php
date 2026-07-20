@@ -92,7 +92,8 @@
                 title="Memoria de Prácticas"
                 status="{{ $expediente['Memoria de Prácticas'] ?? 'pending' }}"
                 on-upload="openUploadModal(4, 'Memoria de Prácticas')"
-                on-view="{!! $getOnView('Memoria de Prácticas') !!}" />
+                on-view="{!! $getOnView('Memoria de Prácticas') !!}"
+                template-url="{{ route('descargar.plantilla', 'Formato-de-Memoria-de-Practica-2026.pdf') }}" />
         </div>
 
         {{-- Phase 3: Cierre --}}

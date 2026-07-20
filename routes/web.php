@@ -27,6 +27,14 @@ Route::post('/recuperar-contrasena', [AuthController::class, 'enviarEnlaceRecupe
 Route::get('/restablecer-contrasena/{token}', [AuthController::class, 'mostrarFormularioRestablecer'])->name('restablecer-contrasena.form');
 Route::post('/restablecer-contrasena', [AuthController::class, 'restablecerContrasena'])->name('restablecer-contrasena.post');
 
+Route::get('/descargar-plantilla/{archivo}', function ($archivo) {
+    $path = public_path('plantillas/' . $archivo);
+    if (file_exists($path)) {
+        return response()->file($path);
+    }
+    abort(404);
+})->name('descargar.plantilla');
+
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -83,7 +91,6 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
 
     Route::get('/estudiante/convenios', [DashboardController::class, 'convenios'])->name('estudiante.convenios');
     Route::get('/estudiante/mi-perfil', [DashboardController::class, 'miPerfil'])->name('estudiante.miPerfil');
-    Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
     Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
     Route::get('/estudiante/nueva-solicitud', [DashboardController::class, 'createSolicitud'])->name('estudiante.nuevaSolicitud');

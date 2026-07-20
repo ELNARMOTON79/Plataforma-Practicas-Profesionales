@@ -45,7 +45,7 @@ class ActivityLogger
                 if ($user->rol_id == 1 || $user->rol_id == 2) {
                     $userName = $user->coordinador->nombre_completo ?? $user->correo;
                 } elseif ($user->rol_id == 3) {
-                    $userName = $user->alumno->nombre_completo ?? $user->correo;
+                    $userName = $user->estudiante->nombre_completo ?? $user->correo;
                 } elseif ($user->rol_id == 4) {
                     $userName = $user->empresa->nombre_empresa ?? $user->correo;
                 } else {

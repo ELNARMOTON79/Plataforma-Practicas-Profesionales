@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
-use App\Models\Alumno;
+use App\Models\Estudiante;
 use App\Models\Proyecto;
 use App\Mail\CredentialsNotification;
 use App\Mail\NewAssociationNotification;
@@ -135,7 +135,7 @@ class CoordinadorController extends Controller
                 ->get();
         } else {
             // Default: Reporte de Estudiantes Activos (solo asignados)
-            $query = Alumno::with('user');
+            $query = Estudiante::with('user');
             if ($carrera) {
                 $query->where('carrera', $carrera);
                 $filterLabels[] = "Carrera: {$carrera}";
@@ -377,7 +377,7 @@ class CoordinadorController extends Controller
             $perPage = 5;
         }
 
-        $query = Alumno::with('user');
+        $query = Estudiante::with('user');
 
         // Search filter
         if ($search) {
@@ -437,7 +437,7 @@ class CoordinadorController extends Controller
         $alumnos = $query->paginate($perPage);
 
         // Get unique careers for dynamic select
-        $carrerasDisponibles = Alumno::distinct()->pluck('carrera')->filter()->values();
+        $carrerasDisponibles = Estudiante::distinct()->pluck('carrera')->filter()->values();
 
         return view('coordinador.alumnos', compact('alumnos', 'carrerasDisponibles'));
     }
@@ -618,7 +618,7 @@ class CoordinadorController extends Controller
         $user->save();
 
         // Create the alumno profile
-        $alumno = new Alumno();
+        $alumno = new Estudiante();
         $alumno->usuario_id      = $user->id;
         $alumno->nombre_completo = $request->input('nombre');
         $alumno->matricula       = $request->input('matricula');
@@ -1158,7 +1158,7 @@ class CoordinadorController extends Controller
                 $errors[] = "Fila {$rowNum}: El correo '{$correo}' ya está registrado en el sistema.";
             }
 
-            if (Alumno::where('matricula', $matricula)->exists()) {
+            if (\App\Models\Estudiante::where('matricula', $matricula)->exists()) {
                 $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' ya está registrada en el sistema.";
             }
         }
@@ -1181,7 +1181,7 @@ class CoordinadorController extends Controller
                 $user->activo    = true;
                 $user->save();
 
-                $alumno = new Alumno();
+                $alumno = new \App\Models\Estudiante();
                 $alumno->usuario_id      = $user->id;
                 $alumno->nombre_completo = trim($student['nombre']);
                 $alumno->matricula       = trim($student['matricula']);

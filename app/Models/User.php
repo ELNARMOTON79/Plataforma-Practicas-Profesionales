@@ -44,10 +44,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function alumno()
-    {
-        return $this->hasOne(Alumno::class, 'usuario_id');
-    }
 
     public function coordinador()
     {

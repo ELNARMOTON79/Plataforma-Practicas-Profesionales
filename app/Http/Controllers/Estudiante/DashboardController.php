@@ -263,7 +263,7 @@ class DashboardController extends Controller
             'impacto_social' => 'required|string',
         ]);
 
-        Solicitud::create([
+        $solicitud = Solicitud::create([
             'estudiante_id' => $estudiante->id,
             'ur_id'         => $request->input('ur_id'),
             'responsable'   => $request->input('supervisor_nombre', 'Supervisor de práctica'),
@@ -275,7 +275,16 @@ class DashboardController extends Controller
             'justificacion' => $request->input('justificacion'),
             'actividades'   => $request->input('actividades'),
             'impacto_social'=> $request->input('impacto_social'),
+            'observaciones' => '',
         ]);
+
+        \App\Helpers\ActivityLogger::log(
+            'Solicitudes',
+            'Nueva Solicitud',
+            "El estudiante {$estudiante->nombre_completo} ha registrado una nueva solicitud de prácticas.",
+            'info',
+            ['solicitud_id' => $solicitud->id]
+        );
 
         return redirect()->route('estudiante.misSolicitudes')->with('solicitud_registrada', true);
     }
@@ -368,56 +377,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function updatePerfil(\Illuminate\Http\Request $request)
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-        if (! $estudiante) {
-            $estudiante = new Estudiante();
-            $estudiante->usuario_id = $user->id;
-        }
-
-        $data = $request->validate([
-            'primerNombre' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\'\-]+$/u'],
-            'apellidos'    => ['nullable', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\'\-]+$/u'],
-            'telefono'     => ['nullable', 'digits:10'],
-            'direccion'    => ['nullable', 'string', 'max:500'],
-        ], [
-            'primerNombre.required' => 'El nombre es obligatorio.',
-            'primerNombre.min'      => 'El nombre debe tener al menos 2 caracteres.',
-            'primerNombre.max'      => 'El nombre no puede superar los 100 caracteres.',
-            'primerNombre.regex'    => 'El nombre solo puede contener letras y espacios.',
-            'apellidos.min'         => 'Los apellidos deben tener al menos 2 caracteres.',
-            'apellidos.max'         => 'Los apellidos no pueden superar los 100 caracteres.',
-            'apellidos.regex'       => 'Los apellidos solo pueden contener letras y espacios.',
-            'telefono.digits'       => 'El teléfono debe tener exactamente 10 dígitos.',
-            'direccion.max'         => 'La dirección no puede superar los 500 caracteres.',
-        ]);
-
-        $nombreCompleto = trim($data['primerNombre'] . ' ' . ($data['apellidos'] ?? ''));
-
-        $estudiante->primer_nombre   = $data['primerNombre'];
-        $estudiante->apellidos       = $data['apellidos'] ?? null;
-        $estudiante->nombre_completo = $nombreCompleto;
-        $estudiante->direccion       = $data['direccion'] ?? null;
-        $estudiante->telefono        = $data['telefono'] ?? null;
-        $estudiante->save();
-
-        // If request is AJAX, return JSON so client can update the UI without reload
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'nombre' => $nombreCompleto,
-                'iniciales' => $this->iniciales($nombreCompleto),
-            ]);
-        }
-
-        return redirect()->route('estudiante.miPerfil')->with('success', 'Perfil actualizado correctamente.');
-    }
 
     public function changePassword(\Illuminate\Http\Request $request)
     {
@@ -872,7 +831,7 @@ class DashboardController extends Controller
         }
 
         \App\Helpers\ActivityLogger::log(
-            'Expediente',
+            'Documentos',
             'Carga Documento',
             "El estudiante cargó el documento '{$request->input('nombre_doc')}' para su revisión.",
             'info',

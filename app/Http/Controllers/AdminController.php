@@ -22,7 +22,7 @@ class AdminController extends Controller
         }
 
         $recentLogs = \App\Models\Bitacora::orderBy('timestamp', 'desc')->take(5)->get();
-        $recentUsers = \App\Models\User::with(['alumno', 'coordinador', 'empresa'])
+        $recentUsers = \App\Models\User::with(['estudiante', 'coordinador', 'empresa'])
             ->where('rol_id', '!=', 1)
             ->orderBy('id', 'desc')
             ->take(2)
@@ -76,13 +76,13 @@ class AdminController extends Controller
         }
 
         // Eager load relationships to prevent N+1 query issue
-        $query = User::with(['alumno', 'coordinador', 'empresa'])->where('rol_id', '!=', 1);
+        $query = User::with(['estudiante', 'coordinador', 'empresa'])->where('rol_id', '!=', 1);
 
         // Apply search filter
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('correo', 'like', "%{$search}%")
-                  ->orWhereHas('alumno', function($q) use ($search) {
+                  ->orWhereHas('estudiante', function($q) use ($search) {
                       $q->where('nombre_completo', 'like', "%{$search}%")
                         ->orWhere('matricula', 'like', "%{$search}%");
                   })
@@ -168,7 +168,7 @@ class AdminController extends Controller
             $coordinador->nombre_completo = $request->input('name');
             $coordinador->save();
         } elseif ($user->rol_id == 3) { // Alumno
-            $alumno = new \App\Models\Alumno();
+            $alumno = new \App\Models\Estudiante();
             $alumno->usuario_id = $user->id;
             $alumno->nombre_completo = $request->input('name');
             $alumno->matricula = $request->input('matricula');
@@ -258,7 +258,7 @@ class AdminController extends Controller
                 $errors[] = "Fila {$rowNum}: El correo '{$correo}' ya está registrado en el sistema.";
             }
 
-            if (\App\Models\Alumno::where('matricula', $matricula)->exists()) {
+            if (\App\Models\Estudiante::where('matricula', $matricula)->exists()) {
                 $errors[] = "Fila {$rowNum}: La matrícula '{$matricula}' ya está registrada en el sistema.";
             }
         }
@@ -286,7 +286,7 @@ class AdminController extends Controller
                 $user->save();
 
                 // Crear Alumno
-                $alumno = new \App\Models\Alumno();
+                $alumno = new \App\Models\Estudiante();
                 $alumno->usuario_id = $user->id;
                 $alumno->nombre_completo = trim($student['nombre']);
                 $alumno->matricula = trim($student['matricula']);
@@ -373,7 +373,7 @@ class AdminController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('estudiantes', 'matricula')->ignore($user->alumno->id ?? 0),
+                Rule::unique('estudiantes', 'matricula')->ignore($user->estudiante->id ?? 0),
                 'regex:/^[0-9]+$/',
             ];
             $rules['carrera'] = 'required|string|max:150';
@@ -419,9 +419,9 @@ class AdminController extends Controller
             $coordinador->nombre_completo = $request->input('name');
             $coordinador->save();
         } elseif ($user->rol_id == 3) { // Alumno
-            $alumno = $user->alumno;
+            $alumno = $user->estudiante;
             if (!$alumno) {
-                $alumno = new \App\Models\Alumno();
+                $alumno = new \App\Models\Estudiante();
                 $alumno->usuario_id = $user->id;
                 $alumno->activo_practica = 0;
             }
@@ -525,7 +525,7 @@ class AdminController extends Controller
         if ($user->rol_id == 1 || $user->rol_id == 2) {
             $name = $user->coordinador->nombre_completo ?? 'Administrador/Coordinador';
         } elseif ($user->rol_id == 3) {
-            $name = $user->alumno->nombre_completo ?? 'Estudiante';
+            $name = $user->estudiante->nombre_completo ?? 'Estudiante';
         } elseif ($user->rol_id == 4) {
             $name = $user->empresa->nombre_empresa ?? 'Empresa';
         }
@@ -758,7 +758,7 @@ class AdminController extends Controller
                 if ($user->rol_id == 1 || $user->rol_id == 2) {
                     $userName = $user->coordinador->nombre_completo ?? $user->correo;
                 } elseif ($user->rol_id == 3) {
-                    $userName = $user->alumno->nombre_completo ?? $user->correo;
+                    $userName = $user->estudiante->nombre_completo ?? $user->correo;
                 } elseif ($user->rol_id == 4) {
                     $userName = $user->empresa->nombre_empresa ?? $user->correo;
                 } else {

@@ -24,7 +24,8 @@
     'status',
     'onGenerate' => '',
     'onUpload' => '',
-    'onView' => ''
+    'onView' => '',
+    'templateUrl' => ''
 ])
 
 @php
@@ -129,10 +130,18 @@
             </div>
 
         @elseif($status === 'pending' && !empty($onUpload))
-            <button onclick="{{ $onUpload }}"
-                    class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">
-                Subir Archivo
-            </button>
+            <div class="flex flex-col gap-2 w-full">
+                <button onclick="{{ $onUpload }}"
+                        class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">
+                    Subir Archivo
+                </button>
+                @if(!empty($templateUrl))
+                    <a href="{{ $templateUrl }}" target="_blank"
+                       class="w-full text-center py-2 border border-[#4E7D24]/30 hover:bg-[#4E7D24]/5 text-[#4E7D24] text-xs font-bold rounded-xl transition-all shadow-sm">
+                        Ver Plantilla
+                    </a>
+                @endif
+            </div>
 
         @elseif($status === 'rejected' && !empty($onUpload))
             <div class="flex flex-col gap-2 w-full">
@@ -146,6 +155,12 @@
                         class="w-full text-center py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-md">
                     Volver a Subir
                 </button>
+                @if(!empty($templateUrl))
+                    <a href="{{ $templateUrl }}" target="_blank"
+                       class="w-full text-center py-2 border border-red-600/30 hover:bg-red-50 text-red-600 text-xs font-bold rounded-xl transition-all shadow-sm">
+                        Ver Plantilla
+                    </a>
+                @endif
             </div>
 
         @elseif(in_array($status, ['approved', 'review']) && !empty($onView))
