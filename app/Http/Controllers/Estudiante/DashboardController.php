@@ -527,6 +527,55 @@ class DashboardController extends Controller
         return redirect()->route('estudiante.miPerfil')->with('success', 'Contraseña actualizada correctamente.');
     }
 
+    public function storeSolicitud(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            return response()->json(['error' => 'Perfil de estudiante no encontrado.'], 404);
+        }
+
+        $validated = $request->validate([
+            'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
+            'responsable' => ['required', 'string', 'max:255'],
+            'fecha_inicio'=> ['required', 'date'],
+            'fecha_fin'   => ['required', 'date', 'after:fecha_inicio'],
+            'observaciones'=> ['nullable', 'string', 'max:1000'],
+        ], [
+            'ur_id.required'        => 'Debes seleccionar una empresa.',
+            'ur_id.exists'          => 'La empresa seleccionada no existe.',
+            'responsable.required'  => 'El nombre del responsable/asesor es obligatorio.',
+            'responsable.max'       => 'El nombre no puede superar 255 caracteres.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_inicio.date'     => 'La fecha de inicio no es válida.',
+            'fecha_fin.required'    => 'La fecha de fin es obligatoria.',
+            'fecha_fin.date'        => 'La fecha de fin no es válida.',
+            'fecha_fin.after'       => 'La fecha de fin debe ser posterior a la fecha de inicio.',
+            'observaciones.max'     => 'Las observaciones no pueden superar 1000 caracteres.',
+        ]);
+
+        $solicitud = Solicitud::create([
+            'estudiante_id' => $estudiante->id,
+            'ur_id'         => $validated['ur_id'],
+            'responsable'   => $validated['responsable'],
+            'fecha_inicio'  => $validated['fecha_inicio'],
+            'fecha_fin'     => $validated['fecha_fin'],
+            'estatus'       => 'pendiente',
+            'observaciones' => $validated['observaciones'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
+            'solicitud_id' => $solicitud->id,
+        ]);
+    }
+
     public function misSolicitudes()
     {
         if (Auth::user()?->rol_id != 3) {

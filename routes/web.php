@@ -84,6 +84,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/estudiante/proyecto/documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
     Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
+    Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
 
     Route::get('/empresa/dashboard', function () {
         if (Auth::user()->rol_id != 4) return redirect('/');

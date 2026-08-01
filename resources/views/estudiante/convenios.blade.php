@@ -144,6 +144,84 @@
         </p>
     @endif
 
+    {{-- Modal Solicitar Práctica --}}
+    <div id="solicitudModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSolicitudModal()"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Solicitar práctica en</p>
+                    <h3 class="text-lg font-bold text-gray-900 mt-0.5" id="solicitudEmpresaNombre"></h3>
+                </div>
+                <button onclick="closeSolicitudModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl transition-colors hover:bg-gray-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="solicitudForm" class="p-6 space-y-4">
+                @csrf
+                <input type="hidden" id="solicitudUrId" name="ur_id">
+
+                <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-gray-700">Nombre del responsable / asesor <span class="text-red-500">*</span></label>
+                    <input type="text" name="responsable" id="solicitudResponsable"
+                        placeholder="Ej: Ing. María González"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
+                    <p id="errResponsable" class="hidden text-xs text-red-500 font-medium"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-gray-700">Fecha de inicio <span class="text-red-500">*</span></label>
+                        <input type="date" name="fecha_inicio" id="solicitudFechaInicio"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
+                        <p id="errFechaInicio" class="hidden text-xs text-red-500 font-medium"></p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-semibold text-gray-700">Fecha de fin <span class="text-red-500">*</span></label>
+                        <input type="date" name="fecha_fin" id="solicitudFechaFin"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
+                        <p id="errFechaFin" class="hidden text-xs text-red-500 font-medium"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-gray-700">Observaciones <span class="text-gray-400 font-normal">(opcional)</span></label>
+                    <textarea name="observaciones" id="solicitudObservaciones" rows="3"
+                        placeholder="Describe brevemente el área o proyecto donde realizarás tus prácticas..."
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all resize-none"></textarea>
+                </div>
+
+                <div id="solicitudError" class="hidden rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700 font-medium"></div>
+            </form>
+
+            <div class="px-6 pb-6 flex gap-3">
+                <button onclick="closeSolicitudModal()" type="button"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="submitSolicitud()" type="button" id="solicitudSubmitBtn"
+                    class="flex-1 bg-[#4E7D24] hover:bg-[#3b6620] text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    Enviar solicitud
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Toast éxito --}}
+    <div id="convenioToast" class="hidden fixed top-5 right-5 z-[200]">
+        <div id="convenioToastCard" class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-2xl shadow-md max-w-sm flex items-start gap-3 transform transition-all duration-300 opacity-0 translate-y-2">
+            <div class="p-2 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div class="flex-1">
+                <h4 class="font-bold text-sm">¡Solicitud enviada!</h4>
+                <p id="convenioToastMsg" class="text-xs text-green-900/80 mt-0.5"></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         function validateSearch() {
             var val = document.getElementById('search-input').value.trim();
@@ -227,9 +305,15 @@
                             ${conveniosHTML}
                         </div>
 
-                        <div class="pt-4 border-t border-gray-100">
-                            <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#4E7D24]/10 hover:bg-[#3B6620] transition-all">
+                        <div class="pt-4 border-t border-gray-100 flex gap-3">
+                            <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
                                 Cerrar
+                            </button>
+                            <button type="button"
+                                onclick="openSolicitudModal(${unidad.id}, '${unidad.nombre_empresa.replace(/'/g, "\\'")}'); document.querySelector('.convenio-modal-root')?.remove();"
+                                class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#4E7D24]/10 hover:bg-[#3B6620] transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                Solicitar práctica
                             </button>
                         </div>
                     </div>
@@ -237,6 +321,114 @@
             `;
             modal.classList.add('convenio-modal-root');
             document.body.appendChild(modal);
+        }
+
+        function openSolicitudModal(urId, nombre) {
+            document.getElementById('solicitudUrId').value = urId;
+            document.getElementById('solicitudEmpresaNombre').textContent = nombre;
+            document.getElementById('solicitudResponsable').value = '';
+            document.getElementById('solicitudFechaInicio').value = '';
+            document.getElementById('solicitudFechaFin').value = '';
+            document.getElementById('solicitudObservaciones').value = '';
+            document.getElementById('solicitudError').classList.add('hidden');
+            ['errResponsable','errFechaInicio','errFechaFin'].forEach(function(id) {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById('solicitudModal').classList.remove('hidden');
+        }
+
+        function closeSolicitudModal() {
+            document.getElementById('solicitudModal').classList.add('hidden');
+        }
+
+        function submitSolicitud() {
+            var btn = document.getElementById('solicitudSubmitBtn');
+            var errBox = document.getElementById('solicitudError');
+            ['errResponsable','errFechaInicio','errFechaFin'].forEach(function(id) {
+                document.getElementById(id).classList.add('hidden');
+            });
+            errBox.classList.add('hidden');
+
+            var urId       = document.getElementById('solicitudUrId').value;
+            var responsable= document.getElementById('solicitudResponsable').value.trim();
+            var fechaInicio= document.getElementById('solicitudFechaInicio').value;
+            var fechaFin   = document.getElementById('solicitudFechaFin').value;
+            var observaciones = document.getElementById('solicitudObservaciones').value.trim();
+
+            var hasError = false;
+            if (!responsable) {
+                document.getElementById('errResponsable').textContent = 'El nombre del responsable es obligatorio.';
+                document.getElementById('errResponsable').classList.remove('hidden');
+                hasError = true;
+            }
+            if (!fechaInicio) {
+                document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es obligatoria.';
+                document.getElementById('errFechaInicio').classList.remove('hidden');
+                hasError = true;
+            }
+            if (!fechaFin) {
+                document.getElementById('errFechaFin').textContent = 'La fecha de fin es obligatoria.';
+                document.getElementById('errFechaFin').classList.remove('hidden');
+                hasError = true;
+            } else if (fechaInicio && fechaFin <= fechaInicio) {
+                document.getElementById('errFechaFin').textContent = 'La fecha de fin debe ser posterior a la fecha de inicio.';
+                document.getElementById('errFechaFin').classList.remove('hidden');
+                hasError = true;
+            }
+            if (hasError) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Enviando...';
+
+            var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            var formData = new FormData();
+            formData.append('_token', token);
+            formData.append('ur_id', urId);
+            formData.append('responsable', responsable);
+            formData.append('fecha_inicio', fechaInicio);
+            formData.append('fecha_fin', fechaFin);
+            if (observaciones) formData.append('observaciones', observaciones);
+
+            fetch('{{ route("estudiante.storeSolicitud") }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
+                body: formData,
+            })
+            .then(function(r) {
+                return r.json().then(function(d) { if (!r.ok) throw d; return d; });
+            })
+            .then(function(data) {
+                closeSolicitudModal();
+                showConvenioToast(data.message || 'Solicitud enviada correctamente.');
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> Enviar solicitud';
+                if (err && err.errors) {
+                    var msgs = Object.values(err.errors).flat().join(' ');
+                    errBox.textContent = msgs;
+                } else if (err && err.error) {
+                    errBox.textContent = err.error;
+                } else {
+                    errBox.textContent = 'Ocurrió un error al enviar la solicitud. Intenta nuevamente.';
+                }
+                errBox.classList.remove('hidden');
+            });
+        }
+
+        function showConvenioToast(msg) {
+            var toast = document.getElementById('convenioToast');
+            var card  = document.getElementById('convenioToastCard');
+            document.getElementById('convenioToastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            void card.offsetWidth;
+            card.classList.remove('opacity-0','translate-y-2');
+            card.classList.add('opacity-100','translate-y-0');
+            setTimeout(function() {
+                card.classList.remove('opacity-100','translate-y-0');
+                card.classList.add('opacity-0','translate-y-2');
+                setTimeout(function() { toast.classList.add('hidden'); }, 300);
+            }, 4500);
         }
     </script>
 @endsection
