@@ -44,15 +44,17 @@
     <div id="content-solicitudes" class="block animate-fade-in">
 
         <!-- Buscador Premium Tab 1 -->
-        <div class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
+        <form method="GET" action="{{ route('coordinador.tramites') }}" class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
+            <input type="hidden" name="tab" value="solicitudes">
             <div class="relative w-full">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-solicitudes" class="sr-only">Buscar solicitudes</label>
-                <input type="text" id="search-solicitudes" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, institución o periodo...">
+                <input type="text" name="search_solicitudes" value="{{ request('search_solicitudes') }}" id="search-solicitudes" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, institución o periodo...">
+                <button type="submit" class="hidden">Buscar</button>
             </div>
-        </div>
+        </form>
 
         <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
             <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
@@ -95,7 +97,24 @@
                                     {{ $solicitud->horas_semanales ?? '480 Hrs Totales' }}
                                 </td>
                                 <td class="px-3 py-4 whitespace-nowrap text-center">
-                                    <button onclick="verDetallesSolicitud({{ $solicitud->id }})" class="px-4 py-2 bg-[#6BA53A]/10 text-[#4E7D24] hover:bg-[#6BA53A]/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 mx-auto" title="Ver detalles de la solicitud">
+                                    <button 
+                                        data-estudiante="{{ mb_strtoupper($solicitud->estudiante->nombre_completo ?? 'Sin Nombre') }}"
+                                        data-matricula="{{ $solicitud->estudiante->matricula ?? '—' }}"
+                                        data-carrera="{{ $solicitud->estudiante->carrera ?? '—' }}"
+                                        data-semestre="{{ $solicitud->estudiante->semestre ?? '—' }}"
+                                        data-grupo="{{ $solicitud->estudiante->grupo ?? '—' }}"
+                                        data-unidad="{{ $solicitud->unidadReceptora->nombre_empresa ?? 'No especificada' }}"
+                                        data-departamento="{{ $solicitud->unidadReceptora->unidad_receptora ?? 'General' }}"
+                                        data-responsable="{{ $solicitud->responsable ?? '—' }}"
+                                        data-inicio="{{ $solicitud->fecha_inicio ? $solicitud->fecha_inicio->format('d/m/Y') : '—' }}"
+                                        data-fin="{{ $solicitud->fecha_fin ? $solicitud->fecha_fin->format('d/m/Y') : '—' }}"
+                                        data-estatus="{{ $solicitud->estatus }}"
+                                        data-titulo="{{ $solicitud->titulo ?? 'Sin título' }}"
+                                        data-objetivo="{{ $solicitud->objetivo ?? '—' }}"
+                                        data-justificacion="{{ $solicitud->justificacion ?? '—' }}"
+                                        data-actividades="{{ $solicitud->actividades ?? '—' }}"
+                                        data-impacto="{{ $solicitud->impacto_social ?? '—' }}"
+                                        onclick="verDetallesSolicitud(this)" class="px-4 py-2 bg-[#6BA53A]/10 text-[#4E7D24] hover:bg-[#6BA53A]/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 mx-auto" title="Ver detalles de la solicitud">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         Ver Solicitud
                                     </button>
@@ -121,6 +140,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                {{ $solicitudes->appends(request()->query())->links() }}
+            </div>
         </div>
     </div>
 
@@ -129,15 +151,17 @@
     <div id="content-documentos" class="hidden animate-fade-in">
 
         <!-- Buscador Premium Tab 2 -->
-        <div class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
+        <form method="GET" action="{{ route('coordinador.tramites') }}" class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
+            <input type="hidden" name="tab" value="documentos">
             <div class="relative w-full">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-documentos" class="sr-only">Buscar documentos</label>
-                <input type="text" id="search-documentos" aria-label="Buscar documentos pendientes" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, tipo de documento o nombre...">
+                <input type="text" name="search_documentos" value="{{ request('search_documentos') }}" id="search-documentos" aria-label="Buscar documentos pendientes" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, tipo de documento o nombre...">
+                <button type="submit" class="hidden">Buscar</button>
             </div>
-        </div>
+        </form>
 
         <!-- Documentos Pendientes -->
         <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 fade-in-up delay-200">
@@ -202,6 +226,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                {{ $documentosPendientes->appends(request()->query())->links() }}
+            </div>
         </div>
 
         <!-- Documentos Validados -->
@@ -260,72 +287,44 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                {{ $documentosValidados->appends(request()->query())->links() }}
+            </div>
         </div>
     </div>
 
-    <!-- Scripts: Tab switcher + DataTables -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <!-- Scripts: Tab switcher -->
     <script>
-        // Build JS dictionary dynamically from Eloquent items for view modal prefilling
-        window.solicitudesData = {
-            @foreach($solicitudes as $solicitud)
-                "{{ $solicitud->id }}": {
-                    estudiante: @json($solicitud->estudiante->nombre_completo ?? 'Sin Nombre'),
-                    matricula: @json($solicitud->estudiante->matricula ?? '—'),
-                    carrera: @json($solicitud->estudiante->carrera ?? '—'),
-                    semestre: @json($solicitud->estudiante->semestre ?? '—'),
-                    grupo: @json($solicitud->estudiante->grupo ?? '—'),
-                    unidad: @json($solicitud->unidadReceptora->nombre_empresa ?? 'No especificada'),
-                    departamento: @json($solicitud->unidadReceptora->unidad_receptora ?? 'General'),
-                    responsable: @json($solicitud->responsable ?? '—'),
-                    inicio: @json($solicitud->fecha_inicio ? $solicitud->fecha_inicio->format('d/m/Y') : '—'),
-                    fin: @json($solicitud->fecha_fin ? $solicitud->fecha_fin->format('d/m/Y') : '—'),
-                    estatus: @json($solicitud->estatus),
-                    titulo: @json($solicitud->titulo ?? 'Sin título'),
-                    objetivo: @json($solicitud->objetivo ?? '—'),
-                    justificacion: @json($solicitud->justificacion ?? '—'),
-                    actividades: @json($solicitud->actividades ?? '—'),
-                    impacto: @json($solicitud->impacto_social ?? '—'),
-                    observaciones: @json($solicitud->observaciones ?? 'Ninguna')
-                },
-            @endforeach
-        };
+        window.verDetallesSolicitud = function(btn) {
+            document.getElementById('view-sol-estudiante').textContent = btn.dataset.estudiante;
+            document.getElementById('view-sol-estudiante-sub').textContent = 'Estudiante: ' + btn.dataset.estudiante + ' | Cuenta: ' + btn.dataset.matricula;
+            document.getElementById('view-sol-matricula').textContent = btn.dataset.matricula;
+            document.getElementById('view-sol-carrera').textContent = btn.dataset.carrera;
+            document.getElementById('view-sol-semestre').textContent = btn.dataset.semestre;
+            document.getElementById('view-sol-grupo').textContent = btn.dataset.grupo;
+            document.getElementById('view-sol-unidad').textContent = btn.dataset.unidad + (btn.dataset.departamento ? ' (' + btn.dataset.departamento + ')' : '');
+            document.getElementById('view-sol-responsable').textContent = btn.dataset.responsable;
+            document.getElementById('view-sol-inicio').textContent = btn.dataset.inicio;
+            document.getElementById('view-sol-fin').textContent = btn.dataset.fin;
+            document.getElementById('view-sol-titulo').textContent = btn.dataset.titulo;
+            document.getElementById('view-sol-objetivo').textContent = btn.dataset.objetivo;
+            document.getElementById('view-sol-justificacion').textContent = btn.dataset.justificacion;
+            document.getElementById('view-sol-actividades').textContent = btn.dataset.actividades;
+            document.getElementById('view-sol-impacto').textContent = btn.dataset.impacto;
 
-        window.verDetallesSolicitud = function(id) {
-            const sol = window.solicitudesData[id];
-            if (!sol) return;
-
-            document.getElementById('view-sol-estudiante').textContent = sol.estudiante;
-            document.getElementById('view-sol-estudiante-sub').textContent = 'Estudiante: ' + sol.estudiante + ' | Cuenta: ' + sol.matricula;
-            document.getElementById('view-sol-matricula').textContent = sol.matricula;
-            document.getElementById('view-sol-carrera').textContent = sol.carrera;
-            document.getElementById('view-sol-semestre').textContent = sol.semestre;
-            document.getElementById('view-sol-grupo').textContent = sol.grupo;
-            document.getElementById('view-sol-unidad').textContent = sol.unidad + (sol.departamento ? ' (' + sol.departamento + ')' : '');
-            document.getElementById('view-sol-responsable').textContent = sol.responsable;
-            document.getElementById('view-sol-inicio').textContent = sol.inicio;
-            document.getElementById('view-sol-fin').textContent = sol.fin;
-            document.getElementById('view-sol-titulo').textContent = sol.titulo;
-            document.getElementById('view-sol-objetivo').textContent = sol.objetivo;
-            document.getElementById('view-sol-justificacion').textContent = sol.justificacion;
-            document.getElementById('view-sol-actividades').textContent = sol.actividades;
-            document.getElementById('view-sol-impacto').textContent = sol.impacto;
-
-            // Setup estatus badge classes
+            const estatus = btn.dataset.estatus;
             const badge = document.getElementById('view-sol-estatus-badge');
-            badge.textContent = sol.estatus;
+            badge.textContent = estatus;
             badge.className = 'px-2 py-0.5 inline-flex text-[10px] leading-5 font-bold rounded-lg uppercase border';
             
-            if (sol.estatus === 'pendiente') {
+            if (estatus === 'pendiente') {
                 badge.classList.add('bg-yellow-50', 'text-yellow-700', 'border-yellow-200');
-            } else if (sol.estatus === 'aprobada' || sol.estatus === 'en_proceso' || sol.estatus === 'finalizada') {
+            } else if (estatus === 'aprobada' || estatus === 'en_proceso' || estatus === 'finalizada') {
                 badge.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
             } else {
                 badge.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
             }
 
-            // Show modal
             document.getElementById('modal-ver-solicitud').classList.remove('hidden');
         };
 
@@ -350,7 +349,6 @@
         window.confirmarRechazarDoc = function(id) {
             const form = document.getElementById('form-rechazar-documento');
             form.action = `/coordinador/documentos/${id}/rechazar`;
-            // Pre-fill observations from the editable input in the row
             const obsInput = document.getElementById('obs-doc-' + id);
             if (obsInput) {
                 document.getElementById('obs-rechazo-doc').value = obsInput.value;
@@ -358,7 +356,6 @@
             document.getElementById('modal-confirmar-rechazar-doc').classList.remove('hidden');
         };
 
-        // Auto-dismiss alerts
         var successAlert = document.getElementById('successAlert');
         if (successAlert) {
             setTimeout(() => {
@@ -375,58 +372,6 @@
             }, 5000);
         }
 
-        // Helper to wait until jQuery and DataTables are loaded in the DOM (crucial for HTMX boosted navigation)
-        function runWhenjQueryReady(callback) {
-            if (window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable) {
-                callback();
-            } else {
-                setTimeout(function() {
-                    runWhenjQueryReady(callback);
-                }, 50);
-            }
-        }
-
-        // ── DataTables ──────────────────────────────────────────────
-        runWhenjQueryReady(function() {
-            const dtConfig = {
-                searching: true,
-                lengthChange: false,
-                pageLength: 5,
-                ordering: true,
-                info: false,
-                dom: 'rtp',
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' }
-            };
-
-            // Solicitudes
-            let tablaSolicitudes = $('#solicitudes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [5, 6] }]
-            });
-            $('#search-solicitudes').on('keyup', function() {
-                tablaSolicitudes.search(this.value).draw();
-            });
-
-            // Documentos Pendientes
-            let tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [4, 5, 6] }]
-            });
-
-            // Documentos Validados
-            let tablaDocsValidados = $('#documentos-validados-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [3, 4] }]
-            });
-
-            // Búsqueda unificada para el tab de documentos
-            $('#search-documentos').on('keyup', function() {
-                tablaDocsPendientes.search(this.value).draw();
-                tablaDocsValidados.search(this.value).draw();
-            });
-        });
-
-        // ── Tab Switcher ─────────────────────────────────────────────
         function switchTab(tab) {
             document.getElementById('content-solicitudes').classList.add('hidden');
             document.getElementById('content-solicitudes').classList.remove('block');
@@ -451,6 +396,14 @@
                 document.getElementById('tab-documentos').classList.remove('border-transparent', 'text-gray-500', 'font-bold');
             }
         }
+        
+        // Auto-switch based on URL param
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'documentos') {
+                switchTab('documentos');
+            }
+        });
     </script>
 @endsection
 

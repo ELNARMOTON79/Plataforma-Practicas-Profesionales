@@ -24,7 +24,7 @@ class CoordinadorController extends Controller
         $estudiantesActivos = DB::table('estudiantes')->count();
         $instituciones = DB::table('unidades_receptoras')->count();
         $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
-        $proyectosActivos = DB::table('convenios')->where('estatus', 'activo')->count();
+        $proyectosActivos = DB::table('solicitudes')->where('estatus', 'aprobada')->count();
 
         // Fetch recent logs
         $recentLogs = \App\Models\Bitacora::orderBy('timestamp', 'desc')->take(5)->get();
@@ -223,26 +223,58 @@ class CoordinadorController extends Controller
     /**
      * Show the tramites (procedures) page with practice applications.
      */
-    public function tramites()
+    public function tramites(Request $request)
     {
         if (auth()->user()->rol_id != 2) {
             return redirect('/');
         }
 
-        $solicitudes = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
+        $searchSolicitudes = $request->input('search_solicitudes');
+        $searchDocumentos = $request->input('search_documentos');
+        
+        $querySolicitudes = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
             ->where('estatus', 'pendiente')
-            ->orderBy('id', 'desc')
-            ->get();
+            ->orderBy('id', 'desc');
 
-        $documentosPendientes = \App\Models\Documento::with(['solicitud.estudiante'])
+        if ($searchSolicitudes) {
+            $querySolicitudes->where(function($q) use ($searchSolicitudes) {
+                $q->whereHas('estudiante', function($q2) use ($searchSolicitudes) {
+                    $q2->where('nombre_completo', 'like', "%{$searchSolicitudes}%")
+                      ->orWhere('matricula', 'like', "%{$searchSolicitudes}%");
+                })->orWhereHas('unidadReceptora', function($q3) use ($searchSolicitudes) {
+                    $q3->where('nombre_empresa', 'like', "%{$searchSolicitudes}%");
+                });
+            });
+        }
+        $solicitudes = $querySolicitudes->paginate(5, ['*'], 'sol_page');
+
+        $queryPendientes = \App\Models\Documento::with(['solicitud.estudiante'])
             ->where('estatus', 'pendiente')
-            ->orderBy('id', 'desc')
-            ->get();
+            ->orderBy('id', 'desc');
 
-        $documentosValidados = \App\Models\Documento::with(['solicitud.estudiante'])
+        if ($searchDocumentos) {
+            $queryPendientes->where(function($q) use ($searchDocumentos) {
+                $q->where('nombre_doc', 'like', "%{$searchDocumentos}%")
+                  ->orWhereHas('solicitud.estudiante', function($q2) use ($searchDocumentos) {
+                      $q2->where('nombre_completo', 'like', "%{$searchDocumentos}%");
+                  });
+            });
+        }
+        $documentosPendientes = $queryPendientes->paginate(5, ['*'], 'doc_pen_page');
+
+        $queryValidados = \App\Models\Documento::with(['solicitud.estudiante'])
             ->whereIn('estatus', ['aprobado', 'rechazado'])
-            ->orderBy('id', 'desc')
-            ->get();
+            ->orderBy('id', 'desc');
+
+        if ($searchDocumentos) {
+            $queryValidados->where(function($q) use ($searchDocumentos) {
+                $q->where('nombre_doc', 'like', "%{$searchDocumentos}%")
+                  ->orWhereHas('solicitud.estudiante', function($q2) use ($searchDocumentos) {
+                      $q2->where('nombre_completo', 'like', "%{$searchDocumentos}%");
+                  });
+            });
+        }
+        $documentosValidados = $queryValidados->paginate(5, ['*'], 'doc_val_page');
 
         return view('coordinador.tramites', compact('solicitudes', 'documentosPendientes', 'documentosValidados'));
     }
@@ -257,6 +289,11 @@ class CoordinadorController extends Controller
         }
 
         $solicitud = \App\Models\Solicitud::findOrFail($id);
+        
+        if ($solicitud->estatus !== 'pendiente') {
+            return redirect()->back()->with('warning', 'Esta solicitud ya fue procesada anteriormente.');
+        }
+        
         $solicitud->estatus = 'aprobada';
         $solicitud->save();
 
@@ -282,6 +319,11 @@ class CoordinadorController extends Controller
         }
 
         $solicitud = \App\Models\Solicitud::findOrFail($id);
+        
+        if ($solicitud->estatus !== 'pendiente') {
+            return redirect()->back()->with('warning', 'Esta solicitud ya fue procesada anteriormente.');
+        }
+
         $solicitud->estatus = 'rechazada';
         if ($request->has('observaciones')) {
             $solicitud->observaciones = $request->input('observaciones');
@@ -310,6 +352,11 @@ class CoordinadorController extends Controller
         }
 
         $doc = \App\Models\Documento::findOrFail($id);
+        
+        if ($doc->estatus !== 'pendiente') {
+            return redirect()->back()->with('warning', 'Este documento ya fue procesado anteriormente.');
+        }
+        
         $doc->estatus = 'aprobado';
         $doc->save();
 
@@ -336,6 +383,11 @@ class CoordinadorController extends Controller
         }
 
         $doc = \App\Models\Documento::findOrFail($id);
+        
+        if ($doc->estatus !== 'pendiente') {
+            return redirect()->back()->with('warning', 'Este documento ya fue procesado anteriormente.');
+        }
+        
         $doc->estatus = 'rechazado';
         if ($request->has('observaciones')) {
             $doc->observaciones = $request->input('observaciones');

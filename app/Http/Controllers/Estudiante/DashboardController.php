@@ -30,12 +30,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        $nombre    = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera   = $estudiante?->carrera   ?? '—';
-        $semestre  = $estudiante?->semestre  ?? null;
-        $grupo     = $estudiante?->grupo     ?? null;
-        $iniciales = $this->iniciales($nombre);
+        $semestre = $estudiante?->semestre ?? null; $grupo = $estudiante?->grupo ?? null;
 
         $horasCompletadas = 0;
         $solicitudesActivas = 0;
@@ -147,13 +142,7 @@ class DashboardController extends Controller
             : 0;
 
         return view('estudiante.dashboard', [
-            'nombre'    => $nombre,
-            'matricula' => $matricula,
-            'carrera'   => $carrera,
-            'semestre'  => $semestre,
-            'grupo'     => $grupo,
-            'iniciales' => $iniciales,
-            'horasCompletadas' => (int) $horasCompletadas,
+            'semestre' => $semestre, 'grupo' => $grupo, 'horasCompletadas' => (int) $horasCompletadas,
             'horasMeta' => self::HORAS_META,
             'porcentajeHoras' => $porcentajeHoras,
             'solicitudesActivas' => $solicitudesActivas,
@@ -179,10 +168,7 @@ class DashboardController extends Controller
             return redirect()->route('estudiante.misSolicitudes')->with('error', 'Ya cuentas con una solicitud registrada. Solo se permite una por estudiante.');
         }
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
+        
 
         $unidades = UnidadReceptora::with('user')->orderBy('nombre_empresa')->get();
         $urId = request('ur_id');
@@ -200,10 +186,6 @@ class DashboardController extends Controller
         }
 
         return view('estudiante.nueva_solicitud', [
-            'nombre'         => $nombre,
-            'matricula'      => $matricula,
-            'carrera'        => $carrera,
-            'iniciales'      => $iniciales,
             'unidades'       => $unidades,
             'unidadSelected' => $unidadSelected,
         ]);
@@ -222,17 +204,10 @@ class DashboardController extends Controller
             return redirect()->route('estudiante.misSolicitudes')->with('error', 'Ya cuentas con una solicitud registrada. Solo se permite una por estudiante.');
         }
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
+        
 
         return view('estudiante.nueva_solicitud_detalles', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-        ]);
+            ]);
     }
 
     public function storeSolicitud(\Illuminate\Http\Request $request)
@@ -298,16 +273,72 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
+        
+
+        $solicitud = $estudiante ? $estudiante->solicitudes()->orderByDesc('id')->first() : null;
+        
+        $documentos = $solicitud ? $solicitud->documentos : collect([]);
+        
+        $estadisticas = [
+            'total' => 6,
+            'subidos' => $documentos->count(),
+            'aprobados' => $documentos->where('estatus', 'aprobado')->count(),
+            'pendientes' => $documentos->where('estatus', 'pendiente')->count(),
+            'rechazados' => $documentos->where('estatus', 'rechazado')->count(),
+        ];
+
+        $expediente = [];
+        if ($solicitud) {
+            $documentosCargados = $documentos->keyBy('nombre_doc');
+            $isApprovedSolicitud = in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']);
+            
+            $docsALoad = [
+                'Carta de Presentación',
+                'Carta de Aceptación',
+                'Plan de Trabajo',
+                'Memoria de Prácticas',
+                'Evaluación de Desempeño',
+                'Carta de Término',
+            ];
+            
+            $previousAprobada = true;
+            
+            foreach ($docsALoad as $docName) {
+                $dbDoc = $documentosCargados->get($docName);
+                if ($dbDoc) {
+                    if ($dbDoc->estatus === 'aprobado') {
+                        $status = 'approved';
+                    } elseif ($dbDoc->estatus === 'pendiente') {
+                        $status = 'review';
+                    } else {
+                        $status = 'rejected';
+                    }
+                } else {
+                    if ($docName === 'Carta de Presentación' || $docName === 'Plan de Trabajo') {
+                        $status = $isApprovedSolicitud ? 'system' : 'pending';
+                    } elseif (!$previousAprobada) {
+                        $status = 'locked';
+                    } else {
+                        $status = 'pending';
+                    }
+                }
+                
+                $expediente[] = [
+                    'nombre' => $docName,
+                    'status' => $status,
+                    'model'  => $dbDoc
+                ];
+                
+                if ($docName !== 'Carta de Presentación' && $docName !== 'Plan de Trabajo') {
+                    $previousAprobada = ($dbDoc && $dbDoc->estatus === 'aprobado');
+                }
+            }
+        }
 
         return view('estudiante.documentacion', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
+            'solicitud' => $solicitud,
+            'estadisticas' => $estadisticas,
+            'expediente' => $expediente,
         ]);
     }
 
@@ -349,10 +380,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
+        
 
         // Use dedicated columns; fall back to splitting nombre_completo for legacy records
         if ($estudiante?->primer_nombre !== null) {
@@ -365,10 +393,6 @@ class DashboardController extends Controller
         }
 
         return view('estudiante.mi_perfil', [
-            'nombre'      => $nombre,
-            'matricula'   => $matricula,
-            'carrera'     => $carrera,
-            'iniciales'   => $iniciales,
             'correo'      => $user->correo,
             'primerNombre'=> $primerNombre,
             'apellidos'   => $apellidos,
@@ -443,7 +467,6 @@ class DashboardController extends Controller
             'nombre' => $estudiante->nombre_completo,
             'matricula' => $estudiante->matricula,
             'carrera' => $estudiante->carrera,
-            'iniciales' => $this->iniciales($estudiante->nombre_completo),
             'solicitudes' => $solicitudes,
         ]);
     }
@@ -512,10 +535,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
+        
 
         $solicitud = $estudiante ? $estudiante->solicitudes()->with(['unidadReceptora', 'horas', 'documentos'])->orderByDesc('id')->first() : null;
 
@@ -613,10 +633,6 @@ class DashboardController extends Controller
             : ['Actividades afines al perfil de egreso y lineamientos de la institución'];
 
         return view('estudiante.proyecto', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
             'solicitud' => $solicitud,
             'horasCompletadas' => $horasCompletadas,
             'horasMeta' => $horasMeta,
@@ -633,39 +649,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function notificaciones()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        return view('estudiante.notificaciones', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-        ]);
-    }
-
-    private function iniciales(string $nombre): string
-    {
-        $partes = preg_split('/\s+/', trim($nombre)) ?: [];
-        $iniciales = collect($partes)
-            ->filter()
-            ->take(2)
-            ->map(fn ($p) => Str::upper(Str::substr($p, 0, 1)))
-            ->implode('');
-
-        return $iniciales !== '' ? $iniciales : 'E';
-    }
+    
 
     private function actividadReciente(?Estudiante $estudiante): array
     {
@@ -780,26 +764,9 @@ class DashboardController extends Controller
         $file = $request->file('archivo');
         $fileName = 'solicitud_' . $solicitud->id . '_' . Str::slug($request->input('nombre_doc')) . '_' . time() . '.pdf';
         
-        $dbPath = '';
-        $uploadedToDrive = false;
-
-        // Intentar subir a Google Drive
-        try {
-            $driveService = new \App\Services\GoogleDriveService();
-            $driveResult = $driveService->uploadFile($file->getRealPath(), $fileName, $file->getMimeType());
-            if ($driveResult) {
-                $dbPath = $driveResult['link'];
-                $uploadedToDrive = true;
-            }
-        } catch (\Exception $driveEx) {
-            \Log::error('Carga fallida a Google Drive, usando respaldo local: ' . $driveEx->getMessage());
-        }
-
-        // Si la carga a Drive no está configurada o falló, usar almacenamiento local
-        if (!$uploadedToDrive) {
-            $file->storeAs('documentos', $fileName, 'public');
-            $dbPath = 'storage/documentos/' . $fileName;
-        }
+        // Usar almacenamiento local
+        $file->storeAs('documentos', $fileName, 'public');
+        $dbPath = 'storage/documentos/' . $fileName;
 
         // Check if document already exists
         $documento = Documento::where('solicitud_id', $solicitud->id)
@@ -838,6 +805,6 @@ class DashboardController extends Controller
             ['solicitud_id' => $solicitud->id, 'documento' => $request->input('nombre_doc')]
         );
 
-        return redirect()->route('estudiante.proyecto')->with('success', "El documento '{$request->input('nombre_doc')}' se ha subido correctamente para verificación.");
+        return back()->with('success', "El documento '{$request->input('nombre_doc')}' se ha subido correctamente para verificación.");
     }
 }
