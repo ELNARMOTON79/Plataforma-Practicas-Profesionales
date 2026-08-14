@@ -81,6 +81,11 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/coordinador/documentos/{id}/aprobar', [CoordinadorController::class, 'aprobarDocumento'])->name('coordinador.documentos.aprobar');
     Route::post('/coordinador/documentos/{id}/rechazar', [CoordinadorController::class, 'rechazarDocumento'])->name('coordinador.documentos.rechazar');
 
+    // Seguimiento
+    Route::get('/coordinador/seguimiento', [CoordinadorController::class, 'seguimiento'])->name('coordinador.seguimiento');
+
+    // Solicitud al administrador
+    Route::post('/coordinador/solicitar-edicion', [CoordinadorController::class, 'solicitarEdicion'])->name('coordinador.solicitar-edicion');
     Route::get('/coordinador/informes', [CoordinadorController::class, 'informes'])->name('coordinador.informes');
     Route::get('/coordinador/informes/export', [CoordinadorController::class, 'exportInformes'])->name('coordinador.informes.export');
 

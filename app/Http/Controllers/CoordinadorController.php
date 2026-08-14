@@ -1280,4 +1280,116 @@ class CoordinadorController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Muestra la vista de seguimiento con alumnos activos y gráfica.
+     */
+    public function seguimiento(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        // Obtener estudiantes con proyectos activos
+        $solicitudesActivas = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora', 'horas'])
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->get();
+
+        $alumnosActivos = [];
+        $horasRango = [
+            '0_25' => 0,
+            '26_50' => 0,
+            '51_75' => 0,
+            '76_100' => 0
+        ];
+
+        foreach ($solicitudesActivas as $sol) {
+            if (!$sol->estudiante) continue;
+            
+            $horasCompletadas = $sol->horas->sum('cantidad_horas');
+            $horasMeta = 480;
+            $porcentaje = $horasMeta > 0 ? min(100, round(($horasCompletadas / $horasMeta) * 100)) : 0;
+
+            $alumnosActivos[] = [
+                'id' => $sol->estudiante->id,
+                'nombre' => $sol->estudiante->nombre_completo,
+                'matricula' => $sol->estudiante->matricula,
+                'unidad_receptora' => $sol->unidadReceptora ? $sol->unidadReceptora->nombre_empresa : 'N/A',
+                'horas_completadas' => $horasCompletadas,
+                'porcentaje' => $porcentaje
+            ];
+
+            if ($porcentaje <= 25) {
+                $horasRango['0_25']++;
+            } elseif ($porcentaje <= 50) {
+                $horasRango['26_50']++;
+            } elseif ($porcentaje <= 75) {
+                $horasRango['51_75']++;
+            } else {
+                $horasRango['76_100']++;
+            }
+        }
+
+        // Paginación manual para la tabla
+        $perPage = $request->query('per_page', 10);
+        $page = $request->query('page', 1);
+        $offset = ($page - 1) * $perPage;
+        
+        $alumnosPaginados = new \Illuminate\Pagination\LengthAwarePaginator(
+            array_slice($alumnosActivos, $offset, $perPage),
+            count($alumnosActivos),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('coordinador.seguimiento.seguimiento', [
+            'alumnosPaginados' => $alumnosPaginados,
+            'horasRango' => $horasRango,
+            'totalActivos' => count($alumnosActivos)
+        ]);
+    }
+
+    /**
+     * Envia notificación al administrador para editar o dar de baja.
+     */
+    public function solicitarEdicion(Request $request)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
+        }
+
+        $request->validate([
+            'tipo_registro' => 'required|in:alumno,institucion',
+            'nombre_registro' => 'required|string|max:255',
+            'mensaje_soporte' => 'required|string|max:1000'
+        ]);
+
+        try {
+            $admin = \App\Models\User::where('rol_id', 1)->first();
+            $adminEmail = $admin ? $admin->correo : config('mail.from.address');
+            
+            $coordinador = auth()->user();
+
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(
+                new \App\Mail\SolicitudSoporteAdminMail(
+                    $coordinador,
+                    $request->tipo_registro,
+                    $request->nombre_registro,
+                    $request->mensaje_soporte
+                )
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Solicitud enviada al administrador exitosamente.'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error enviando correo de soporte: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al enviar la solicitud.'
+            ], 500);
+        }
+    }
 }
