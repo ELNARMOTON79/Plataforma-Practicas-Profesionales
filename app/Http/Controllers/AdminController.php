@@ -29,13 +29,17 @@ class AdminController extends Controller
             ->get();
 
         // Calculate KPI Metrics from database
-        $totalAlumnos = \DB::table('estudiantes')->where('activo_practica', 1)->count();
-        $conveniosActivos = \DB::table('convenios')->where('estatus', 'activo')->count();
+        // Alumnos activos: solicitudes aprobadas o en proceso
+        $totalAlumnos = \DB::table('solicitudes')->whereIn('estatus', ['aprobada', 'en_proceso'])->count();
+        
+        // Convenios/Empresas Activas
+        $conveniosActivos = \DB::table('unidades_receptoras')->count();
+        
+        // Solicitudes Pendientes
         $solicitudesPendientes = \DB::table('solicitudes')->where('estatus', 'pendiente')->count();
         
-        // System alerts (Convenios expiring in the next 30 days)
+        // System alerts (Convenios expirando) - fallback a unidades receptoras o convenios sin estatus estricto
         $alertasSistema = \DB::table('convenios')
-            ->where('estatus', 'activo')
             ->whereBetween('fecha_termino', [
                 \Carbon\Carbon::now()->toDateString(), 
                 \Carbon\Carbon::now()->addDays(30)->toDateString()
