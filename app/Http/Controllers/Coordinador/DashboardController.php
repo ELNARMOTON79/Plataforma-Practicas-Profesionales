@@ -19,8 +19,11 @@ class DashboardController extends Controller
         $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
         $proyectosActivos = DB::table('convenios')->where('estatus', 'activo')->count();
 
-        // Fetch recent logs
-        $recentLogs = \App\Models\Bitacora::orderBy('timestamp', 'desc')->take(5)->get();
+        // Fetch recent documents uploaded by students
+        $ultimosDocumentos = \App\Models\Documento::with(['solicitud.estudiante', 'solicitud.unidadReceptora'])
+            ->orderBy('id', 'desc')
+            ->take(6)
+            ->get();
         
         // Fetch pending solicitudes (applications)
         $pendingSolicitudes = \App\Models\Solicitud::with(['estudiante', 'unidadReceptora'])
@@ -46,7 +49,7 @@ class DashboardController extends Controller
                 'tipo' => 'solicitud',
                 'detalle' => $solicitud->unidadReceptora->nombre_empresa ?? 'No especificada',
                 'badge_text' => 'Solicitud Prácticas',
-                'badge_class' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                'badge_class' => 'bg-amber-50 text-amber-700 border-amber-200',
                 'link' => route('coordinador.tramites'),
                 'accion_label' => 'Revisar',
                 'fecha' => $solicitud->fecha_inicio
@@ -77,7 +80,7 @@ class DashboardController extends Controller
             'instituciones',
             'tramitesPendientes',
             'proyectosActivos',
-            'recentLogs',
+            'ultimosDocumentos',
             'pendientesPorAtender'
         ));
     }
