@@ -216,7 +216,7 @@
                                         </a>
                                     @else
                                         <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow transition-all uppercase">
-                                            Registrar
+                                            Revisar Trámite
                                         </a>
                                     @endif
                                     <button type="button" onclick="abrirEditarAlumno('{{ $alumno->id }}')" class="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all shadow-sm" title="Editar alumno {{ $alumno->nombre_completo }}" aria-label="Editar alumno">
