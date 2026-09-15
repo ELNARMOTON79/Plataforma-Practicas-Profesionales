@@ -67,10 +67,9 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\Coordinador\ProyectoController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
     Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
-    Route::get('/coordinador/tramites', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.tramites');
-    })->name('coordinador.tramites');
+    Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
+    Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
+    Route::patch('/coordinador/tramites/solicitud/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarSolicitud'])->name('coordinador.tramites.solicitud.rechazar');
 
     Route::get('/coordinador/seguimiento', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'index'])->name('coordinador.seguimiento');
     Route::get('/coordinador/seguimiento/{id}', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'show'])->name('coordinador.seguimiento.show');

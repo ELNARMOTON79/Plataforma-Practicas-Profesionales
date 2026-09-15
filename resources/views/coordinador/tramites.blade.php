@@ -38,6 +38,13 @@
         }
     </style>
 
+    @if(session('success'))
+        <div class="mb-6 p-4 rounded-2xl bg-green-50 border border-green-200 text-green-800 text-sm font-semibold flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Metrics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 fade-in-up delay-100">
         <!-- Solicitudes Pendientes -->
@@ -47,10 +54,12 @@
             </div>
             <span class="text-sm font-bold text-gray-500 mb-2">Solicitudes Pendientes</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900">3</span>
-                <span class="flex items-center text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md mb-1 border border-yellow-100">
-                    Nuevas
-                </span>
+                <span class="text-4xl font-extrabold text-gray-900">{{ $solicitudesPendientesCount }}</span>
+                @if($solicitudesPendientesCount > 0)
+                    <span class="flex items-center text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md mb-1 border border-yellow-100">
+                        Nuevas
+                    </span>
+                @endif
             </div>
             <span class="text-xs text-gray-400 font-medium">Revisión de inicio de prácticas</span>
         </div>
@@ -62,10 +71,12 @@
             </div>
             <span class="text-sm font-bold text-gray-500 mb-2">Documentos por Validar</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900">2</span>
-                <span class="flex items-center text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md mb-1 border border-orange-100">
-                    Pendientes
-                </span>
+                <span class="text-4xl font-extrabold text-gray-900">{{ $documentosPendientesCount }}</span>
+                @if($documentosPendientesCount > 0)
+                    <span class="flex items-center text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md mb-1 border border-orange-100">
+                        Pendientes
+                    </span>
+                @endif
             </div>
             <span class="text-xs text-gray-400 font-medium">Expedientes de alumnos</span>
         </div>
@@ -77,7 +88,7 @@
             </div>
             <span class="text-sm font-bold text-gray-500 mb-2">Documentos Validados</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900">2</span>
+                <span class="text-4xl font-extrabold text-gray-900">{{ $documentosValidadosCount }}</span>
             </div>
             <span class="text-xs text-gray-400 font-medium">Historial completo</span>
         </div>
@@ -89,7 +100,7 @@
             </div>
             <span class="text-sm font-bold text-gray-500 mb-2">Total de Trámites</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900">5</span>
+                <span class="text-4xl font-extrabold text-gray-900">{{ $totalTramitesCount }}</span>
             </div>
             <span class="text-xs text-gray-400 font-medium">Ciclo Escolar Activo</span>
         </div>
@@ -100,11 +111,11 @@
         <nav class="-mb-px flex space-x-8" aria-label="Navegación de trámites">
             <button onclick="switchTab('solicitudes')" id="tab-solicitudes" class="border-[#6BA53A] text-[#4E7D24] whitespace-nowrap py-4 px-2 border-b-4 font-extrabold text-sm transition-all flex items-center gap-2">
                 Solicitudes de Prácticas
-                <span class="bg-red-100 text-red-700 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">3</span>
+                <span class="bg-red-100 text-red-700 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">{{ $solicitudesPendientesCount }}</span>
             </button>
             <button onclick="switchTab('documentos')" id="tab-documentos" class="border-transparent text-gray-500 hover:text-[#4E7D24] hover:border-gray-300 whitespace-nowrap py-4 px-2 border-b-4 font-bold text-sm transition-all flex items-center gap-2">
                 Validación de Documentos
-                <span class="bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">5</span>
+                <span class="bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">{{ $documentosPendientesCount }}</span>
             </button>
         </nav>
     </div>
@@ -112,21 +123,21 @@
     <!-- TAB 1: SOLICITUDES DE PRÁCTICAS -->
     <div id="content-solicitudes" class="block animate-fade-in">
         <!-- Buscador Premium Tab 1 -->
-        <div class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
+        <form method="GET" action="{{ route('coordinador.tramites') }}" class="glass-card rounded-2xl p-4 mb-6 fade-in-up delay-100">
             <div class="relative w-full">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-solicitudes" class="sr-only">Buscar solicitudes</label>
-                <input type="text" id="search-solicitudes" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-2xl bg-white/50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-sm font-medium transition-all" placeholder="Buscar por estudiante, institución, matrícula o periodo...">
+                <input type="text" id="search-solicitudes" name="search_solicitudes" value="{{ request('search_solicitudes') }}" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-2xl bg-white/50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-sm font-medium transition-all" placeholder="Buscar por estudiante, institución o matrícula...">
             </div>
-        </div>
+        </form>
 
         <!-- Tabla Premium de Solicitudes -->
         <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
             <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 text-left">
                 <svg class="w-5 h-5 text-[#6BA53A]" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Solicitudes Pendientes
+                Solicitudes Registradas
             </h2>
 
             <div class="overflow-x-auto">
@@ -135,138 +146,93 @@
                         <tr>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante / Matrícula</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Institución / Periodo</th>
-                            <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Carga Horaria</th>
+                            <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Observaciones</th>
                             <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        <!-- Row 1 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none">
-                                        JD
+                        @foreach($solicitudes as $solicitud)
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
+                                <!-- Estudiante -->
+                                <td class="px-6 py-3 whitespace-nowrap text-left">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none">
+                                            {{ strtoupper(substr($solicitud->estudiante->nombre_completo ?? 'E', 0, 2)) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">
+                                                {{ $solicitud->estudiante->nombre_completo ?? 'Estudiante no registrado' }}
+                                            </div>
+                                            <div class="text-[10px] text-gray-400 font-semibold mt-0.5">
+                                                Matrícula: {{ $solicitud->estudiante->matricula ?? 'N/A' }}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">DOMINGUEZ MARCOS JAZMIN</div>
-                                        <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Matrícula: 20206744</div>
+                                </td>
+                                <!-- Institución y Periodo -->
+                                <td class="px-6 py-3 text-left max-w-[200px] whitespace-normal">
+                                    <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">
+                                        {{ $solicitud->unidadReceptora->nombre_empresa ?? 'No especificada' }}
                                     </div>
-                                </div>
-                            </td>
-                            <!-- Institución y Periodo -->
-                            <td class="px-6 py-3 text-left max-w-[200px] whitespace-normal">
-                                <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">H. AYUNTAMIENTO DE COLIMA</div>
-                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Periodo: AGO-2026/ENE-2027</div>
-                            </td>
-                            <!-- Carga Horaria -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-gray-100 text-gray-700">
-                                    20 Hrs / Semana
-                                </span>
-                            </td>
-                            <!-- Observaciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
-                                <label for="obs-sol-1" class="sr-only">Observaciones para Dominguez Marcos Jazmin</label>
-                                <input type="text" id="obs-sol-1" aria-label="Observaciones para Dominguez Marcos Jazmin" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <!-- Acciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Aprobar solicitud de Dominguez Marcos Jazmin">
-                                        Aprobar
-                                    </button>
-                                    <button class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar solicitud de Dominguez Marcos Jazmin">
-                                        Rechazar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Row 2 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none">
-                                        AH
+                                    <div class="text-[10px] text-gray-400 font-semibold mt-0.5">
+                                        Periodo: {{ $solicitud->fecha_inicio ? \Carbon\Carbon::parse($solicitud->fecha_inicio)->format('d/m/Y') : 'N/A' }} - {{ $solicitud->fecha_fin ? \Carbon\Carbon::parse($solicitud->fecha_fin)->format('d/m/Y') : 'N/A' }}
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">HERRERA RUIZ ALEJANDRO</div>
-                                        <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Matrícula: 20194852</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Institución y Periodo -->
-                            <td class="px-6 py-3 text-left max-w-[200px] whitespace-normal">
-                                <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">TERNIUM MÉXICO S.A. DE C.V.</div>
-                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Periodo: AGO-2026/ENE-2027</div>
-                            </td>
-                            <!-- Carga Horaria -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-gray-100 text-gray-700">
-                                    20 Hrs / Semana
-                                </span>
-                            </td>
-                            <!-- Observaciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
-                                <label for="obs-sol-2" class="sr-only">Observaciones para Herrera Ruiz Alejandro</label>
-                                <input type="text" id="obs-sol-2" aria-label="Observaciones para Herrera Ruiz Alejandro" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <!-- Acciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Aprobar solicitud de Herrera Ruiz Alejandro">
-                                        Aprobar
-                                    </button>
-                                    <button class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar solicitud de Herrera Ruiz Alejandro">
-                                        Rechazar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Row 3 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none">
-                                        MF
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">FLORES SILVA MARIANA</div>
-                                        <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Matrícula: 20213094</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Institución y Periodo -->
-                            <td class="px-6 py-3 text-left max-w-[200px] whitespace-normal">
-                                <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">IMSS - DELEGACIÓN COLIMA</div>
-                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Periodo: AGO-2026/ENE-2027</div>
-                            </td>
-                            <!-- Carga Horaria -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-gray-100 text-gray-700">
-                                    20 Hrs / Semana
-                                </span>
-                            </td>
-                            <!-- Observaciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
-                                <label for="obs-sol-3" class="sr-only">Observaciones para Flores Silva Mariana</label>
-                                <input type="text" id="obs-sol-3" aria-label="Observaciones para Flores Silva Mariana" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
-                            </td>
-                            <!-- Acciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Aprobar solicitud de Flores Silva Mariana">
-                                        Aprobar
-                                    </button>
-                                    <button class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar solicitud de Flores Silva Mariana">
-                                        Rechazar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                                <!-- Estado -->
+                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                    @if($solicitud->estatus == 'pendiente')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-200 uppercase">
+                                            Pendiente
+                                        </span>
+                                    @elseif($solicitud->estatus == 'aprobada')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-green-100 text-green-800 border border-green-200 uppercase">
+                                            Aprobada
+                                        </span>
+                                    @elseif($solicitud->estatus == 'rechazada')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-red-100 text-red-800 border border-red-200 uppercase">
+                                            Rechazada
+                                        </span>
+                                    @else
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-gray-100 text-gray-700 uppercase">
+                                            {{ $solicitud->estatus }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <!-- Observaciones -->
+                                <td class="px-6 py-3 whitespace-normal text-left min-w-[200px]">
+                                    @if($solicitud->estatus == 'pendiente')
+                                        <input type="text" id="obs-input-{{ $solicitud->id }}" form="form-aprobar-{{ $solicitud->id }}" name="observaciones" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
+                                    @else
+                                        <span class="text-xs text-gray-500 italic">{{ $solicitud->observaciones ?? 'Sin observaciones' }}</span>
+                                    @endif
+                                </td>
+                                <!-- Acciones -->
+                                <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
+                                    @if($solicitud->estatus == 'pendiente')
+                                        <div class="flex justify-center gap-2">
+                                            <form id="form-aprobar-{{ $solicitud->id }}" action="{{ route('coordinador.tramites.solicitud.aprobar', $solicitud->id) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Aprobar solicitud">
+                                                    Aprobar
+                                                </button>
+                                            </form>
+                                            <form id="form-rechazar-{{ $solicitud->id }}" action="{{ route('coordinador.tramites.solicitud.rechazar', $solicitud->id) }}" method="POST" onsubmit="document.getElementById('hidden-obs-{{ $solicitud->id }}').value = document.getElementById('obs-input-{{ $solicitud->id }}').value">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" id="hidden-obs-{{ $solicitud->id }}" name="observaciones">
+                                                <button type="submit" class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar solicitud">
+                                                    Rechazar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span class="text-xs font-semibold text-gray-400">Procesado</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -305,106 +271,49 @@
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        <!-- Doc Row 1 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante / Tipo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-orange-100 text-orange-750 flex items-center justify-center font-bold text-xs select-none">
-                                        JD
+                        @foreach($documentosPendientes as $doc)
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
+                                <td class="px-6 py-3 whitespace-nowrap text-left">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-9 w-9 rounded-full bg-orange-100 text-orange-750 flex items-center justify-center font-bold text-xs select-none">
+                                            {{ strtoupper(substr($doc->solicitud->estudiante->nombre_completo ?? 'D', 0, 2)) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">
+                                                {{ $doc->solicitud->estudiante->nombre_completo ?? 'Estudiante' }}
+                                            </div>
+                                            <div class="text-[9px] font-bold text-orange-650 bg-orange-50/80 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">
+                                                {{ $doc->nombre_doc }}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">DOMINGUEZ MARCOS JAZMIN</div>
-                                        <div class="text-[9px] font-bold text-orange-650 bg-orange-50/80 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">CARTA DE ACEPTACIÓN</div>
+                                </td>
+                                <td class="px-6 py-3 text-left">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                        <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">
+                                            {{ basename($doc->ruta_archivo) }}
+                                        </a>
                                     </div>
-                                </div>
-                            </td>
-                            <!-- Archivo / Fecha -->
-                            <td class="px-6 py-3 text-left">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    <a href="#" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">carta_aceptacion_jazmin.pdf</a>
-                                </div>
-                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Cargado: 16/05/2026</div>
-                            </td>
-                            <!-- Acciones de Archivo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <div class="flex justify-center gap-1.5">
-                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento" aria-label="Ver documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-155 rounded-xl transition-all shadow-sm" title="Descargar documento" aria-label="Descargar documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                            <!-- Notas de Retroalimentación -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
-                                <label for="notas-doc-1" class="sr-only">Notas para carta de aceptación de Dominguez Marcos Jazmin</label>
-                                <input type="text" id="notas-doc-1" aria-label="Notas para carta de aceptación de Dominguez Marcos Jazmin" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir notas de retroalimentación...">
-                            </td>
-                            <!-- Validar -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Validar carta de aceptación">
-                                        Validar
-                                    </button>
-                                    <button class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar carta de aceptación">
-                                        Rechazar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Doc Row 2 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante / Tipo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-orange-100 text-orange-750 flex items-center justify-center font-bold text-xs select-none">
-                                        HA
+                                    <div class="text-[10px] text-gray-400 font-semibold mt-0.5">
+                                        Cargado: {{ $doc->fecha_carga ? \Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : 'N/A' }}
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">ALONSO CÁRDENAS HÉCTOR</div>
-                                        <div class="text-[9px] font-bold text-orange-650 bg-orange-50/80 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">SEGURO SOCIAL</div>
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                    <div class="flex justify-center gap-1.5">
+                                        <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </a>
                                     </div>
-                                </div>
-                            </td>
-                            <!-- Archivo / Fecha -->
-                            <td class="px-6 py-3 text-left">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    <a href="#" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">seguro_hector.pdf</a>
-                                </div>
-                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Cargado: 14/05/2026</div>
-                            </td>
-                            <!-- Acciones de Archivo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <div class="flex justify-center gap-1.5">
-                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento" aria-label="Ver documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-155 rounded-xl transition-all shadow-sm" title="Descargar documento" aria-label="Descargar documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                            <!-- Notas de Retroalimentación -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
-                                <label for="notas-doc-2" class="sr-only">Notas para seguro social de Alonso Cárdenas Héctor</label>
-                                <input type="text" id="notas-doc-2" aria-label="Notas para seguro social de Alonso Cárdenas Héctor" class="block w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir notas de retroalimentación...">
-                            </td>
-                            <!-- Validar -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Validar seguro social">
-                                        Validar
-                                    </button>
-                                    <button class="px-3 py-1.5 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Rechazar seguro social">
-                                        Rechazar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-left min-w-[200px]">
+                                    <span class="text-xs text-gray-500 italic">Pendiente de validación</span>
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
+                                    <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg border border-yellow-200">En revisión</span>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -428,84 +337,45 @@
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        <!-- Valid Row 1 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante / Tipo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-green-100 text-green-750 flex items-center justify-center font-bold text-xs select-none">
-                                        JP
+                        @foreach($documentosValidados as $docValid)
+                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
+                                <td class="px-6 py-3 whitespace-nowrap text-left">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-9 w-9 rounded-full bg-green-100 text-green-750 flex items-center justify-center font-bold text-xs select-none">
+                                            {{ strtoupper(substr($docValid->solicitud->estudiante->nombre_completo ?? 'V', 0, 2)) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">
+                                                {{ $docValid->solicitud->estudiante->nombre_completo ?? 'Estudiante' }}
+                                            </div>
+                                            <div class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">
+                                                {{ $docValid->nombre_doc }}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">PEREZ LOPEZ JUAN</div>
-                                        <div class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">OFICIO DE ASIGNACIÓN</div>
+                                </td>
+                                <td class="px-6 py-3 text-left">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                        <a href="{{ asset('storage/' . $docValid->ruta_archivo) }}" target="_blank" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">
+                                            {{ basename($docValid->ruta_archivo) }}
+                                        </a>
                                     </div>
-                                </div>
-                            </td>
-                            <!-- Archivo -->
-                            <td class="px-6 py-3 text-left">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    <a href="#" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">oficio_asignacion_juan.pdf</a>
-                                </div>
-                            </td>
-                            <!-- Estado -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 inline-flex items-center text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
-                                    <span class="w-1 h-1 rounded-full bg-green-500 mr-1.5"></span> Aprobado
-                                </span>
-                            </td>
-                            <!-- Acciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <div class="flex justify-center gap-1.5">
-                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento" aria-label="Ver documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-155 rounded-xl transition-all shadow-sm" title="Descargar documento" aria-label="Descargar documento">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Valid Row 2 -->
-                        <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
-                            <!-- Estudiante / Tipo -->
-                            <td class="px-6 py-3 whitespace-nowrap text-left">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full bg-red-100 text-red-750 flex items-center justify-center font-bold text-xs select-none">
-                                        SR
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                    <span class="px-2.5 py-1 inline-flex items-center text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
+                                        <span class="w-1 h-1 rounded-full bg-green-500 mr-1.5"></span> Validado
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                    <div class="flex justify-center gap-1.5">
+                                        <a href="{{ asset('storage/' . $docValid->ruta_archivo) }}" target="_blank" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </a>
                                     </div>
-                                    <div>
-                                        <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">RAMÍREZ MENDOZA SOFÍA</div>
-                                        <div class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md mt-1 inline-block uppercase">CARTA DE ACEPTACIÓN</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Archivo -->
-                            <td class="px-6 py-3 text-left">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    <a href="#" class="text-xs text-sky-700 font-bold hover:underline truncate max-w-[200px]">carta_aceptacion_sofia.pdf</a>
-                                </div>
-                            </td>
-                            <!-- Estado -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <span class="px-2.5 py-1 inline-flex items-center text-[10px] leading-5 font-bold rounded-lg bg-red-50 text-red-700 border border-red-100">
-                                    <span class="w-1 h-1 rounded-full bg-red-500 mr-1.5"></span> Rechazado
-                                </span>
-                            </td>
-                            <!-- Acciones -->
-                            <td class="px-6 py-3 whitespace-nowrap text-center">
-                                <div class="flex justify-center gap-1.5">
-                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver carta de aceptación de Ramírez Mendoza Sofía" aria-label="Ver carta de aceptación de Ramírez Mendoza Sofía">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-155 rounded-xl transition-all shadow-sm" title="Descargar carta de aceptación de Ramírez Mendoza Sofía" aria-label="Descargar carta de aceptación de Ramírez Mendoza Sofía">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
