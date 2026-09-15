@@ -140,28 +140,35 @@
                                     }
                                 @endphp
                                 <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3.5 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">
                                                 {{ $avatarText }}
                                             </div>
-                                            <div class="ml-4">
+                                            <div class="ml-3.5">
                                                 <div class="text-sm font-bold text-gray-900 leading-tight">{{ $nombre }}</div>
-                                                <div class="text-xs text-gray-500">Cuenta: {{ $pendiente->estudiante?->matricula ?? '' }}</div>
+                                                <div class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5 font-medium">
+                                                    <span>Cuenta: <strong class="text-gray-700 font-semibold">{{ $pendiente->estudiante?->matricula ?? 'S/N' }}</strong></span>
+                                                    @if($pendiente->estudiante?->carrera)
+                                                        <span class="text-gray-300">•</span>
+                                                        <span class="text-gray-500 truncate max-w-[130px]" title="{{ $pendiente->estudiante->carrera }}">{{ $pendiente->estudiante->carrera }}</span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $pendiente->badge_class }}">
+                                    <td class="px-4 py-3.5 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-4 font-bold rounded-lg border {{ $pendiente->badge_class }}">
                                             {{ $pendiente->badge_text }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-xs text-gray-600 font-semibold uppercase max-w-[150px] truncate">
+                                    <td class="px-4 py-3.5 text-xs text-gray-600 font-semibold uppercase max-w-[160px] truncate">
                                         {{ $pendiente->detalle }}
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium">
-                                        <a href="{{ $pendiente->link }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105 inline-block">
-                                            {{ $pendiente->accion_label }}
+                                    <td class="px-4 py-3.5 whitespace-nowrap text-right text-xs font-medium">
+                                        <a href="{{ $pendiente->link }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm transition-all hover:scale-105 inline-flex items-center gap-1">
+                                            <span>{{ $pendiente->accion_label }}</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </a>
                                     </td>
                                 </tr>
@@ -170,7 +177,7 @@
                                     <td colspan="4" class="px-4 py-12 text-center text-sm text-gray-500 font-medium">
                                         <div class="flex flex-col items-center justify-center gap-3">
                                             <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span class="text-gray-600">¡Todo al día! No hay trámites ni registros pendientes.</span>
+                                            <span class="text-gray-600 font-semibold">¡Todo al día! No hay trámites ni registros pendientes.</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -181,52 +188,65 @@
             </div>
         </div>
 
-        <!-- Right Column: Bitácora (40%) -->
+        <!-- Right Column: Últimos Documentos y Reportes (40%) -->
         <div class="flex flex-col gap-8 h-full">
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Bitácora de Actividades
+                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Últimos Documentos y Reportes
                     </h3>
+                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">Entregas Alumnos</span>
                 </div>
 
-                <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-6">
-                    <div class="absolute left-4 top-2 bottom-0 w-px bg-gray-200/75"></div>
-
-                    @forelse($recentLogs as $log)
+                <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-4">
+                    @forelse($ultimosDocumentos as $doc)
                         @php
-                            $dotColor = 'bg-gray-400 ring-gray-50';
-                            if ($log->level === 'success') {
-                                $dotColor = 'bg-green-500 ring-green-50';
-                            } elseif ($log->level === 'info') {
-                                $dotColor = 'bg-blue-500 ring-blue-50';
-                            } elseif ($log->level === 'warning') {
-                                $dotColor = 'bg-amber-500 ring-amber-50';
-                            } elseif ($log->level === 'danger') {
-                                $dotColor = 'bg-red-500 ring-red-50';
-                            }
+                            $nombreAlumno = $doc->solicitud->estudiante->nombre_completo ?? 'Estudiante';
+                            $matriculaAlumno = $doc->solicitud->estudiante->matricula ?? 'S/N';
+                            $empresa = $doc->solicitud->unidadReceptora->nombre_empresa ?? null;
+                            $fechaFormateada = $doc->fecha_carga ? \Carbon\Carbon::parse($doc->fecha_carga)->locale('es')->diffForHumans() : 'Reciente';
                         @endphp
-                        <div class="relative pl-10">
-                            <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ring-4 {{ $dotColor }}"></div>
-                            <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                                <div class="flex justify-between items-start mb-1 gap-2">
-                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">{{ $log->action }}</h4>
-                                    <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">{{ $log->timestamp ? $log->timestamp->diffForHumans() : '' }}</span>
+                        <div class="bg-white/80 rounded-2xl p-4 border border-gray-100/90 hover:shadow-md transition-all flex flex-col gap-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-[#6BA53A]/10 text-[#4E7D24] flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-gray-900 leading-tight">{{ $doc->nombre_doc }}</h4>
+                                        <p class="text-[11px] text-gray-500 font-medium">{{ $nombreAlumno }} • <span class="text-gray-400">Cuenta: {{ $matriculaAlumno }}</span></p>
+                                    </div>
                                 </div>
-                                <p class="text-xs text-gray-600 font-medium">{{ $log->description }}</p>
-                                <div class="text-[9px] text-gray-400 mt-1 font-semibold">Módulo: {{ $log->module }} | IP: {{ $log->ip }}</div>
+                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">{{ $fechaFormateada }}</span>
                             </div>
+
+                            @if($empresa)
+                                <div class="text-[10px] text-gray-500 font-medium bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 flex items-center justify-between">
+                                    <span class="truncate">Empresa: <strong class="text-gray-700 font-semibold">{{ $empresa }}</strong></span>
+                                    <a href="{{ route('coordinador.tramites') }}" class="text-[#4E7D24] hover:text-[#2E5417] font-bold text-[10px] flex items-center gap-0.5 ml-2 whitespace-nowrap">
+                                        Revisar
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     @empty
-                        <div class="text-center py-8 text-sm text-gray-500 font-medium">
-                            No hay actividades registradas en el sistema.
+                        <div class="text-center py-10 text-sm text-gray-500 font-medium">
+                            <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            No hay entregas de documentos registradas recientemente.
                         </div>
                     @endforelse
                 </div>
 
-                <a href="{{ Route::has('admin.bitacora') ? route('admin.bitacora') : '#' }}" class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200 text-center block">
-                    Ver Bitácora Completa
+                <a href="{{ route('coordinador.tramites') }}" class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-[#6BA53A]/10 text-gray-700 hover:text-[#4E7D24] font-bold rounded-xl transition-colors text-xs border border-gray-200 text-center block">
+                    Ver Todos los Trámites y Documentos
                 </a>
             </div>
         </div>

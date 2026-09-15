@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CoordinadorController;
 use App\Http\Controllers\Estudiante\DashboardController;
 
 Route::get('/', function () {
@@ -52,33 +51,39 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/admin/bitacora/clear', [App\Http\Controllers\AdminController::class, 'clearBitacora'])->name('admin.bitacora.clear');
     Route::get('/admin/bitacora/export', [App\Http\Controllers\AdminController::class, 'exportBitacora'])->name('admin.bitacora.export');
 
-    Route::get('/coordinador/dashboard', [CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
+    Route::get('/coordinador/dashboard', [App\Http\Controllers\Coordinador\DashboardController::class, 'dashboard'])->name('coordinador.dashboard');
 
-    Route::get('/coordinador/instituciones', [App\Http\Controllers\CoordinadorController::class, 'instituciones'])->name('coordinador.instituciones');
-    Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\CoordinadorController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
+    Route::get('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'instituciones'])->name('coordinador.instituciones');
+    Route::post('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'storeInstitucion'])->name('coordinador.instituciones.store');
+    Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\Coordinador\InstitucionController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
 
-    Route::get('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'alumnos'])->name('coordinador.alumnos');
-    Route::post('/coordinador/alumnos/bulk-store', [App\Http\Controllers\CoordinadorController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk-store');
+    Route::get('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'alumnos'])->name('coordinador.alumnos');
+    Route::post('/coordinador/alumnos/bulk-store', [App\Http\Controllers\Coordinador\AlumnoController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk-store');
+    Route::post('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
+    Route::put('/coordinador/alumnos/{id}', [App\Http\Controllers\Coordinador\AlumnoController::class, 'updateAlumno'])->name('coordinador.alumnos.update');
 
-    Route::post('/coordinador/alumnos', [App\Http\Controllers\CoordinadorController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
+    Route::get('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'proyectos'])->name('coordinador.proyectos');
+    Route::post('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
+    Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\Coordinador\ProyectoController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
+    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
-    Route::get('/coordinador/proyectos', [App\Http\Controllers\CoordinadorController::class, 'proyectos'])->name('coordinador.proyectos');
-    Route::post('/coordinador/proyectos', [App\Http\Controllers\CoordinadorController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
-    Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\CoordinadorController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
-    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\CoordinadorController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
+    Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
+    Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
+    Route::patch('/coordinador/tramites/solicitud/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarSolicitud'])->name('coordinador.tramites.solicitud.rechazar');
 
-    Route::get('/coordinador/tramites', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.tramites');
-    })->name('coordinador.tramites');
+    Route::get('/coordinador/seguimiento', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'index'])->name('coordinador.seguimiento');
+    Route::get('/coordinador/seguimiento/{id}', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'show'])->name('coordinador.seguimiento.show');
+    Route::post('/coordinador/seguimiento/{id}/save-notes', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveNotes'])->name('coordinador.seguimiento.save-notes');
+    Route::post('/coordinador/seguimiento/{id}/save-responsable', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveResponsable'])->name('coordinador.seguimiento.save-responsable');
 
     Route::get('/coordinador/informes', function () {
         if (auth()->user()->rol_id != 2) return redirect('/');
-        return view('coordinador.informes');
+        $carreras = \App\Models\Alumno::distinct()->pluck('carrera')->filter()->values();
+        return view('coordinador.informes', compact('carreras'));
     })->name('coordinador.informes');
 
-    Route::get('/coordinador/perfil', [App\Http\Controllers\CoordinadorController::class, 'perfil'])->name('coordinador.perfil');
-    Route::post('/coordinador/perfil/password', [App\Http\Controllers\CoordinadorController::class, 'updatePassword'])->name('coordinador.perfil.password');
+    Route::get('/coordinador/perfil', [App\Http\Controllers\Coordinador\PerfilController::class, 'perfil'])->name('coordinador.perfil');
+    Route::post('/coordinador/perfil/password', [App\Http\Controllers\Coordinador\PerfilController::class, 'updatePassword'])->name('coordinador.perfil.password');
 
     Route::get('/estudiante/dashboard', [DashboardController::class, 'index'])->name('estudiante.dashboard');
 

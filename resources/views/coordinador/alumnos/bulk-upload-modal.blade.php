@@ -5,25 +5,28 @@
 
     <div class="flex items-center justify-center min-h-screen p-4 md:p-6 text-center">
         <!-- Background overlay -->
-        <div class="fixed inset-0 transition-opacity bg-gray-500/75 backdrop-blur-sm" aria-hidden="true" onclick="closeBulkUploadModal()"></div>
+        <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="closeBulkUploadModal()"></div>
 
         <!-- Modal panel -->
-        <div class="relative flex flex-col w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform glass-card max-h-[calc(100vh-4rem)] z-10">
+        <div class="relative flex flex-col w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+            <!-- Header (Gradient Green Banner) -->
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="bg-[#4E7D24]/10 p-2 rounded-xl text-[#4E7D24]">
+                    <div class="bg-white/20 p-2 rounded-xl text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900" id="bulk-modal-title">Subir Estudiantes desde Excel</h3>
-                        <p class="text-xs text-gray-500 font-medium">Registra múltiples alumnos rápidamente mediante un archivo Excel o CSV.</p>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-white leading-tight" id="bulk-modal-title">Subir Estudiantes desde Excel</h3>
+                        <p class="text-green-100 text-xs">Registra múltiples alumnos rápidamente mediante un archivo Excel o CSV.</p>
                     </div>
                 </div>
-                <button type="button" class="text-gray-400 hover:text-gray-500 transition-colors" onclick="closeBulkUploadModal()">
-                    <span class="sr-only">Cerrar</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button type="button" 
+                        onclick="closeBulkUploadModal()"
+                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
             

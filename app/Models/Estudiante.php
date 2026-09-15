@@ -23,6 +23,8 @@ class Estudiante extends Model
         'grupo',
         'direccion',
         'telefono',
+        'asesor',
+        'coasesor',
     ];
 
     public function usuario(): BelongsTo
