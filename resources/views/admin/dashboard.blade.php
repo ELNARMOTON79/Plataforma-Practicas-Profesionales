@@ -8,17 +8,17 @@
         <!-- Left Column: Metrics & Users (60%) -->
         <div class="lg:col-span-2 flex flex-col gap-8 h-full min-h-0">
             <!-- Metrics Grid -->
-            @include('admin.metrics')
+            @include('admin.dashboard.metrics')
 
             <!-- User Management Shortcut -->
-            @include('admin.gestuser')
+            @include('admin.dashboard.quick-users')
 
         </div>
 
         <!-- Right Column: System Logs (40%) -->
         <div class="flex flex-col h-full min-h-0">
 
-            @include('admin.logs')
+            @include('admin.dashboard.quick-logs')
 
         </div>
     </div>

@@ -1,13 +1,53 @@
 @extends('layouts.coordinador', ['active' => 'dashboard', 'title' => 'Inicio - Coordinador'])
 
 @section('content')
+
+    {{-- ========== SUCCESS / ERROR ALERTS ========== --}}
+    @if(session('success'))
+        <div id="successAlert" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 fade-in-up">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div id="errorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-2 transition-all duration-300 fade-in-up">
+            <div class="flex items-center gap-3 w-full">
+                <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-bold text-sm">Por favor corrige los siguientes errores:</span>
+                <button onclick="document.getElementById('errorAlert').remove()" class="text-red-500 hover:text-red-800 transition-colors ml-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <ul class="list-disc pl-9 text-xs font-semibold space-y-1 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Welcome Header -->
     <x-page-header title="Panel del Coordinador" description="Monitoreo general y gestión de estudiantes en prácticas profesionales.">
         <x-slot:actions>
-            <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+            <button
+                id="btn-abrir-modal-alumno"
+                onclick="document.getElementById('modal-registrar-alumno').classList.remove('hidden')"
+                class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Registrar Alumno
-            </a>
+            </button>
         </x-slot>
     </x-page-header>
 
@@ -66,97 +106,82 @@
         </div>
     </div>
 
-    <!-- Main Grid Content (Balanced 2-Column Layout like Admin) -->
+    <!-- Main Grid Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Quick Students (60%) -->
         <div class="lg:col-span-2 flex flex-col gap-8">
             <div class="glass-card rounded-3xl p-8 fade-in-up delay-200 shadow-sm border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-6 h-6 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        Gestión Rápida de Estudiantes
+                        <svg class="w-6 h-6 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        Trámites y Alumnos Pendientes
                     </h2>
-                    <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="text-sm font-bold text-[#6BA53A] hover:text-[#4E7D24] transition-colors">Ver todos</a>
+                    <span class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ count($pendientesPorAtender) }} pendientes</span>
                 </div>
-                
-                <div class="overflow-hidden bg-white/60 rounded-2xl border border-gray-100 shadow-inner">
+
+                <div class="overflow-x-auto bg-white/60 rounded-2xl border border-gray-100 shadow-inner">
                     <table class="min-w-full divide-y divide-gray-200/50">
                         <thead class="bg-gray-50/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Carrera</th>
-                                <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
-                                <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Proyecto</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Asunto / Estatus</th>
+                                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detalles</th>
+                                <th scope="col" class="px-4 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="bg-transparent divide-y divide-gray-200/40">
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">JD</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Jazmín Domínguez Marcos</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20206744</div>
+                            @forelse($pendientesPorAtender as $pendiente)
+                                @php
+                                    $nombre = $pendiente->estudiante->nombre_completo ?? 'Estudiante';
+                                    $avatarText = 'AL';
+                                    if ($nombre) {
+                                        $words = explode(' ', trim($nombre));
+                                        $avatarText = strtoupper(substr($words[0] ?? '', 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
+                                    }
+                                @endphp
+                                <tr class="hover:bg-[#6BA53A]/5 transition-colors">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-[#4E7D24] font-bold">
+                                                {{ $avatarText }}
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-bold text-gray-900 leading-tight">{{ $nombre }}</div>
+                                                <div class="text-xs text-gray-500">Cuenta: {{ $pendiente->estudiante?->matricula ?? '' }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. de Software
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-200">Activo</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Ver Registro</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">AH</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Alejandro Herrera Ruiz</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20194852</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg border {{ $pendiente->badge_class }}">
+                                            {{ $pendiente->badge_text }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-gray-600 font-semibold uppercase max-w-[150px] truncate">
+                                        {{ $pendiente->detalle }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-right text-xs font-medium">
+                                        <a href="{{ $pendiente->link }}" class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105 inline-block">
+                                            {{ $pendiente->accion_label }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-4 py-12 text-center text-sm text-gray-500 font-medium">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span class="text-gray-600">¡Todo al día! No hay trámites ni registros pendientes.</span>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. Eléctrico
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200">Asignado</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#6BA53A] hover:bg-[#4E7D24] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Ver Registro</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 font-bold">MF</div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 leading-tight">Mariana Flores Silva</div>
-                                            <div class="text-xs text-gray-500">Cuenta: 20213094</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 font-semibold">
-                                    Ing. Mecánico
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200">Pendiente</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                                    <button class="bg-[#38bdf8] hover:bg-[#0284c7] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition-all hover:scale-105">Registrar</button>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Bitácora de la Coordinación (40%) -->
+        <!-- Right Column: Bitácora (40%) -->
         <div class="flex flex-col gap-8 h-full">
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
@@ -164,56 +189,76 @@
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Bitácora de Actividades
                     </h3>
-                    <button class="text-gray-400 hover:text-[#4E7D24] transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path></svg>
-                    </button>
                 </div>
-                
+
                 <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-6">
-                    <!-- Timeline Vertical Line -->
                     <div class="absolute left-4 top-2 bottom-0 w-px bg-gray-200/75"></div>
 
-                    <!-- Item 1 -->
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm ring-4 ring-green-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Solicitud Aprobada</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 2 horas</span>
+                    @forelse($recentLogs as $log)
+                        @php
+                            $dotColor = 'bg-gray-400 ring-gray-50';
+                            if ($log->level === 'success') {
+                                $dotColor = 'bg-green-500 ring-green-50';
+                            } elseif ($log->level === 'info') {
+                                $dotColor = 'bg-blue-500 ring-blue-50';
+                            } elseif ($log->level === 'warning') {
+                                $dotColor = 'bg-amber-500 ring-amber-50';
+                            } elseif ($log->level === 'danger') {
+                                $dotColor = 'bg-red-500 ring-red-50';
+                            }
+                        @endphp
+                        <div class="relative pl-10">
+                            <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ring-4 {{ $dotColor }}"></div>
+                            <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
+                                <div class="flex justify-between items-start mb-1 gap-2">
+                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">{{ $log->action }}</h4>
+                                    <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">{{ $log->timestamp ? $log->timestamp->diffForHumans() : '' }}</span>
+                                </div>
+                                <p class="text-xs text-gray-600 font-medium">{{ $log->description }}</p>
+                                <div class="text-[9px] text-gray-400 mt-1 font-semibold">Módulo: {{ $log->module }} | IP: {{ $log->ip }}</div>
                             </div>
-                            <p class="text-xs text-gray-600 font-medium">Aprobaste la solicitud del estudiante <span class="font-bold text-gray-800">Jazmín Domínguez</span> para <span class="font-bold text-[#4E7D24]">H. Ayuntamiento de Colima</span>.</p>
                         </div>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white shadow-sm ring-4 ring-blue-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Convenio Registrado</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 4 horas</span>
-                            </div>
-                            <p class="text-xs text-gray-600 font-medium">Se vinculó exitosamente a <span class="font-bold text-gray-800">Ternium México S.A.</span> como nueva unidad receptora.</p>
+                    @empty
+                        <div class="text-center py-8 text-sm text-gray-500 font-medium">
+                            No hay actividades registradas en el sistema.
                         </div>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="relative pl-10">
-                        <div class="absolute left-2.5 top-1.5 w-3.5 h-3.5 bg-yellow-500 rounded-full border-2 border-white shadow-sm ring-4 ring-yellow-50"></div>
-                        <div class="bg-white/60 rounded-xl p-4 border border-gray-100/70 hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-1 gap-2">
-                                <h4 class="text-sm font-bold text-gray-900">Solicitud Recibida</h4>
-                                <span class="text-[10px] font-semibold text-gray-400 whitespace-nowrap">Hace 6 horas</span>
-                            </div>
-                            <p class="text-xs text-gray-600 font-medium">El alumno <span class="font-bold text-gray-800">Mariana Flores</span> envió documentos para revisión inicial.</p>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
-                
-                <button class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200">
-                    Cargar más actividad
-                </button>
+
+                <a href="{{ Route::has('admin.bitacora') ? route('admin.bitacora') : '#' }}" class="mt-6 w-full py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold rounded-xl transition-colors text-xs border border-gray-200 text-center block">
+                    Ver Bitácora Completa
+                </a>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alerta de éxito a los 5 segundos
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        successAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            // Auto-ocultar alerta de error a los 5 segundos
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() {
+                        errorAlert.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
 @endsection
+
+@push('modals')
+    @include('coordinador.dashboard.register-modal')
+@endpush

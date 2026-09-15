@@ -16,6 +16,17 @@ class UnidadReceptora extends Model
         'nombre_empresa',
         'direccion',
         'tipo_persona',
+        'sistema',
+        'sector',
+        'unidad_receptora',
+        'titular',
+        'cargo',
+        'colonia',
+        'cp',
+        'estado',
+        'municipio',
+        'telefono',
+        'convenio',
     ];
 
     public function solicitudes(): HasMany

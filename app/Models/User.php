@@ -44,6 +44,21 @@ class User extends Authenticatable
         ];
     }
 
+    public function alumno()
+    {
+        return $this->hasOne(Alumno::class, 'usuario_id');
+    }
+
+    public function coordinador()
+    {
+        return $this->hasOne(Coordinador::class, 'usuario_id');
+    }
+
+    public function empresa()
+    {
+        return $this->hasOne(Empresa::class, 'usuario_id');
+    }
+
     public function estudiante(): HasOne
     {
         return $this->hasOne(Estudiante::class, 'usuario_id');

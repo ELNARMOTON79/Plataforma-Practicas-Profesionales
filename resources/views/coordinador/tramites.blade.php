@@ -29,17 +29,17 @@
                     <svg class="h-5 w-5 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-solicitudes" class="sr-only">Buscar solicitudes</label>
-                <input type="text" id="search-solicitudes" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-10 pr-3 py-3.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all shadow-inner" placeholder="Buscar por estudiante, institución o periodo...">
+                <input type="text" id="search-solicitudes" aria-label="Buscar solicitudes de prácticas" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, institución o periodo...">
             </div>
         </div>
 
-        <div class="glass-card rounded-3xl p-6 md:p-8 border-t-4 border-[#6BA53A] fade-in-up delay-200 shadow-sm">
+        <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
             <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-6 h-6 text-[#6BA53A]" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Solicitudes Pendientes
             </h2>
             <div class="overflow-x-auto">
-                <table id="solicitudes-table" class="min-w-full divide-y divide-gray-200/50">
+                <table id="solicitudes-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50/50">
                         <tr>
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Estudiante</th>
@@ -51,7 +51,7 @@
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-transparent divide-y divide-gray-100/50">
+                    <tbody class="bg-transparent divide-y divide-gray-100">
                         <!-- Row 1 -->
                         <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
                             <td class="px-3 py-4 whitespace-nowrap text-center">
@@ -67,13 +67,13 @@
                                 <label for="obs-sol-1" class="sr-only">Observaciones para Dominguez Marcos Jazmin</label>
                                 <input type="text" id="obs-sol-1" aria-label="Observaciones para Dominguez Marcos Jazmin" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <button class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-green-200" title="Aprobar solicitud de Dominguez Marcos Jazmin" aria-label="Aprobar solicitud de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Dominguez Marcos Jazmin" aria-label="Aprobar solicitud de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
-                                    <button class="bg-red-50 text-red-700 hover:bg-red-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-red-200" title="Rechazar solicitud de Dominguez Marcos Jazmin" aria-label="Rechazar solicitud de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Dominguez Marcos Jazmin" aria-label="Rechazar solicitud de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -93,13 +93,13 @@
                                 <label for="obs-sol-2" class="sr-only">Observaciones para Herrera Ruiz Alejandro</label>
                                 <input type="text" id="obs-sol-2" aria-label="Observaciones para Herrera Ruiz Alejandro" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <button class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-green-200" title="Aprobar solicitud de Herrera Ruiz Alejandro" aria-label="Aprobar solicitud de Herrera Ruiz Alejandro">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Herrera Ruiz Alejandro" aria-label="Aprobar solicitud de Herrera Ruiz Alejandro">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
-                                    <button class="bg-red-50 text-red-700 hover:bg-red-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-red-200" title="Rechazar solicitud de Herrera Ruiz Alejandro" aria-label="Rechazar solicitud de Herrera Ruiz Alejandro">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Herrera Ruiz Alejandro" aria-label="Rechazar solicitud de Herrera Ruiz Alejandro">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -119,13 +119,13 @@
                                 <label for="obs-sol-3" class="sr-only">Observaciones para Flores Silva Mariana</label>
                                 <input type="text" id="obs-sol-3" aria-label="Observaciones para Flores Silva Mariana" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir observaciones...">
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <button class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-green-200" title="Aprobar solicitud de Flores Silva Mariana" aria-label="Aprobar solicitud de Flores Silva Mariana">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Aprobar solicitud de Flores Silva Mariana" aria-label="Aprobar solicitud de Flores Silva Mariana">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
-                                    <button class="bg-red-50 text-red-700 hover:bg-red-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-red-200" title="Rechazar solicitud de Flores Silva Mariana" aria-label="Rechazar solicitud de Flores Silva Mariana">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar solicitud de Flores Silva Mariana" aria-label="Rechazar solicitud de Flores Silva Mariana">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -147,18 +147,18 @@
                     <svg class="h-5 w-5 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-documentos" class="sr-only">Buscar documentos</label>
-                <input type="text" id="search-documentos" aria-label="Buscar documentos pendientes" class="block w-full pl-10 pr-3 py-3.5 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all shadow-inner" placeholder="Buscar por estudiante, tipo de documento o nombre...">
+                <input type="text" id="search-documentos" aria-label="Buscar documentos pendientes" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-2 focus:ring-[#6BA53A]/20 sm:text-sm transition-all" placeholder="Buscar por estudiante, tipo de documento o nombre...">
             </div>
         </div>
 
         <!-- Documentos Pendientes -->
-        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 border-t-4 border-yellow-400 fade-in-up delay-200 shadow-sm">
+        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 fade-in-up delay-200">
             <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-6 h-6 text-yellow-500" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Documentos Pendientes de Validar
             </h2>
             <div class="overflow-x-auto">
-                <table id="documentos-pendientes-table" class="min-w-full divide-y divide-gray-200/50">
+                <table id="documentos-pendientes-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50/50">
                         <tr>
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Estudiante</th>
@@ -170,7 +170,7 @@
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Validar</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-transparent divide-y divide-gray-100/50">
+                    <tbody class="bg-transparent divide-y divide-gray-100">
                         <!-- Doc Row 1 -->
                         <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
                             <td class="px-3 py-4 whitespace-nowrap text-center">
@@ -182,12 +182,12 @@
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">16/05/2026</td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-3">
-                                    <button class="text-sky-700 hover:text-sky-900 hover:scale-110 transition-transform" title="Ver documento de carta de aceptación de Dominguez Marcos Jazmin" aria-label="Ver documento de carta de aceptación de Dominguez Marcos Jazmin">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <div class="flex justify-center gap-2">
+                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver documento de carta de aceptación de Dominguez Marcos Jazmin" aria-label="Ver documento de carta de aceptación de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button class="text-gray-500 hover:text-gray-800 hover:scale-110 transition-transform" title="Descargar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Descargar carta de aceptación de Dominguez Marcos Jazmin">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-all" title="Descargar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Descargar carta de aceptación de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -195,13 +195,13 @@
                                 <label for="notas-doc-1" class="sr-only">Notas para carta de aceptación de Dominguez Marcos Jazmin</label>
                                 <input type="text" id="notas-doc-1" aria-label="Notas para carta de aceptación de Dominguez Marcos Jazmin" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir notas...">
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <button class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-green-200" title="Validar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Validar carta de aceptación de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Validar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Validar carta de aceptación de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
-                                    <button class="bg-red-50 text-red-700 hover:bg-red-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-red-200" title="Rechazar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Rechazar carta de aceptación de Dominguez Marcos Jazmin">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar carta de aceptación de Dominguez Marcos Jazmin" aria-label="Rechazar carta de aceptación de Dominguez Marcos Jazmin">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -217,12 +217,12 @@
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-500">14/05/2026</td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-3">
-                                    <button class="text-sky-700 hover:text-sky-900 hover:scale-110 transition-transform" title="Ver seguro social de Alonso Cárdenas Héctor" aria-label="Ver seguro social de Alonso Cárdenas Héctor">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <div class="flex justify-center gap-2">
+                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver seguro social de Alonso Cárdenas Héctor" aria-label="Ver seguro social de Alonso Cárdenas Héctor">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button class="text-gray-500 hover:text-gray-800 hover:scale-110 transition-transform" title="Descargar seguro social de Alonso Cárdenas Héctor" aria-label="Descargar seguro social de Alonso Cárdenas Héctor">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-all" title="Descargar seguro social de Alonso Cárdenas Héctor" aria-label="Descargar seguro social de Alonso Cárdenas Héctor">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -230,13 +230,13 @@
                                 <label for="notas-doc-2" class="sr-only">Notas para seguro social de Alonso Cárdenas Héctor</label>
                                 <input type="text" id="notas-doc-2" aria-label="Notas para seguro social de Alonso Cárdenas Héctor" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none" placeholder="Añadir notas...">
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <button class="bg-green-50 text-green-700 hover:bg-green-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-green-200" title="Validar seguro social de Alonso Cárdenas Héctor" aria-label="Validar seguro social de Alonso Cárdenas Héctor">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <button class="p-2 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 rounded-lg transition-all" title="Validar seguro social de Alonso Cárdenas Héctor" aria-label="Validar seguro social de Alonso Cárdenas Héctor">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
-                                    <button class="bg-red-50 text-red-700 hover:bg-red-600 hover:text-white p-2 rounded-full transition-colors shadow-sm border border-red-200" title="Rechazar seguro social de Alonso Cárdenas Héctor" aria-label="Rechazar seguro social de Alonso Cárdenas Héctor">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <button class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Rechazar seguro social de Alonso Cárdenas Héctor" aria-label="Rechazar seguro social de Alonso Cárdenas Héctor">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -247,13 +247,13 @@
         </div>
 
         <!-- Documentos Validados -->
-        <div class="glass-card rounded-3xl p-6 md:p-8 border-t-4 border-[#6BA53A] fade-in-up delay-300 shadow-sm">
+        <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-300">
             <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-6 h-6 text-[#6BA53A]" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Historial de Documentos Validados
             </h2>
             <div class="overflow-x-auto">
-                <table id="documentos-validados-table" class="min-w-full divide-y divide-gray-200/50">
+                <table id="documentos-validados-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50/50">
                         <tr>
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl whitespace-nowrap">Estudiante</th>
@@ -263,7 +263,7 @@
                             <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-transparent divide-y divide-gray-100/50">
+                    <tbody class="bg-transparent divide-y divide-gray-100">
                         <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
                             <td class="px-3 py-4 whitespace-nowrap text-center">
                                 <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors">PEREZ LOPEZ JUAN</div>
@@ -273,15 +273,17 @@
                                 <a href="#" class="text-xs text-sky-700 font-bold hover:underline">oficio_asignacion_juan.pdf</a>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-200 shadow-sm">Aprobado</span>
+                                <span class="px-3 py-1 inline-flex items-center text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> Aprobado
+                                </span>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-3">
-                                    <button class="text-sky-700 hover:text-sky-900 hover:scale-110 transition-transform" title="Ver oficio de asignación de Perez Lopez Juan" aria-label="Ver oficio de asignación de Perez Lopez Juan">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <div class="flex justify-center gap-2">
+                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver oficio de asignación de Perez Lopez Juan" aria-label="Ver oficio de asignación de Perez Lopez Juan">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button class="text-gray-500 hover:text-gray-800 hover:scale-110 transition-transform" title="Descargar oficio de asignación de Perez Lopez Juan" aria-label="Descargar oficio de asignación de Perez Lopez Juan">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-all" title="Descargar oficio de asignación de Perez Lopez Juan" aria-label="Descargar oficio de asignación de Perez Lopez Juan">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -295,15 +297,17 @@
                                 <a href="#" class="text-xs text-sky-700 font-bold hover:underline">carta_aceptacion_sofia.pdf</a>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-red-50 text-red-700 border border-red-200 shadow-sm">Rechazado</span>
+                                <span class="px-3 py-1 inline-flex items-center text-xs leading-5 font-bold rounded-lg bg-red-50 text-red-700 border border-red-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 mt-1.5"></span> Rechazado
+                                </span>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-3">
-                                    <button class="text-sky-700 hover:text-sky-900 hover:scale-110 transition-transform" title="Ver carta de aceptación de Ramírez Mendoza Sofía" aria-label="Ver carta de aceptación de Ramírez Mendoza Sofía">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <div class="flex justify-center gap-2">
+                                    <button class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver carta de aceptación de Ramírez Mendoza Sofía" aria-label="Ver carta de aceptación de Ramírez Mendoza Sofía">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </button>
-                                    <button class="text-gray-500 hover:text-gray-800 hover:scale-110 transition-transform" title="Descargar carta de aceptación de Ramírez Mendoza Sofía" aria-label="Descargar carta de aceptación de Ramírez Mendoza Sofía">
-                                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <button class="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-all" title="Descargar carta de aceptación de Ramírez Mendoza Sofía" aria-label="Descargar carta de aceptación de Ramírez Mendoza Sofía">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     </button>
                                 </div>
                             </td>

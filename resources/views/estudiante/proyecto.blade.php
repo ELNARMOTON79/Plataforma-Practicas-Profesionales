@@ -175,7 +175,7 @@
     {{-- Upload Modal --}}
     <div id="uploadModal" class="hidden fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-md w-full overflow-hidden fade-in-up">
-            <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-5 text-white flex justify-between items-center">
+            <div class="bg-gradient-to-r from-gray-950 to-gray-850 p-5 text-white flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Subir Documento</h3>
                     <p class="text-xs text-gray-300 mt-0.5" id="uploadModalDocName"></p>
@@ -195,7 +195,7 @@
                 </div>
             </div>
             <div class="p-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
-                <button onclick="closeUploadModal()" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold py-3.5 px-4 rounded-xl text-xs transition-colors shadow-sm">Cancelar</button>
+                <button onclick="closeUploadModal()" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-650 font-bold py-3.5 px-4 rounded-xl text-xs transition-colors shadow-sm">Cancelar</button>
                 <button onclick="submitUpload()" class="flex-1 bg-[#4E7D24] hover:bg-[#3A5D1B] text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md">Subir Archivo</button>
             </div>
         </div>

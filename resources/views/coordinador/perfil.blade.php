@@ -2,76 +2,123 @@
 
 @section('content')
     <!-- Header Section -->
-    <x-page-header title="Perfil del Coordinador" description="Gestionar información personal y de contacto." />
+    <x-page-header title="Configuración del Perfil" description="Visualiza tus datos personales y gestiona la seguridad de tu cuenta institucional.">
+    </x-page-header>
 
+    <!-- Success Alert -->
+    @if(session('success'))
+        <div id="successAlert" class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3 transition-all duration-300 fade-in-up">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+            <button onclick="document.getElementById('successAlert').remove()" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    @endif
 
-    <!-- Profile Card -->
-    <div class="max-w-fit mx-auto glass-card rounded-3xl p-8 lg:p-12 border-t-4 border-[#6BA53A] shadow-sm">
-        
-        <!-- Header Info -->
-        <div class="flex items-center gap-5 mb-8">
-            <div class="w-16 h-16 bg-[#6BA53A]/20 rounded-full flex items-center justify-center text-[#4E7D24] shadow-inner">
-                <svg class="w-8 h-8" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+    <!-- Server Errors Alert -->
+    @if($errors->any())
+        <div id="errorAlert" class="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-1 transition-all duration-300 fade-in-up">
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-bold text-sm">Por favor corrige los siguientes errores:</span>
+                <button onclick="document.getElementById('errorAlert').remove()" class="text-red-500 hover:text-red-800 transition-colors ml-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div>
-                <h2 class="text-xl font-extrabold text-gray-800">Información General</h2>
-                <p class="text-sm text-gray-500 font-medium">Coordinador de Prácticas Profesionales</p>
+            <ul class="list-disc list-inside text-xs text-red-700 ml-9 space-y-0.5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Configuration Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start fade-in-up delay-100 relative z-10">
+        
+        <!-- Left Panel: Datos Personales (Bloqueados) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="glass-card rounded-3xl p-6 md:p-8 bg-white/70 border border-gray-200/50 shadow-md">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3 bg-[#6BA53A]/10 rounded-2xl">
+                        <svg class="w-6 h-6 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Datos Personales</h2>
+                        <p class="text-xs font-semibold text-gray-500">Identificación oficial en el sistema.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <!-- Nombre Completo (Readonly) -->
+                    <div class="space-y-2">
+                        <label for="profile_name" class="text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Nombre Completo</label>
+                        <input 
+                            type="text" 
+                            id="profile_name" 
+                            value="{{ $coordinadorName }}"
+                            readonly 
+                            disabled
+                            class="w-full bg-gray-100/80 border border-gray-200 text-gray-500 text-sm rounded-xl block p-3.5 outline-none cursor-not-allowed font-semibold select-none shadow-sm"
+                        >
+                    </div>
+
+                    <!-- Correo Electrónico (Readonly) -->
+                    <div class="space-y-2">
+                        <label for="profile_email" class="text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Correo Electrónico</label>
+                        <input 
+                            type="email" 
+                            id="profile_email" 
+                            value="{{ $user->correo }}"
+                            readonly 
+                            disabled
+                            class="w-full bg-gray-100/80 border border-gray-200 text-gray-500 text-sm rounded-xl block p-3.5 outline-none cursor-not-allowed font-semibold select-none shadow-sm"
+                        >
+                    </div>
+
+                    <!-- Info notice explaining lock -->
+                    <div class="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3.5 mt-4">
+                        <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-xs text-blue-700 font-semibold leading-relaxed">
+                            Los datos personales (nombre y correo electrónico) son administrados de manera oficial por el Administrador del sistema y no son editables para garantizar la validez del registro institucional.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <hr class="border-gray-200 mb-8">
+        <!-- Right Panel: Seguridad y Contraseña (Editable Subview Include) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            @include('coordinador.perfil.cambiar-contrasena')
+        </div>
 
-        <!-- Form -->
-        <form action="#" method="POST">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 mb-10">
-                
-                <!-- Nombre Completo -->
-                <div>
-                    <label for="perfil-nombre" class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                        <svg class="w-5 h-5 text-gray-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        Nombre Completo
-                    </label>
-                    <input type="text" id="perfil-nombre" name="nombre" class="w-full md:w-[420px] px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner" placeholder="Tu nombre completo" value="Juan Pérez López">
-                </div>
-
-                <!-- Correo Electrónico -->
-                <div>
-                    <label for="perfil-correo" class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                        <svg class="w-5 h-5 text-gray-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        Correo Electrónico
-                    </label>
-                    <input type="email" id="perfil-correo" name="correo" class="w-full md:w-[420px] px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner" placeholder="tu@correo.ucol.mx" value="coordinador@ucol.mx">
-                </div>
-
-                <!-- Teléfono -->
-                <div>
-                    <label for="perfil-telefono" class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                        <svg class="w-5 h-5 text-gray-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                        Teléfono
-                    </label>
-                    <input type="tel" id="perfil-telefono" name="telefono" class="w-full md:w-[420px] px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner" placeholder="Tu número de teléfono" value="312 123 4567">
-                </div>
-
-                <!-- Departamento -->
-                <div>
-                    <label for="perfil-departamento" class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                        <svg class="w-5 h-5 text-gray-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        Departamento
-                    </label>
-                    <input type="text" id="perfil-departamento" name="departamento" class="w-full md:w-[420px] px-4 py-3 rounded-xl border border-gray-200 bg-white/60 focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] outline-none transition-all text-sm font-medium text-gray-800 shadow-inner" placeholder="Tu departamento" value="Facultad de Ingeniería Electromecánica">
-                </div>
-
-            </div>
-
-            <!-- Botón de Guardar -->
-            <div class="flex justify-end">
-                <button type="submit" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-8 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5" aria-label="Guardar cambios del perfil">
-                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                    </svg>
-                    Guardar Cambios
-                </button>
-            </div>
-        </form>
     </div>
+
+    <!-- Script to Auto-dismiss success alert after 5 seconds -->
+    <script>
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                successAlert.style.opacity = '0';
+                successAlert.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    successAlert.remove();
+                }, 500);
+            }, 5000);
+        }
+    </script>
 @endsection
