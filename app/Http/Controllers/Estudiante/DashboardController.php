@@ -9,6 +9,7 @@ use App\Models\Hora;
 use App\Models\Solicitud;
 use App\Models\UnidadReceptora;
 use App\Models\Convenio;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -274,6 +275,140 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function generarCartaPresentacion()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->with('unidadReceptora')
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva) {
+            abort(404, 'No hay una solicitud de prácticas activa.');
+        }
+
+        $ur = $solicitudActiva->unidadReceptora;
+
+        $direccionPartes = array_filter([$ur?->direccion, $ur?->colonia, $ur?->municipio, $ur?->estado]);
+
+        $pdf = Pdf::loadView('estudiante.pdf.carta_presentacion', [
+            'nombreEstudiante' => $estudiante->nombre_completo,
+            'matricula'        => $estudiante->matricula,
+            'carrera'          => $estudiante->carrera,
+            'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
+            'empresaDireccion' => implode(', ', $direccionPartes),
+            'destinatarioNombre' => $ur?->titular ?: 'A quien corresponda',
+            'destinatarioCargo'  => $ur?->cargo ?? '',
+            'lugar'            => $ur?->municipio ?: 'Colima, Col.',
+            'fecha'            => Carbon::now()->translatedFormat('d \d\e F \d\e Y'),
+        ])->setPaper('letter');
+
+        $filename = 'carta_presentacion_' . Str::slug($estudiante->nombre_completo) . '.pdf';
+
+        return $pdf->stream($filename);
+    }
+
+    public function generarPlanTrabajo()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->with('unidadReceptora')
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva) {
+            abort(404, 'No hay una solicitud de prácticas activa.');
+        }
+
+        $ur = $solicitudActiva->unidadReceptora;
+
+        $direccionPartes = array_filter([$ur?->direccion, $ur?->colonia, $ur?->municipio, $ur?->estado]);
+
+        $pdf = Pdf::loadView('estudiante.pdf.plan_trabajo', [
+            'nombreEstudiante' => $estudiante->nombre_completo,
+            'matricula'        => $estudiante->matricula,
+            'carrera'          => $estudiante->carrera,
+            'semestre'         => $estudiante->semestre,
+            'grupo'            => $estudiante->grupo,
+            'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
+            'empresaSector'    => $ur?->sector ?? '',
+            'empresaTitular'   => $ur?->titular ?? '',
+            'empresaCargo'     => $ur?->cargo ?? '',
+            'empresaDireccion' => implode(', ', $direccionPartes),
+            'responsable'      => $solicitudActiva->responsable,
+            'fechaInicio'      => $solicitudActiva->fecha_inicio ? Carbon::parse($solicitudActiva->fecha_inicio)->translatedFormat('d \d\e F \d\e Y') : '—',
+            'fechaFin'         => $solicitudActiva->fecha_fin ? Carbon::parse($solicitudActiva->fecha_fin)->translatedFormat('d \d\e F \d\e Y') : '—',
+            'lugar'            => $ur?->municipio ?: 'Colima, Col.',
+            'fecha'            => Carbon::now()->translatedFormat('d \d\e F \d\e Y'),
+        ])->setPaper('letter');
+
+        $filename = 'plan_trabajo_' . Str::slug($estudiante->nombre_completo) . '.pdf';
+
+        return $pdf->stream($filename);
+    }
+
+    public function generarMemoriaPracticas()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->with('unidadReceptora')
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva) {
+            abort(404, 'No hay una solicitud de prácticas activa.');
+        }
+
+        $ur = $solicitudActiva->unidadReceptora;
+
+        $pdf = Pdf::loadView('estudiante.pdf.memoria_practicas', [
+            'nombreEstudiante' => $estudiante->nombre_completo,
+            'matricula'        => $estudiante->matricula,
+            'facultad'         => '',
+            'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
+            'asesorEmpresa'    => $solicitudActiva->responsable,
+            'lugar'            => $ur?->municipio ?: 'Colima, Col.',
+            'fecha'            => Carbon::now()->translatedFormat('d \d\e F \d\e Y'),
+        ])->setPaper('letter');
+
+        $filename = 'memoria_practicas_' . Str::slug($estudiante->nombre_completo) . '.pdf';
+
+        return $pdf->stream($filename);
+    }
+
     public function subirDocumento(Request $request)
     {
         if (Auth::user()?->rol_id != 3) {
@@ -338,16 +473,19 @@ class DashboardController extends Controller
         $documento->ur_id = $solicitudActiva->ur_id;
         $documento->ruta_archivo = $path;
         $documento->fecha_carga = Carbon::now()->toDateString();
+        $documento->estatus = 'pendiente';
+        $documento->observaciones = null;
         $documento->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Documento subido correctamente.',
+            'message' => 'Documento subido correctamente. Quedó en proceso de validación.',
             'documento' => [
                 'id' => $documento->id,
                 'nombre_doc' => $documento->nombre_doc,
                 'ruta_archivo' => asset('storage/' . $path),
                 'fecha_carga' => Carbon::parse($documento->fecha_carga)->format('d/m/Y'),
+                'estatus' => $documento->estatus,
             ],
         ]);
     }

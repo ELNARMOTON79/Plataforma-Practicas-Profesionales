@@ -115,16 +115,39 @@
                         ['nombre' => 'Carta de Término',       'desc' => 'Expedida por la empresa para validar la conclusión formal del periodo.'],
                     ];
                     $docsSubidos = $documentos->keyBy('nombre_doc');
+                    $pdfGenerables = [
+                        'Carta de Presentación' => 'estudiante.cartaPresentacionPdf',
+                        'Plan de Trabajo'       => 'estudiante.planTrabajoPdf',
+                        'Memoria de Prácticas'  => 'estudiante.memoriaPracticasPdf',
+                    ];
                 @endphp
 
                 <div class="space-y-4">
                     @foreach($tiposDoc as $i => $tipo)
-                        @php $doc = $docsSubidos[$tipo['nombre']] ?? null; @endphp
+                        @php
+                            $doc = $docsSubidos[$tipo['nombre']] ?? null;
+                            $estatusDoc = $doc?->estatus ?? 'pendiente';
+                            $badge = match(true) {
+                                !$doc => ['label' => 'Sin Subir', 'classes' => 'bg-gray-50 text-gray-500 border-gray-200', 'dot' => 'bg-gray-400'],
+                                $estatusDoc === 'aprobado' => ['label' => 'Validado', 'classes' => 'bg-green-50 text-green-700 border-green-150', 'dot' => 'bg-green-600'],
+                                $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'classes' => 'bg-red-50 text-red-700 border-red-150', 'dot' => 'bg-red-600'],
+                                default => ['label' => 'En proceso de validación', 'classes' => 'bg-amber-50 text-amber-700 border-amber-150', 'dot' => 'bg-amber-500'],
+                            };
+                            $iconClasses = match(true) {
+                                !$doc => 'bg-gray-50 text-gray-400',
+                                $estatusDoc === 'aprobado' => 'bg-green-50 text-green-600',
+                                $estatusDoc === 'rechazado' => 'bg-red-50 text-red-600',
+                                default => 'bg-amber-50 text-amber-600',
+                            };
+                            $pdfRouteName = $pdfGenerables[$tipo['nombre']] ?? null;
+                        @endphp
                         <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl {{ $doc ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400' }}" data-doc-icon>
-                                    @if($doc)
+                                <div class="p-3 rounded-xl {{ $iconClasses }}" data-doc-icon>
+                                    @if($doc && $estatusDoc !== 'rechazado')
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    @elseif($doc && $estatusDoc === 'rechazado')
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     @else
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                     @endif
@@ -132,37 +155,40 @@
                                 <div>
                                     <h4 class="font-bold text-gray-900 text-sm">{{ $i + 1 }}. {{ $tipo['nombre'] }}</h4>
                                     <p class="text-xs text-gray-500 font-medium mt-0.5">{{ $tipo['desc'] }}</p>
-                                    @if($doc)
-                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-150 mt-1" data-doc-status>
-                                            <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Subido — {{ \Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') }}
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1" data-doc-status>
-                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir
-                                        </span>
-                                    @endif
+                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold {{ $badge['classes'] }} mt-1" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
+                                        {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
+                                    </span>
                                 </div>
                             </div>
-                            <div data-doc-action-area class="shrink-0 flex items-center gap-2">
-                            @if(!$doc)
-                                <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                    Subir
-                                </button>
-                            @else
-                                <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
-                                    Ver PDF
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                </a>
-                                <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    Editar
-                                </button>
-                                <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    Eliminar
-                                </button>
-                            @endif
+                            <div class="shrink-0 flex items-center gap-2">
+                                @if($pdfRouteName)
+                                    <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Generar PDF
+                                    </a>
+                                @endif
+                                <div data-doc-action-area class="flex items-center gap-2">
+                                @if(!$doc)
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Subir
+                                    </button>
+                                @else
+                                    <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
+                                        Ver PDF
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </a>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Editar
+                                    </button>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Eliminar
+                                    </button>
+                                @endif
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -460,15 +486,15 @@
             }
 
             var statusEl = card.querySelector('[data-doc-status]');
-            var wasPreviouslyUploaded = statusEl && statusEl.textContent.includes('Subido');
+            var wasPreviouslyUploaded = statusEl && !statusEl.textContent.includes('Sin Subir');
             if (statusEl) {
-                statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-150 mt-1';
-                statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Subido — ' + documento.fecha_carga;
+                statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-150 mt-1';
+                statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En proceso de validación — ' + documento.fecha_carga;
             }
 
             var iconEl = card.querySelector('[data-doc-icon]');
             if (iconEl) {
-                iconEl.className = 'p-3 rounded-xl bg-green-50 text-green-600';
+                iconEl.className = 'p-3 rounded-xl bg-amber-50 text-amber-600';
                 iconEl.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
             }
 
