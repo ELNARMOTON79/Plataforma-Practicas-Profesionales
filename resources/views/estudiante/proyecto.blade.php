@@ -120,6 +120,9 @@
                         'Plan de Trabajo'       => 'estudiante.planTrabajoPdf',
                         'Memoria de Prácticas'  => 'estudiante.memoriaPracticasPdf',
                     ];
+                    $wordGenerables = [
+                        'Carta de Término' => 'estudiante.cartaTerminoWord',
+                    ];
                 @endphp
 
                 <div class="space-y-4">
@@ -140,6 +143,7 @@
                                 default => 'bg-amber-50 text-amber-600',
                             };
                             $pdfRouteName = $pdfGenerables[$tipo['nombre']] ?? null;
+                            $wordRouteName = $wordGenerables[$tipo['nombre']] ?? null;
                         @endphp
                         <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
                             <div class="flex items-center gap-4">
@@ -166,6 +170,12 @@
                                     <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         Generar PDF
+                                    </a>
+                                @endif
+                                @if($wordRouteName)
+                                    <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Generar Word
                                     </a>
                                 @endif
                                 <div data-doc-action-area class="flex items-center gap-2">

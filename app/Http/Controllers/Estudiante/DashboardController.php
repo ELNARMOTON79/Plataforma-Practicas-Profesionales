@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 
 class DashboardController extends Controller
 {
@@ -407,6 +409,121 @@ class DashboardController extends Controller
         $filename = 'memoria_practicas_' . Str::slug($estudiante->nombre_completo) . '.pdf';
 
         return $pdf->stream($filename);
+    }
+
+    public function generarCartaTermino()
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', ['aprobada', 'en_proceso'])
+            ->with('unidadReceptora')
+            ->latest('id')
+            ->first();
+
+        if (! $solicitudActiva) {
+            abort(404, 'No hay una solicitud de prácticas activa.');
+        }
+
+        $ur = $solicitudActiva->unidadReceptora;
+
+        $horasCompletadas = (int) round((float) $solicitudActiva->horas()->sum('cantidad_horas'));
+
+        $fechaInicio = $solicitudActiva->fecha_inicio
+            ? Carbon::parse($solicitudActiva->fecha_inicio)->translatedFormat('d \d\e F \d\e Y')
+            : null;
+        $fechaFin = $solicitudActiva->fecha_fin
+            ? Carbon::parse($solicitudActiva->fecha_fin)->translatedFormat('d \d\e F \d\e Y')
+            : null;
+
+        $bold        = ['bold' => true];
+        $placeholder = ['bold' => true, 'fgColor' => 'yellow'];
+        $justify     = ['alignment' => 'both'];
+        $center      = ['alignment' => 'center'];
+        $right       = ['alignment' => 'right'];
+
+        $phpWord = new PhpWord();
+        $phpWord->setDefaultFontName('Arial');
+        $phpWord->setDefaultFontSize(11);
+
+        $section = $phpWord->addSection([
+            'marginTop'    => 1600,
+            'marginBottom' => 1600,
+            'marginLeft'   => 1600,
+            'marginRight'  => 1600,
+        ]);
+
+        $section->addText('Hoja membretada', ['italic' => true, 'color' => '808080']);
+        $section->addTextBreak(1);
+
+        $section->addText('Asunto: Carta de Término de Práctica Profesional', [], $right);
+        $section->addTextBreak(2);
+
+        $section->addText('M. en I. Eduardo Hernández Barón');
+        $section->addText('Facultad de Ingeniería Electromecánica');
+        $section->addText('Director');
+        $section->addTextBreak(1);
+        $section->addText('P r e s e n t e .');
+        $section->addTextBreak(2);
+
+        $empresaNombre = $ur?->nombre_empresa;
+
+        $body = $section->addTextRun($justify);
+        $body->addText('Por medio de la presente quien suscribe, responsable de la Práctica Profesional de ');
+        $body->addText($empresaNombre ?: 'Nombre de la UR', $empresaNombre ? $bold : $placeholder);
+        $body->addText(', hace constar que ');
+        $body->addText($estudiante->nombre_completo, $bold);
+        $body->addText(' con número de cuenta ');
+        $body->addText($estudiante->matricula, $bold);
+        $body->addText(' estudiante de la Facultad de Ingeniería Electromecánica, de la carrera ');
+        $body->addText($estudiante->carrera ?: 'Nombre de la carrera', $estudiante->carrera ? $bold : $placeholder);
+        $body->addText(' ha cumplido satisfactoriamente con las actividades asignadas para la prestación de la Práctica Profesional en el proyecto asignado en su Plan de trabajo, en el periodo comprendido del ');
+        $body->addText($fechaInicio ?: 'fecha de inicio', $fechaInicio ? $bold : $placeholder);
+        $body->addText(' al ');
+        $body->addText($fechaFin ?: 'fecha de término', $fechaFin ? $bold : $placeholder);
+        $body->addText(', acumulando un total de ');
+        $body->addText($horasCompletadas . '/' . self::HORAS_META, $bold);
+        $body->addText(' horas.');
+
+        $section->addTextBreak(1);
+
+        $lugar = $ur?->municipio ?: 'Colima';
+
+        $cierre = $section->addTextRun($justify);
+        $cierre->addText('La presente se extiende a petición del/la interesado/a para los fines legales que le convengan, en la ciudad de ');
+        $cierre->addText($lugar, $bold);
+        $cierre->addText(', del Estado de Colima, el día ');
+        $cierre->addText(Carbon::now()->translatedFormat('d \d\e F \d\e Y'), $bold);
+        $cierre->addText('.');
+
+        $section->addTextBreak(2);
+        $section->addText('ATENTAMENTE', ['bold' => true], $center);
+
+        $section->addTextBreak(3);
+        $section->addText('_______________________________', [], $center);
+        $section->addText($ur?->titular ?: 'Nombre del representante de la UR', $ur?->titular ? $bold : $placeholder, $center);
+        $section->addText($empresaNombre ?: 'Nombre de la UR', [], $center);
+        $section->addText($ur?->cargo ?: 'Cargo', $ur?->cargo ? [] : ['fgColor' => 'yellow'], $center);
+
+        $filename = 'carta_termino_' . Str::slug($estudiante->nombre_completo) . '.docx';
+        $storagePath = 'plantillas_generadas/estudiante_' . $estudiante->id . '/carta_termino.docx';
+
+        Storage::disk('local')->makeDirectory('plantillas_generadas/estudiante_' . $estudiante->id);
+
+        IOFactory::createWriter($phpWord, 'Word2007')->save(Storage::disk('local')->path($storagePath));
+
+        return Storage::disk('local')->download($storagePath, $filename, [
+            'Content-Type' => 'application/octet-stream',
+        ]);
     }
 
     public function subirDocumento(Request $request)
