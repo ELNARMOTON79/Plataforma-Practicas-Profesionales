@@ -1,19 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Estudiante\DashboardController;
 
 Route::get('/', function () {
     // If the user is already authenticated, redirect them to their dashboard
-    if (auth()->check()) {
+    if (Auth::check()) {
         $roleRoutes = [
             1 => '/admin/dashboard',
             2 => '/coordinador/dashboard',
             3 => '/estudiante/dashboard',
             4 => '/empresa/dashboard',
         ];
-        return redirect($roleRoutes[auth()->user()->rol_id] ?? '/');
+        return redirect($roleRoutes[Auth::user()->rol_id] ?? '/');
     }
     return view('welcome');
 })->name('login');
@@ -31,25 +32,21 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected dashboard routes
-Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(function () {
-    Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::middleware(['auth', 'prevent-back-history'])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        if (Auth::user()->rol_id != 1) return redirect('/');
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 
-    Route::get('/admin/config', [App\Http\Controllers\AdminController::class, 'config'])->name('admin.config');
-    Route::post('/admin/config/profile', [App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.config.profile');
-    Route::post('/admin/config/password', [App\Http\Controllers\AdminController::class, 'updatePassword'])->name('admin.config.password');
-    Route::post('/admin/config/settings', [App\Http\Controllers\AdminController::class, 'updateSettings'])->name('admin.config.settings');
-    Route::post('/admin/config/clean-logs', [App\Http\Controllers\AdminController::class, 'cleanLogsNow'])->name('admin.config.clean-logs');
+    Route::get('/admin/config', function () {
+        if (Auth::user()->rol_id != 1) return redirect('/');
+        return view('admin.config');
+    })->name('admin.config');
 
-    Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'usuarios'])->name('admin.usuarios');
-    Route::post('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'storeUsuario'])->name('admin.usuarios.store');
-    Route::post('/admin/usuarios/bulk-store', [App\Http\Controllers\AdminController::class, 'bulkStoreUsuarios'])->name('admin.usuarios.bulk-store');
-    Route::put('/admin/usuarios/{id}', [App\Http\Controllers\AdminController::class, 'updateUsuario'])->name('admin.usuarios.update');
-    Route::post('/admin/usuarios/{id}/resend-credentials', [App\Http\Controllers\AdminController::class, 'resendCredentials'])->name('admin.usuarios.resend-credentials');
-    Route::patch('/admin/usuarios/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
-
-    Route::get('/admin/bitacora', [App\Http\Controllers\AdminController::class, 'bitacora'])->name('admin.bitacora');
-    Route::post('/admin/bitacora/clear', [App\Http\Controllers\AdminController::class, 'clearBitacora'])->name('admin.bitacora.clear');
-    Route::get('/admin/bitacora/export', [App\Http\Controllers\AdminController::class, 'exportBitacora'])->name('admin.bitacora.export');
+    Route::get('/admin/usuarios', function () {
+        if (Auth::user()->rol_id != 1) return redirect('/');
+        return view('admin.usuarios');
+    })->name('admin.usuarios');
 
     Route::get('/coordinador/dashboard', [App\Http\Controllers\Coordinador\DashboardController::class, 'dashboard'])->name('coordinador.dashboard');
 
@@ -92,38 +89,43 @@ Route::middleware(['auth', 'prevent-back-history', 'check-maintenance'])->group(
     Route::post('/estudiante/mi-perfil', [DashboardController::class, 'updatePerfil'])->name('estudiante.updatePerfil');
     Route::post('/estudiante/cambiar-contrasena', [DashboardController::class, 'changePassword'])->name('estudiante.changePassword');
 
-    Route::get('/estudiante/proyecto', function () {
-        if (auth()->user()->rol_id != 3) return redirect('/');
-        return view('estudiante.proyecto');
-    })->name('estudiante.proyecto');
+    Route::get('/estudiante/proyecto', [DashboardController::class, 'miProyecto'])->name('estudiante.proyecto');
+    Route::get('/estudiante/proyecto/carta-presentacion', [DashboardController::class, 'generarCartaPresentacion'])->name('estudiante.cartaPresentacionPdf');
+    Route::get('/estudiante/proyecto/plan-trabajo', [DashboardController::class, 'generarPlanTrabajo'])->name('estudiante.planTrabajoPdf');
+    Route::get('/estudiante/proyecto/memoria-practicas', [DashboardController::class, 'generarMemoriaPracticas'])->name('estudiante.memoriaPracticasPdf');
+    Route::get('/estudiante/proyecto/carta-termino', [DashboardController::class, 'generarCartaTermino'])->name('estudiante.cartaTerminoWord');
+    Route::post('/estudiante/proyecto/documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
+    Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
+    Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
+    Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
 
     Route::get('/empresa/dashboard', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.dashboard');
     })->name('empresa.dashboard');
 
     Route::get('/empresa/proyectos', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.proyectos');
     })->name('empresa.proyectos');
 
     Route::get('/empresa/solicitudes', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.solicitudes');
     })->name('empresa.solicitudes');
 
     Route::get('/empresa/reportes', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.reportes');
     })->name('empresa.reportes');
 
     Route::get('/empresa/convenios', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.convenios');
     })->name('empresa.convenios');
 
     Route::get('/empresa/perfil', function () {
-        if (auth()->user()->rol_id != 4) return redirect('/');
+        if (Auth::user()->rol_id != 4) return redirect('/');
         return view('empresa.perfil');
     })->name('empresa.perfil');
 });

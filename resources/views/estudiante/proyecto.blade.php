@@ -1,432 +1,229 @@
 @extends('layouts.estudiante', ['title' => 'Mi Proyecto de Prácticas - Prácticas Profesionales UdeC', 'active' => 'proyecto'])
 
 @section('content')
-    <!-- Simulated Notifications Toast -->
-    <div id="projectSuccessToast" class="hidden fixed top-5 right-5 z-[100] bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-2xl shadow-xl max-w-md fade-in-up flex items-start gap-3">
-        <div class="p-1 bg-green-100 text-green-600 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <x-page-header title="Seguimiento de Proyecto" description="Monitorea tus horas acumuladas y gestiona la documentación de tus prácticas profesionales."></x-page-header>
+
+    @if($solicitudActiva)
+
+    {{-- Toast notification (compact style) --}}
+    <div id="projectSuccessToast" class="hidden fixed top-5 right-5 z-[100]">
+        <div id="projectSuccessToastCard" class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-2xl shadow-md max-w-sm flex items-start gap-3 transform transition-all duration-300 opacity-0 translate-y-2">
+            <div class="p-2 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div class="flex-1">
+                <h4 id="toastTitle" class="font-bold text-sm">¡Operación Exitosa!</h4>
+                <p id="toastMessage" class="text-xs text-green-900/80 mt-0.5">Mensaje</p>
+            </div>
+            <button id="toastCloseBtn" class="ml-3 text-green-700 hover:text-green-900 p-1 rounded-full">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-        <div>
-            <h4 class="font-bold text-green-950 text-sm" id="toastTitle">¡Operación Exitosa!</h4>
-            <p class="text-xs text-green-900/90 mt-0.5" id="toastMessage">Cambios aplicados correctamente en tu proyecto.</p>
-        </div>
-        <button onclick="document.getElementById('projectSuccessToast').classList.add('hidden')" class="text-green-500 hover:text-green-800 transition-colors ml-auto">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
     </div>
 
-    <!-- Top Hero Banner (Ancho Completo) -->
-    <div class="glass-card rounded-3xl p-8 relative overflow-hidden bg-gradient-to-r from-white via-white to-[#6BA53A]/5 border border-[#6BA53A]/25 fade-in-up">
-        <div class="absolute -right-10 -top-10 w-44 h-44 bg-[#4E7D24] rounded-full mix-blend-multiply filter blur-2xl opacity-10"></div>
-        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="text-[10px] font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-2.5 py-0.5 rounded-md border border-[#6BA53A]/20">Fase de Desarrollo</span>
-                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-750 border border-yellow-150">
-                        <span class="relative flex h-1.5 w-1.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-yellow-500"></span>
+    <div id="projectData" data-current-hours="{{ $horasCompletadas ?? 0 }}" data-total-hours="{{ $horasMeta ?? 480 }}" data-porcentaje="{{ $porcentajeHoras ?? 0 }}" data-upload-url="{{ route('estudiante.subirDocumento') }}">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        {{-- Left column --}}
+        <div class="lg:col-span-1 flex flex-col gap-6">
+
+            {{-- Project details card --}}
+            <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-white to-[#6BA53A]/5 border border-[#6BA53A]/10 fade-in-up delay-100">
+                <span class="inline-block text-[10px] font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mb-3">
+                    {{ $solicitudActiva->estatus === 'aprobada' ? 'Aprobada' : 'En Proceso' }}
+                </span>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">
+                    {{ $solicitudActiva->unidadReceptora?->nombre_empresa ?? 'Sin empresa' }}
+                </h3>
+                @if($solicitudActiva->observaciones)
+                    <p class="text-sm text-gray-500 mb-4">{{ $solicitudActiva->observaciones }}</p>
+                @endif
+
+                <div class="border-t border-gray-150/50 pt-4 space-y-3.5 text-xs text-gray-700 font-medium">
+                    @if($solicitudActiva->responsable)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Responsable / Asesor</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $solicitudActiva->responsable }}</span>
+                    </div>
+                    @endif
+                    @if($solicitudActiva->fecha_inicio && $solicitudActiva->fecha_fin)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Periodo</span>
+                        <span>
+                            {{ \Carbon\Carbon::parse($solicitudActiva->fecha_inicio)->format('d/m/Y') }}
+                            —
+                            {{ \Carbon\Carbon::parse($solicitudActiva->fecha_fin)->format('d/m/Y') }}
                         </span>
-                        En Curso
-                    </span>
-                </div>
-                <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">Desarrollo de App Móvil</h1>
-                <p class="text-sm font-bold text-gray-500 mt-1">Tech Solutions de Colima S.A. de C.V.</p>
-            </div>
-
-            <!-- Global Stats Columns inside Hero -->
-            <div class="grid grid-cols-3 gap-6 lg:gap-12 border-t lg:border-t-0 lg:border-l border-gray-200/65 pt-6 lg:pt-0 lg:pl-12">
-                <div>
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Horas Totales</span>
-                    <span class="text-2xl font-extrabold text-gray-900 flex items-baseline gap-1">
-                        <span id="heroHoursLabel">120</span>
-                        <span class="text-xs font-semibold text-gray-450">/ 360 h</span>
-                    </span>
-                </div>
-                <div>
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Días Transcurridos</span>
-                    <span class="text-2xl font-extrabold text-gray-900 flex items-baseline gap-1">
-                        30
-                        <span class="text-xs font-semibold text-gray-450">/ 120 d</span>
-                    </span>
-                </div>
-                <div>
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expediente</span>
-                    <span class="text-2xl font-extrabold text-[#4E7D24] flex items-baseline gap-1" id="heroDocsLabel">
-                        2
-                        <span class="text-xs font-semibold text-gray-450">/ 6 docs</span>
-                    </span>
+                    </div>
+                    @endif
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Estatus</span>
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-[#4E7D24]">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6BA53A] opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#4E7D24]"></span>
+                            </span>
+                            {{ $solicitudActiva->estatus === 'en_proceso' ? 'En Proceso' : 'Aprobada' }}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Main Two-Column Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        
-        <!-- Left: Objectives, Bitácora & Phases (2 Columns) -->
-        <div class="lg:col-span-2 flex flex-col gap-6">
-            
-            <!-- Objective and Activities -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
+            {{-- Hours Progress --}}
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    Objetivo y Actividades a Realizar
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Seguimiento de Horas
                 </h3>
-                
-                <div class="space-y-4">
-                    <div>
-                        <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Objetivo General</span>
-                        <p class="text-xs text-gray-700 leading-relaxed font-medium bg-gray-50/50 p-3.5 rounded-2xl border border-gray-150/40">
-                            Diseñar y desarrollar una aplicación móvil híbrida (iOS y Android) para el control y seguimiento interno del inventario de hardware y licencias de software, facilitando la asignación eficiente de recursos tecnológicos.
-                        </p>
+
+                <div class="bg-white/60 border border-gray-100 rounded-2xl p-5 mb-5 flex flex-col items-center justify-center text-center shadow-inner">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Avance de Horas</span>
+                    <div class="flex items-baseline gap-1 mb-2">
+                        <span class="text-4xl font-extrabold text-gray-900" id="currentHoursVal">{{ $horasCompletadas }}</span>
+                        <span class="text-sm font-medium text-gray-500">/ {{ $horasMeta }} horas</span>
                     </div>
-                    
-                    <div class="border-t border-gray-100 pt-3">
-                        <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">Actividades Autorizadas</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700 font-semibold">
-                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
-                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
-                                <span>Levantamiento de requerimientos</span>
-                            </label>
-                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
-                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
-                                <span>Diseño UX/UI de vistas móviles</span>
-                            </label>
-                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
-                                <input type="checkbox" checked disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
-                                <span>Modelado y creación de BD y API</span>
-                            </label>
-                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-[#6BA53A]/20 bg-[#6BA53A]/5">
-                                <input type="checkbox" disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
-                                <span class="text-[#4E7D24]">Programación móvil (Flutter)</span>
-                            </label>
-                            <label class="flex items-center gap-2.5 p-2 bg-white rounded-xl border border-gray-100">
-                                <input type="checkbox" disabled class="rounded border-gray-300 text-[#4E7D24] focus:ring-[#6BA53A] cursor-not-allowed">
-                                <span>Ejecución de pruebas y QA</span>
-                            </label>
-                        </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full" id="hoursPercentageVal">{{ $porcentajeHoras }}% Completado</span>
+                        <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100 mt-4">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500" id="hoursProgressBar"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bitácora de Horas e Actividades -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-150">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                        Bitácora y Reporte de Horas
+        </div>
+
+        {{-- Right column: Documents --}}
+        <div class="lg:col-span-2 flex flex-col gap-6">
+
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-150 flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Expediente Digital
+                    </h3>
+                    <span id="uploadedCountBadge" class="text-xs text-gray-500 font-medium bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-1">
+                        {{ $documentos->count() }} subido(s)
                     </span>
-                    <button onclick="toggleBitacoraForm()" id="btnToggleBitacora" class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-1.5 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all flex items-center gap-1 shadow-sm">
-                        Registrar Actividades
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                </h3>
+                </div>
 
-                <!-- Simulated Form (Hidden by default, expandable) -->
-                <div id="bitacoraFormContainer" class="hidden bg-gray-50 border border-gray-150/50 rounded-2xl p-5 mb-5 space-y-4 fade-in-up">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Añadir Actividad a Bitácora</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="sm:col-span-2">
-                            <label for="bitacoraDesc" class="block text-[11px] font-bold text-gray-400 mb-1">Descripción de la Tarea</label>
-                            <input type="text" id="bitacoraDesc" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] font-semibold" placeholder="Ej. Diseño de UI para la pantalla de Login...">
+                @php
+                    $tiposDoc = [
+                        ['nombre' => 'Carta de Presentación',  'desc' => 'Expedida por el coordinador para solicitar formalmente tu espacio.'],
+                        ['nombre' => 'Carta de Aceptación',    'desc' => 'Expedida por la empresa, acreditando que has sido seleccionado.'],
+                        ['nombre' => 'Plan de Trabajo',        'desc' => 'Cronograma detallado con las actividades que realizarás.'],
+                        ['nombre' => 'Memoria de Prácticas',   'desc' => 'Reporte académico del desarrollo de tus actividades.'],
+                        ['nombre' => 'Evaluación de Desempeño','desc' => 'Evaluación calificada por tu asesor externo de la empresa.', 'nota' => 'Subir evidencia de desempeño'],
+                        ['nombre' => 'Carta de Término',       'desc' => 'Expedida por la empresa para validar la conclusión formal del periodo.'],
+                    ];
+                    $docsSubidos = $documentos->keyBy('nombre_doc');
+                    $pdfGenerables = [
+                        'Carta de Presentación' => 'estudiante.cartaPresentacionPdf',
+                        'Plan de Trabajo'       => 'estudiante.planTrabajoPdf',
+                        'Memoria de Prácticas'  => 'estudiante.memoriaPracticasPdf',
+                    ];
+                    $wordGenerables = [
+                        'Carta de Término' => 'estudiante.cartaTerminoWord',
+                    ];
+                @endphp
+
+                <div class="space-y-4">
+                    @foreach($tiposDoc as $i => $tipo)
+                        @php
+                            $doc = $docsSubidos[$tipo['nombre']] ?? null;
+                            $estatusDoc = $doc?->estatus ?? 'pendiente';
+                            $badge = match(true) {
+                                !$doc => ['label' => 'Sin Subir', 'classes' => 'bg-gray-50 text-gray-500 border-gray-200', 'dot' => 'bg-gray-400'],
+                                $estatusDoc === 'aprobado' => ['label' => 'Validado', 'classes' => 'bg-green-50 text-green-700 border-green-150', 'dot' => 'bg-green-600'],
+                                $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'classes' => 'bg-red-50 text-red-700 border-red-150', 'dot' => 'bg-red-600'],
+                                default => ['label' => 'En proceso de validación', 'classes' => 'bg-amber-50 text-amber-700 border-amber-150', 'dot' => 'bg-amber-500'],
+                            };
+                            $iconClasses = match(true) {
+                                !$doc => 'bg-gray-50 text-gray-400',
+                                $estatusDoc === 'aprobado' => 'bg-green-50 text-green-600',
+                                $estatusDoc === 'rechazado' => 'bg-red-50 text-red-600',
+                                default => 'bg-amber-50 text-amber-600',
+                            };
+                            $pdfRouteName = $pdfGenerables[$tipo['nombre']] ?? null;
+                            $wordRouteName = $wordGenerables[$tipo['nombre']] ?? null;
+                        @endphp
+                        <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 rounded-xl {{ $iconClasses }}" data-doc-icon>
+                                    @if($doc && $estatusDoc !== 'rechazado')
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    @elseif($doc && $estatusDoc === 'rechazado')
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    @else
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    @endif
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm">{{ $i + 1 }}. {{ $tipo['nombre'] }}</h4>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">{{ $tipo['desc'] }}</p>
+                                    @if(!empty($tipo['nota']))
+                                        <p class="text-[11px] text-gray-400 italic mt-0.5">{{ $tipo['nota'] }}</p>
+                                    @endif
+                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold {{ $badge['classes'] }} mt-1" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
+                                        {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="shrink-0 flex items-center gap-2">
+                                @if($pdfRouteName)
+                                    <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Generar PDF
+                                    </a>
+                                @endif
+                                @if($wordRouteName)
+                                    <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Generar Word
+                                    </a>
+                                @endif
+                                <div data-doc-action-area class="flex items-center gap-2">
+                                @if(!$doc)
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Subir
+                                    </button>
+                                @else
+                                    <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
+                                        Ver Archivo
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </a>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Editar
+                                    </button>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Eliminar
+                                    </button>
+                                @endif
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="bitacoraHours" class="block text-[11px] font-bold text-gray-400 mb-1">Horas Dedicadas</label>
-                            <input type="number" id="bitacoraHours" class="block w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/20 focus:border-[#6BA53A] font-bold text-center" value="10" min="1" max="60">
-                        </div>
-                    </div>
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button onclick="toggleBitacoraForm()" class="bg-white border border-gray-200 text-gray-550 text-xs font-bold px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">Cancelar</button>
-                        <button onclick="addBitacoraEntry()" class="bg-[#4E7D24] text-white text-xs font-bold px-5 py-2 rounded-xl hover:bg-[#3A5D1B] transition-all shadow-sm">Guardar Registro</button>
-                    </div>
-                </div>
-
-                <!-- Bitacora Table Logs -->
-                <div class="overflow-hidden bg-white/60 border border-gray-100 rounded-2xl shadow-inner">
-                    <table class="min-w-full divide-y divide-gray-200" id="bitacoraTable">
-                        <thead class="bg-gray-50/50">
-                            <tr>
-                                <th scope="col" class="px-5 py-3 text-left text-[10px] font-bold text-gray-450 uppercase tracking-wider">Fecha / Periodo</th>
-                                <th scope="col" class="px-5 py-3 text-left text-[10px] font-bold text-gray-450 uppercase tracking-wider">Actividades Reportadas</th>
-                                <th scope="col" class="px-5 py-3 text-center text-[10px] font-bold text-gray-450 uppercase tracking-wider">Horas</th>
-                                <th scope="col" class="px-5 py-3 text-center text-[10px] font-bold text-gray-450 uppercase tracking-wider">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-transparent divide-y divide-gray-155" id="bitacoraBody">
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 4 (Reciente)</td>
-                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Creación de base de datos relacional en PostgreSQL e integración de llaves foráneas.</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">30 h</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center">
-                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 3</td>
-                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Diseño de prototipo de interfaces de usuario para app móvil en Figma.</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">30 h</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center">
-                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 2</td>
-                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Levantamiento de requerimientos y juntas de análisis de la lógica del sistema.</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">35 h</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center">
-                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors">
-                                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana 1</td>
-                                <td class="px-5 py-3 text-xs font-semibold text-gray-700">Inducción a la empresa y capacitación sobre lineamientos internos del departamento.</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">25 h</td>
-                                <td class="px-5 py-3 whitespace-nowrap text-center">
-                                    <span class="text-[9px] font-bold text-green-700 bg-green-50 border border-green-150 px-2 py-0.5 rounded-md">Validado</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-        </div>
-
-        <!-- Right Column: Visual Hours Wheel & Technical Info (1 Column) -->
-        <div class="flex flex-col gap-6">
-            
-            <!-- Circular Progress Ring (Anillo Circular) -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-250 flex flex-col items-center justify-center text-center">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6 w-full text-left">Porcentaje de Avance</h3>
-                
-                <!-- Circular Chart SVG -->
-                <div class="relative w-40 h-40 flex items-center justify-center">
-                    <svg class="w-full h-full transform -rotate-95" viewBox="0 0 100 100">
-                        <!-- Background Circle -->
-                        <circle class="text-gray-100" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
-                        <!-- Foreground Circle -->
-                        <circle class="text-blue-500 transition-all duration-700 ease-out" id="circularProgressRing" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="167.4" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
-                    </svg>
-                    
-                    <!-- Center Labels -->
-                    <div class="absolute flex flex-col items-center justify-center">
-                        <span class="text-3xl font-extrabold text-gray-900" id="circularHoursText">120 h</span>
-                        <span class="text-[10px] text-gray-450 font-bold uppercase tracking-wider mt-0.5">de 360 totales</span>
-                    </div>
-                </div>
-
-                <div class="mt-6 w-full bg-blue-50/50 rounded-2xl p-4 border border-blue-100/50">
-                    <span class="block text-xs font-bold text-blue-900 mb-0.5" id="circularPercentageText">33.3% Completado</span>
-                    <span class="text-[11px] text-blue-800/80 font-medium" id="circularHoursRemaining">Faltan 240 horas para acreditar tus prácticas.</span>
-                </div>
-            </div>
-
-            <!-- Ficha Técnica del Convenio y Asesor -->
-            <div class="glass-card rounded-3xl p-6 fade-in-up delay-300">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Información del Asesor</h3>
-                
-                <div class="flex items-center gap-3.5 mb-5 pb-5 border-b border-gray-150/50">
-                    <div class="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 shadow-sm border border-gray-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    </div>
-                    <div>
-                        <span class="block text-sm font-extrabold text-gray-900">Ing. Roberto Medina</span>
-                        <span class="block text-xs text-gray-500 font-semibold mt-0.5">Asesor de Desarrollo, Tech Solutions</span>
-                    </div>
-                </div>
-
-                <div class="space-y-4 text-xs text-gray-700 font-semibold mb-6">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-400 font-bold">Correo:</span>
-                        <a href="mailto:rmedina@techsolutions.com" class="text-[#4E7D24] hover:underline">rmedina@techsolutions.com</a>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-400 font-bold">Departamento:</span>
-                        <span class="text-gray-900">Desarrollo e Innovación</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-400 font-bold">Horas Diarias:</span>
-                        <span class="text-gray-900">5 horas diarias</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-400 font-bold">Horario:</span>
-                        <span class="text-gray-900">08:00 AM - 01:00 PM</span>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <a href="mailto:rmedina@techsolutions.com" class="w-full text-center py-3 bg-[#4E7D24] hover:bg-[#3A5D1B] text-white text-xs font-bold rounded-xl transition-all shadow-md">Redactar Correo</a>
-                    <a href="mailto:aramos@ucol.mx" class="w-full text-center py-3 border border-gray-200 hover:bg-gray-55 text-gray-750 text-xs font-bold rounded-xl transition-colors shadow-sm">Reportar con Coordinador</a>
+                    @endforeach
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Phase-based Digital Folder (Timeline) - Full Width below Grid -->
-    <div class="glass-card rounded-3xl p-6 fade-in-up delay-350">
-        <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            Expediente Digital por Fases del Trámite
-        </h3>
-
-        <!-- Phase Groups in 3 Columns on Widescreen -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
-            
-            <!-- Phase 1: Fase Inicial -->
-            <div class="relative pl-6 border-l-2 border-green-400 flex flex-col gap-4">
-                <!-- Bullet Indicator -->
-                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
-                
-                <h4 class="text-xs font-extrabold text-green-800 uppercase tracking-widest mb-1">Fase Inicial (Apertura)</h4>
-                
-                <!-- Doc 1 -->
-                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex justify-between items-center hover:border-green-300 transition-colors shadow-sm" id="docRow-1">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-green-50 text-green-600 rounded-xl">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <div>
-                            <h5 class="text-xs font-extrabold text-gray-900">Carta de Presentación</h5>
-                            <span class="inline-block text-[9px] font-bold text-green-700 bg-green-50/50 px-2 py-0.5 rounded mt-1">Aprobado</span>
-                        </div>
-                    </div>
-                    <button onclick="simulateViewPdf('Carta de Presentación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 p-2 rounded-xl transition-all" title="Ver Documento">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                </div>
-
-                <!-- Doc 2 -->
-                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex justify-between items-center hover:border-green-300 transition-colors shadow-sm" id="docRow-2">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-green-50 text-green-600 rounded-xl">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <div>
-                            <h5 class="text-xs font-extrabold text-gray-900">Carta de Aceptación</h5>
-                            <span class="inline-block text-[9px] font-bold text-green-700 bg-green-50/50 px-2 py-0.5 rounded mt-1">Aprobado</span>
-                        </div>
-                    </div>
-                    <button onclick="simulateViewPdf('Carta de Aceptación', 'Aprobado')" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 p-2 rounded-xl transition-all" title="Ver Documento">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Phase 2: Fase de Avance -->
-            <div class="relative pl-6 border-l-2 border-yellow-450 flex flex-col gap-4">
-                <!-- Bullet Indicator -->
-                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-yellow-500 rounded-full border-4 border-white shadow-md"></div>
-                
-                <h4 class="text-xs font-extrabold text-yellow-800 uppercase tracking-widest mb-1">Fase de Avance (Ejecución)</h4>
-                
-                <!-- Doc 3 (Plan de Trabajo - Rechazado) -->
-                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-red-300 transition-colors shadow-sm" id="docRow-3">
-                    <div class="flex items-start justify-between gap-2 mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-red-50 text-red-500 rounded-xl" id="docIconContainer-3">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </div>
-                            <div>
-                                <h5 class="text-xs font-extrabold text-gray-900">Plan de Trabajo</h5>
-                                <span class="inline-block text-[9px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded mt-1 border border-red-100" id="docBadge-3">Rechazado</span>
-                            </div>
-                        </div>
-                        <button onclick="simulateViewPdf('Plan de Trabajo', 'Rechazado')" class="text-gray-400 hover:text-gray-700 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-red-500 font-bold mb-3.5 p-2 bg-red-50/50 rounded-xl border border-red-100/50">Motivo: Error en firmas del asesor de empresa.</p>
-                    <div id="docActions-3">
-                        <button onclick="openUploadModal(3, 'Plan de Trabajo')" class="w-full text-center py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-sm">Reemplazar Archivo</button>
-                    </div>
-                </div>
-
-                <!-- Doc 4 (Memoria - En revisión) -->
-                <div class="bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors shadow-sm" id="docRow-4">
-                    <div class="flex items-center justify-between gap-2 mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-yellow-50 text-yellow-600 rounded-xl" id="docIconContainer-4">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <h5 class="text-xs font-extrabold text-gray-900">Memoria de Prácticas</h5>
-                                <span class="inline-block text-[9px] font-bold text-yellow-750 bg-yellow-50 px-2 py-0.5 rounded mt-1 border border-yellow-100" id="docBadge-4">En Revisión</span>
-                            </div>
-                        </div>
-                        <button onclick="simulateViewPdf('Memoria de Prácticas', 'En Revisión')" class="text-gray-400 hover:text-gray-700 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        </button>
-                    </div>
-                    <div id="docActions-4">
-                        <button onclick="openUploadModal(4, 'Memoria de Prácticas')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-55 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Phase 3: Fase Final -->
-            <div class="relative pl-6 border-l-2 border-gray-300 flex flex-col gap-4">
-                <!-- Bullet Indicator -->
-                <div class="absolute -left-[9px] top-1 w-4 h-4 bg-gray-300 rounded-full border-4 border-white shadow-md" id="docBullet-5"></div>
-                
-                <h4 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-1">Fase Final (Cierre y Acreditación)</h4>
-                
-                <!-- Doc 5 (Evaluación - Sin subir) -->
-                <div class="bg-white/60 border border-dashed border-gray-250 rounded-2xl p-4 flex flex-col justify-between hover:border-[#6BA53A]/45 transition-colors shadow-sm" id="docRow-5">
-                    <div class="flex items-center justify-between gap-2 mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-5">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            </div>
-                            <div>
-                                <h5 class="text-xs font-extrabold text-gray-900">Evaluación de Desempeño</h5>
-                                <span class="inline-block text-[9px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded mt-1 border border-gray-200" id="docBadge-5">Sin Subir</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="docActions-5">
-                        <button onclick="openUploadModal(5, 'Evaluación de Desempeño')" class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">Subir Archivo</button>
-                    </div>
-                </div>
-
-                <!-- Doc 6 (Carta de término - Sin subir) -->
-                <div class="bg-white/60 border border-dashed border-gray-250 rounded-2xl p-4 flex flex-col justify-between hover:border-[#6BA53A]/45 transition-colors shadow-sm" id="docRow-6">
-                    <div class="flex items-center justify-between gap-2 mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gray-50 text-gray-400 rounded-xl" id="docIconContainer-6">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            </div>
-                            <div>
-                                <h5 class="text-xs font-extrabold text-gray-900">Carta de Término</h5>
-                                <span class="inline-block text-[9px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded mt-1 border border-gray-200" id="docBadge-6">Sin Subir</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="docActions-6">
-                        <button onclick="openUploadModal(6, 'Carta de Término')" class="w-full text-center py-2.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-bold rounded-xl transition-all shadow-md">Subir Archivo</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Upload Document Modal (Simulated overlay) -->
+    {{-- Upload Modal --}}
     <div id="uploadModal" class="hidden fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-md w-full overflow-hidden fade-in-up">
             <div class="bg-gradient-to-r from-gray-950 to-gray-850 p-5 text-white flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Subir Documento</h3>
-                    <p class="text-xs text-gray-300 mt-0.5" id="uploadModalDocName">Cargando...</p>
+                    <p class="text-xs text-gray-300 mt-0.5" id="uploadModalDocName"></p>
                 </div>
                 <button onclick="closeUploadModal()" class="text-gray-300 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-xl">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            
-            <div class="p-6 space-y-4">
+            <div class="p-6">
                 <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center hover:border-[#6BA53A] transition-colors cursor-pointer" onclick="document.getElementById('simPdfInput').click()">
                     <input type="file" id="simPdfInput" accept=".pdf" class="hidden" onchange="fileSelected(this)">
                     <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-3" id="uploadIconContainer">
@@ -436,7 +233,6 @@
                     <span class="text-xs text-gray-400 mt-1">Peso máximo: 5MB</span>
                 </div>
             </div>
-
             <div class="p-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
                 <button onclick="closeUploadModal()" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-650 font-bold py-3.5 px-4 rounded-xl text-xs transition-colors shadow-sm">Cancelar</button>
                 <button onclick="submitUpload()" class="flex-1 bg-[#4E7D24] hover:bg-[#3A5D1B] text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md">Subir Archivo</button>
@@ -444,209 +240,75 @@
         </div>
     </div>
 
-    <!-- View PDF Modal (Simulated overlay) -->
-    <div id="pdfModal" class="hidden fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-3xl w-full h-[85vh] overflow-hidden flex flex-col fade-in-up">
-            <div class="bg-gray-900 p-5 text-white flex justify-between items-center">
-                <div>
-                    <h3 class="text-base font-bold" id="pdfModalTitle">Visor de Documentos (Simulado)</h3>
-                    <p class="text-xs text-gray-400 mt-0.5" id="pdfModalSubtitle">Cargando...</p>
+    {{-- Delete Confirmation Modal --}}
+    <div id="deleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-sm w-full overflow-hidden">
+            <div class="p-7 text-center">
+                <div class="mx-auto mb-5 w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
                 </div>
-                <button onclick="closePdfModal()" class="text-gray-300 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-xl">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Eliminar documento</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    ¿Estás seguro de que deseas eliminar
+                    <span id="deleteModalDocName" class="font-semibold text-gray-800"></span>?
+                    <br>Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="px-7 pb-7 flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition-colors">
+                    Cancelar
                 </button>
-            </div>
-            
-            <div class="flex-1 bg-gray-100 overflow-y-auto p-8 flex flex-col items-center justify-start custom-scrollbar">
-                <div class="max-w-2xl w-full bg-white shadow-lg border border-gray-200 rounded-xl p-10 min-h-[750px] relative flex flex-col justify-between">
-                    
-                    <div class="flex justify-between items-start border-b-2 border-gray-200 pb-5">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ asset('images/logo_verde.png') }}" alt="Logo" class="h-14 w-auto object-contain">
-                            <div>
-                                <h4 class="font-bold text-xs text-gray-900 uppercase">Universidad de Colima</h4>
-                                <h5 class="text-[10px] text-gray-500 uppercase font-semibold">Facultad de Ingeniería Mecánica y Eléctrica</h5>
-                                <h5 class="text-[9px] text-gray-450 uppercase font-bold">Dirección General de Prácticas Profesionales</h5>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[9px] font-bold text-gray-450 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded">DOCUMENTO OFICIAL</span>
-                            <p class="text-[9px] text-gray-400 font-medium mt-1">Folio: UDEC-PP-2026-0429</p>
-                        </div>
-                    </div>
-
-                    <div class="my-8 flex-1">
-                        <h3 class="text-center font-bold text-sm text-gray-800 uppercase tracking-wider mb-6" id="pdfDocDocName">CARTA DE PRESENTACIÓN DE PRÁCTICAS</h3>
-                        
-                        <p class="text-xs text-right text-gray-600 font-medium mb-6">Colima, Col., a 12 de Abril del 2026.</p>
-                        
-                        <p class="text-xs text-gray-800 font-bold mb-4">
-                            ING. ROBERTO MEDINA<br>
-                            ASIGNADOR DE PROYECTOS EXTERNOS<br>
-                            TECH SOLUTIONS S.A.<br>
-                            PRESENTE.
-                        </p>
-
-                        <p class="text-xs text-gray-700 leading-relaxed text-justify font-medium mb-4">
-                            Por medio de la presente, la Coordinación de Prácticas Profesionales de la Universidad de Colima tiene el honor de presentar al estudiante <strong>{{ auth()->user()->correo }}</strong> con matrícula <strong>20183492</strong>, de la carrera de <strong>Ingeniería en Software</strong> (6° semestre), para que realice su periodo de prácticas profesionales en su distinguida empresa.
-                        </p>
-
-                        <p class="text-xs text-gray-700 leading-relaxed text-justify font-medium mb-4">
-                            Las prácticas profesionales constan de cubrir un total de <strong>360 horas</strong>, realizando actividades afines a su perfil de egreso en el área de desarrollo web/móvil, las cuales se llevarán a cabo en el periodo establecido y bajo la supervisión del asesor que sea designado.
-                        </p>
-
-                        <p class="text-xs text-gray-700 leading-relaxed text-justify font-medium mb-6">
-                            Agradeciendo de antemano el apoyo que se sirva brindar a nuestro estudiante en su formación integral, quedo de usted para cualquier aclaración o duda.
-                        </p>
-                    </div>
-
-                    <div class="border-t border-gray-150 pt-5">
-                        <div class="grid grid-cols-2 gap-8 text-center">
-                            <div class="flex flex-col items-center">
-                                <span class="text-[9px] font-bold text-[#4E7D24] mb-12">AUTORIZACIÓN INSTITUCIONAL</span>
-                                <div class="w-32 border-b border-gray-400"></div>
-                                <span class="text-[9px] text-gray-800 font-bold mt-1">Mtro. Alejandro Ramos</span>
-                                <span class="text-[8px] text-gray-500 font-semibold">Coordinador UdeC</span>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <span class="text-[9px] font-bold text-gray-450 mb-12">RECIBIDO POR LA EMPRESA</span>
-                                <div class="w-32 border-b border-gray-400"></div>
-                                <span class="text-[9px] text-gray-800 font-bold mt-1">Ing. Roberto Medina</span>
-                                <span class="text-[8px] text-gray-500 font-semibold">Tech Solutions S.A.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            
-            <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
-                <button onclick="closePdfModal()" class="bg-gray-900 text-white font-bold py-2.5 px-6 rounded-xl text-xs hover:bg-black transition-colors shadow-sm">Cerrar Visor</button>
+                <button id="deleteModalConfirmBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm">
+                    Eliminar
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Client-side Interactive Logic -->
+    @else
+    {{-- Empty state --}}
+    <div class="glass-card rounded-3xl p-14 text-center fade-in-up delay-100">
+        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-gray-100">
+            <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-500 mb-2">Sin proyecto activo</h3>
+        <p class="text-sm text-gray-400 max-w-sm mx-auto mb-6">
+            Aún no tienes una solicitud de prácticas aprobada. Busca empresas con convenio y solicita tu espacio.
+        </p>
+        <a href="{{ route('estudiante.convenios') }}" class="inline-flex items-center gap-2 bg-[#4E7D24] text-white text-sm font-semibold px-6 py-3 rounded-2xl hover:bg-[#3b6620] transition-all shadow-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            Buscar Convenios
+        </a>
+    </div>
+    @endif
+
     <script>
-        // Circular Progress Ring calculations
-        const maxCircleOffset = 251.2; // 2 * PI * r = 2 * PI * 40 = 251.2
-        const totalHours = 360;
-        let currentHours = 120;
-        let approvedDocs = 2;
+        var projectEl = document.getElementById('projectData');
+        var currentHours = parseInt(projectEl?.dataset.currentHours || 0, 10);
+        var totalHours   = parseInt(projectEl?.dataset.totalHours || 480, 10);
 
-        function updateCircularProgress(newHours) {
-            currentHours = newHours;
-            
-            // Limit hours
-            if (currentHours > totalHours) currentHours = totalHours;
+        var activeDocName = '';
 
-            // UI text update
-            document.getElementById('circularHoursText').textContent = `${currentHours} h`;
-            document.getElementById('heroHoursLabel').textContent = currentHours;
+        var docsQueAceptanImagenes = ['Evaluación de Desempeño'];
 
-            const percentage = ((currentHours / totalHours) * 100).toFixed(1);
-            document.getElementById('circularPercentageText').textContent = `${percentage}% Completado`;
-            
-            const remaining = totalHours - currentHours;
-            if (remaining > 0) {
-                document.getElementById('circularHoursRemaining').textContent = `Faltan ${remaining} horas para acreditar tus prácticas.`;
-            } else {
-                document.getElementById('circularHoursRemaining').textContent = `¡Felicidades! Has cubierto las 360 horas necesarias.`;
-                document.getElementById('circularHoursRemaining').className = "text-[11px] text-green-800/80 font-bold block";
+        function openUploadModal(trigger) {
+            var docName = '';
+            if (typeof trigger === 'string') {
+                docName = trigger;
+            } else if (trigger && trigger.getAttribute) {
+                docName = trigger.getAttribute('data-docname') || trigger.dataset.docname || '';
             }
-
-            // SVG offset update: percentage = 100% means stroke-dashoffset = 0.
-            // stroke-dashoffset = maxCircleOffset - (percentage / 100 * maxCircleOffset)
-            const offset = maxCircleOffset - (currentHours / totalHours * maxCircleOffset);
-            document.getElementById('circularProgressRing').setAttribute('stroke-dashoffset', offset);
-        }
-
-        // Toggle Bitacora Form
-        function toggleBitacoraForm() {
-            const form = document.getElementById('bitacoraFormContainer');
-            const btn = document.getElementById('btnToggleBitacora');
-            
-            if (form.classList.contains('hidden')) {
-                form.classList.remove('hidden');
-                btn.innerHTML = `Cerrar Bitácora <svg class="w-3.5 h-3.5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
-            } else {
-                form.classList.add('hidden');
-                btn.innerHTML = `Registrar Actividades <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
-            }
-        }
-
-        // Add Bitacora entry dynamically and sum hours
-        let weekCounter = 5;
-        function addBitacoraEntry() {
-            const descInput = document.getElementById('bitacoraDesc');
-            const hoursInput = document.getElementById('bitacoraHours');
-            
-            const desc = descInput.value.trim();
-            const hrs = parseInt(hoursInput.value);
-
-            if (!desc) {
-                alert('Escribe una descripción para la actividad.');
-                return;
-            }
-            if (isNaN(hrs) || hrs <= 0) {
-                alert('Ingresa una cantidad válida de horas.');
-                return;
-            }
-            if (currentHours + hrs > totalHours) {
-                alert(`No puedes registrar más de las ${totalHours} horas totales del proyecto.`);
-                return;
-            }
-
-            // Insert new row into the table body (at the top)
-            const tbody = document.getElementById('bitacoraBody');
-            const newRow = document.createElement('tr');
-            newRow.className = "hover:bg-[#6BA53A]/5 transition-colors fade-in-up";
-            newRow.innerHTML = `
-                <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-gray-500">Semana ${weekCounter} (Reciente)</td>
-                <td class="px-5 py-3 text-xs font-semibold text-gray-700">${desc}</td>
-                <td class="px-5 py-3 whitespace-nowrap text-center text-xs font-extrabold text-gray-900">${hrs} h</td>
-                <td class="px-5 py-3 whitespace-nowrap text-center">
-                    <span class="text-[9px] font-bold text-yellow-750 bg-yellow-50 border border-yellow-150 px-2 py-0.5 rounded-md">Enviado</span>
-                </td>
-            `;
-
-            // Remove the "(Reciente)" tag from the previous top row if exists
-            const prevTopRow = tbody.querySelector('tr');
-            if (prevTopRow) {
-                const dateCell = prevTopRow.querySelector('td');
-                dateCell.textContent = dateCell.textContent.replace(' (Reciente)', '');
-            }
-
-            tbody.insertBefore(newRow, tbody.firstChild);
-
-            // Increment week count
-            weekCounter++;
-            
-            // Update hours globally
-            updateCircularProgress(currentHours + hrs);
-
-            // Reset and close form
-            descInput.value = '';
-            hoursInput.value = '10';
-            toggleBitacoraForm();
-
-            showToast('¡Bitácora Registrada!', `Se han registrado ${hrs} horas para su validación por el asesor externo.`);
-        }
-
-        // Upload Modal handling
-        let activeDocId = null;
-        let activeDocName = "";
-
-        function openUploadModal(docId, docName) {
-            activeDocId = docId;
             activeDocName = docName;
+            var permiteImagenes = docsQueAceptanImagenes.indexOf(docName) !== -1;
             document.getElementById('uploadModalDocName').textContent = docName;
-            document.getElementById('uploadFileText').textContent = "Seleccionar Archivo PDF";
-            document.getElementById('simPdfInput').value = "";
-            document.getElementById('uploadIconContainer').innerHTML = `
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-            `;
-            document.getElementById('uploadIconContainer').className = "w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-3";
+            document.getElementById('uploadFileText').textContent = permiteImagenes ? 'Seleccionar Archivo PDF o Imagen' : 'Seleccionar Archivo PDF';
+            document.getElementById('simPdfInput').accept = permiteImagenes ? '.pdf,.jpg,.jpeg,.png' : '.pdf';
+            document.getElementById('simPdfInput').value = '';
+            document.getElementById('uploadIconContainer').className = 'w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-3';
+            document.getElementById('uploadIconContainer').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>';
             document.getElementById('uploadModal').classList.remove('hidden');
         }
 
@@ -656,115 +318,215 @@
 
         function fileSelected(input) {
             if (input.files && input.files[0]) {
-                const filename = input.files[0].name;
-                document.getElementById('uploadFileText').textContent = filename;
-                document.getElementById('uploadIconContainer').className = "w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3";
-                document.getElementById('uploadIconContainer').innerHTML = `
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                `;
+                document.getElementById('uploadFileText').textContent = input.files[0].name;
+                document.getElementById('uploadIconContainer').className = 'w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3';
+                document.getElementById('uploadIconContainer').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
             }
         }
 
         function submitUpload() {
-            const input = document.getElementById('simPdfInput');
-            if (input.files.length === 0 && document.getElementById('uploadFileText').textContent === "Seleccionar Archivo PDF") {
-                alert('Por favor selecciona un archivo PDF de tu equipo.');
+            var input = document.getElementById('simPdfInput');
+            if (!input.files || !input.files[0]) {
+                alert('Por favor selecciona un archivo PDF.');
                 return;
             }
-            
-            closeUploadModal();
-            
-            const badgeId = `docBadge-${activeDocId}`;
-            const rowId = `docRow-${activeDocId}`;
-            const actionsId = `docActions-${activeDocId}`;
-            const iconContainerId = `docIconContainer-${activeDocId}`;
-            
-            const badge = document.getElementById(badgeId);
-            const row = document.getElementById(rowId);
-            const actions = document.getElementById(actionsId);
-            const icon = document.getElementById(iconContainerId);
 
-            // Change status to "En Revisión"
-            if (badge) {
-                badge.className = "inline-block text-[9px] font-bold text-yellow-750 bg-yellow-50 px-2 py-0.5 rounded mt-1 border border-yellow-100";
-                badge.textContent = "En Revisión";
+            var uploadUrl = projectEl?.dataset.uploadUrl || '';
+            if (!uploadUrl) {
+                alert('No se encontró la URL de subida. Recarga la página e inténtalo de nuevo.');
+                return;
             }
 
-            if (row.classList.contains('border-dashed')) {
-                // If it was "Sin Subir", change border/icon and add view button
-                row.className = "bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors";
-                
-                if (icon) {
-                    icon.className = "p-2 bg-yellow-50 text-yellow-600 rounded-xl";
-                    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-                }
-                
-                // Add header flex container
-                const topDiv = row.querySelector('.flex.items-center.gap-2.mb-4') || row.querySelector('.flex');
-                if (topDiv) {
-                    topDiv.className = "flex items-center justify-between gap-2 mb-4 w-full";
-                    // Append small view button
-                    const viewBtn = document.createElement('button');
-                    viewBtn.onclick = () => simulateViewPdf(activeDocName, 'En Revisión');
-                    viewBtn.className = "text-gray-400 hover:text-gray-700 transition-all";
-                    viewBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
-                    topDiv.appendChild(viewBtn);
-                }
+            var formData = new FormData();
+            formData.append('nombre_doc', activeDocName);
+            formData.append('archivo', input.files[0]);
 
-                if (actions) {
-                    actions.innerHTML = `<button onclick="openUploadModal(${activeDocId}, '${activeDocName}')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>`;
-                }
-            } else if (activeDocId === 3) {
-                // If it was Plan de Trabajo (Rechazado), remove the observation block and convert card
-                const obsBox = row.querySelector('p');
-                if (obsBox) obsBox.remove();
-                
-                if (icon) {
-                    icon.className = "p-2 bg-yellow-50 text-yellow-600 rounded-xl";
-                    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-                }
+            var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-                row.className = "bg-white/60 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-yellow-300 transition-colors shadow-sm";
-                
-                if (actions) {
-                    actions.innerHTML = `<button onclick="openUploadModal(3, 'Plan de Trabajo')" class="w-full text-center py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-bold rounded-xl transition-all shadow-sm">Volver a Subir</button>`;
-                }
-                
-                // Update top row buttons
-                const header = row.querySelector('.flex.items-start.justify-between.gap-2.mb-3') || row.querySelector('.flex');
-                if (header) {
-                    header.className = "flex items-center justify-between gap-2 mb-4 w-full";
-                    const viewBtn = header.querySelector('button');
-                    if (viewBtn) {
-                        viewBtn.onclick = () => simulateViewPdf('Plan de Trabajo', 'En Revisión');
+            fetch(uploadUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                },
+                body: formData,
+            })
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (!response.ok) {
+                        throw data;
                     }
+                    return data;
+                });
+            })
+            .then(function(data) {
+                closeUploadModal();
+                showToast('¡Documento subido!', data.message || 'El archivo se cargó correctamente.');
+                updateDocumentState(activeDocName, data.documento);
+            })
+            .catch(function(error) {
+                if (error && error.errors) {
+                    var firstError = Object.values(error.errors)[0] || 'Ocurrió un error al subir el archivo.';
+                    alert(firstError);
+                } else if (error && error.error) {
+                    alert(error.error);
+                } else {
+                    alert('Ocurrió un error al subir el archivo. Intenta nuevamente.');
                 }
-            }
-
-            showToast('¡Expediente Actualizado!', `El documento "${activeDocName}" ha sido cargado. Su estado de validación ahora es "En Revisión".`);
+            });
         }
 
-        // View PDF Modal
-        function simulateViewPdf(docName, status) {
-            document.getElementById('pdfModalTitle').textContent = `Visor de Documentos: ${docName}`;
-            document.getElementById('pdfModalSubtitle').textContent = `Estado de Validación: ${status} | Previsualización Digital`;
-            document.getElementById('pdfDocDocName').textContent = docName.toUpperCase();
-            document.getElementById('pdfModal').classList.remove('hidden');
-        }
-
-        function closePdfModal() {
-            document.getElementById('pdfModal').classList.add('hidden');
-        }
-
-        // Toast helpers
         function showToast(title, message) {
+            var toast = document.getElementById('projectSuccessToast');
+            var card = document.getElementById('projectSuccessToastCard');
             document.getElementById('toastTitle').textContent = title;
             document.getElementById('toastMessage').textContent = message;
-            const toast = document.getElementById('projectSuccessToast');
+
+            // show
             toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 6000);
+            // force reflow then animate in
+            void card.offsetWidth;
+            card.classList.remove('opacity-0', 'translate-y-2');
+            card.classList.add('opacity-100', 'translate-y-0');
+
+            // clear previous timeout
+            if (window._projectToastTimeout) clearTimeout(window._projectToastTimeout);
+            window._projectToastTimeout = setTimeout(function() {
+                // animate out
+                card.classList.remove('opacity-100', 'translate-y-0');
+                card.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(function() { toast.classList.add('hidden'); }, 300);
+            }, 4200);
+
+            // close button
+            var closeBtn = document.getElementById('toastCloseBtn');
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    if (window._projectToastTimeout) clearTimeout(window._projectToastTimeout);
+                    card.classList.remove('opacity-100', 'translate-y-0');
+                    card.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(function() { toast.classList.add('hidden'); }, 200);
+                };
+            }
+        }
+
+        var _pendingDelete = null;
+
+        function deleteDocument(button) {
+            var docName = button.getAttribute('data-docname');
+            var docId = button.getAttribute('data-docid');
+            _pendingDelete = { docName: docName, docId: docId };
+            document.getElementById('deleteModalDocName').textContent = '"' + docName + '"';
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            _pendingDelete = null;
+        }
+
+        document.getElementById('deleteModalConfirmBtn').addEventListener('click', function() {
+            if (!_pendingDelete) return;
+            var docName = _pendingDelete.docName;
+            var docId   = _pendingDelete.docId;
+            closeDeleteModal();
+
+            var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            var deleteUrl = '{{ route("estudiante.eliminarDocumento", ":id") }}'.replace(':id', docId);
+
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (!response.ok) { throw data; }
+                    return data;
+                });
+            })
+            .then(function(data) {
+                showToast('¡Documento eliminado!', data.message || 'El documento se eliminó correctamente.');
+                clearDocumentState(docName);
+            })
+            .catch(function(error) {
+                if (error && error.error) {
+                    alert(error.error);
+                } else {
+                    alert('Ocurrió un error al eliminar el documento. Intenta nuevamente.');
+                }
+            });
+        });
+
+        function buildUploadButtonHTML(nombreDoc) {
+            return '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>' +
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>' +
+                'Subir</button>';
+        }
+
+        function buildDocumentActionsHTML(nombreDoc, rutaArchivo, documentoId) {
+            return '<a href="' + rutaArchivo + '" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" data-doc-action>' +
+                    'Ver Archivo <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' +
+                '</a>' +
+                '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>' +
+                    'Editar' +
+                '</button>' +
+                '<button type="button" data-docname="' + nombreDoc + '" data-docid="' + documentoId + '" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>' +
+                    'Eliminar' +
+                '</button>';
+        }
+
+        function clearDocumentState(nombreDoc) {
+            var card = document.querySelector('[data-doc-name="' + nombreDoc + '"]');
+            if (card) {
+                var statusBadge = card.querySelector('[data-doc-status]');
+                if (statusBadge) {
+                    statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir';
+                    statusBadge.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1';
+                }
+                var actionArea = card.querySelector('[data-doc-action-area]');
+                if (actionArea) {
+                    actionArea.innerHTML = buildUploadButtonHTML(nombreDoc);
+                }
+            }
+        }
+
+        function updateDocumentState(nombreDoc, documento) {
+            var card = document.querySelector('[data-doc-name="' + nombreDoc + '"]');
+            if (!card) {
+                return;
+            }
+
+            var statusEl = card.querySelector('[data-doc-status]');
+            var wasPreviouslyUploaded = statusEl && !statusEl.textContent.includes('Sin Subir');
+            if (statusEl) {
+                statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-150 mt-1';
+                statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En proceso de validación — ' + documento.fecha_carga;
+            }
+
+            var iconEl = card.querySelector('[data-doc-icon]');
+            if (iconEl) {
+                iconEl.className = 'p-3 rounded-xl bg-amber-50 text-amber-600';
+                iconEl.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            }
+
+            var actionArea = card.querySelector('[data-doc-action-area]');
+            if (actionArea) {
+                actionArea.innerHTML = buildDocumentActionsHTML(nombreDoc, documento.ruta_archivo, documento.id);
+            }
+
+            var countEl = document.getElementById('uploadedCountBadge');
+            if (countEl && !wasPreviouslyUploaded) {
+                var currentCount = parseInt(countEl.textContent || '0', 10);
+                if (!isNaN(currentCount)) {
+                    countEl.textContent = (currentCount + 1) + ' subido(s)';
+                }
+            }
         }
     </script>
 @endsection
