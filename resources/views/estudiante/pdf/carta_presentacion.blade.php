@@ -15,6 +15,10 @@
             text-align: center;
             margin-bottom: 26px;
         }
+        .header .logo {
+            height: 45px;
+            margin-bottom: 10px;
+        }
         .header h1 {
             font-size: 15px;
             margin: 0;
@@ -73,6 +77,7 @@
 </head>
 <body>
     <div class="header">
+        <img src="{{ public_path('images/logo_verde.png') }}" class="logo" alt="Logo">
         <h1>UNIVERSIDAD DE COLIMA</h1>
         <h2>{{ $carrera ?: 'Coordinación de Prácticas Profesionales' }}</h2>
     </div>

@@ -14,6 +14,10 @@
         .portada {
             text-align: center;
         }
+        .portada .logo {
+            height: 55px;
+            margin-bottom: 14px;
+        }
         .portada .universidad {
             font-size: 17px;
             font-weight: bold;
@@ -126,6 +130,7 @@
 <body>
     {{-- Página 1: Portada --}}
     <div class="portada">
+        <img src="{{ public_path('images/logo_verde.png') }}" class="logo" alt="Logo">
         <div class="universidad">UNIVERSIDAD DE COLIMA</div>
         <div class="facultad">{{ $facultad ?: 'Facultad' }}</div>
 
