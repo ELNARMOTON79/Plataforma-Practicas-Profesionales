@@ -51,96 +51,94 @@
         </form>
     </div>
 
-    @if($unidades->isEmpty())
+    @if($conveniosAgrupados->isEmpty())
         <div class="glass-card rounded-3xl p-14 text-center fade-in-up delay-200">
             <svg class="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-            <h3 class="text-lg font-bold text-gray-500">No se encontraron empresas</h3>
+            <h3 class="text-lg font-bold text-gray-500">No se encontraron convenios</h3>
             <p class="text-sm text-gray-400 mt-1">
                 @if($search && $carreraFilter)
-                    Ninguna empresa de "{{ $carreraFilter }}" coincide con "{{ $search }}".
+                    Ningún convenio con empresas de "{{ $carreraFilter }}" coincide con "{{ $search }}".
                 @elseif($search)
-                    Ninguna empresa coincide con "{{ $search }}".
+                    Ningún convenio coincide con "{{ $search }}".
                 @elseif($carreraFilter)
-                    Aún no hay empresas registradas con estudiantes de "{{ $carreraFilter }}".
+                    Aún no hay convenios registrados con estudiantes de "{{ $carreraFilter }}".
                 @else
-                    Aún no hay unidades receptoras registradas.
+                    Aún no hay convenios registrados.
                 @endif
             </p>
             @if($search || $carreraFilter)
                 <a href="{{ route('estudiante.convenios') }}" class="mt-4 inline-block text-sm font-semibold text-[#4E7D24] hover:underline">
-                    Ver todas las empresas
+                    Ver todos los convenios
                 </a>
             @endif
         </div>
     @else
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-up delay-200">
-            @foreach($unidades as $unidad)
-                @php
-                    $esMoral   = strtolower($unidad->tipo_persona ?? '') === 'moral';
-                    $tipoLabel = $esMoral ? 'Persona Moral' : 'Persona Física';
-                    $tipoColor = $esMoral ? 'blue' : 'orange';
-                @endphp
-                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between border-transparent hover:border-[#6BA53A]/20 transition-colors">
-                    <div>
-                        <div class="flex justify-between items-start gap-4 mb-4">
-                            <div>
-                                <span class="inline-block text-[10px] font-bold text-{{ $tipoColor }}-600 bg-{{ $tipoColor }}-50 border border-{{ $tipoColor }}-100 px-2 py-0.5 rounded-md mb-2">{{ $tipoLabel }}</span>
-                                <h3 class="text-xl font-bold text-gray-900">{{ $unidad->nombre_empresa }}</h3>
-                            </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-50 border border-green-100 px-2.5 py-1 rounded-full shrink-0">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Vigente
-                            </span>
-                        </div>
-
-                        @if($unidad->direccion)
-                            <p class="text-sm text-gray-500 font-medium mb-4 flex items-start gap-1.5">
-                                <svg class="w-4 h-4 mt-0.5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                {{ $unidad->direccion }}
+        <div class="space-y-6 fade-in-up delay-200">
+            @foreach($conveniosAgrupados as $convenio)
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4 mb-5 pb-5 border-b border-gray-100/70">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Convenio</p>
+                            <h3 class="text-xl font-bold text-gray-900">{{ $convenio->codigo_convenio }}</h3>
+                            <p class="text-sm text-gray-500 font-medium mt-1">
+                                Vigencia: {{ $convenio->fecha_inicio->format('d/m/Y') }} - {{ $convenio->fecha_termino->format('d/m/Y') }}
                             </p>
-                        @endif
-
-                        {{-- Convenios --}}
-                        @if($unidad->convenios->isNotEmpty())
-                            <div class="mt-4 space-y-2">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Convenios disponibles:</p>
-                                @foreach($unidad->convenios as $convenio)
-                                    @php
-                                        $esVigente = $convenio->estatus === 'activo' && $convenio->fecha_termino > now()->toDateString();
-                                    @endphp
-                                    <div class="text-xs bg-gray-50 border border-gray-150 rounded-lg p-2.5 flex justify-between items-start gap-2">
-                                        <div>
-                                            <p class="font-semibold text-gray-700">{{ $convenio->codigo_convenio }}</p>
-                                            <p class="text-gray-500 mt-0.5">{{ $convenio->fecha_inicio->format('d/m/Y') }} - {{ $convenio->fecha_termino->format('d/m/Y') }}</p>
-                                        </div>
-                                        <span class="shrink-0 px-2 py-1 rounded text-white text-[10px] font-bold {{ $esVigente ? 'bg-green-500' : 'bg-gray-400' }}">
-                                            {{ $esVigente ? 'Vigente' : 'Vencido' }}
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-xs text-gray-400 mt-4 italic">Sin convenios registrados</p>
-                        @endif
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-xs font-bold {{ $convenio->vigente ? 'text-green-700 bg-green-50 border border-green-100' : 'text-gray-500 bg-gray-100 border border-gray-200' }} px-2.5 py-1 rounded-full shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full {{ $convenio->vigente ? 'bg-green-500' : 'bg-gray-400' }}"></span>
+                            {{ $convenio->vigente ? 'Vigente' : 'Vencido' }}
+                        </span>
                     </div>
 
-                    <div class="pt-4 border-t border-gray-100/50 flex items-center justify-between">
-                        <span class="text-xs text-gray-400 font-medium">{{ $unidad->tipo_persona ? ucfirst($unidad->tipo_persona) : '' }}</span>
-                        <button
-                            type="button"
-                            data-unidad='{{ json_encode($unidad->only(['id', 'nombre_empresa', 'direccion', 'tipo_persona']), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
-                            data-convenios='{{ json_encode($unidad->convenios, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
-                            onclick="showConvenioModal(this)"
-                            class="text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
-                        >
-                            Ver detalle
-                        </button>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                        Empresas en este convenio ({{ $convenio->empresas->count() }})
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($convenio->empresas as $unidad)
+                            @php
+                                $esMoral   = strtolower($unidad->tipo_persona ?? '') === 'moral';
+                                $tipoLabel = $esMoral ? 'Persona Moral' : 'Persona Física';
+                                $tipoColor = $esMoral ? 'blue' : 'orange';
+                            @endphp
+                            <div class="border border-gray-150 rounded-2xl p-4 bg-gray-50/60 flex flex-col justify-between hover:bg-gray-50 transition-colors">
+                                <div>
+                                    <span class="inline-block text-[10px] font-bold text-{{ $tipoColor }}-600 bg-{{ $tipoColor }}-50 border border-{{ $tipoColor }}-100 px-2 py-0.5 rounded-md mb-2">{{ $tipoLabel }}</span>
+                                    <h4 class="font-bold text-gray-900">{{ $unidad->nombre_empresa }}</h4>
+                                    @if($unidad->direccion)
+                                        <p class="text-sm text-gray-500 mt-1 flex items-start gap-1.5">
+                                            <svg class="w-4 h-4 mt-0.5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            {{ $unidad->direccion }}
+                                        </p>
+                                    @endif
+                                </div>
+
+                                <div class="pt-3 mt-3 border-t border-gray-100/70 flex gap-2">
+                                    <button
+                                        type="button"
+                                        data-unidad='{{ json_encode($unidad->only(['id', 'nombre_empresa', 'direccion', 'tipo_persona']), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                        onclick="showEmpresaModal(this)"
+                                        class="flex-1 text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
+                                    >
+                                        Ver detalle
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="openSolicitudModal({{ $unidad->id }}, '{{ addslashes($unidad->nombre_empresa) }}')"
+                                        class="flex-1 text-xs font-bold text-white bg-[#4E7D24] px-3 py-2 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm"
+                                    >
+                                        Solicitar práctica
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endforeach
         </div>
 
         <p class="text-center text-sm text-gray-400 fade-in-up delay-300">
-            {{ $unidades->count() }} empresa{{ $unidades->count() !== 1 ? 's' : '' }} encontrada{{ $unidades->count() !== 1 ? 's' : '' }}
+            {{ $conveniosAgrupados->count() }} convenio{{ $conveniosAgrupados->count() !== 1 ? 's' : '' }} encontrado{{ $conveniosAgrupados->count() !== 1 ? 's' : '' }}
         </p>
     @endif
 
@@ -242,9 +240,8 @@
             }
         });
 
-        function showConvenioModal(button) {
+        function showEmpresaModal(button) {
             const unidad = JSON.parse(button.getAttribute('data-unidad') || '{}');
-            const convenios = JSON.parse(button.getAttribute('data-convenios') || '[]');
 
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-auto';
@@ -252,39 +249,14 @@
                 if (e.target === modal) modal.remove();
             };
 
-            let conveniosHTML = '';
-            if (convenios && convenios.length > 0) {
-                conveniosHTML = convenios.map(c => {
-                    const esVigente = c.estatus === 'activo' && new Date(c.fecha_termino) > new Date();
-                    return `
-                        <div class="border border-gray-150 rounded-3xl p-4 mb-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <div class="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                <div>
-                                    <p class="font-semibold text-black">${c.codigo_convenio}</p>
-                                    <p class="text-sm text-black/70 mt-1">
-                                        <strong>Vigencia:</strong> ${new Date(c.fecha_inicio).toLocaleDateString('es-MX')} - ${new Date(c.fecha_termino).toLocaleDateString('es-MX')}
-                                    </p>
-                                </div>
-                                <span class="inline-flex items-center gap-2 text-xs font-semibold ${esVigente ? 'text-green-700 bg-green-50 border border-green-100' : 'text-gray-600 bg-gray-100 border border-gray-200'} px-3 py-1 rounded-full shrink-0">
-                                    <span class="w-2 h-2 rounded-full ${esVigente ? 'bg-green-500' : 'bg-gray-400'}"></span>
-                                    ${esVigente ? 'Vigente' : 'Vencido'}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                conveniosHTML = '<p class="text-black text-sm">Sin convenios registrados</p>';
-            }
-
             modal.innerHTML = `
-                <div class="relative w-full max-w-3xl bg-white rounded-[32px] shadow-2xl border border-white/60 overflow-hidden">
+                <div class="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-white/60 overflow-hidden">
                     <div class="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between gap-4">
                         <div>
                             <p class="text-sm text-black/70">Empresa</p>
                             <h2 class="text-2xl font-bold text-black leading-tight">${unidad.nombre_empresa}</h2>
                         </div>
-                        <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-colors">
+                        <button type="button" onclick="document.querySelector('.empresa-modal-root')?.remove()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -300,17 +272,12 @@
                             </div>
                         </div>
 
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Convenios Disponibles</h3>
-                            ${conveniosHTML}
-                        </div>
-
                         <div class="pt-4 border-t border-gray-100 flex gap-3">
-                            <button type="button" onclick="document.querySelector('.convenio-modal-root')?.remove()" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                            <button type="button" onclick="document.querySelector('.empresa-modal-root')?.remove()" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
                                 Cerrar
                             </button>
                             <button type="button"
-                                onclick="openSolicitudModal(${unidad.id}, '${unidad.nombre_empresa.replace(/'/g, "\\'")}'); document.querySelector('.convenio-modal-root')?.remove();"
+                                onclick="openSolicitudModal(${unidad.id}, '${unidad.nombre_empresa.replace(/'/g, "\\'")}'); document.querySelector('.empresa-modal-root')?.remove();"
                                 class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#4E7D24]/10 hover:bg-[#3B6620] transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                                 Solicitar práctica
@@ -319,7 +286,7 @@
                     </div>
                 </div>
             `;
-            modal.classList.add('convenio-modal-root');
+            modal.classList.add('empresa-modal-root');
             document.body.appendChild(modal);
         }
 

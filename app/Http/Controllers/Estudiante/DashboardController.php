@@ -7,7 +7,6 @@ use App\Models\Documento;
 use App\Models\Estudiante;
 use App\Models\Hora;
 use App\Models\Solicitud;
-use App\Models\UnidadReceptora;
 use App\Models\Convenio;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -198,22 +197,35 @@ class DashboardController extends Controller
         $search        = trim(request('q', ''));
         $carreraFilter = trim(request('carrera', ''));
 
-        $query = UnidadReceptora::with('convenios');
+        $query = Convenio::with('unidadReceptora')->whereHas('unidadReceptora');
 
         if (strlen($search) >= 2) {
-            $query->where(function ($q) use ($search) {
+            $query->whereHas('unidadReceptora', function ($q) use ($search) {
                 $q->where('nombre_empresa', 'like', "%{$search}%")
                   ->orWhere('direccion', 'like', "%{$search}%");
             });
         }
 
         if ($carreraFilter) {
-            $query->whereHas('solicitudes', function ($q) use ($carreraFilter) {
-                $q->whereHas('estudiante', fn ($q2) => $q2->where('carrera', $carreraFilter));
+            $query->whereHas('unidadReceptora.solicitudes.estudiante', function ($q) use ($carreraFilter) {
+                $q->where('carrera', $carreraFilter);
             });
         }
 
-        $unidades = $query->orderBy('nombre_empresa')->get();
+        $convenios = $query->orderBy('codigo_convenio')->get();
+
+        $conveniosAgrupados = $convenios
+            ->groupBy('codigo_convenio')
+            ->map(function ($grupo, $codigo) {
+                return (object) [
+                    'codigo_convenio' => $codigo,
+                    'fecha_inicio'    => $grupo->min('fecha_inicio'),
+                    'fecha_termino'   => $grupo->max('fecha_termino'),
+                    'vigente'         => $grupo->contains(fn ($c) => $c->estatus === 'activo' && $c->fecha_termino >= now()->toDateString()),
+                    'empresas'        => $grupo->pluck('unidadReceptora')->filter()->unique('id')->values(),
+                ];
+            })
+            ->values();
 
         $carreras = Estudiante::whereNotNull('carrera')
             ->where('carrera', '!=', '')
@@ -222,10 +234,10 @@ class DashboardController extends Controller
             ->pluck('carrera');
 
         return view('estudiante.convenios', [
-            'unidades'      => $unidades,
-            'search'        => $search,
-            'carreraFilter' => $carreraFilter,
-            'carreras'      => $carreras,
+            'conveniosAgrupados' => $conveniosAgrupados,
+            'search'             => $search,
+            'carreraFilter'      => $carreraFilter,
+            'carreras'           => $carreras,
         ]);
     }
 
