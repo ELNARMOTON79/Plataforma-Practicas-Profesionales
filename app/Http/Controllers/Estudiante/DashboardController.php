@@ -557,15 +557,19 @@ class DashboardController extends Controller
             'Carta de Término',
         ];
 
+        $docsQueAceptanImagenes = ['Evaluación de Desempeño'];
+        $permiteImagenes = in_array($request->input('nombre_doc'), $docsQueAceptanImagenes, true);
+        $mimesPermitidos = $permiteImagenes ? 'mimes:pdf,jpg,jpeg,png' : 'mimes:pdf';
+
         $validated = $request->validate([
             'nombre_doc' => ['required', 'string', Rule::in($allowedDocs)],
-            'archivo' => ['required', 'file', 'mimes:pdf', 'max:5120'],
+            'archivo' => ['required', 'file', $mimesPermitidos, 'max:5120'],
         ], [
             'nombre_doc.required' => 'El nombre del documento es requerido.',
             'nombre_doc.in' => 'El tipo de documento no es válido.',
-            'archivo.required' => 'Debes seleccionar un archivo PDF.',
+            'archivo.required' => 'Debes seleccionar un archivo.',
             'archivo.file' => 'El archivo seleccionado no es válido.',
-            'archivo.mimes' => 'Solo se permiten archivos PDF.',
+            'archivo.mimes' => $permiteImagenes ? 'Solo se permiten archivos PDF o imágenes (JPG, PNG).' : 'Solo se permiten archivos PDF.',
             'archivo.max' => 'El archivo no puede exceder 5 MB.',
         ]);
 

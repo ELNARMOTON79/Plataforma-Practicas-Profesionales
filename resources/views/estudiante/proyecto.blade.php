@@ -111,7 +111,7 @@
                         ['nombre' => 'Carta de Aceptación',    'desc' => 'Expedida por la empresa, acreditando que has sido seleccionado.'],
                         ['nombre' => 'Plan de Trabajo',        'desc' => 'Cronograma detallado con las actividades que realizarás.'],
                         ['nombre' => 'Memoria de Prácticas',   'desc' => 'Reporte académico del desarrollo de tus actividades.'],
-                        ['nombre' => 'Evaluación de Desempeño','desc' => 'Evaluación calificada por tu asesor externo de la empresa.'],
+                        ['nombre' => 'Evaluación de Desempeño','desc' => 'Evaluación calificada por tu asesor externo de la empresa.', 'nota' => 'Subir evidencia de desempeño'],
                         ['nombre' => 'Carta de Término',       'desc' => 'Expedida por la empresa para validar la conclusión formal del periodo.'],
                     ];
                     $docsSubidos = $documentos->keyBy('nombre_doc');
@@ -159,6 +159,9 @@
                                 <div>
                                     <h4 class="font-bold text-gray-900 text-sm">{{ $i + 1 }}. {{ $tipo['nombre'] }}</h4>
                                     <p class="text-xs text-gray-500 font-medium mt-0.5">{{ $tipo['desc'] }}</p>
+                                    @if(!empty($tipo['nota']))
+                                        <p class="text-[11px] text-gray-400 italic mt-0.5">{{ $tipo['nota'] }}</p>
+                                    @endif
                                     <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold {{ $badge['classes'] }} mt-1" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
                                         {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
@@ -186,7 +189,7 @@
                                     </button>
                                 @else
                                     <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1" data-doc-action>
-                                        Ver PDF
+                                        Ver Archivo
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </a>
                                     <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
@@ -289,6 +292,8 @@
 
         var activeDocName = '';
 
+        var docsQueAceptanImagenes = ['Evaluación de Desempeño'];
+
         function openUploadModal(trigger) {
             var docName = '';
             if (typeof trigger === 'string') {
@@ -297,8 +302,10 @@
                 docName = trigger.getAttribute('data-docname') || trigger.dataset.docname || '';
             }
             activeDocName = docName;
+            var permiteImagenes = docsQueAceptanImagenes.indexOf(docName) !== -1;
             document.getElementById('uploadModalDocName').textContent = docName;
-            document.getElementById('uploadFileText').textContent = 'Seleccionar Archivo PDF';
+            document.getElementById('uploadFileText').textContent = permiteImagenes ? 'Seleccionar Archivo PDF o Imagen' : 'Seleccionar Archivo PDF';
+            document.getElementById('simPdfInput').accept = permiteImagenes ? '.pdf,.jpg,.jpeg,.png' : '.pdf';
             document.getElementById('simPdfInput').value = '';
             document.getElementById('uploadIconContainer').className = 'w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-3';
             document.getElementById('uploadIconContainer').innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>';
@@ -462,7 +469,7 @@
 
         function buildDocumentActionsHTML(nombreDoc, rutaArchivo, documentoId) {
             return '<a href="' + rutaArchivo + '" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" data-doc-action>' +
-                    'Ver PDF <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' +
+                    'Ver Archivo <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' +
                 '</a>' +
                 '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
                     '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>' +
