@@ -178,7 +178,7 @@
                                         ->first();
                                 @endphp
                                 @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
-                                    <span class="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-lg">{{ $alumno->semestre }}</span>
+                                    <span class="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-lg font-bold">{{ $alumno->semestre }}° Semestre</span>
                                 @else
                                     <span class="text-gray-400">SIN REGISTRO</span>
                                 @endif
