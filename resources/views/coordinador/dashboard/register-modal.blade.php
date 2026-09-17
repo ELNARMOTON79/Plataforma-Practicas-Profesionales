@@ -420,6 +420,10 @@
             const nombreAlumno = fields.nombre.el ? fields.nombre.el.value.trim() : '';
             const correoAlumno = fields.correo.el ? fields.correo.el.value.trim() : '';
 
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: '¿Confirmar Registro?',
@@ -430,6 +434,8 @@
                     cancelButtonColor: '#9CA3AF',
                     confirmButtonText: 'Sí, registrar alumno',
                     cancelButtonText: 'Revisar datos',
+                    focusConfirm: false,
+                    focusCancel: false,
                     customClass: {
                         popup: 'rounded-3xl p-6 font-sans shadow-2xl',
                         confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
