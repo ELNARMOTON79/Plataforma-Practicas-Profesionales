@@ -31,10 +31,11 @@ class AlumnoController extends Controller
         }
         $carrera = $request->input('carrera');
         $estatus = $request->input('estatus');
-        $perPage = $request->input('per_page', 5);
-
-        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
-            $perPage = 5;
+        if ($request->has('per_page') && in_array((int)$request->input('per_page'), [5, 10, 25, 50, 100])) {
+            $perPage = (int)$request->input('per_page');
+            session(['per_page' => $perPage]);
+        } else {
+            $perPage = session('per_page', 5);
         }
 
         $query = Alumno::with('user');

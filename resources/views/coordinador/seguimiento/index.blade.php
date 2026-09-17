@@ -222,8 +222,17 @@
                 columnDefs: [{ orderable: false, targets: [2, 4] }]
             });
 
+            // Read search parameter from URL if provided
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchParam = urlParams.get('search');
+            if (searchParam) {
+                $('#search-tracking').val(searchParam);
+                tableProceso.search(searchParam).draw();
+                tableConcluido.search(searchParam).draw();
+            }
+
             // Bind unified search bar
-            $('#search-tracking').on('keyup', function() {
+            $('#search-tracking').on('keyup input', function() {
                 tableProceso.search(this.value).draw();
                 tableConcluido.search(this.value).draw();
             });

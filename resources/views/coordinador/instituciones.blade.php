@@ -62,25 +62,25 @@
         <!-- Filters & Search -->
         <form method="GET" action="{{ route('coordinador.instituciones') }}" class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6 w-full">
             <!-- Left side: Search & Filters -->
-            <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full lg:w-auto">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                 <!-- 1. Search Input -->
-                <div class="relative w-full sm:w-80 md:w-96">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="h-10 block w-full pl-10 pr-4 text-sm border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium text-gray-700 shadow-sm transition-all restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
+                    <input type="text" name="search" value="{{ request('search') }}" class="h-10 block w-full pl-9 pr-3 text-sm border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium text-gray-700 shadow-sm transition-all restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
                 </div>
                 <button type="submit" class="hidden">Buscar</button>
 
                 <!-- 2. Sector Select -->
-                <select name="sector" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-8 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                <select name="sector" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Sectores</option>
                     <option value="publico" {{ request('sector') == 'publico' ? 'selected' : '' }}>PÚBLICO</option>
                     <option value="privado" {{ request('sector') == 'privado' ? 'selected' : '' }}>PRIVADO</option>
                 </select>
 
                 <!-- 3. Tipo Persona Select -->
-                <select name="tipo_persona" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-8 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                <select name="tipo_persona" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Tipos</option>
                     <option value="moral" {{ request('tipo_persona') == 'moral' ? 'selected' : '' }}>MORAL</option>
                     <option value="fisica" {{ request('tipo_persona') == 'fisica' ? 'selected' : '' }}>FÍSICA</option>
@@ -91,11 +91,11 @@
             <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full lg:w-auto justify-start lg:justify-end">
                 <span>Mostrar</span>
                 <select name="per_page" onchange="this.form.submit()" class="h-10 pl-3 pr-8 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
-                    <option value="5" {{ request('per_page', '5') == '5' ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                    <option value="5" {{ $instituciones->perPage() == 5 ? 'selected' : '' }}>5</option>
+                    <option value="10" {{ $instituciones->perPage() == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ $instituciones->perPage() == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ $instituciones->perPage() == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ $instituciones->perPage() == 100 ? 'selected' : '' }}>100</option>
                 </select>
                 <span>registros</span>
             </div>

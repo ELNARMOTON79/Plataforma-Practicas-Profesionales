@@ -61,47 +61,47 @@
     <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
         
         <!-- Filters & Search -->
-        <form method="GET" action="{{ route('coordinador.alumnos') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6 w-full">
-            <!-- Left side: Show entries -->
-            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full md:w-auto">
-                <span>Mostrar</span>
-                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-1.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="5" {{ request('per_page', '5') == '5' ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                    <option value="100" {{ request('per_page', '5') == '100' ? 'selected' : '' }}>100</option>
-                </select>
-                <span>registros</span>
-            </div>
+        <form method="GET" action="{{ route('coordinador.alumnos') }}" class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6 w-full">
+            <!-- Left side: Search & Filters -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                <!-- 1. Search Input -->
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}" class="h-10 block w-full pl-9 pr-3 text-sm border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium text-gray-700 shadow-sm transition-all restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
+                </div>
+                <button type="submit" class="hidden">Buscar</button>
 
-            <!-- Right side: Filters & Search -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <!-- Carrera Select -->
-                <select name="carrera" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                <!-- 2. Carrera Select -->
+                <select name="carrera" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todas las Carreras</option>
                     @foreach($carrerasDisponibles as $carr)
                         <option value="{{ $carr }}" {{ request('carrera') == $carr ? 'selected' : '' }}>{{ strtoupper($carr) }}</option>
                     @endforeach
                 </select>
 
-                <!-- Estatus Select -->
-                <select name="estatus" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                <!-- 3. Estatus Select -->
+                <select name="estatus" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Estatus</option>
                     <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>ACTIVO</option>
                     <option value="asignado" {{ request('estatus') == 'asignado' ? 'selected' : '' }}>ASIGNADO</option>
                     <option value="pendiente" {{ request('estatus') == 'pendiente' ? 'selected' : '' }}>PENDIENTE</option>
                     <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>INACTIVO</option>
                 </select>
+            </div>
 
-                <!-- Search Input -->
-                <div class="relative w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
-                </div>
-                <button type="submit" class="hidden">Buscar</button>
+            <!-- Right side: Show entries -->
+            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full lg:w-auto justify-start lg:justify-end">
+                <span>Mostrar</span>
+                <select name="per_page" onchange="this.form.submit()" class="h-10 pl-3 pr-8 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                    <option value="5" {{ $alumnos->perPage() == 5 ? 'selected' : '' }}>5</option>
+                    <option value="10" {{ $alumnos->perPage() == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ $alumnos->perPage() == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ $alumnos->perPage() == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ $alumnos->perPage() == 100 ? 'selected' : '' }}>100</option>
+                </select>
+                <span>registros</span>
             </div>
         </form>
 
@@ -211,7 +211,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
-                                        <a href="{{ route('coordinador.tramites') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow transition-all uppercase">
+                                        <a href="{{ route('coordinador.seguimiento') }}?search={{ urlencode($alumno->nombre_completo) }}" class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow transition-all uppercase">
                                             Ver Registro
                                         </a>
                                     @else
