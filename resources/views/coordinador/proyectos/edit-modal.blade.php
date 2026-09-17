@@ -9,25 +9,24 @@
         <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden transform transition-all duration-300 scale-100 max-h-[90vh] flex flex-col">
             
             <!-- Header (Gradient Green Banner) -->
-            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 id="modal-title" class="text-lg font-bold text-white">Editar Proyecto <span id="edit-id-display">#0</span></h2>
-                        <p class="text-green-100 text-xs">Modifica los campos del formulario para actualizar el proyecto</p>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 relative flex flex-col items-center justify-center text-center flex-shrink-0">
                 <button type="button" 
                         onclick="document.getElementById('modal-editar-proyecto').classList.add('hidden')"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <div class="bg-white/20 p-2 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">Editar Proyecto <span id="edit-id-display">#0</span></h2>
+                </div>
+                <p class="text-green-100 text-xs">Modifica los campos del formulario para actualizar el proyecto</p>
             </div>
 
             {{-- Style for shake animation and input states --}}
@@ -57,6 +56,8 @@
                 @csrf
                 @method('PUT')
 
+                <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center mb-2">Información del Proyecto</h4>
+
                 <!-- 1. Unidad Receptora Select (Dynamically loaded from DB) -->
                 <div>
                     <label for="edit-unidad" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Unidad Receptora / Institución <span class="text-red-500">*</span></label>
@@ -64,7 +65,9 @@
                         <select id="edit-unidad" name="unidad_receptora_id" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('unidad_receptora_id') border-red-400 bg-red-50 @enderror">
                             <option value="">Selecciona la institución asociada...</option>
                             @foreach($unidadesReceptoras as $ur)
-                                <option value="{{ $ur->id }}" {{ (old('_method') === 'PUT' ? old('unidad_receptora_id') : '') == $ur->id ? 'selected' : '' }}>{{ strtoupper($ur->nombre_empresa) }}</option>
+                                <option value="{{ $ur->id }}" {{ (old('_method') === 'PUT' ? old('unidad_receptora_id') : '') == $ur->id ? 'selected' : '' }}>
+                                    {{ strtoupper($ur->nombre_empresa) }}{{ !empty($ur->unidad_receptora) ? ' — ' . $ur->unidad_receptora : '' }}
+                                </option>
                             @endforeach
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
@@ -187,23 +190,16 @@
                     </div>
                 </div>
 
-                <!-- Público para Internet -->
+                <!-- Cupo de Alumnos -->
                 <div>
-                    <label for="edit-publico" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Público para Internet <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <select id="edit-publico" name="publico_internet" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('publico_internet') border-red-400 bg-red-50 @enderror">
-                            <option value="SI" {{ (old('_method') === 'PUT' ? old('publico_internet') : '') == 'SI' ? 'selected' : '' }}>SÍ - Disponible para consulta pública en internet</option>
-                            <option value="NO" {{ (old('_method') === 'PUT' ? old('publico_internet') : '') == 'NO' ? 'selected' : '' }}>NO - Solo visible internamente en la plataforma</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                    <p id="error-edit-publico" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
-                    @error('publico_internet')
+                    <label for="edit-cupos-totales" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Cupo de Alumnos <span class="text-red-500">*</span></label>
+                    <input type="number" id="edit-cupos-totales" name="cupos_totales" required min="1" max="2" value="{{ old('_method') === 'PUT' ? old('cupos_totales', 1) : 1 }}" placeholder="Ej. 1" onwheel="this.blur()" class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all restrict-numbers @error('cupos_totales') border-red-400 bg-red-50 @enderror">
+                    <p id="error-edit-cupos-totales" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                    @error('cupos_totales')
                         <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
                     @enderror
                 </div>
+
 
                 <!-- Footer Action Buttons -->
                 <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-5 mt-4">
@@ -227,6 +223,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('form-editar-proyecto');
         if (!form) return;
+
+        // Prevent wheel/touchpad scroll from altering number inputs
+        form.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('wheel', function () { this.blur(); });
+        });
 
         const fields = {
             unidad: {
@@ -253,6 +254,15 @@
                 el: document.getElementById('edit-tipo-modalidad'),
                 error: document.getElementById('error-edit-tipo-modalidad'),
                 validate: (val) => !val ? 'Debes seleccionar la modalidad.' : ''
+            },
+            cuposTotales: {
+                el: document.getElementById('edit-cupos-totales'),
+                error: document.getElementById('error-edit-cupos-totales'),
+                validate: (val) => {
+                    const num = parseInt(val);
+                    if (isNaN(num) || num < 1 || num > 2) return 'El cupo debe ser 1 o 2 alumnos.';
+                    return '';
+                }
             },
             objetivo: {
                 el: document.getElementById('edit-objetivo'),
@@ -293,11 +303,6 @@
                     if (val.trim().length < 20) return 'El impacto social debe tener al menos 20 caracteres.';
                     return '';
                 }
-            },
-            publico: {
-                el: document.getElementById('edit-publico'),
-                error: document.getElementById('error-edit-publico'),
-                validate: (val) => !val ? 'Debes seleccionar la privacidad de internet.' : ''
             }
         };
 
@@ -359,20 +364,32 @@
             input.addEventListener('change', handleValidate);
         });
 
+        let isSubmittingConfirmed = false;
+
         // Submit listener
         form.addEventListener('submit', function(e) {
+            if (isSubmittingConfirmed) {
+                return;
+            }
+
+            e.preventDefault();
+
             let isFormValid = true;
             let firstInvalidInput = null;
 
             Object.keys(fields).forEach(key => {
                 const field = fields[key];
                 const input = field.el;
+                if (!input) return;
+
                 const errMessage = field.validate(input.value);
 
                 if (errMessage) {
                     isFormValid = false;
-                    field.error.textContent = errMessage;
-                    field.error.classList.remove('hidden');
+                    if (field.error) {
+                        field.error.textContent = errMessage;
+                        field.error.classList.remove('hidden');
+                    }
                     input.classList.remove('input-valid');
                     input.classList.add('input-invalid');
 
@@ -388,13 +405,49 @@
             });
 
             if (!isFormValid) {
-                e.preventDefault();
                 if (firstInvalidInput) {
                     firstInvalidInput.focus();
                     firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                return;
             }
-    });
+
+            const tituloProyecto = fields.titulo.el ? fields.titulo.el.value.trim() : '';
+
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Guardar Cambios?',
+                    html: `<p class="text-sm text-gray-600">¿Estás seguro de que deseas actualizar la información del proyecto <strong>${tituloProyecto}</strong>?</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4E7D24',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, guardar cambios',
+                    cancelButtonText: 'Cancelar',
+                    focusConfirm: false,
+                    focusCancel: false,
+                    customClass: {
+                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isSubmittingConfirmed = true;
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`¿Estás seguro de actualizar el proyecto ${tituloProyecto}?`)) {
+                    isSubmittingConfirmed = true;
+                    form.submit();
+                }
+            }
+        });
 </script>
         </div>
     </div>

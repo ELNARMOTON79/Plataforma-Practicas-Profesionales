@@ -38,8 +38,7 @@
     @endif
 
     <!-- Header Section -->
-    <x-page-header title="Listado de Proyectos" description="Catálogo de proyectos disponibles para prácticas">
-        <x-slot:actions>
+    <x-page-header title="Listado de Proyectos" description="Catálogo de proyectos registrados para Prácticas ">       <x-slot:actions>
             <button onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Registrar Proyecto
@@ -77,12 +76,6 @@
                     <option value="lleno" {{ request('cupo') == 'lleno' ? 'selected' : '' }}>CUPO LLENO</option>
                 </select>
 
-                <!-- Acceso / Estatus Select -->
-                <select name="acceso" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
-                    <option value="">Todos los Accesos</option>
-                    <option value="activo" {{ request('acceso') == 'activo' ? 'selected' : '' }}>ACCESO ACTIVO</option>
-                    <option value="inactivo" {{ request('acceso') == 'inactivo' ? 'selected' : '' }}>ACCESO INACTIVO</option>
-                </select>
             </div>
 
             <!-- Right side: Show entries -->
@@ -109,7 +102,6 @@
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider max-w-[180px] whitespace-normal">Plantel / Plan</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Ciclo Escolar</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Alumnos / Cupo</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Activo Internet</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
                     </tr>
                 </thead>
@@ -127,18 +119,18 @@
                                 ? 'bg-sky-500'
                                 : ($esVacio ? 'bg-gray-400' : 'bg-amber-500');
                         @endphp
-                        <tr class="transition-colors group {{ !$proyecto->activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }} project-row">
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }}">
+                        <tr class="transition-colors group hover:bg-[#6BA53A]/5 project-row">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-600">
                                 #{{ $proyecto->id }}
                             </td>
                             <td class="px-3 py-4 text-left max-w-[220px] whitespace-normal">
-                                <div class="text-xs font-bold {{ $proyecto->activo ? 'text-gray-900 group-hover:text-[#4E7D24]' : 'text-gray-400' }} transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
-                                <div class="text-[10px] {{ $proyecto->activo ? 'text-gray-400' : 'text-gray-300' }} uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
+                                <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
+                                <div class="text-[10px] text-gray-400 uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
-                                <div class="text-xs {{ $proyecto->activo ? 'text-gray-600' : 'text-gray-400' }} font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
+                                <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs {{ $proyecto->activo ? 'text-gray-500' : 'text-gray-400' }} font-bold tracking-wide">
+                            <td class="px-3 py-4 whitespace-nowrap text-center text-xs text-gray-500 font-bold tracking-wide">
                                 {{ $proyecto->ciclo_escolar }}
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
@@ -146,33 +138,20 @@
                                     <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }} mr-1.5 mt-1.5"></span> {{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}
                                 </span>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                <!-- Toggle switch with HTMX -->
-                                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
-                                    <input type="checkbox" name="toggle" id="toggle{{ $proyecto->id }}" 
-                                           hx-patch="/coordinador/proyectos/{{ $proyecto->id }}/toggle-status"
-                                           hx-trigger="change"
-                                           hx-headers='{"X-CSRF-TOKEN": "{{ csrf_token() }}"}'
-                                           aria-label="Activar acceso a internet - Proyecto {{ $proyecto->id }}" 
-                                           class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" 
-                                           {{ $proyecto->activo ? 'checked' : '' }}/>
-                                    <label for="toggle{{ $proyecto->id }}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"><span class="sr-only">Activo</span></label>
-                                </div>
-                            </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
-                                    <button type="button" onclick="abrirEditarProyecto('{{ $proyecto->id }}')" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all" title="Editar proyecto {{ $proyecto->id }}" aria-label="Editar proyecto {{ $proyecto->id }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <div class="flex justify-center items-center gap-2">
+                                    <button type="button" onclick="abrirEditarProyecto('{{ $proyecto->id }}')" class="px-4 py-1.5 bg-[#0084d1] hover:bg-[#0070b3] text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Editar proyecto {{ $proyecto->id }}" aria-label="Editar proyecto {{ $proyecto->id }}">
+                                        EDITAR
                                     </button>
-                                    <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition-all" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="px-4 py-1.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
+                                        VER
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
+                            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500 font-medium">
                                 No se encontraron proyectos con los criterios de búsqueda seleccionados.
                             </td>
                         </tr>
@@ -196,7 +175,7 @@
                     "{{ $proyecto->id }}": {
                         id: "{{ $proyecto->id }}",
                         titulo: "{{ $proyecto->titulo }}",
-                        unidad: "{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}",
+                        unidad: "{{ optional($proyecto->empresa)->nombre_empresa ? (strtoupper(optional($proyecto->empresa)->nombre_empresa) . (optional($proyecto->empresa)->unidad_receptora ? ' — ' . optional($proyecto->empresa)->unidad_receptora : '')) : 'Sin Unidad' }}",
                         unidadId: "{{ $proyecto->unidad_receptora_id }}",
                         tipoProyecto: "{{ $proyecto->tipo_proyecto }}",
                         tipoModalidad: "{{ $proyecto->tipo_modalidad }}",
@@ -204,10 +183,10 @@
                         justificacion: @json($proyecto->justificacion),
                         actividades: @json($proyecto->actividades),
                         impactoSocial: @json($proyecto->impacto_social),
-                        publicoInternet: "{{ $proyecto->publico_internet }}",
                         plan: "{{ $proyecto->plan }}",
                         ciclo: "{{ $proyecto->ciclo_escolar }}",
-                        cupo: "{{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}"
+                        cupo: "{{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}",
+                        cuposTotales: "{{ $proyecto->cupos_totales }}"
                     },
                 @endforeach
             };
@@ -231,16 +210,6 @@
                 document.getElementById('view-actividades').textContent = project.actividades;
                 document.getElementById('view-impacto').textContent = project.impactoSocial;
 
-                // Handle public internet badge styling
-                const badge = document.getElementById('view-publico-badge');
-                if (project.publicoInternet === 'SI') {
-                    badge.textContent = 'Público';
-                    badge.className = 'px-3.5 py-1 text-[11px] font-bold rounded-lg uppercase shadow-sm bg-green-50 text-green-700 border border-green-200';
-                } else {
-                    badge.textContent = 'Privado';
-                    badge.className = 'px-3.5 py-1 text-[11px] font-bold rounded-lg uppercase shadow-sm bg-red-50 text-red-700 border border-red-200';
-                }
-
                 document.getElementById('modal-ver-proyecto').classList.remove('hidden');
             };
 
@@ -260,11 +229,11 @@
                 document.getElementById('edit-titulo').value = project.titulo;
                 document.getElementById('edit-tipo-proyecto').value = project.tipoProyecto;
                 document.getElementById('edit-tipo-modalidad').value = project.tipoModalidad;
+                document.getElementById('edit-cupos-totales').value = project.cuposTotales;
                 document.getElementById('edit-objetivo').value = project.objetivo;
                 document.getElementById('edit-justificacion').value = project.justificacion;
                 document.getElementById('edit-actividades').value = project.actividades;
                 document.getElementById('edit-impacto').value = project.impactoSocial;
-                document.getElementById('edit-publico').value = project.publicoInternet;
 
                 document.getElementById('modal-editar-proyecto').classList.remove('hidden');
             };

@@ -9,26 +9,19 @@
         <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden transform transition-all duration-300 scale-100 max-h-[90vh] flex flex-col">
             
             <!-- Header (Gradient Green Banner) -->
-            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 id="view-title" class="text-lg font-bold text-white uppercase tracking-wide leading-tight max-w-[500px] break-words">Detalles del Proyecto</h2>
-                        <p class="text-green-100 text-xs mt-0.5">Información completa cargada del catálogo de prácticas</p>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 relative flex flex-col items-center justify-center text-center flex-shrink-0">
                 <button type="button" 
                         onclick="document.getElementById('modal-ver-proyecto').classList.add('hidden')"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <div class="flex items-center justify-center mb-1">
+                    <h2 id="view-title" class="text-xl font-bold text-white uppercase tracking-wide leading-tight max-w-[500px] break-words">Detalles del Proyecto</h2>
+                </div>
+                <p class="text-green-100 text-xs">Información completa cargada del catálogo de prácticas</p>
             </div>
 
             <!-- Details Body (Scrollable) -->
@@ -56,27 +49,27 @@
 
                     <!-- Right Column: Meta indicators -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID Proyecto</span>
                             <span class="text-base font-extrabold text-[#4E7D24] mt-0.5" id="view-id">N/A</span>
                         </div>
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Plan Académico</span>
                             <span class="text-sm font-bold text-gray-700 mt-0.5" id="view-plan">N/A</span>
                         </div>
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tipo de Proyecto</span>
                             <span class="text-xs font-bold text-gray-700 mt-0.5" id="view-tipo-proyecto">N/A</span>
                         </div>
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Modalidad</span>
                             <span class="text-xs font-bold text-gray-700 mt-0.5" id="view-tipo-modalidad">N/A</span>
                         </div>
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Ciclo Escolar</span>
                             <span class="text-xs font-bold text-gray-700 mt-0.5" id="view-ciclo">N/A</span>
                         </div>
-                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col justify-center">
+                        <div class="bg-gray-50/50 border border-gray-100 p-3.5 rounded-2xl flex flex-col items-center justify-center text-center">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Alumnos / Cupo</span>
                             <span class="text-xs font-extrabold text-blue-600 mt-0.5" id="view-cupo">N/A</span>
                         </div>
@@ -110,11 +103,7 @@
                     </div>
                 </div>
 
-                <!-- Público para Internet Indicator -->
-                <div class="flex items-center gap-3 bg-gray-50 border border-gray-100 p-4 rounded-2xl mt-4">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Acceso Público Internet:</span>
-                    <span id="view-publico-badge" class="px-3.5 py-1 text-[11px] font-bold rounded-lg uppercase shadow-sm">N/A</span>
-                </div>
+
             </div>
 
             <!-- Footer Buttons -->
