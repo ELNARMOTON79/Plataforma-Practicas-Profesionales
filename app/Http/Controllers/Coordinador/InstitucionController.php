@@ -100,28 +100,6 @@ class InstitucionController extends Controller
             });
         }
 
-        // Apply Convenio Filter — checks the convenio field and the convenios table
-        $convenio = $request->input('convenio');
-        if ($convenio === 'con') {
-            $query->where(function($q) {
-                $q->where('convenio', '!=', '')
-                  ->orWhereExists(function($sub) {
-                      $sub->select(DB::raw(1))
-                          ->from('convenios')
-                          ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
-                  });
-            });
-        } elseif ($convenio === 'sin') {
-            $query->where(function($q) {
-                $q->where(function($inner) {
-                    $inner->whereNull('convenio')->orWhere('convenio', '');
-                })->whereNotExists(function($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('convenios')
-                        ->whereColumn('convenios.ur_id', 'unidades_receptoras.id');
-                });
-            });
-        }
 
         $instituciones = $query->paginate($perPage);
 

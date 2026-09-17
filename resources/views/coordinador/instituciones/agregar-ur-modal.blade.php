@@ -72,7 +72,7 @@
                     <label for="add-ur-municipio" class="block text-sm font-medium text-gray-700 mb-1">
                         Municipio de la UR <span class="text-gray-400 text-xs">(Opcional)</span>
                     </label>
-                    <input type="text" id="add-ur-municipio" name="municipio" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Manzanillo, Tecomán, Colima (Si difiere de la matriz)" value="{{ old('municipio') }}">
+                    <input type="text" id="add-ur-municipio" name="municipio" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Manzanillo, Tecomán, Colima" value="{{ old('municipio') }}">
                     <p class="text-[11px] text-gray-500 mt-1">Si se deja vacío, tomará el municipio principal de la institución.</p>
                 </div>
 
@@ -87,7 +87,7 @@
                 <!-- Teléfono Directo (Opcional) -->
                 <div>
                     <label for="add-ur-telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono Directo de la UR <span class="text-gray-400 text-xs">(Opcional)</span></label>
-                    <input type="text" id="add-ur-telefono" name="telefono" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. 314-331-1234 Ext. 102" value="{{ old('telefono') }}">
+                    <input type="text" id="add-ur-telefono" name="telefono" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. 314-331-1234" value="{{ old('telefono') }}">
                 </div>
             </div>
             
