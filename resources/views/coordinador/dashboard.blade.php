@@ -54,55 +54,59 @@
     <!-- Metrics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 fade-in-up delay-100">
         <!-- Metric Card 1: Estudiantes Activos -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg class="w-16 h-16 text-[#6BA53A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h12v-1a7 7 0 00-7-7z"></path></svg>
+        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-green-100 hover:border-[#6BA53A] transition-all">
+            <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                <svg class="w-12 h-12 text-[#6BA53A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h12v-1a7 7 0 00-7-7z"></path></svg>
             </div>
             <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Estudiantes Activos</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900 leading-none">{{ $estudiantesActivos }}</span>
-                <span class="flex items-center text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-md mb-0.5">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    +8%
+                <span class="text-4xl font-extrabold text-[#4E7D24] leading-none">{{ $estudiantesActivos }}</span>
+                <span class="flex items-center text-xs font-semibold {{ ($porcentajeActivos ?? 0) > 0 ? 'text-green-600 bg-green-50' : 'text-gray-500 bg-gray-100' }} px-2 py-0.5 rounded-md mb-0.5">
+                    @if(($porcentajeActivos ?? 0) > 0)
+                        <svg class="w-3 h-3 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        +{{ $porcentajeActivos }}%
+                    @else
+                        {{ $porcentajeActivos ?? 0 }}%
+                    @endif
                 </span>
             </div>
             <span class="text-xs text-gray-400 font-medium">Inscritos en el periodo actual</span>
         </div>
 
         <!-- Metric Card 2: Instituciones -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg class="w-16 h-16 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-teal-100 hover:border-teal-400 transition-all">
+            <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                <svg class="w-12 h-12 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
             </div>
             <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Instituciones</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900 leading-none">{{ $instituciones }}</span>
+                <span class="text-4xl font-extrabold text-teal-600 leading-none">{{ $instituciones }}</span>
             </div>
             <span class="text-xs text-gray-400 font-medium">Unidades receptoras registradas</span>
         </div>
 
         <!-- Metric Card 3: Solicitudes Pendientes -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-yellow-100 hover:border-yellow-300">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg class="w-16 h-16 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-amber-100 hover:border-amber-400 transition-all">
+            <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                <svg class="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
             </div>
             <span class="text-xs font-bold text-yellow-600 mb-2 uppercase tracking-wider">Trámites Pendientes</span>
             <div class="flex items-end gap-3 mb-2">
                 <span class="text-4xl font-extrabold text-yellow-600 leading-none">{{ $tramitesPendientes }}</span>
             </div>
-            <span class="text-xs text-yellow-500 font-medium">Documentos pendientes de firma</span>
+            <span class="text-xs text-yellow-500 font-medium">Documentos pendientes</span>
         </div>
 
-        <!-- Metric Card 4: Proyectos Activos -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg class="w-16 h-16 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path></svg>
+        <!-- Metric Card 4: Proyectos Registrados -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-indigo-100 hover:border-indigo-400 transition-all">
+            <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                <svg class="w-12 h-12 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path></svg>
             </div>
-            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Convenios y Proyectos</span>
+            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Proyectos Registrados</span>
             <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-gray-900 leading-none">{{ $proyectosActivos }}</span>
+                <span class="text-4xl font-extrabold text-indigo-600 leading-none">{{ $proyectosActivos }}</span>
             </div>
-            <span class="text-xs text-gray-400 font-medium">Vigentes y autorizados</span>
+            <span class="text-xs text-gray-400 font-medium">Proyectos de prácticas activos</span>
         </div>
     </div>
 
@@ -147,11 +151,10 @@
                                             </div>
                                             <div class="ml-3.5">
                                                 <div class="text-sm font-bold text-gray-900 leading-tight">{{ $nombre }}</div>
-                                                <div class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5 font-medium">
-                                                    <span>Cuenta: <strong class="text-gray-700 font-semibold">{{ $pendiente->estudiante?->matricula ?? 'S/N' }}</strong></span>
+                                                <div class="text-xs text-gray-500 mt-0.5 font-medium space-y-0.5">
+                                                    <div>Cuenta: <strong class="text-gray-700 font-semibold">{{ $pendiente->estudiante?->matricula ?? 'S/N' }}</strong></div>
                                                     @if($pendiente->estudiante?->carrera)
-                                                        <span class="text-gray-300">•</span>
-                                                        <span class="text-gray-500 truncate max-w-[130px]" title="{{ $pendiente->estudiante->carrera }}">{{ $pendiente->estudiante->carrera }}</span>
+                                                        <div class="text-gray-500 truncate max-w-[180px]" title="{{ $pendiente->estudiante->carrera }}">{{ $pendiente->estudiante->carrera }}</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -191,14 +194,16 @@
         <!-- Right Column: Últimos Documentos y Reportes (40%) -->
         <div class="flex flex-col gap-8 h-full">
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col border border-gray-200/50">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start justify-between gap-2 mb-6">
+                    <div class="flex items-start gap-2 min-w-0">
+                        <svg class="w-5 h-5 text-[#4E7D24] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        Últimos Documentos y Reportes
-                    </h3>
-                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">Entregas Alumnos</span>
+                        <h3 class="text-base font-bold text-gray-900 leading-snug">
+                            Últimos trámites
+                        </h3>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">Entregas Alumnos</span>
                 </div>
 
                 <div class="relative flex-1 overflow-y-auto pr-1 max-h-[420px] space-y-4">

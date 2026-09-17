@@ -52,6 +52,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     Route::get('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'instituciones'])->name('coordinador.instituciones');
     Route::post('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'storeInstitucion'])->name('coordinador.instituciones.store');
+    Route::post('/coordinador/instituciones/unidades', [App\Http\Controllers\Coordinador\UnidadReceptoraController::class, 'storeUnidadReceptora'])->name('coordinador.instituciones.store-ur');
     Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\Coordinador\InstitucionController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
 
     Route::get('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'alumnos'])->name('coordinador.alumnos');

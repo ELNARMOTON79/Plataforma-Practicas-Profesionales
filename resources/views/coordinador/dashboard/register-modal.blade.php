@@ -31,25 +31,24 @@
             </style>
 
             <!-- Header (Gradient Green Banner) -->
-            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                    </div>
-                    <div class="text-left">
-                        <h2 id="modal-title" class="text-lg font-bold text-white leading-tight">Registrar Nuevo Alumno</h2>
-                        <p class="text-green-100 text-xs">Completa los campos para dar de alta al estudiante en el sistema</p>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 relative flex flex-col items-center justify-center text-center flex-shrink-0">
                 <button type="button" 
                         onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <div class="bg-white/20 p-2 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">Registrar Nuevo Alumno</h2>
+                </div>
+                <p class="text-green-100 text-xs">Completa los campos para dar de alta al estudiante en el sistema</p>
             </div>
             
             <!-- Scrollable Content -->
@@ -57,11 +56,11 @@
                 <div class="space-y-6">
                     <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2">Información del Alumno</h4>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
                         <!-- Nombre Completo -->
                         <div class="md:col-span-2">
                             <label for="alumno-nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-letters" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
+                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-letters" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
                             <p id="error-alumno-nombre" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('nombre')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -71,17 +70,17 @@
                         <!-- Correo Electrónico -->
                         <div>
                             <label for="alumno-correo" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
-                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-email" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
+                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-email" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
                             <p id="error-alumno-correo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('correo')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Matrícula -->
+                        <!-- No. de cuenta -->
                         <div>
-                            <label for="alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]+$" title="La matrícula solo debe contener números.">
+                            <label for="alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">No. de cuenta <span class="text-red-500">*</span></label>
+                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]+$" title="El No. de cuenta solo debe contener números.">
                             <p id="error-alumno-matricula" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('matricula')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -89,9 +88,9 @@
                         </div>
 
                         <!-- Carrera -->
-                        <div>
+                        <div class="md:col-span-2">
                             <label for="alumno-carrera" class="block text-sm font-medium text-gray-700 mb-1">Carrera <span class="text-red-500">*</span></label>
-                            <select id="alumno-carrera" name="carrera" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700" required>
+                            <select id="alumno-carrera" name="carrera" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all text-gray-700" required>
                                 <option value="">Seleccionar Carrera</option>
                                 <option value="Ingeniería de Software" {{ old('carrera') == 'Ingeniería de Software' ? 'selected' : '' }}>Ingeniería de Software</option>
                                 <option value="Ingeniería en Mecatrónica" {{ old('carrera') == 'Ingeniería en Mecatrónica' ? 'selected' : '' }}>Ingeniería en Mecatrónica</option>    
@@ -107,7 +106,7 @@
                         <!-- Semestre -->
                         <div>
                             <label for="alumno-semestre" class="block text-sm font-medium text-gray-700 mb-1">Semestre <span class="text-red-500">*</span></label>
-                            <select id="alumno-semestre" name="semestre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700" required>
+                            <select id="alumno-semestre" name="semestre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all text-gray-700" required>
                                 <option value="">Seleccionar Semestre</option>
                                 @for($i = 1; $i <= 12; $i++)
                                     <option value="{{ $i }}" {{ old('semestre') == $i ? 'selected' : '' }}>
@@ -122,9 +121,9 @@
                         </div>
 
                         <!-- Grupo -->
-                        <div class="md:col-span-2">
+                        <div>
                             <label for="alumno-grupo" class="block text-sm font-medium text-gray-700 mb-1">Grupo <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-grupo" name="grupo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-letters-only uppercase" placeholder="Ej. A" value="{{ old('grupo') }}" required pattern="^[a-zA-Z]$" maxlength="1" title="El grupo debe ser exactamente una letra.">
+                            <input type="text" id="alumno-grupo" name="grupo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-letters-only uppercase" placeholder="Ej. A" value="{{ old('grupo') }}" required pattern="^[a-zA-Z]$" maxlength="1" title="El grupo debe ser exactamente una letra.">
                             <p id="error-alumno-grupo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('grupo')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -134,7 +133,7 @@
                         <!-- Asesor -->
                         <div>
                             <label for="alumno-asesor" class="block text-sm font-medium text-gray-700 mb-1">Asesor Académico</label>
-                            <input type="text" id="alumno-asesor" name="asesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Dr. Juan Carlos" value="{{ old('asesor') }}">
+                            <input type="text" id="alumno-asesor" name="asesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all" placeholder="Ej. Dr. Juan Carlos" value="{{ old('asesor') }}">
                             <p id="error-alumno-asesor" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('asesor')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -143,8 +142,8 @@
 
                         <!-- Coasesor -->
                         <div>
-                            <label for="alumno-coasesor" class="block text-sm font-medium text-gray-700 mb-1">Coasesor</label>
-                            <input type="text" id="alumno-coasesor" name="coasesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors" placeholder="Ej. Mtra. Ana María" value="{{ old('coasesor') }}">
+                            <label for="alumno-coasesor" class="block text-sm font-medium text-gray-700 mb-1">Coasesor Académico</label>
+                            <input type="text" id="alumno-coasesor" name="coasesor" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all" placeholder="Ej. Mtra. Ana María" value="{{ old('coasesor') }}">
                             <p id="error-alumno-coasesor" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('coasesor')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -188,10 +187,11 @@
 {{-- Cerrar modal con tecla Escape y Validaciones del Cliente --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Cerrar con Escape
+        // Escape key listener to close modal
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                document.getElementById('modal-registrar-alumno').classList.add('hidden');
+                const modal = document.getElementById('modal-registrar-alumno');
+                if (modal) modal.classList.add('hidden');
             }
         });
 
@@ -222,9 +222,9 @@
                 el: document.getElementById('alumno-matricula'),
                 error: document.getElementById('error-alumno-matricula'),
                 validate: (val) => {
-                    if (!val.trim()) return 'La matrícula es requerida.';
-                    if (!/^[0-9]+$/.test(val)) return 'La matrícula solo debe contener números.';
-                    if (val.length < 5 || val.length > 20) return 'La matrícula debe tener entre 5 y 20 dígitos.';
+                    if (!val.trim()) return 'El No. de cuenta es requerido.';
+                    if (!/^[0-9]+$/.test(val)) return 'El No. de cuenta solo debe contener números.';
+                    if (val.length < 5 || val.length > 20) return 'El No. de cuenta debe tener entre 5 y 20 dígitos.';
                     return '';
                 }
             },
@@ -259,7 +259,7 @@
                 el: document.getElementById('alumno-asesor'),
                 error: document.getElementById('error-alumno-asesor'),
                 validate: (val) => {
-                    if (val.trim() && val.trim().length < 3) return 'El nombre del asesor debe tener al menos 3 caracteres.';
+                    if (val.trim() && val.trim().length < 5) return 'El nombre del asesor debe tener al menos 5 caracteres.';
                     return '';
                 }
             },
@@ -267,13 +267,13 @@
                 el: document.getElementById('alumno-coasesor'),
                 error: document.getElementById('error-alumno-coasesor'),
                 validate: (val) => {
-                    if (val.trim() && val.trim().length < 3) return 'El nombre del coasesor debe tener al menos 3 caracteres.';
+                    if (val.trim() && val.trim().length < 5) return 'El nombre del coasesor debe tener al menos 5 caracteres.';
                     return '';
                 }
             }
         };
 
-        // Real-time key filters (delegated or direct)
+        // Real-time key filtering
         form.addEventListener('keypress', function(e) {
             const target = e.target;
             if (!target || !target.classList) return;
@@ -331,28 +331,32 @@
             }
         });
 
-        // Setup individual validation events
+        // Real-time field validation listeners
         Object.keys(fields).forEach(key => {
             const field = fields[key];
             const input = field.el;
+            if (!input) return;
 
             const handleValidate = () => {
-                // Clear server errors for this field as soon as user types or modifies it
                 const parent = input.parentElement;
-                const serverErr = parent.querySelector('.server-error');
+                const serverErr = parent ? parent.querySelector('.server-error') : null;
                 if (serverErr) serverErr.remove();
                 input.classList.remove('border-red-400', 'bg-red-50');
 
                 const errMessage = field.validate(input.value);
                 if (errMessage) {
-                    field.error.textContent = errMessage;
-                    field.error.classList.remove('hidden');
+                    if (field.error) {
+                        field.error.textContent = errMessage;
+                        field.error.classList.remove('hidden');
+                    }
                     input.classList.remove('input-valid');
                     input.classList.add('input-invalid');
                     return false;
                 } else {
-                    field.error.textContent = '';
-                    field.error.classList.add('hidden');
+                    if (field.error) {
+                        field.error.textContent = '';
+                        field.error.classList.add('hidden');
+                    }
                     input.classList.remove('input-invalid');
                     if (input.value.trim() !== '') {
                         input.classList.add('input-valid');
@@ -366,26 +370,37 @@
             input.addEventListener('change', handleValidate);
         });
 
-        // Form Submit interception
+        let isSubmittingConfirmed = false;
+
+        // Submit handler with SweetAlert2 confirmation
         form.addEventListener('submit', function(e) {
+            if (isSubmittingConfirmed) {
+                return;
+            }
+
+            e.preventDefault();
+
             let firstInvalidInput = null;
             let isFormValid = true;
 
             Object.keys(fields).forEach(key => {
                 const field = fields[key];
                 const input = field.el;
+                if (!input) return;
+
                 const errMessage = field.validate(input.value);
 
                 if (errMessage) {
                     isFormValid = false;
-                    field.error.textContent = errMessage;
-                    field.error.classList.remove('hidden');
+                    if (field.error) {
+                        field.error.textContent = errMessage;
+                        field.error.classList.remove('hidden');
+                    }
                     input.classList.remove('input-valid');
                     input.classList.add('input-invalid');
 
-                    // Apply shake effect
                     input.classList.remove('field-shake');
-                    void input.offsetWidth; // Trigger reflow to restart animation
+                    void input.offsetWidth; 
                     input.classList.add('field-shake');
 
                     if (!firstInvalidInput) {
@@ -395,10 +410,47 @@
             });
 
             if (!isFormValid) {
-                e.preventDefault();
                 if (firstInvalidInput) {
                     firstInvalidInput.focus();
                     firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            const nombreAlumno = fields.nombre.el ? fields.nombre.el.value.trim() : '';
+            const correoAlumno = fields.correo.el ? fields.correo.el.value.trim() : '';
+
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Confirmar Registro?',
+                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta al estudiante <strong>${nombreAlumno}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán sus accesos y se enviarán automáticamente al correo <strong>${correoAlumno}</strong>.</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4E7D24',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, registrar alumno',
+                    cancelButtonText: 'Revisar datos',
+                    focusConfirm: false,
+                    focusCancel: false,
+                    customClass: {
+                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isSubmittingConfirmed = true;
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) {
+                    isSubmittingConfirmed = true;
+                    form.submit();
                 }
             }
         });

@@ -9,25 +9,24 @@
         <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden transform transition-all duration-300 scale-100 max-h-[90vh] flex flex-col">
             
             <!-- Header (Gradient Green Banner) -->
-            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 id="modal-title" class="text-lg font-bold text-white">Registrar Nuevo Proyecto</h2>
-                        <p class="text-green-100 text-xs">Completa los campos para dar de alta el proyecto en el catálogo</p>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 relative flex flex-col items-center justify-center text-center flex-shrink-0">
                 <button type="button" 
                         onclick="document.getElementById('modal-registrar-proyecto').classList.add('hidden')"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <div class="bg-white/20 p-2 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">Registrar Nuevo Proyecto</h2>
+                </div>
+                <p class="text-green-100 text-xs">Completa los campos para dar de alta el proyecto en el catálogo</p>
             </div>
             {{-- Style for shake animation and input states --}}
             <style>
@@ -55,6 +54,8 @@
             <form id="form-registrar-proyecto" action="{{ route('coordinador.proyectos.store') }}" method="POST" class="px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
                 @csrf
 
+                <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center mb-2">Información del Proyecto</h4>
+
                 <!-- 1. Unidad Receptora Select (Dynamically loaded from DB) -->
                 <div>
                     <label for="reg-unidad" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Unidad Receptora / Institución <span class="text-red-500">*</span></label>
@@ -62,7 +63,9 @@
                         <select id="reg-unidad" name="unidad_receptora_id" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('unidad_receptora_id') border-red-400 bg-red-50 @enderror">
                             <option value="">Selecciona la institución asociada...</option>
                             @foreach($unidadesReceptoras as $ur)
-                                <option value="{{ $ur->id }}" {{ old('unidad_receptora_id') == $ur->id ? 'selected' : '' }}>{{ strtoupper($ur->nombre_empresa) }}</option>
+                                <option value="{{ $ur->id }}" {{ old('unidad_receptora_id') == $ur->id ? 'selected' : '' }}>
+                                    {{ strtoupper($ur->nombre_empresa) }}{{ !empty($ur->unidad_receptora) ? ' — ' . $ur->unidad_receptora : '' }}
+                                </option>
                             @endforeach
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
@@ -185,23 +188,16 @@
                     </div>
                 </div>
 
-                <!-- Público para Internet -->
+                <!-- Cupo de Alumnos -->
                 <div>
-                    <label for="reg-publico" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Público para Internet <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <select id="reg-publico" name="publico_internet" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('publico_internet') border-red-400 bg-red-50 @enderror">
-                            <option value="SI" {{ old('publico_internet', 'SI') == 'SI' ? 'selected' : '' }}>SÍ - Disponible para consulta pública en internet</option>
-                            <option value="NO" {{ old('publico_internet') == 'NO' ? 'selected' : '' }}>NO - Solo visible internamente en la plataforma</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                    <p id="error-reg-publico" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
-                    @error('publico_internet')
+                    <label for="reg-cupos-totales" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Cupo de Alumnos <span class="text-red-500">*</span></label>
+                    <input type="number" id="reg-cupos-totales" name="cupos_totales" required min="1" max="2" value="{{ old('cupos_totales', 1) }}" placeholder="Ej. 1" onwheel="this.blur()" class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all restrict-numbers @error('cupos_totales') border-red-400 bg-red-50 @enderror">
+                    <p id="error-reg-cupos-totales" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                    @error('cupos_totales')
                         <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
                     @enderror
                 </div>
+
 
                 <!-- Footer Action Buttons -->
                 <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-5 mt-4">
@@ -225,6 +221,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('form-registrar-proyecto');
         if (!form) return;
+
+        // Prevent wheel/touchpad scroll from altering number inputs
+        form.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('wheel', function () { this.blur(); });
+        });
 
         const fields = {
             unidad: {
@@ -251,6 +252,15 @@
                 el: document.getElementById('reg-tipo-modalidad'),
                 error: document.getElementById('error-reg-tipo-modalidad'),
                 validate: (val) => !val ? 'Debes seleccionar la modalidad.' : ''
+            },
+            cuposTotales: {
+                el: document.getElementById('reg-cupos-totales'),
+                error: document.getElementById('error-reg-cupos-totales'),
+                validate: (val) => {
+                    const num = parseInt(val);
+                    if (isNaN(num) || num < 1 || num > 2) return 'El cupo debe ser 1 o 2 alumnos.';
+                    return '';
+                }
             },
             objetivo: {
                 el: document.getElementById('reg-objetivo'),
@@ -291,11 +301,6 @@
                     if (val.trim().length < 20) return 'El impacto social debe tener al menos 20 caracteres.';
                     return '';
                 }
-            },
-            publico: {
-                el: document.getElementById('reg-publico'),
-                error: document.getElementById('error-reg-publico'),
-                validate: (val) => !val ? 'Debes seleccionar la privacidad de internet.' : ''
             }
         };
 
@@ -349,20 +354,32 @@
             input.addEventListener('change', handleValidate);
         });
 
+        let isSubmittingConfirmed = false;
+
         // Submit listener
         form.addEventListener('submit', function(e) {
+            if (isSubmittingConfirmed) {
+                return;
+            }
+
+            e.preventDefault();
+
             let isFormValid = true;
             let firstInvalidInput = null;
 
             Object.keys(fields).forEach(key => {
                 const field = fields[key];
                 const input = field.el;
+                if (!input) return;
+
                 const errMessage = field.validate(input.value);
 
                 if (errMessage) {
                     isFormValid = false;
-                    field.error.textContent = errMessage;
-                    field.error.classList.remove('hidden');
+                    if (field.error) {
+                        field.error.textContent = errMessage;
+                        field.error.classList.remove('hidden');
+                    }
                     input.classList.remove('input-valid');
                     input.classList.add('input-invalid');
 
@@ -378,10 +395,46 @@
             });
 
             if (!isFormValid) {
-                e.preventDefault();
                 if (firstInvalidInput) {
                     firstInvalidInput.focus();
                     firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            const tituloProyecto = fields.titulo.el ? fields.titulo.el.value.trim() : '';
+
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Confirmar Registro de Proyecto?',
+                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta el proyecto <strong>${tituloProyecto}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">El proyecto estará disponible inmediatamente en el catálogo.</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4E7D24',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, registrar proyecto',
+                    cancelButtonText: 'Revisar datos',
+                    focusConfirm: false,
+                    focusCancel: false,
+                    customClass: {
+                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isSubmittingConfirmed = true;
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`¿Estás seguro de registrar el proyecto ${tituloProyecto}?`)) {
+                    isSubmittingConfirmed = true;
+                    form.submit();
                 }
             }
         });

@@ -12,31 +12,30 @@
             <input type="hidden" name="id" id="edit-alumno-id" value="{{ old('id') }}">
 
             <!-- Header (Gradient Green Banner) -->
-            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                    </div>
-                    <div class="text-left">
-                        <h2 id="modal-title" class="text-lg font-bold text-white leading-tight">Editar Datos del Alumno</h2>
-                        <p class="text-green-100 text-xs">Modifica los campos del estudiante según sea necesario</p>
-                    </div>
-                </div>
+            <div class="bg-gradient-to-r from-[#4E7D24] to-[#6BA53A] px-8 py-6 relative flex flex-col items-center justify-center text-center flex-shrink-0">
                 <button type="button" 
                         onclick="document.getElementById('modal-editar-alumno').classList.add('hidden')"
-                        class="text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
+                        class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <div class="bg-white/20 p-2 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">Editar Datos del Alumno</h2>
+                </div>
+                <p class="text-green-100 text-xs">Modifica los campos del estudiante según sea necesario</p>
             </div>
             
             <!-- Scrollable Content -->
             <div class="px-6 py-6 md:px-8 overflow-y-auto flex-grow custom-scrollbar">
                 <div class="space-y-6">
-                    <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-left">Información del Alumno</h4>
+                    <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center">Información del Alumno</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                         <!-- Nombre Completo -->
@@ -65,8 +64,8 @@
 
                         <!-- Matrícula -->
                         <div>
-                            <label for="edit-alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
-                            <input type="text" id="edit-alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]+$" title="La matrícula solo debe contener números.">
+                            <label for="edit-alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">No. de Cuenta <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]+$" title="El No. de cuenta solo debe contener números.">
                             <p id="error-edit-alumno-matricula" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('matricula')
                                 @if(old('id'))
@@ -213,9 +212,9 @@
                 el: document.getElementById('edit-alumno-matricula'),
                 error: document.getElementById('error-edit-alumno-matricula'),
                 validate: (val) => {
-                    if (!val.trim()) return 'La matrícula es requerida.';
-                    if (!/^[0-9]+$/.test(val)) return 'La matrícula solo debe contener números.';
-                    if (val.length < 5 || val.length > 20) return 'La matrícula debe tener entre 5 y 20 dígitos.';
+                    if (!val.trim()) return 'El No. de Cuenta es requerido.';
+                    if (!/^[0-9]+$/.test(val)) return 'El No. de Cuenta solo debe contener números.';
+                    if (val.length < 5 || val.length > 20) return 'El No. de Cuenta debe tener entre 5 y 20 dígitos.';
                     return '';
                 }
             },
@@ -357,9 +356,19 @@
             input.addEventListener('blur', handleValidate);
         });
 
+        let isSubmittingConfirmed = false;
+
         // Validate on submit
         form.addEventListener('submit', function (e) {
+            if (isSubmittingConfirmed) {
+                return;
+            }
+
+            e.preventDefault();
+
             let isValid = true;
+            let firstInvalidInput = null;
+
             for (const key in editFields) {
                 const field = editFields[key];
                 const errorMsg = field.validate(field.el.value);
@@ -369,6 +378,9 @@
                     field.error.classList.remove('hidden');
                     field.el.classList.add('input-invalid');
                     field.el.classList.add('field-shake');
+                    if (!firstInvalidInput) {
+                        firstInvalidInput = field.el;
+                    }
                     setTimeout(() => {
                         field.el.classList.remove('field-shake');
                     }, 300);
@@ -378,8 +390,49 @@
                     field.el.classList.remove('input-invalid');
                 }
             }
+
             if (!isValid) {
-                e.preventDefault();
+                if (firstInvalidInput) {
+                    firstInvalidInput.focus();
+                    firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            const nombreAlumno = editFields.nombre.el ? editFields.nombre.el.value.trim() : '';
+
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Guardar Cambios?',
+                    html: `<p class="text-sm text-gray-600">¿Estás seguro de que deseas actualizar la información del estudiante <strong>${nombreAlumno}</strong>?</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4E7D24',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, guardar cambios',
+                    cancelButtonText: 'Cancelar',
+                    focusConfirm: false,
+                    focusCancel: false,
+                    customClass: {
+                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isSubmittingConfirmed = true;
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`¿Estás seguro de que deseas actualizar la información de ${nombreAlumno}?`)) {
+                    isSubmittingConfirmed = true;
+                    form.submit();
+                }
             }
         });
     });

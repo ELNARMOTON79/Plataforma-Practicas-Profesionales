@@ -26,10 +26,11 @@ class ProyectoController extends Controller
         $plan = $request->input('plan');
         $cupo = $request->input('cupo');
         $acceso = $request->input('acceso');
-        $perPage = $request->input('per_page', 5);
-
-        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
-            $perPage = 5;
+        if ($request->has('per_page') && in_array((int)$request->input('per_page'), [5, 10, 25, 50, 100])) {
+            $perPage = (int)$request->input('per_page');
+            session(['per_page' => $perPage]);
+        } else {
+            $perPage = session('per_page', 5);
         }
 
         $query = Proyecto::with('empresa');
@@ -65,8 +66,9 @@ class ProyectoController extends Controller
         $proyectos = $query->paginate($perPage);
 
         $unidadesReceptoras = DB::table('unidades_receptoras')
-            ->select('id', 'nombre_empresa')
+            ->select('id', 'nombre_empresa', 'unidad_receptora')
             ->orderBy('nombre_empresa', 'asc')
+            ->orderBy('unidad_receptora', 'asc')
             ->get();
 
         return view('coordinador.proyectos', compact('proyectos', 'unidadesReceptoras'));
@@ -90,7 +92,8 @@ class ProyectoController extends Controller
             'impacto_social'      => ['required', 'string'],
             'tipo_proyecto'       => ['required', 'string', 'max:150'],
             'tipo_modalidad'      => ['required', 'string', 'max:150'],
-            'publico_internet'    => ['required', 'in:SI,NO'],
+            'cupos_totales'       => ['required', 'integer', 'min:1', 'max:2'],
+            'publico_internet'    => ['nullable', 'in:SI,NO'],
         ], [
             'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
             'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
@@ -101,7 +104,9 @@ class ProyectoController extends Controller
             'impacto_social.required'      => 'El impacto social es requerido.',
             'tipo_proyecto.required'       => 'El tipo de proyecto es requerido.',
             'tipo_modalidad.required'      => 'El tipo de modalidad es requerido.',
-            'publico_internet.required'    => 'Especifica si es público para internet.',
+            'cupos_totales.required'       => 'El cupo de alumnos es requerido.',
+            'cupos_totales.min'            => 'El cupo de alumnos debe ser al menos 1.',
+            'cupos_totales.max'            => 'El cupo de alumnos solo puede ser 1 o 2.',
         ]);
 
         $proyecto = Proyecto::create([
@@ -113,10 +118,10 @@ class ProyectoController extends Controller
             'impacto_social'      => $request->input('impacto_social'),
             'tipo_proyecto'       => $request->input('tipo_proyecto'),
             'tipo_modalidad'      => $request->input('tipo_modalidad'),
-            'publico_internet'    => $request->input('publico_internet'),
+            'cupos_totales'       => $request->input('cupos_totales', 1),
+            'publico_internet'    => $request->input('publico_internet', 'SI'),
             'plan'                => 'E906', // Default plan
             'ciclo_escolar'       => 'AGO-2026/ENE-2027', // Default cycle
-            'cupos_totales'       => 3, // Default total spots
             'cupos_ocupados'      => 0, // Default filled spots
             'activo'              => true, // Default active status
         ]);
@@ -150,7 +155,8 @@ class ProyectoController extends Controller
                 'impacto_social'      => ['required', 'string'],
                 'tipo_proyecto'       => ['required', 'string', 'max:150'],
                 'tipo_modalidad'      => ['required', 'string', 'max:150'],
-                'publico_internet'    => ['required', 'in:SI,NO'],
+                'cupos_totales'       => ['required', 'integer', 'min:1', 'max:2'],
+                'publico_internet'    => ['nullable', 'in:SI,NO'],
             ], [
                 'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
                 'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
@@ -161,7 +167,9 @@ class ProyectoController extends Controller
                 'impacto_social.required'      => 'El impacto social es requerido.',
                 'tipo_proyecto.required'       => 'El tipo de proyecto es requerido.',
                 'tipo_modalidad.required'      => 'El tipo de modalidad es requerido.',
-                'publico_internet.required'    => 'Especifica si es público para internet.',
+                'cupos_totales.required'       => 'El cupo de alumnos es requerido.',
+                'cupos_totales.min'            => 'El cupo de alumnos debe ser al menos 1.',
+                'cupos_totales.max'            => 'El cupo de alumnos solo puede ser 1 o 2.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -179,7 +187,8 @@ class ProyectoController extends Controller
             'impacto_social'      => $request->input('impacto_social'),
             'tipo_proyecto'       => $request->input('tipo_proyecto'),
             'tipo_modalidad'      => $request->input('tipo_modalidad'),
-            'publico_internet'    => $request->input('publico_internet'),
+            'cupos_totales'       => $request->input('cupos_totales', $proyecto->cupos_totales),
+            'publico_internet'    => $request->input('publico_internet', $proyecto->publico_internet ?? 'SI'),
         ]);
 
         $urName = DB::table('unidades_receptoras')

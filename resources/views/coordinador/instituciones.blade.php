@@ -57,55 +57,47 @@
     </x-page-header>
 
 
-    <!-- Main Instituciones Container (Glassmorphic) -->
     <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-100">
         
         <!-- Filters & Search -->
-        <form method="GET" action="{{ route('coordinador.instituciones') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6 w-full">
-            <!-- Left side: Show entries -->
-            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full md:w-auto">
-                <span>Mostrar</span>
-                <select name="per_page" onchange="this.form.submit()" class="pl-3 pr-8 py-1.5 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="5" {{ request('per_page', '5') == '5' ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                    <option value="100" {{ request('per_page', '5') == '100' ? 'selected' : '' }}>100</option>
-                </select>
-                <span>registros</span>
-            </div>
+        <form method="GET" action="{{ route('coordinador.instituciones') }}" class="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6 w-full">
+            <!-- Left side: Search & Filters -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                <!-- 1. Search Input -->
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}" class="h-10 block w-full pl-9 pr-3 text-sm border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium text-gray-700 shadow-sm transition-all restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
+                </div>
+                <button type="submit" class="hidden">Buscar</button>
 
-            <!-- Right side: Search and Filters -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <!-- Sector Select -->
-                <select name="sector" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                <!-- 2. Sector Select -->
+                <select name="sector" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Sectores</option>
                     <option value="publico" {{ request('sector') == 'publico' ? 'selected' : '' }}>PÚBLICO</option>
                     <option value="privado" {{ request('sector') == 'privado' ? 'selected' : '' }}>PRIVADO</option>
                 </select>
 
-                <!-- Tipo Persona Select -->
-                <select name="tipo_persona" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
+                <!-- 3. Tipo Persona Select -->
+                <select name="tipo_persona" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Tipos</option>
                     <option value="moral" {{ request('tipo_persona') == 'moral' ? 'selected' : '' }}>MORAL</option>
                     <option value="fisica" {{ request('tipo_persona') == 'fisica' ? 'selected' : '' }}>FÍSICA</option>
                 </select>
+            </div>
 
-                <!-- Convenio Select -->
-                <select name="convenio" onchange="this.form.submit()" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-sm border border-gray-200 focus:outline-none focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white/50 text-gray-700">
-                    <option value="">Todos los Convenios</option>
-                    <option value="con" {{ request('convenio') == 'con' ? 'selected' : '' }}>CON CONVENIO</option>
-                    <option value="sin" {{ request('convenio') == 'sin' ? 'selected' : '' }}>SIN CONVENIO</option>
+            <!-- Right side: Show entries -->
+            <div class="flex items-center gap-2 text-sm text-gray-600 font-medium w-full lg:w-auto justify-start lg:justify-end">
+                <span>Mostrar</span>
+                <select name="per_page" onchange="this.form.submit()" class="h-10 pl-3 pr-8 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                    <option value="5" {{ $instituciones->perPage() == 5 ? 'selected' : '' }}>5</option>
+                    <option value="10" {{ $instituciones->perPage() == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ $instituciones->perPage() == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ $instituciones->perPage() == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ $instituciones->perPage() == 100 ? 'selected' : '' }}>100</option>
                 </select>
-
-                <!-- Search Input -->
-                <div class="relative w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-white/50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] sm:text-sm transition-colors restrict-search" placeholder="Buscar..." pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]+$" title="El buscador solo acepta letras, números, espacios, @ y puntos." onkeypress="return (event.ctrlKey || event.metaKey || event.altKey) || /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]$/.test(event.key) || ['Backspace', 'Enter', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(event.key)" oninput="this.value = this.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s@.]/g, '')">
-                </div>
-                <button type="submit" class="hidden">Buscar</button>
+                <span>registros</span>
             </div>
         </form>
 
@@ -119,7 +111,8 @@
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Tipo Persona</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sistema</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sector</th>
-                        <th scope="col" class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Unidades Receptoras</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Unidades Receptoras</th>
+                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl whitespace-nowrap">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-100">
@@ -145,11 +138,13 @@
                             
                             // Convenio: check convenios table (keyed by nombre_empresa), then field
                             $convenioList = $convenios[$inst->nombre_empresa] ?? null;
-                            $codigoConvenio = 'SIN CONVENIO';
+                            $codigoConvenio = 'CON CONVENIO';
 
                             if ($convenioList && $convenioList->count() > 0) {
                                 $conv = $convenioList->first();
-                                $codigoConvenio = strtoupper($conv->codigo_convenio);
+                                if (!empty($conv->codigo_convenio)) {
+                                    $codigoConvenio = strtoupper($conv->codigo_convenio);
+                                }
                             } elseif (!empty($inst->convenio)) {
                                 $codigoConvenio = strtoupper($inst->convenio);
                             }
@@ -166,15 +161,9 @@
                                 <div class="text-[10px] text-gray-400 normal-case">{{ $inst->direccion }}</div>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
-                                @if($codigoConvenio == 'SIN CONVENIO')
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-red-50 text-red-700 border border-red-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 mt-1.5"></span> Sin Convenio
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> {{ $codigoConvenio }}
-                                    </span>
-                                @endif
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> {{ $codigoConvenio }}
+                                </span>
                             </td>
                             <td class="px-3 py-4 whitespace-nowrap text-center">
                                 @if(strcasecmp($inst->tipo_persona, 'moral') === 0 || str_contains(strtolower($inst->tipo_persona), 'moral'))
@@ -193,14 +182,24 @@
                             <td class="px-3 py-4 whitespace-nowrap text-xs text-center text-gray-500 font-bold uppercase">
                                 {{ $sector }}
                             </td>
-                            <td class="px-3 py-4 text-center">
+                            <td class="px-3 py-4 text-center whitespace-nowrap">
                                 <button
                                     type="button"
-                                    class="open-ur-modal inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4E7D24]/10 text-[#4E7D24] border border-[#4E7D24]/20 rounded-xl text-xs font-bold hover:bg-[#4E7D24] hover:text-white transition-all"
+                                    class="open-ur-modal inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4E7D24]/10 text-[#4E7D24] border border-[#4E7D24]/20 rounded-xl text-xs font-bold hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
                                     data-empresa="{{ $inst->nombre_empresa }}"
-                                    data-unidades="{{ $urList->values()->toJson() }}">
+                                    data-unidades='@json($urList->values())'>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                     Ver {{ $inst->ur_count }} UR
+                                </button>
+                            </td>
+                            <td class="px-3 py-4 text-center whitespace-nowrap">
+                                <button
+                                    type="button"
+                                    onclick="abrirModalAgregarUR('{{ addslashes($inst->nombre_empresa) }}')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4E7D24] text-white hover:bg-[#2E5417] rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all whitespace-nowrap"
+                                    title="Agregar nueva Unidad Receptora a {{ $inst->nombre_empresa }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Agregar UR
                                 </button>
                             </td>
                         </tr>
@@ -253,14 +252,61 @@
             document.querySelectorAll('.open-ur-modal').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     const empresa = this.dataset.empresa;
-                    const unidades = JSON.parse(this.dataset.unidades);
+                    let unidades = [];
+                    try {
+                        unidades = JSON.parse(this.dataset.unidades);
+                    } catch (e) {
+                        console.error('Error parseando Unidades Receptoras:', e);
+                    }
                     openUnidadesModal(empresa, unidades);
                 });
             });
         });
 
+        window.currentUnidadesList = [];
+
         function openUnidadesModal(empresa, unidades) {
+            window.currentEmpresaSeleccionada = empresa;
+            window.currentUnidadesList = unidades || [];
+            
             document.getElementById('unidadesModalTitle').textContent = empresa;
+            
+            const searchInput = document.getElementById('searchUnidadesInput');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+
+            renderUnidadesList(window.currentUnidadesList);
+
+            document.getElementById('unidadesModal').classList.remove('hidden');
+            const navbar = document.querySelector('nav');
+            if (navbar) navbar.style.zIndex = '0';
+        }
+
+        function filterUnidadesModal(searchTerm) {
+            const term = (searchTerm || '').toLowerCase().trim();
+            if (!term) {
+                renderUnidadesList(window.currentUnidadesList);
+                return;
+            }
+
+            const filtered = window.currentUnidadesList.filter(function(ur) {
+                const urNombre = (ur.unidad_receptora || 'General').toLowerCase();
+                const titular = (ur.titular || '').toLowerCase();
+                const cargo = (ur.cargo || '').toLowerCase();
+                const direccion = (ur.direccion || '').toLowerCase();
+                const municipio = (ur.municipio || '').toLowerCase();
+                return urNombre.includes(term) || titular.includes(term) || cargo.includes(term) || direccion.includes(term) || municipio.includes(term);
+            });
+
+            renderUnidadesList(filtered, true);
+        }
+
+        function renderUnidadesList(unidades, isFilter = false) {
+            const countBadge = document.getElementById('unidadesModalCount');
+            if (countBadge) {
+                countBadge.textContent = `${unidades.length} UR${unidades.length === 1 ? '' : 's'}`;
+            }
 
             const fields = [
                 { key: 'unidad_receptora',  label: 'Unidad Receptora' },
@@ -283,52 +329,50 @@
             body.innerHTML = '';
 
             if (!unidades || unidades.length === 0) {
-                body.innerHTML = '<p class="text-sm text-gray-500 text-center py-8">No hay unidades receptoras registradas.</p>';
-            } else {
-                unidades.forEach(function (ur, index) {
-                    const card = document.createElement('div');
-                    card.className = 'bg-gray-50 border border-gray-200 rounded-2xl p-5';
-
-                    const header = document.createElement('div');
-                    header.className = 'flex items-center gap-2 mb-4';
-                    header.innerHTML = `
-                        <span class="w-6 h-6 rounded-full bg-[#4E7D24]/10 text-[#4E7D24] text-xs font-bold flex items-center justify-center">${index + 1}</span>
-                        <span class="text-sm font-bold text-gray-800">${ur.unidad_receptora || 'General'}</span>
-                    `;
-                    card.appendChild(header);
-
-                    const grid = document.createElement('div');
-                    grid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-3';
-
-                    fields.slice(1).forEach(function (field) {
-                        let val = ur[field.key];
-                        if (!val && val !== 0) return;
-
-                        // Format date if key is fecha_vencimiento
-                        if (field.key === 'fecha_vencimiento' && typeof val === 'string') {
-                            const parts = val.split('-');
-                            if (parts.length === 3) {
-                                val = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                            }
-                        }
-
-                        const item = document.createElement('div');
-                        item.innerHTML = `
-                            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">${field.label}</span>
-                            <span class="block text-xs font-semibold text-gray-700 mt-0.5">${val}</span>
-                        `;
-                        grid.appendChild(item);
-                    });
-
-                    card.appendChild(grid);
-                    body.appendChild(card);
-                });
+                const emptyMsg = isFilter 
+                    ? 'No se encontraron Unidades Receptoras con el término buscado.' 
+                    : 'No hay unidades receptoras registradas.';
+                body.innerHTML = `<p class="text-sm text-gray-500 text-center py-8 font-medium">${emptyMsg}</p>`;
+                return;
             }
 
-            document.getElementById('unidadesModal').classList.remove('hidden');
-            // Push the sticky navbar behind the modal overlay
-            const navbar = document.querySelector('nav');
-            if (navbar) navbar.style.zIndex = '0';
+            unidades.forEach(function (ur, index) {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 border border-gray-200 rounded-2xl p-5 hover:border-[#6BA53A]/30 transition-all shadow-sm';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-center gap-2 mb-4';
+                header.innerHTML = `
+                    <span class="w-6 h-6 rounded-full bg-[#4E7D24]/10 text-[#4E7D24] text-xs font-bold flex items-center justify-center shrink-0">${index + 1}</span>
+                    <span class="text-sm font-bold text-gray-900">${ur.unidad_receptora || 'General'}</span>
+                `;
+                card.appendChild(header);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-3';
+
+                fields.slice(1).forEach(function (field) {
+                    let val = ur[field.key];
+                    if (!val && val !== 0) return;
+
+                    if (field.key === 'fecha_vencimiento' && typeof val === 'string') {
+                        const parts = val.split('-');
+                        if (parts.length === 3) {
+                            val = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        }
+                    }
+
+                    const item = document.createElement('div');
+                    item.innerHTML = `
+                        <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">${field.label}</span>
+                        <span class="block text-xs font-semibold text-gray-700 mt-0.5">${val}</span>
+                    `;
+                    grid.appendChild(item);
+                });
+
+                card.appendChild(grid);
+                body.appendChild(card);
+            });
         }
 
         function closeUnidadesModal() {
@@ -343,6 +387,7 @@
 @push('modals')
     @include('coordinador.instituciones.bulk-upload-modal')
     @include('coordinador.instituciones.register-modal')
+    @include('coordinador.instituciones.agregar-ur-modal')
 
     {{-- Modal: Unidades Receptoras --}}
     <div id="unidadesModal" class="fixed inset-0 z-[100] hidden overflow-hidden" role="dialog" aria-modal="true">
@@ -366,6 +411,28 @@
                     </button>
                 </div>
 
+                {{-- Subheader / Real-Time Search Bar --}}
+                <div class="px-6 py-3.5 md:px-8 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        <span>Total registradas:</span>
+                        <span id="unidadesModalCount" class="bg-[#4E7D24]/10 text-[#4E7D24] px-2.5 py-0.5 rounded-full font-bold">0 URs</span>
+                    </div>
+                    <div class="relative w-full sm:w-72">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="searchUnidadesInput" 
+                            placeholder="Buscar por departamento, titular..." 
+                            class="block w-full pl-9 pr-3 py-2 text-xs font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent transition-all shadow-sm"
+                            oninput="filterUnidadesModal(this.value)"
+                        >
+                    </div>
+                </div>
+
                 {{-- Body --}}
                 <div class="px-6 py-6 md:px-8 overflow-y-auto flex-grow custom-scrollbar">
                     <div id="unidadesModalBody" class="space-y-4">
@@ -374,8 +441,12 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end flex-shrink-0">
-                    <button type="button" onclick="closeUnidadesModal()" class="px-5 py-2 bg-[#4E7D24] text-white text-sm font-bold rounded-xl hover:bg-[#2E5417] transition-colors">
+                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center flex-shrink-0">
+                    <button type="button" onclick="abrirModalAgregarUR(window.currentEmpresaSeleccionada)" class="px-4 py-2 bg-[#4E7D24] text-white text-xs font-bold rounded-xl hover:bg-[#2E5417] transition-all flex items-center gap-1.5 shadow-sm hover:shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Agregar Unidad Receptora
+                    </button>
+                    <button type="button" onclick="closeUnidadesModal()" class="px-5 py-2 border border-gray-300 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors">
                         Cerrar
                     </button>
                 </div>

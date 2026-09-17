@@ -15,9 +15,22 @@ class DashboardController extends Controller
         }
 
         $estudiantesActivos = DB::table('estudiantes')->count();
+
+        // Calcular porcentaje dinámico de estudiantes con práctica o trámite registrado
+        $estudiantesConPractica = DB::table('estudiantes')
+            ->where('activo_practica', 1)
+            ->orWhereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('solicitudes')
+                    ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id');
+            })
+            ->count();
+
+        $porcentajeActivos = $estudiantesActivos > 0 ? round(($estudiantesConPractica / $estudiantesActivos) * 100) : 0;
+
         $instituciones = DB::table('unidades_receptoras')->count();
         $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
-        $proyectosActivos = DB::table('convenios')->where('estatus', 'activo')->count();
+        $proyectosActivos = DB::table('proyectos')->where('activo', 1)->count();
 
         // Fetch recent documents uploaded by students
         $ultimosDocumentos = \App\Models\Documento::with(['solicitud.estudiante', 'solicitud.unidadReceptora'])
@@ -77,6 +90,7 @@ class DashboardController extends Controller
 
         return view('coordinador.dashboard', compact(
             'estudiantesActivos',
+            'porcentajeActivos',
             'instituciones',
             'tramitesPendientes',
             'proyectosActivos',
