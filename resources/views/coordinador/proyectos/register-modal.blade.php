@@ -78,6 +78,27 @@
                     @enderror
                 </div>
 
+                <!-- 1.5 Alumno Asignado al Proyecto (Opcional) -->
+                <div>
+                    <label for="reg-estudiante" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Alumno Asignado al Proyecto <span class="text-gray-400 font-normal lowercase">(opcional)</span></label>
+                    <div class="relative">
+                        <select id="reg-estudiante" name="estudiante_id" class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('estudiante_id') border-red-400 bg-red-50 @enderror">
+                            <option value="">Sin Asignar / Selecciona un alumno...</option>
+                            @foreach($alumnos as $al)
+                                <option value="{{ $al->id }}" {{ old('estudiante_id') == $al->id ? 'selected' : '' }}>
+                                    {{ strtoupper($al->nombre_completo) }} ({{ $al->matricula }}) — {{ strtoupper($al->carrera) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    @error('estudiante_id')
+                        <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- 2. Título -->
                 <div>
                     <label for="reg-titulo" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Título del Proyecto <span class="text-red-500">*</span></label>

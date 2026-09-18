@@ -10,6 +10,7 @@ class Proyecto extends Model
 
     protected $fillable = [
         'unidad_receptora_id',
+        'estudiante_id',
         'titulo',
         'objetivo',
         'justificacion',
@@ -37,5 +38,13 @@ class Proyecto extends Model
     public function empresa()
     {
         return $this->belongsTo(Empresa::class, 'unidad_receptora_id');
+    }
+
+    /**
+     * Get the student assigned directly to this project.
+     */
+    public function estudiante()
+    {
+        return $this->belongsTo(Alumno::class, 'estudiante_id');
     }
 }

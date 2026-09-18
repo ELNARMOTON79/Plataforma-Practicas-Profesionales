@@ -91,12 +91,16 @@
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
                         @foreach(collect($data)->where('estatus', 'EN PROCESO') as $student)
+                            @php
+                                $words = explode(' ', trim($student['nombre_completo']));
+                                $initials = strtoupper(substr($words[0] ?? 'A', 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
+                            @endphp
                             <tr class="hover:bg-[#6BA53A]/5 transition-colors group align-top">
                                 <!-- Estudiante -->
                                 <td class="px-4 py-4 whitespace-nowrap text-left">
                                     <div class="flex items-center gap-3">
                                         <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none flex-shrink-0">
-                                            {{ substr($student['nombre_completo'], 0, 1) }}{{ substr(strrchr($student['nombre_completo'], " "), 1, 1) }}
+                                            {{ $initials }}
                                         </div>
                                         <div>
                                             <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">{{ $student['nombre_completo'] }}</div>
@@ -124,7 +128,7 @@
                                 </td>
                                 <!-- Acción -->
                                 <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex px-3 py-1.5 bg-sky-50 hover:bg-sky-600 text-sky-700 hover:text-white border border-sky-100 rounded-xl text-xs font-bold transition-all shadow-sm">
+                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex items-center justify-center px-5 py-2 bg-[#0085D1] hover:bg-[#0072B8] text-white rounded-full text-xs font-extrabold tracking-wider uppercase shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                                         Seguimiento
                                     </a>
                                 </td>
@@ -152,12 +156,16 @@
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
                         @foreach(collect($data)->where('estatus', 'ACREDITADO') as $student)
+                            @php
+                                $wordsConc = explode(' ', trim($student['nombre_completo']));
+                                $initialsConc = strtoupper(substr($wordsConc[0] ?? 'A', 0, 1) . (isset($wordsConc[1]) ? substr($wordsConc[1], 0, 1) : ''));
+                            @endphp
                             <tr class="hover:bg-[#6BA53A]/5 transition-colors group align-top">
                                 <!-- Estudiante -->
                                 <td class="px-4 py-4 whitespace-nowrap text-left">
                                     <div class="flex items-center gap-3">
                                         <div class="h-9 w-9 rounded-full bg-green-100 text-green-750 flex items-center justify-center font-bold text-xs select-none flex-shrink-0">
-                                            {{ substr($student['nombre_completo'], 0, 1) }}{{ substr(strrchr($student['nombre_completo'], " "), 1, 1) }}
+                                            {{ $initialsConc }}
                                         </div>
                                         <div>
                                             <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">{{ $student['nombre_completo'] }}</div>
@@ -185,7 +193,7 @@
                                 </td>
                                 <!-- Acción -->
                                 <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex px-3 py-1.5 bg-sky-50 hover:bg-sky-600 text-sky-700 hover:text-white border border-sky-100 rounded-xl text-xs font-bold transition-all shadow-sm">
+                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex items-center justify-center px-5 py-2 bg-[#0085D1] hover:bg-[#0072B8] text-white rounded-full text-xs font-extrabold tracking-wider uppercase shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                                         Seguimiento
                                     </a>
                                 </td>
@@ -229,6 +237,10 @@
                 $('#search-tracking').val(searchParam);
                 tableProceso.search(searchParam).draw();
                 tableConcluido.search(searchParam).draw();
+
+                if (tableProceso.rows({ search: 'applied' }).count() === 0 && tableConcluido.rows({ search: 'applied' }).count() > 0) {
+                    switchTrackingTab('concluido');
+                }
             }
 
             // Bind unified search bar

@@ -18,10 +18,14 @@
     @endif
 
     <!-- Student Header Summary -->
+    @php
+        $wordsShow = explode(' ', trim($student['nombre_completo']));
+        $initialsShow = strtoupper(substr($wordsShow[0] ?? 'A', 0, 1) . (isset($wordsShow[1]) ? substr($wordsShow[1], 0, 1) : ''));
+    @endphp
     <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border border-gray-100 shadow-sm fade-in-up delay-100">
         <div class="flex items-center gap-4">
             <div class="h-14 w-14 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] text-white flex items-center justify-center font-extrabold text-lg shadow-md select-none">
-                {{ substr($student['nombre_completo'], 0, 1) }}{{ substr(strrchr($student['nombre_completo'], " "), 1, 1) }}
+                {{ $initialsShow }}
             </div>
             <div class="text-left">
                 <h1 class="text-xl font-extrabold text-gray-900 uppercase leading-none">{{ $student['nombre_completo'] }}</h1>
@@ -44,7 +48,7 @@
     <!-- Main Content Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in-up delay-200">
         
-        <!-- Left 2 Columns: Project details & unit -->
+        <!-- Left 2 Columns: Project details -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Ficha del Proyecto -->
             <div class="glass-card rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm text-left">
@@ -78,7 +82,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Right Column: Institution & Observaciones -->
+        <div class="space-y-8">
             <!-- Institución / Unidad Receptora -->
             <div class="glass-card rounded-3xl p-6 border border-gray-100 shadow-sm text-left">
                 <h2 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
@@ -86,66 +93,22 @@
                     Institución / Unidad Receptora
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="space-y-3 text-xs">
                     <div>
                         <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Institución</span>
-                        <span class="font-bold text-gray-800 uppercase">{{ $student['institucion'] }}</span>
+                        <span class="font-bold text-gray-800 uppercase leading-snug block">{{ $student['institucion'] }}</span>
                     </div>
                     <div>
                         <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Unidad Receptora</span>
-                        <span class="font-bold text-gray-800 uppercase">{{ $student['unidad_receptora'] }}</span>
+                        <span class="font-bold text-gray-800 uppercase leading-snug block">{{ $student['unidad_receptora'] }}</span>
                     </div>
                     <div>
                         <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Titular</span>
-                        <span class="font-bold text-gray-800 uppercase">{{ $student['proyecto_detalle']['titular'] }}</span>
+                        <span class="font-bold text-gray-800 uppercase leading-snug block">{{ $student['proyecto_detalle']['titular'] }}</span>
                     </div>
                     <div>
                         <span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">Domicilio</span>
-                        <span class="font-bold text-gray-800">{{ $student['proyecto_detalle']['domicilio'] }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column: Payments, notes & remarks -->
-        <div class="space-y-8">
-            <!-- Referencias Bancarias (Pago) -->
-            <div class="glass-card rounded-3xl p-6 border border-gray-100 shadow-sm text-left">
-                <h2 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
-                    <svg class="w-5 h-5 text-[#6BA53A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Referencias Bancarias / Pago
-                </h2>
-                
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">Referencia de Pago</span>
-                        <span class="font-bold text-gray-800 select-all font-mono">{{ $student['referencias_bancarias']['referencia'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">Fecha Referencia</span>
-                            <span class="font-bold text-gray-800">{{ $student['referencias_bancarias']['fecha_referencia'] }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">Estatus de Pago</span>
-                            <span class="px-2 py-0.5 inline-block text-[9px] font-bold rounded bg-green-50 text-green-700 border border-green-200">
-                                {{ $student['referencias_bancarias']['estatus_pago'] }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
-                        <div>
-                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">N. Recibo</span>
-                            <span class="font-bold text-gray-800">{{ $student['referencias_bancarias']['recibo'] }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">F. Recibo</span>
-                            <span class="font-bold text-gray-800">{{ $student['referencias_bancarias']['fecha_recibo'] }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">Folio</span>
-                            <span class="font-bold text-gray-800">{{ $student['referencias_bancarias']['folio'] }}</span>
-                        </div>
+                        <span class="font-bold text-gray-800 leading-snug block">{{ $student['proyecto_detalle']['domicilio'] }}</span>
                     </div>
                 </div>
             </div>
@@ -180,57 +143,65 @@
             Expediente de Documentos del Estudiante
         </h2>
         
-        <!-- Grid list of 6 standard documents matching screenshot -->
+        <!-- Dynamic list of 6 standard student documents -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-            
-            <!-- Document 1: Carta Presentación -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['carta_presentacion'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Carta Presentación</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
+            @foreach($student['documentos'] as $docKey => $doc)
+                @php
+                    $estatus = is_array($doc) ? ($doc['estatus'] ?? 'Sin Subir') : (string)$doc;
+                    $label = is_array($doc) ? ($doc['label'] ?? ucwords(str_replace('_', ' ', $docKey))) : ucwords(str_replace('_', ' ', $docKey));
+                    $url = is_array($doc) ? ($doc['url'] ?? null) : null;
+                    $fecha = is_array($doc) ? ($doc['fecha'] ?? null) : null;
 
-            <!-- Document 2: Carta Aceptación -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['carta_aceptacion'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Carta Aceptación</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
+                    $colorClasses = match($estatus) {
+                        'Aceptada', 'Validado', 'Aprobado' => 'border-green-300 bg-green-50/80 text-green-900 hover:bg-green-100 hover:border-green-400',
+                        'Pendiente', 'En Revisión' => 'border-amber-300 bg-amber-50/80 text-amber-900 hover:bg-amber-100 hover:border-amber-400',
+                        'Rechazada', 'Rechazado' => 'border-red-300 bg-red-50/80 text-red-900 hover:bg-red-100 hover:border-red-400',
+                        default => 'border-gray-200 bg-gray-50/50 text-gray-400 cursor-not-allowed opacity-75',
+                    };
 
-            <!-- Document 3: Plan de Trabajo -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['plan_trabajo'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Plan de Trabajo</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
+                    $badgeBg = match($estatus) {
+                        'Aceptada', 'Validado', 'Aprobado' => 'bg-green-600 text-white',
+                        'Pendiente', 'En Revisión' => 'bg-amber-500 text-white',
+                        'Rechazada', 'Rechazado' => 'bg-red-500 text-white',
+                        default => 'bg-gray-200 text-gray-500',
+                    };
+                @endphp
 
-            <!-- Document 4: Memoria -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['memoria'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Memoria</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
-
-            <!-- Document 5: Evaluación -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['evaluacion'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Evaluación</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
-
-            <!-- Document 6: Carta de Terminación -->
-            <div class="relative group">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-3 border @if($student['documentos']['carta_terminacion'] === 'Aceptada') border-green-200 bg-green-50/50 text-green-800 @else border-yellow-200 bg-yellow-50/50 text-yellow-800 @endif rounded-2xl hover:shadow-md transition-all text-xs font-bold">
-                    <span>Carta Terminación</span>
-                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
-
+                <div class="relative group">
+                    @if($url)
+                        <a href="{{ $url }}" target="_blank" title="Abrir/Descargar {{ $label }}" class="w-full flex flex-col justify-between p-3.5 border {{ $colorClasses }} rounded-2xl shadow-sm hover:shadow-md transition-all text-xs font-bold min-h-[82px] group">
+                            <div class="flex items-start justify-between gap-1">
+                                <span class="leading-tight group-hover:underline">{{ $label }}</span>
+                                <svg class="w-4 h-4 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-black/5">
+                                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full {{ $badgeBg }}">
+                                    {{ $estatus }}
+                                </span>
+                                @if($fecha)
+                                    <span class="text-[9px] text-gray-500 font-semibold">{{ $fecha }}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @else
+                        <div class="w-full flex flex-col justify-between p-3.5 border {{ $colorClasses }} rounded-2xl text-xs font-bold min-h-[82px]">
+                            <div class="flex items-start justify-between gap-1">
+                                <span class="leading-tight">{{ $label }}</span>
+                                <svg class="w-4 h-4 text-gray-400 opacity-50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-black/5">
+                                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full {{ $badgeBg }}">
+                                    Sin Subir
+                                </span>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
     </div>
 @endsection

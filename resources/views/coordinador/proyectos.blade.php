@@ -126,6 +126,9 @@
                             <td class="px-3 py-4 text-left max-w-[220px] whitespace-normal">
                                 <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight break-words">{{ $proyecto->titulo }}</div>
                                 <div class="text-[10px] text-gray-400 uppercase mt-0.5">{{ optional($proyecto->empresa)->nombre_empresa ?? 'Sin Unidad' }}</div>
+                                @if($proyecto->estudiante)
+                                    <div class="text-[10px] text-[#4E7D24] font-bold uppercase mt-0.5">Alumno: {{ $proyecto->estudiante->nombre_completo }}</div>
+                                @endif
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
                                 <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
@@ -177,6 +180,7 @@
                         titulo: "{{ $proyecto->titulo }}",
                         unidad: "{{ optional($proyecto->empresa)->nombre_empresa ? (strtoupper(optional($proyecto->empresa)->nombre_empresa) . (optional($proyecto->empresa)->unidad_receptora ? ' — ' . optional($proyecto->empresa)->unidad_receptora : '')) : 'Sin Unidad' }}",
                         unidadId: "{{ $proyecto->unidad_receptora_id }}",
+                        estudianteId: "{{ $proyecto->estudiante_id ?? '' }}",
                         tipoProyecto: "{{ $proyecto->tipo_proyecto }}",
                         tipoModalidad: "{{ $proyecto->tipo_modalidad }}",
                         objetivo: @json($proyecto->objetivo),
@@ -226,6 +230,9 @@
 
                 // Pre-fill inputs
                 document.getElementById('edit-unidad').value = project.unidadId;
+                if (document.getElementById('edit-estudiante')) {
+                    document.getElementById('edit-estudiante').value = project.estudianteId || '';
+                }
                 document.getElementById('edit-titulo').value = project.titulo;
                 document.getElementById('edit-tipo-proyecto').value = project.tipoProyecto;
                 document.getElementById('edit-tipo-modalidad').value = project.tipoModalidad;

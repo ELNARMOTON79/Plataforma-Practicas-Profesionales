@@ -71,7 +71,9 @@ class ProyectoController extends Controller
             ->orderBy('unidad_receptora', 'asc')
             ->get();
 
-        return view('coordinador.proyectos', compact('proyectos', 'unidadesReceptoras'));
+        $alumnos = \App\Models\Alumno::orderBy('nombre_completo', 'asc')->get();
+
+        return view('coordinador.proyectos', compact('proyectos', 'unidadesReceptoras', 'alumnos'));
     }
 
     /**
@@ -85,6 +87,7 @@ class ProyectoController extends Controller
 
         $request->validate([
             'unidad_receptora_id' => ['required', 'integer', 'exists:unidades_receptoras,id'],
+            'estudiante_id'       => ['nullable', 'integer', 'exists:estudiantes,id'],
             'titulo'              => ['required', 'string', 'max:255'],
             'objetivo'            => ['required', 'string'],
             'justificacion'       => ['required', 'string'],
@@ -97,6 +100,7 @@ class ProyectoController extends Controller
         ], [
             'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
             'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
+            'estudiante_id.exists'         => 'El estudiante seleccionado no es válido.',
             'titulo.required'              => 'El título del proyecto es requerido.',
             'objetivo.required'            => 'El objetivo es requerido.',
             'justificacion.required'       => 'La justificación es requerida.',
@@ -111,6 +115,7 @@ class ProyectoController extends Controller
 
         $proyecto = Proyecto::create([
             'unidad_receptora_id' => $request->input('unidad_receptora_id'),
+            'estudiante_id'       => $request->input('estudiante_id'),
             'titulo'              => $request->input('titulo'),
             'objetivo'            => $request->input('objetivo'),
             'justificacion'       => $request->input('justificacion'),
@@ -120,10 +125,10 @@ class ProyectoController extends Controller
             'tipo_modalidad'      => $request->input('tipo_modalidad'),
             'cupos_totales'       => $request->input('cupos_totales', 1),
             'publico_internet'    => $request->input('publico_internet', 'SI'),
-            'plan'                => 'E906', // Default plan
-            'ciclo_escolar'       => 'AGO-2026/ENE-2027', // Default cycle
-            'cupos_ocupados'      => 0, // Default filled spots
-            'activo'              => true, // Default active status
+            'plan'                => 'E906',
+            'ciclo_escolar'       => 'AGO-2026/ENE-2027',
+            'cupos_ocupados'      => $request->input('estudiante_id') ? 1 : 0,
+            'activo'              => true,
         ]);
 
         $urName = DB::table('unidades_receptoras')
@@ -148,6 +153,7 @@ class ProyectoController extends Controller
         try {
             $request->validate([
                 'unidad_receptora_id' => ['required', 'integer', 'exists:unidades_receptoras,id'],
+                'estudiante_id'       => ['nullable', 'integer', 'exists:estudiantes,id'],
                 'titulo'              => ['required', 'string', 'max:255'],
                 'objetivo'            => ['required', 'string'],
                 'justificacion'       => ['required', 'string'],
@@ -160,6 +166,7 @@ class ProyectoController extends Controller
             ], [
                 'unidad_receptora_id.required' => 'La unidad receptora es requerida.',
                 'unidad_receptora_id.exists'   => 'La unidad receptora seleccionada no es válida.',
+                'estudiante_id.exists'         => 'El estudiante seleccionado no es válido.',
                 'titulo.required'              => 'El título del proyecto es requerido.',
                 'objetivo.required'            => 'El objetivo es requerido.',
                 'justificacion.required'       => 'La justificación es requerida.',
@@ -180,6 +187,7 @@ class ProyectoController extends Controller
 
         $proyecto->update([
             'unidad_receptora_id' => $request->input('unidad_receptora_id'),
+            'estudiante_id'       => $request->input('estudiante_id'),
             'titulo'              => $request->input('titulo'),
             'objetivo'            => $request->input('objetivo'),
             'justificacion'       => $request->input('justificacion'),
@@ -188,6 +196,7 @@ class ProyectoController extends Controller
             'tipo_proyecto'       => $request->input('tipo_proyecto'),
             'tipo_modalidad'      => $request->input('tipo_modalidad'),
             'cupos_totales'       => $request->input('cupos_totales', $proyecto->cupos_totales),
+            'cupos_ocupados'      => $request->input('estudiante_id') ? 1 : 0,
             'publico_internet'    => $request->input('publico_internet', $proyecto->publico_internet ?? 'SI'),
         ]);
 
