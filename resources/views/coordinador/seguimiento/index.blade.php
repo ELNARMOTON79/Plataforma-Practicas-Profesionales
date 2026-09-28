@@ -41,174 +41,52 @@
     <!-- Success / Error Alerts -->
     @if(session('success'))
         <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center gap-3 font-semibold text-sm animate-fade-in">
-            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>
             {{ session('success') }}
         </div>
     @endif
 
-    <!-- Tabs Navigation -->
-    <div class="border-b border-gray-200 mb-6">
-        <nav class="-mb-px flex space-x-8" aria-label="Navegación de seguimiento">
-            <button onclick="switchTrackingTab('proceso')" id="tab-proceso" class="border-[#6BA53A] text-[#4E7D24] whitespace-nowrap py-4 px-2 border-b-4 font-extrabold text-sm transition-all flex items-center gap-2">
-                En Proceso
-                <span class="bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">
-                    {{ collect($data)->where('estatus', 'EN PROCESO')->count() }}
-                </span>
-            </button>
-            <button onclick="switchTrackingTab('concluido')" id="tab-concluido" class="border-transparent text-gray-500 hover:text-[#4E7D24] hover:border-gray-300 whitespace-nowrap py-4 px-2 border-b-4 font-bold text-sm transition-all flex items-center gap-2">
-                Concluidos / Acreditados
-                <span class="bg-green-100 text-green-800 py-0.5 px-2.5 rounded-full text-xs ml-1 shadow-sm font-bold">
-                    {{ collect($data)->where('estatus', 'ACREDITADO')->count() }}
-                </span>
-            </button>
-        </nav>
-    </div>
+    <!-- 1. Interactive Metrics Grid Partial -->
+    @include('coordinador.seguimiento.partials.metrics-cards')
 
-    <!-- Compact Search Input -->
-    <div class="flex justify-end mb-6 fade-in-up delay-100">
-        <div class="relative w-full max-w-xs">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <svg class="h-4 w-4 text-gray-400" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <!-- 2. Main Container Glass Card -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
+        <!-- Integrated Header & Search Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div id="section-icon" class="p-2.5 rounded-2xl bg-yellow-50 text-yellow-600 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 id="section-title" class="text-lg font-extrabold text-gray-800 leading-tight">Alumnos En Proceso de Prácticas</h2>
+                    <p id="section-subtitle" class="text-xs text-gray-400 font-medium">Supervisión de actividades y responsables asignados</p>
+                </div>
             </div>
-            <label for="search-tracking" class="sr-only">Buscar estudiante o proyecto</label>
-            <input type="text" id="search-tracking" aria-label="Buscar alumnos" class="block w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl bg-white/80 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-xs font-semibold transition-all shadow-sm" placeholder="Buscar alumno, proyecto o matrícula...">
-        </div>
-    </div>
 
-    <!-- TAB 1: EN PROCESO -->
-    <div id="content-proceso" class="block animate-fade-in">
-        <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
-            <div class="overflow-x-auto">
-                <table id="tabla-proceso" class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50/50">
-                        <tr>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante / Matrícula</th>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Proyecto / Institución</th>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Responsable del Proyecto</th>
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-transparent divide-y divide-gray-100">
-                        @foreach(collect($data)->where('estatus', 'EN PROCESO') as $student)
-                            @php
-                                $words = explode(' ', trim($student['nombre_completo']));
-                                $initials = strtoupper(substr($words[0] ?? 'A', 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
-                            @endphp
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group align-top">
-                                <!-- Estudiante -->
-                                <td class="px-4 py-4 whitespace-nowrap text-left">
-                                    <div class="flex items-center gap-3">
-                                        <div class="h-9 w-9 rounded-full bg-yellow-100 text-yellow-750 flex items-center justify-center font-bold text-xs select-none flex-shrink-0">
-                                            {{ $initials }}
-                                        </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">{{ $student['nombre_completo'] }}</div>
-                                            <div class="text-[10px] text-gray-400 font-semibold mt-1">Matrícula: {{ $student['matricula'] }}</div>
-                                            <div class="text-[9px] text-gray-400 font-semibold mt-0.5">Inicio: {{ $student['fecha_inicio'] }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <!-- Proyecto / Institución -->
-                                <td class="px-4 py-4 text-left max-w-[220px] whitespace-normal">
-                                    <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">{{ $student['titulo_proyecto'] }}</div>
-                                    <div class="text-[10px] text-gray-400 font-semibold mt-1 uppercase break-words">{{ $student['institucion'] }}</div>
-                                </td>
-                                <!-- Responsable (Read-only Display) -->
-                                <td class="px-4 py-4 text-left max-w-[240px]">
-                                    <div class="text-xs font-bold text-gray-800 uppercase leading-snug">{{ $student['responsable'] }}</div>
-                                    <div class="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">{{ $student['cargo'] }}</div>
-                                    <div class="text-[9px] text-[#4E7D24] font-bold mt-1.5 select-all break-all leading-tight">{{ $student['correo_destino'] }}</div>
-                                </td>
-                                <!-- Estado -->
-                                <td class="px-4 py-4 whitespace-nowrap text-center">
-                                    <span class="px-2.5 py-1 text-[9px] leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-750 border border-yellow-100 uppercase tracking-wider">
-                                        {{ $student['estatus'] }}
-                                    </span>
-                                </td>
-                                <!-- Acción -->
-                                <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex items-center justify-center px-5 py-2 bg-[#0085D1] hover:bg-[#0072B8] text-white rounded-full text-xs font-extrabold tracking-wider uppercase shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                                        Seguimiento
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <!-- Integrated Search Bar -->
+            <div class="relative w-full sm:w-80 md:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <label for="search-tracking" class="sr-only">Buscar estudiante o proyecto</label>
+                <input type="text" id="search-tracking" aria-label="Buscar alumnos" class="block w-full pl-10 pr-4 py-2 border border-gray-200/90 rounded-xl bg-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-xs font-semibold transition-all shadow-xs" placeholder="Buscar alumno, proyecto o matrícula...">
             </div>
         </div>
-    </div>
 
-    <!-- TAB 2: CONCLUIDOS -->
-    <div id="content-concluido" class="hidden animate-fade-in">
-        <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
-            <div class="overflow-x-auto">
-                <table id="tabla-concluidos" class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50/50">
-                        <tr>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante / Matrícula</th>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Proyecto / Institución</th>
-                            <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Responsable del Proyecto</th>
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-transparent divide-y divide-gray-100">
-                        @foreach(collect($data)->where('estatus', 'ACREDITADO') as $student)
-                            @php
-                                $wordsConc = explode(' ', trim($student['nombre_completo']));
-                                $initialsConc = strtoupper(substr($wordsConc[0] ?? 'A', 0, 1) . (isset($wordsConc[1]) ? substr($wordsConc[1], 0, 1) : ''));
-                            @endphp
-                            <tr class="hover:bg-[#6BA53A]/5 transition-colors group align-top">
-                                <!-- Estudiante -->
-                                <td class="px-4 py-4 whitespace-nowrap text-left">
-                                    <div class="flex items-center gap-3">
-                                        <div class="h-9 w-9 rounded-full bg-green-100 text-green-750 flex items-center justify-center font-bold text-xs select-none flex-shrink-0">
-                                            {{ $initialsConc }}
-                                        </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-gray-900 group-hover:text-[#4E7D24] transition-colors uppercase leading-tight">{{ $student['nombre_completo'] }}</div>
-                                            <div class="text-[10px] text-gray-400 font-semibold mt-1">Matrícula: {{ $student['matricula'] }}</div>
-                                            <div class="text-[9px] text-gray-400 font-semibold mt-0.5">Fin: {{ $student['fecha_termino'] }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <!-- Proyecto / Institución -->
-                                <td class="px-4 py-4 text-left max-w-[220px] whitespace-normal">
-                                    <div class="text-xs text-gray-800 font-bold uppercase leading-tight break-words">{{ $student['titulo_proyecto'] }}</div>
-                                    <div class="text-[10px] text-gray-400 font-semibold mt-1 uppercase break-words">{{ $student['institucion'] }}</div>
-                                </td>
-                                <!-- Responsable (Read-only Display) -->
-                                <td class="px-4 py-4 text-left max-w-[240px]">
-                                    <div class="text-xs font-bold text-gray-800 uppercase leading-snug">{{ $student['responsable'] }}</div>
-                                    <div class="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">{{ $student['cargo'] }}</div>
-                                    <div class="text-[9px] text-[#4E7D24] font-bold mt-1.5 select-all break-all leading-tight">{{ $student['correo_destino'] }}</div>
-                                </td>
-                                <!-- Estado -->
-                                <td class="px-4 py-4 whitespace-nowrap text-center">
-                                    <span class="px-2.5 py-1 text-[9px] leading-5 font-bold rounded-lg bg-green-50 text-green-755 border border-green-100 uppercase tracking-wider">
-                                        {{ $student['estatus'] }}
-                                    </span>
-                                </td>
-                                <!-- Acción -->
-                                <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <a href="{{ route('coordinador.seguimiento.show', $student['id']) }}" class="inline-flex items-center justify-center px-5 py-2 bg-[#0085D1] hover:bg-[#0072B8] text-white rounded-full text-xs font-extrabold tracking-wider uppercase shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                                        Seguimiento
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- 3. Tables Partials -->
+        @include('coordinador.seguimiento.partials.tabla-proceso')
+        @include('coordinador.seguimiento.partials.tabla-concluidos')
+        @include('coordinador.seguimiento.partials.tabla-todos')
     </div>
 
     <!-- Scripts: Tab Switcher + DataTables -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script>
+        let tableProceso = null;
+        let tableConcluido = null;
+        let tableTodos = null;
+
         $(document).ready(function() {
             const dtConfig = {
                 searching: true,
@@ -217,17 +95,69 @@
                 ordering: true,
                 info: false,
                 dom: 'rtp',
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' }
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                    zeroRecords: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <h3 class="text-sm font-bold text-gray-700">Sin coincidencias</h3>
+                            <p class="text-xs text-gray-400 mt-1">Intenta ajustando el término de búsqueda.</p>
+                        </div>
+                    `
+                }
             };
 
-            let tableProceso = $('#tabla-proceso').DataTable({
+            tableProceso = $('#tabla-proceso').DataTable({
                 ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 4] }]
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mb-3 shadow-inner border border-yellow-100">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>
+                            </div>
+                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos en proceso</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes con prácticas profesionales activas actualmente.</p>
+                        </div>
+                    `
+                }
             });
 
-            let tableConcluido = $('#tabla-concluidos').DataTable({
+            tableConcluido = $('#tabla-concluidos').DataTable({
                 ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 4] }]
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3 shadow-inner border border-green-100">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>
+                            </div>
+                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos concluidos</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes que hayan acreditado o finalizado sus prácticas aún.</p>
+                        </div>
+                    `
+                }
+            });
+
+            tableTodos = $('#tabla-todos').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                            <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No se encontraron estudiantes en el sistema.</p>
+                        </div>
+                    `
+                }
             });
 
             // Read search parameter from URL if provided
@@ -237,6 +167,7 @@
                 $('#search-tracking').val(searchParam);
                 tableProceso.search(searchParam).draw();
                 tableConcluido.search(searchParam).draw();
+                tableTodos.search(searchParam).draw();
 
                 if (tableProceso.rows({ search: 'applied' }).count() === 0 && tableConcluido.rows({ search: 'applied' }).count() > 0) {
                     switchTrackingTab('concluido');
@@ -245,39 +176,70 @@
 
             // Bind unified search bar
             $('#search-tracking').on('keyup input', function() {
-                tableProceso.search(this.value).draw();
-                tableConcluido.search(this.value).draw();
+                const val = this.value;
+                tableProceso.search(val).draw();
+                tableConcluido.search(val).draw();
+                tableTodos.search(val).draw();
             });
         });
 
-        // ── Tab Switcher ─────────────────────────────────────────────
+        // ── Tab Switcher estilo Trámites ─────────────────────────────
         function switchTrackingTab(tab) {
             const contentProceso = document.getElementById('content-proceso');
             const contentConcluido = document.getElementById('content-concluido');
-            const tabProceso = document.getElementById('tab-proceso');
-            const tabConcluido = document.getElementById('tab-concluido');
+            const contentTodos = document.getElementById('content-todos');
+
+            const mProceso = document.getElementById('metric-proceso');
+            const mConcluido = document.getElementById('metric-concluido');
+            const mTodos = document.getElementById('metric-todos');
+
+            const sectionIcon = document.getElementById('section-icon');
+            const sectionTitle = document.getElementById('section-title');
+            const sectionSubtitle = document.getElementById('section-subtitle');
 
             contentProceso.classList.add('hidden');
-            contentProceso.classList.remove('block');
             contentConcluido.classList.add('hidden');
-            contentConcluido.classList.remove('block');
+            contentTodos.classList.add('hidden');
 
-            tabProceso.classList.remove('border-[#6BA53A]', 'text-[#4E7D24]', 'font-extrabold');
-            tabProceso.classList.add('border-transparent', 'text-gray-500', 'font-bold');
+            const resetMetricCard = (el, titleColor) => {
+                el.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-gray-300";
+                const spanTitle = el.querySelector('span');
+                if (spanTitle) {
+                    spanTitle.className = "text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:" + titleColor + " transition-colors";
+                }
+            };
 
-            tabConcluido.classList.remove('border-[#6BA53A]', 'text-[#4E7D24]', 'font-extrabold');
-            tabConcluido.classList.add('border-transparent', 'text-gray-500', 'font-bold');
+            resetMetricCard(mProceso, "text-[#4E7D24]");
+            resetMetricCard(mConcluido, "text-green-700");
+            resetMetricCard(mTodos, "text-[#4E7D24]");
 
-            if (tab === 'proceso') {
-                contentProceso.classList.remove('hidden');
-                contentProceso.classList.add('block');
-                tabProceso.classList.add('border-[#6BA53A]', 'text-[#4E7D24]', 'font-extrabold');
-                tabProceso.classList.remove('border-transparent', 'text-gray-500', 'font-bold');
-            } else {
+            if (tab === 'concluido') {
                 contentConcluido.classList.remove('hidden');
-                contentConcluido.classList.add('block');
-                tabConcluido.classList.add('border-[#6BA53A]', 'text-[#4E7D24]', 'font-extrabold');
-                tabConcluido.classList.remove('border-transparent', 'text-gray-500', 'font-bold');
+                mConcluido.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-green-500 bg-white ring-4 ring-green-500/10 shadow-md transition-all duration-300 cursor-pointer";
+                mConcluido.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-green-700";
+
+                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-green-600 transition-all";
+                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>`;
+                sectionTitle.textContent = "Alumnos Concluidos / Acreditados";
+                sectionSubtitle.textContent = "Historial completo de estudiantes que finalizaron exitosamente su proceso de prácticas";
+            } else if (tab === 'todos') {
+                contentTodos.classList.remove('hidden');
+                mTodos.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
+                mTodos.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+
+                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
+                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+                sectionTitle.textContent = "Todos los Alumnos en Seguimiento";
+                sectionSubtitle.textContent = "Registro general de estudiantes en prácticas (En Proceso y Acreditados)";
+            } else {
+                contentProceso.classList.remove('hidden');
+                mProceso.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
+                mProceso.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+
+                sectionIcon.className = "p-2.5 rounded-2xl bg-yellow-50 text-yellow-600 transition-all";
+                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>`;
+                sectionTitle.textContent = "Alumnos En Proceso de Prácticas";
+                sectionSubtitle.textContent = "Supervisión de actividades y responsables asignados";
             }
         }
     </script>

@@ -37,6 +37,7 @@ class TramiteController extends Controller
             });
         }
 
+        $solicitudesPendientes = (clone $solicitudesQuery)->where('estatus', 'pendiente')->get();
         $solicitudes = $solicitudesQuery->get();
 
         // Documentos Query
@@ -68,6 +69,7 @@ class TramiteController extends Controller
         $totalTramitesCount         = Solicitud::count() + Documento::count();
 
         return view('coordinador.tramites', compact(
+            'solicitudesPendientes',
             'solicitudes',
             'documentosPendientes',
             'documentosValidados',

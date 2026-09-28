@@ -144,7 +144,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        @foreach($solicitudes as $solicitud)
+                        @foreach($solicitudesPendientes as $solicitud)
                             <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
                                 <!-- Estudiante -->
                                 <td class="px-6 py-3 whitespace-nowrap text-left">
@@ -172,7 +172,7 @@
                                     </div>
                                 </td>
                                 <!-- Estado -->
-                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                <td class="px-6 py-3 whitespace-nowrap text-center" data-search="{{ strtolower($solicitud->estatus) }}">
                                     @if($solicitud->estatus == 'pendiente')
                                         <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-200 uppercase">
                                             Pendiente
@@ -424,7 +424,7 @@
             });
 
 
-            tablaSolicitudes.column(2).search('PENDIENTE').draw();
+            tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
 
             // Documentos Pendientes
             tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
@@ -529,7 +529,7 @@
                 sectionSubtitle.textContent = "Revisión y autorización de inicio de prácticas profesionales pendientes";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('PENDIENTE').draw();
+                    tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
                 }
             }
         }
