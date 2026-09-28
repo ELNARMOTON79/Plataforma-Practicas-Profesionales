@@ -315,7 +315,8 @@
                     <thead class="bg-gray-50/50">
                         <tr>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl">Estudiante / Documento</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Archivo</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Archivo / Fecha</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Notas de Retroalimentación</th>
                             <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
                             <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tr-xl">Acciones</th>
                         </tr>
@@ -345,6 +346,12 @@
                                             {{ basename($docValid->ruta_archivo) }}
                                         </a>
                                     </div>
+                                    <div class="text-[10px] text-gray-400 font-semibold mt-0.5">
+                                        Cargado: {{ $docValid->fecha_carga ? \Carbon\Carbon::parse($docValid->fecha_carga)->format('d/m/Y') : 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-3 whitespace-normal text-left max-w-[220px]">
+                                    <span class="text-xs text-gray-600 font-medium italic">{{ $docValid->observaciones ?? 'Sin observaciones' }}</span>
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-center">
                                     <span class="px-2.5 py-1 inline-flex items-center text-[10px] leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
@@ -428,7 +435,7 @@
             // Documentos Validados
             tablaDocsValidados = $('#documentos-validados-table').DataTable({
                 ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 3] }]
+                columnDefs: [{ orderable: false, targets: [3, 4] }]
             });
 
 
