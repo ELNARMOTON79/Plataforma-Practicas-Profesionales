@@ -274,9 +274,9 @@
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-center">
                                     <div class="flex justify-center gap-1.5">
-                                        <a href="{{ asset('storage/' . $doc->ruta_archivo) }}" target="_blank" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento">
+                                        <button type="button" onclick="openPreviewModal('{{ asset('storage/' . $doc->ruta_archivo) }}', '{{ e($doc->nombre_doc) }}', '{{ e($doc->solicitud->estudiante->nombre_completo ?? '') }}')" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all shadow-sm cursor-pointer" title="Previsualizar documento">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                                 <td class="px-6 py-3 whitespace-normal text-left min-w-[200px]">
@@ -353,9 +353,9 @@
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-center">
                                     <div class="flex justify-center gap-1.5">
-                                        <a href="{{ asset('storage/' . $docValid->ruta_archivo) }}" target="_blank" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-155 rounded-xl transition-all shadow-sm" title="Ver documento">
+                                        <button type="button" onclick="openPreviewModal('{{ asset('storage/' . $docValid->ruta_archivo) }}', '{{ e($docValid->nombre_doc) }}', '{{ e($docValid->solicitud->estudiante->nombre_completo ?? '') }}')" class="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all shadow-sm cursor-pointer" title="Previsualizar documento">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -527,4 +527,6 @@
             }
         }
     </script>
+
+    @include('coordinador.tramites.preview-modal')
 @endsection

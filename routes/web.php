@@ -68,6 +68,8 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
     Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
     Route::patch('/coordinador/tramites/solicitud/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarSolicitud'])->name('coordinador.tramites.solicitud.rechazar');
+    Route::patch('/coordinador/tramites/documento/{id}/validar', [App\Http\Controllers\Coordinador\TramiteController::class, 'validarDocumento'])->name('coordinador.tramites.documento.validar');
+    Route::patch('/coordinador/tramites/documento/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarDocumento'])->name('coordinador.tramites.documento.rechazar');
 
     Route::get('/coordinador/seguimiento', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'index'])->name('coordinador.seguimiento');
     Route::get('/coordinador/seguimiento/{id}', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'show'])->name('coordinador.seguimiento.show');

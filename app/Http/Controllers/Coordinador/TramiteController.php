@@ -124,4 +124,46 @@ class TramiteController extends Controller
 
         return redirect()->back()->with('success', 'Solicitud rechazada correctamente.');
     }
+
+    /**
+     * Validate/Approve a student's document.
+     */
+    public function validarDocumento(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $documento = Documento::findOrFail($id);
+        $documento->estatus = 'validado';
+
+        if ($request->filled('observaciones')) {
+            $documento->observaciones = $request->input('observaciones');
+        }
+
+        $documento->save();
+
+        return redirect()->back()->with('success', 'Documento validado correctamente.');
+    }
+
+    /**
+     * Reject a student's document.
+     */
+    public function rechazarDocumento(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $documento = Documento::findOrFail($id);
+        $documento->estatus = 'rechazado';
+
+        if ($request->filled('observaciones')) {
+            $documento->observaciones = $request->input('observaciones');
+        }
+
+        $documento->save();
+
+        return redirect()->back()->with('success', 'Documento rechazado.');
+    }
 }
