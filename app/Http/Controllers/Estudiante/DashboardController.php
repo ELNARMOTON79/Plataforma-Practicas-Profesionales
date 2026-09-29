@@ -295,6 +295,8 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
+        Carbon::setLocale('es');
+
         $user       = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
@@ -338,6 +340,8 @@ class DashboardController extends Controller
         if (Auth::user()?->rol_id != 3) {
             return redirect('/');
         }
+
+        Carbon::setLocale('es');
 
         $user       = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
@@ -389,6 +393,8 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
+        Carbon::setLocale('es');
+
         $user       = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
 
@@ -411,7 +417,7 @@ class DashboardController extends Controller
         $pdf = Pdf::loadView('estudiante.pdf.memoria_practicas', [
             'nombreEstudiante' => $estudiante->nombre_completo,
             'matricula'        => $estudiante->matricula,
-            'facultad'         => '',
+            'facultad'         => 'Facultad de Ingeniería Electromecánica',
             'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
             'asesorEmpresa'    => $solicitudActiva->responsable,
             'lugar'            => $ur?->municipio ?: 'Colima, Col.',
@@ -428,6 +434,8 @@ class DashboardController extends Controller
         if (Auth::user()?->rol_id != 3) {
             return redirect('/');
         }
+
+        Carbon::setLocale('es');
 
         $user       = Auth::user();
         $estudiante = Estudiante::where('usuario_id', $user->id)->first();
