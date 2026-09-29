@@ -187,7 +187,11 @@
                 <div class="firma-nombre">&nbsp;</div>
                 <div class="firma-rol">{{ $facultad ?: 'Facultad' }}<br>Coordinador(a) de Prácticas Profesionales</div>
             </td>
-            <td></td>
+            <td>
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">{{ $director ?: '—' }}</div>
+                <div class="firma-rol">{{ $facultad ?: 'Facultad' }}<br>Director</div>
+            </td>
         </tr>
     </table>
 

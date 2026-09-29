@@ -418,6 +418,7 @@ class DashboardController extends Controller
             'nombreEstudiante' => $estudiante->nombre_completo,
             'matricula'        => $estudiante->matricula,
             'facultad'         => 'Facultad de Ingeniería Electromecánica',
+            'director'         => 'M. en I. Eduardo Hernández Barón',
             'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
             'asesorEmpresa'    => $solicitudActiva->responsable,
             'lugar'            => $ur?->municipio ?: 'Colima, Col.',
