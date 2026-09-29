@@ -247,20 +247,17 @@
     </script>
 
     <script>
-        // Modal: Unidades Receptoras
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.open-ur-modal').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const empresa = this.dataset.empresa;
-                    let unidades = [];
-                    try {
-                        unidades = JSON.parse(this.dataset.unidades);
-                    } catch (e) {
-                        console.error('Error parseando Unidades Receptoras:', e);
-                    }
-                    openUnidadesModal(empresa, unidades);
-                });
-            });
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.open-ur-modal');
+            if (!btn) return;
+            const empresa = btn.dataset.empresa;
+            let unidades = [];
+            try {
+                unidades = JSON.parse(btn.dataset.unidades);
+            } catch (err) {
+                console.error('Error parseando Unidades Receptoras:', err);
+            }
+            openUnidadesModal(empresa, unidades);
         });
 
         window.currentUnidadesList = [];

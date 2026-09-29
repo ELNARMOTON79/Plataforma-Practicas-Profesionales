@@ -125,59 +125,52 @@
         document.getElementById('modal-agregar-ur').classList.add('hidden');
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const formUR = document.getElementById('form-agregar-ur');
+    // Usamos delegación en document para que funcione con HTMX Boost
+    document.addEventListener('submit', function (e) {
+        const formUR = e.target.closest('#form-agregar-ur');
         if (!formUR) return;
 
-        let isSubmittingUR = false;
+        e.preventDefault();
 
-        formUR.addEventListener('submit', function(e) {
-            if (isSubmittingUR) return;
+        if (!formUR.checkValidity()) {
+            formUR.reportValidity();
+            return;
+        }
 
-            e.preventDefault();
+        const nombreEmpresa = document.getElementById('add-ur-empresa-hidden').value;
+        const urNombre = document.getElementById('add-ur-nombre').value.trim() || 'General';
+        const titularName = document.getElementById('add-ur-titular').value.trim();
 
-            if (!formUR.checkValidity()) {
-                formUR.reportValidity();
-                return;
-            }
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
 
-            const nombreEmpresa = document.getElementById('add-ur-empresa-hidden').value;
-            const urNombre = document.getElementById('add-ur-nombre').value.trim() || 'General';
-            const titularName = document.getElementById('add-ur-titular').value.trim();
-
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: '¿Agregar Unidad Receptora?',
-                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de agregar la Unidad Receptora <strong>${urNombre}</strong> a <strong>${nombreEmpresa}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Titular asignado: <strong>${titularName}</strong>.</p>`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4E7D24',
-                    cancelButtonColor: '#9CA3AF',
-                    confirmButtonText: 'Sí, agregar UR',
-                    cancelButtonText: 'Revisar datos',
-                    focusConfirm: false,
-                    focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        isSubmittingUR = true;
-                        formUR.submit();
-                    }
-                });
-            } else {
-                if (confirm(`¿Estás seguro de agregar la Unidad Receptora ${urNombre} a ${nombreEmpresa}?`)) {
-                    isSubmittingUR = true;
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Agregar Unidad Receptora?',
+                html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de agregar la Unidad Receptora <strong>${urNombre}</strong> a <strong>${nombreEmpresa}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Titular asignado: <strong>${titularName}</strong>.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4E7D24',
+                cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, agregar UR',
+                cancelButtonText: 'Revisar datos',
+                focusConfirm: false,
+                focusCancel: false,
+                customClass: {
+                    popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                    cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
                     formUR.submit();
                 }
+            });
+        } else {
+            if (confirm(`¿Estás seguro de agregar la Unidad Receptora ${urNombre} a ${nombreEmpresa}?`)) {
+                formUR.submit();
             }
-        });
+        }
     });
 </script>
