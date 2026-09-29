@@ -243,25 +243,53 @@
     </div>
 
     <script>
-        // Dictionary with student details for editing modal
-        const alumnoDetails = {
-            @foreach($alumnos as $alumno)
-                "{{ $alumno->id }}": {
-                    id: "{{ $alumno->id }}",
-                    nombre: "{{ addslashes($alumno->nombre_completo) }}",
-                    correo: "{{ addslashes($alumno->user->correo ?? '') }}",
-                    matricula: "{{ addslashes($alumno->matricula) }}",
-                    carrera: "{{ addslashes($alumno->carrera) }}",
-                    semestre: "{{ $alumno->semestre }}",
-                    grupo: "{{ addslashes($alumno->grupo) }}",
-                    asesor: "{{ addslashes($alumno->asesor ?? '') }}",
-                    coasesor: "{{ addslashes($alumno->coasesor ?? '') }}"
-                },
-            @endforeach
-        };
+        // HTMX Boost sustituye el contenido de la página via AJAX, por lo que
+        // los scripts embebidos en la sección swapeada no se re-ejecutan en navegaciones
+        // posteriores. Usamos htmx:afterSettle (o DOMContentLoaded en la primera carga)
+        // para asegurarnos de que alumnoDetails siempre esté disponible.
+        function initAlumnosPage() {
+            window.alumnoDetails = {
+                @foreach($alumnos as $alumno)
+                    "{{ $alumno->id }}": {
+                        id: "{{ $alumno->id }}",
+                        nombre: "{{ addslashes($alumno->nombre_completo) }}",
+                        correo: "{{ addslashes($alumno->user->correo ?? '') }}",
+                        matricula: "{{ addslashes($alumno->matricula) }}",
+                        carrera: "{{ addslashes($alumno->carrera) }}",
+                        semestre: "{{ $alumno->semestre }}",
+                        grupo: "{{ addslashes($alumno->grupo) }}",
+                        asesor: "{{ addslashes($alumno->asesor ?? '') }}",
+                        coasesor: "{{ addslashes($alumno->coasesor ?? '') }}"
+                    },
+                @endforeach
+            };
+
+            // Auto-ocultar alerta de éxito a los 5 segundos
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() { successAlert.remove(); }, 500);
+                }, 5000);
+            }
+
+            // Auto-ocultar alerta de error a los 5 segundos
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function() { errorAlert.remove(); }, 500);
+                }, 5000);
+            }
+        }
+
+        // Primera carga (sin HTMX)
+        document.addEventListener('DOMContentLoaded', initAlumnosPage);
+        // Navegaciones posteriores vía HTMX Boost
+        document.addEventListener('htmx:afterSettle', initAlumnosPage);
 
         function abrirEditarAlumno(id) {
-            const alumno = alumnoDetails[id];
+            const alumno = (window.alumnoDetails || {})[id];
             if (!alumno) return;
 
             // Populate form fields
@@ -280,44 +308,15 @@
             form.action = `/coordinador/alumnos/${id}`;
 
             // Remove any old validation/error styles
-            const serverErrors = form.querySelectorAll('.server-error');
-            serverErrors.forEach(err => err.remove());
-            
-            const inputs = form.querySelectorAll('input, select');
-            inputs.forEach(input => {
+            form.querySelectorAll('.server-error').forEach(err => err.remove());
+            form.querySelectorAll('input, select').forEach(input => {
                 input.classList.remove('input-invalid', 'input-valid', 'border-red-400', 'bg-red-50');
             });
-            
-            const errorParagraphs = form.querySelectorAll('p[id^="error-edit-alumno-"]');
-            errorParagraphs.forEach(p => p.classList.add('hidden'));
+            form.querySelectorAll('p[id^="error-edit-alumno-"]').forEach(p => p.classList.add('hidden'));
 
             // Show edit modal
             document.getElementById('modal-editar-alumno').classList.remove('hidden');
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-ocultar alerta de éxito a los 5 segundos
-            const successAlert = document.getElementById('successAlert');
-            if (successAlert) {
-                setTimeout(function() {
-                    successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function() {
-                        successAlert.remove();
-                    }, 500);
-                }, 5000);
-            }
-
-            // Auto-ocultar alerta de error a los 5 segundos
-            const errorAlert = document.getElementById('errorAlert');
-            if (errorAlert) {
-                setTimeout(function() {
-                    errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function() {
-                        errorAlert.remove();
-                    }, 500);
-                }, 5000);
-            }
-        });
     </script>
 @endsection
 

@@ -178,281 +178,112 @@
 {{-- Auto-open modal si hay errores de validación --}}
 @if($errors->any() && !old('id'))
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function openRegistrarAlumnoOnError() {
         document.getElementById('modal-registrar-alumno').classList.remove('hidden');
-    });
+    }
+    document.addEventListener('DOMContentLoaded', openRegistrarAlumnoOnError);
+    document.addEventListener('htmx:afterSettle', openRegistrarAlumnoOnError);
 </script>
 @endif
 
 {{-- Cerrar modal con tecla Escape y Validaciones del Cliente --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Escape key listener to close modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('modal-registrar-alumno');
-                if (modal) modal.classList.add('hidden');
-            }
-        });
+    // Escape — delegado para funcionar con HTMX Boost
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('modal-registrar-alumno');
+            if (modal) modal.classList.add('hidden');
+        }
+    });
 
-        const form = document.getElementById('form-registrar-alumno');
+    // Filtro de teclado — delegado en document
+    document.addEventListener('keypress', function(e) {
+        const target = e.target;
+        if (!target || !target.classList) return;
+        let regex = null;
+        if (target.classList.contains('restrict-letters')) regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+        else if (target.classList.contains('restrict-numbers')) regex = /^[0-9]$/;
+        else if (target.classList.contains('restrict-letters-only')) regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
+        else if (target.classList.contains('restrict-email')) regex = /^[a-zA-Z0-9@._+-]$/;
+        if (regex && !['Backspace','Enter','Tab','Delete','ArrowLeft','ArrowRight'].includes(e.key) && !regex.test(e.key)) {
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        const target = e.target;
+        if (!target || !target.classList) return;
+        let regex = null;
+        if (target.classList.contains('restrict-letters')) regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
+        else if (target.classList.contains('restrict-numbers')) regex = /^[0-9]$/;
+        else if (target.classList.contains('restrict-letters-only')) regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
+        else if (target.classList.contains('restrict-email')) regex = /^[a-zA-Z0-9@._+-]$/;
+        if (regex) {
+            let newValue = '';
+            for (let char of target.value) { if (regex.test(char)) newValue += char; }
+            if (target.value !== newValue) target.value = newValue;
+        }
+        if (target.id === 'alumno-grupo') target.value = target.value.toUpperCase();
+    });
+
+    // Submit con confirmación — delegado en document
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('#form-registrar-alumno');
         if (!form) return;
 
-        const fields = {
-            nombre: {
-                el: document.getElementById('alumno-nombre'),
-                error: document.getElementById('error-alumno-nombre'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El nombre completo es requerido.';
-                    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(val)) return 'El nombre solo debe contener letras y espacios.';
-                    if (val.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.';
-                    return '';
-                }
-            },
-            correo: {
-                el: document.getElementById('alumno-correo'),
-                error: document.getElementById('error-alumno-correo'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El correo electrónico es requerido.';
-                    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val)) return 'El formato del correo es inválido.';
-                    return '';
-                }
-            },
-            matricula: {
-                el: document.getElementById('alumno-matricula'),
-                error: document.getElementById('error-alumno-matricula'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El No. de cuenta es requerido.';
-                    if (!/^[0-9]+$/.test(val)) return 'El No. de cuenta solo debe contener números.';
-                    if (val.length < 5 || val.length > 20) return 'El No. de cuenta debe tener entre 5 y 20 dígitos.';
-                    return '';
-                }
-            },
-            carrera: {
-                el: document.getElementById('alumno-carrera'),
-                error: document.getElementById('error-alumno-carrera'),
-                validate: (val) => {
-                    if (!val) return 'La carrera es requerida.';
-                    return '';
-                }
-            },
-            semestre: {
-                el: document.getElementById('alumno-semestre'),
-                error: document.getElementById('error-alumno-semestre'),
-                validate: (val) => {
-                    if (!val) return 'Debes seleccionar un semestre.';
-                    const sem = parseInt(val);
-                    if (isNaN(sem) || sem < 1 || sem > 12) return 'El semestre debe ser entre 1 y 12.';
-                    return '';
-                }
-            },
-            grupo: {
-                el: document.getElementById('alumno-grupo'),
-                error: document.getElementById('error-alumno-grupo'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El grupo es requerido.';
-                    if (!/^[a-zA-Z]$/.test(val)) return 'El grupo debe ser exactamente una letra.';
-                    return '';
-                }
-            },
-            asesor: {
-                el: document.getElementById('alumno-asesor'),
-                error: document.getElementById('error-alumno-asesor'),
-                validate: (val) => {
-                    if (val.trim() && val.trim().length < 5) return 'El nombre del asesor debe tener al menos 5 caracteres.';
-                    return '';
-                }
-            },
-            coasesor: {
-                el: document.getElementById('alumno-coasesor'),
-                error: document.getElementById('error-alumno-coasesor'),
-                validate: (val) => {
-                    if (val.trim() && val.trim().length < 5) return 'El nombre del coasesor debe tener al menos 5 caracteres.';
-                    return '';
-                }
-            }
-        };
+        e.preventDefault();
 
-        // Real-time key filtering
-        form.addEventListener('keypress', function(e) {
-            const target = e.target;
-            if (!target || !target.classList) return;
-            
-            let regex = null;
-            if (target.classList.contains('restrict-letters')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-            } else if (target.classList.contains('restrict-numbers')) {
-                regex = /^[0-9]$/;
-            } else if (target.classList.contains('restrict-letters-only')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
-            } else if (target.classList.contains('restrict-email')) {
-                regex = /^[a-zA-Z0-9@._+-]$/;
-            }
-            
-            if (regex) {
-                if (e.key === 'Backspace' || e.key === 'Enter' || e.key === 'Tab' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                    return;
-                }
-                if (!regex.test(e.key)) {
-                    e.preventDefault();
-                }
-            }
+        const getFields = () => ({
+            nombre:   { el: document.getElementById('alumno-nombre'),    error: document.getElementById('error-alumno-nombre'),    validate: (v) => { if (!v.trim()) return 'El nombre completo es requerido.'; if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(v)) return 'El nombre solo debe contener letras y espacios.'; if (v.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.'; return ''; } },
+            correo:   { el: document.getElementById('alumno-correo'),    error: document.getElementById('error-alumno-correo'),    validate: (v) => { if (!v.trim()) return 'El correo electrónico es requerido.'; if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return 'El formato del correo es inválido.'; return ''; } },
+            matricula:{ el: document.getElementById('alumno-matricula'), error: document.getElementById('error-alumno-matricula'), validate: (v) => { if (!v.trim()) return 'El No. de cuenta es requerido.'; if (!/^[0-9]+$/.test(v)) return 'El No. de cuenta solo debe contener números.'; if (v.length < 5 || v.length > 20) return 'El No. de cuenta debe tener entre 5 y 20 dígitos.'; return ''; } },
+            carrera:  { el: document.getElementById('alumno-carrera'),   error: document.getElementById('error-alumno-carrera'),   validate: (v) => { if (!v) return 'La carrera es requerida.'; return ''; } },
+            semestre: { el: document.getElementById('alumno-semestre'),  error: document.getElementById('error-alumno-semestre'),  validate: (v) => { if (!v) return 'Debes seleccionar un semestre.'; const s = parseInt(v); if (isNaN(s) || s < 1 || s > 12) return 'El semestre debe ser entre 1 y 12.'; return ''; } },
+            grupo:    { el: document.getElementById('alumno-grupo'),     error: document.getElementById('error-alumno-grupo'),     validate: (v) => { if (!v.trim()) return 'El grupo es requerido.'; if (!/^[a-zA-Z]$/.test(v)) return 'El grupo debe ser exactamente una letra.'; return ''; } },
+            asesor:   { el: document.getElementById('alumno-asesor'),    error: document.getElementById('error-alumno-asesor'),    validate: (v) => { if (v.trim() && v.trim().length < 5) return 'El nombre del asesor debe tener al menos 5 caracteres.'; return ''; } },
+            coasesor: { el: document.getElementById('alumno-coasesor'),  error: document.getElementById('error-alumno-coasesor'),  validate: (v) => { if (v.trim() && v.trim().length < 5) return 'El nombre del coasesor debe tener al menos 5 caracteres.'; return ''; } }
         });
 
-        form.addEventListener('input', function(e) {
-            const target = e.target;
-            if (!target || !target.classList) return;
-            
-            let regex = null;
-            if (target.classList.contains('restrict-letters')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-            } else if (target.classList.contains('restrict-numbers')) {
-                regex = /^[0-9]$/;
-            } else if (target.classList.contains('restrict-letters-only')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
-            } else if (target.classList.contains('restrict-email')) {
-                regex = /^[a-zA-Z0-9@._+-]$/;
-            }
-            
-            if (regex) {
-                let newValue = '';
-                for (let char of target.value) {
-                    if (regex.test(char)) {
-                        newValue += char;
-                    }
-                }
-                if (target.value !== newValue) {
-                    target.value = newValue;
-                }
-            }
-            
-            if (target.id === 'alumno-grupo') {
-                target.value = target.value.toUpperCase();
-            }
-        });
+        const fields = getFields();
+        let isFormValid = true;
+        let firstInvalidInput = null;
 
-        // Real-time field validation listeners
         Object.keys(fields).forEach(key => {
             const field = fields[key];
             const input = field.el;
             if (!input) return;
-
-            const handleValidate = () => {
-                const parent = input.parentElement;
-                const serverErr = parent ? parent.querySelector('.server-error') : null;
-                if (serverErr) serverErr.remove();
-                input.classList.remove('border-red-400', 'bg-red-50');
-
-                const errMessage = field.validate(input.value);
-                if (errMessage) {
-                    if (field.error) {
-                        field.error.textContent = errMessage;
-                        field.error.classList.remove('hidden');
-                    }
-                    input.classList.remove('input-valid');
-                    input.classList.add('input-invalid');
-                    return false;
-                } else {
-                    if (field.error) {
-                        field.error.textContent = '';
-                        field.error.classList.add('hidden');
-                    }
-                    input.classList.remove('input-invalid');
-                    if (input.value.trim() !== '') {
-                        input.classList.add('input-valid');
-                    }
-                    return true;
-                }
-            };
-
-            input.addEventListener('input', handleValidate);
-            input.addEventListener('blur', handleValidate);
-            input.addEventListener('change', handleValidate);
-        });
-
-        let isSubmittingConfirmed = false;
-
-        // Submit handler with SweetAlert2 confirmation
-        form.addEventListener('submit', function(e) {
-            if (isSubmittingConfirmed) {
-                return;
-            }
-
-            e.preventDefault();
-
-            let firstInvalidInput = null;
-            let isFormValid = true;
-
-            Object.keys(fields).forEach(key => {
-                const field = fields[key];
-                const input = field.el;
-                if (!input) return;
-
-                const errMessage = field.validate(input.value);
-
-                if (errMessage) {
-                    isFormValid = false;
-                    if (field.error) {
-                        field.error.textContent = errMessage;
-                        field.error.classList.remove('hidden');
-                    }
-                    input.classList.remove('input-valid');
-                    input.classList.add('input-invalid');
-
-                    input.classList.remove('field-shake');
-                    void input.offsetWidth; 
-                    input.classList.add('field-shake');
-
-                    if (!firstInvalidInput) {
-                        firstInvalidInput = input;
-                    }
-                }
-            });
-
-            if (!isFormValid) {
-                if (firstInvalidInput) {
-                    firstInvalidInput.focus();
-                    firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return;
-            }
-
-            const nombreAlumno = fields.nombre.el ? fields.nombre.el.value.trim() : '';
-            const correoAlumno = fields.correo.el ? fields.correo.el.value.trim() : '';
-
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: '¿Confirmar Registro?',
-                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta al estudiante <strong>${nombreAlumno}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán sus accesos y se enviarán automáticamente al correo <strong>${correoAlumno}</strong>.</p>`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4E7D24',
-                    cancelButtonColor: '#9CA3AF',
-                    confirmButtonText: 'Sí, registrar alumno',
-                    cancelButtonText: 'Revisar datos',
-                    focusConfirm: false,
-                    focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        isSubmittingConfirmed = true;
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) {
-                    isSubmittingConfirmed = true;
-                    form.submit();
-                }
+            const errMessage = field.validate(input.value);
+            if (errMessage) {
+                isFormValid = false;
+                if (field.error) { field.error.textContent = errMessage; field.error.classList.remove('hidden'); }
+                input.classList.remove('input-valid');
+                input.classList.add('input-invalid');
+                input.classList.remove('field-shake'); void input.offsetWidth; input.classList.add('field-shake');
+                if (!firstInvalidInput) firstInvalidInput = input;
             }
         });
+
+        if (!isFormValid) {
+            if (firstInvalidInput) { firstInvalidInput.focus(); firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            return;
+        }
+
+        const nombreAlumno = fields.nombre.el ? fields.nombre.el.value.trim() : '';
+        const correoAlumno = fields.correo.el ? fields.correo.el.value.trim() : '';
+        if (document.activeElement) document.activeElement.blur();
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Confirmar Registro?',
+                html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta al estudiante <strong>${nombreAlumno}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán sus accesos y se enviarán automáticamente al correo <strong>${correoAlumno}</strong>.</p>`,
+                icon: 'question', showCancelButton: true,
+                confirmButtonColor: '#4E7D24', cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, registrar alumno', cancelButtonText: 'Revisar datos',
+                focusConfirm: false, focusCancel: false,
+                customClass: { popup: 'rounded-3xl p-6 font-sans shadow-2xl', confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]', cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm' }
+            }).then((result) => { if (result.isConfirmed) form.submit(); });
+        } else {
+            if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) form.submit();
+        }
     });
 </script>

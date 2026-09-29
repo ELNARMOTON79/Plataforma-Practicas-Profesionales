@@ -167,273 +167,85 @@
 {{-- Auto-open modal si hay errores de validación en edición --}}
 @if($errors->any() && old('id'))
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function openEditarAlumnoOnError() {
         const form = document.getElementById('form-editar-alumno');
-        form.action = `/coordinador/alumnos/{{ old('id') }}`;
+        if (form) form.action = `/coordinador/alumnos/{{ old('id') }}`;
         document.getElementById('modal-editar-alumno').classList.remove('hidden');
-    });
+    }
+    document.addEventListener('DOMContentLoaded', openEditarAlumnoOnError);
+    document.addEventListener('htmx:afterSettle', openEditarAlumnoOnError);
 </script>
 @endif
 
 {{-- Cerrar modal con tecla Escape y Validaciones del Cliente --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Cerrar con Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.getElementById('modal-editar-alumno').classList.add('hidden');
-            }
-        });
+    // Escape — delegado para funcionar con HTMX Boost
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.getElementById('modal-editar-alumno').classList.add('hidden');
+        }
+    });
 
-        const form = document.getElementById('form-editar-alumno');
+    // Submit con validación y confirmación — delegado en document
+    document.addEventListener('submit', function (e) {
+        const form = e.target.closest('#form-editar-alumno');
         if (!form) return;
 
-        const editFields = {
-            nombre: {
-                el: document.getElementById('edit-alumno-nombre'),
-                error: document.getElementById('error-edit-alumno-nombre'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El nombre completo es requerido.';
-                    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(val)) return 'El nombre solo debe contener letras y espacios.';
-                    if (val.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.';
-                    return '';
-                }
-            },
-            correo: {
-                el: document.getElementById('edit-alumno-correo'),
-                error: document.getElementById('error-edit-alumno-correo'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El correo electrónico es requerido.';
-                    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val)) return 'El formato del correo es inválido.';
-                    return '';
-                }
-            },
-            matricula: {
-                el: document.getElementById('edit-alumno-matricula'),
-                error: document.getElementById('error-edit-alumno-matricula'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El No. de Cuenta es requerido.';
-                    if (!/^[0-9]+$/.test(val)) return 'El No. de Cuenta solo debe contener números.';
-                    if (val.length < 5 || val.length > 20) return 'El No. de Cuenta debe tener entre 5 y 20 dígitos.';
-                    return '';
-                }
-            },
-            carrera: {
-                el: document.getElementById('edit-alumno-carrera'),
-                error: document.getElementById('error-edit-alumno-carrera'),
-                validate: (val) => {
-                    if (!val) return 'La carrera es requerida.';
-                    return '';
-                }
-            },
-            semestre: {
-                el: document.getElementById('edit-alumno-semestre'),
-                error: document.getElementById('error-edit-alumno-semestre'),
-                validate: (val) => {
-                    if (!val) return 'Debes seleccionar un semestre.';
-                    const sem = parseInt(val);
-                    if (isNaN(sem) || sem < 1 || sem > 12) return 'El semestre debe ser entre 1 y 12.';
-                    return '';
-                }
-            },
-            grupo: {
-                el: document.getElementById('edit-alumno-grupo'),
-                error: document.getElementById('error-edit-alumno-grupo'),
-                validate: (val) => {
-                    if (!val.trim()) return 'El grupo es requerido.';
-                    if (!/^[a-zA-Z]$/.test(val)) return 'El grupo debe ser exactamente una letra.';
-                    return '';
-                }
-            },
-            asesor: {
-                el: document.getElementById('edit-alumno-asesor'),
-                error: document.getElementById('error-edit-alumno-asesor'),
-                validate: (val) => {
-                    if (val.trim() && val.trim().length < 3) return 'El nombre del asesor debe tener al menos 3 caracteres.';
-                    return '';
-                }
-            },
-            coasesor: {
-                el: document.getElementById('edit-alumno-coasesor'),
-                error: document.getElementById('error-edit-alumno-coasesor'),
-                validate: (val) => {
-                    if (val.trim() && val.trim().length < 3) return 'El nombre del coasesor debe tener al menos 3 caracteres.';
-                    return '';
-                }
-            }
-        };
+        e.preventDefault();
 
-        // Real-time key filters (delegated or direct)
-        form.addEventListener('keypress', function(e) {
-            const target = e.target;
-            if (!target || !target.classList) return;
-            
-            let regex = null;
-            if (target.classList.contains('restrict-letters')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-            } else if (target.classList.contains('restrict-numbers')) {
-                regex = /^[0-9]$/;
-            } else if (target.classList.contains('restrict-letters-only')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
-            } else if (target.classList.contains('restrict-email')) {
-                regex = /^[a-zA-Z0-9@._+-]$/;
-            }
-            
-            if (regex) {
-                if (e.key === 'Backspace' || e.key === 'Enter' || e.key === 'Tab' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                    return;
-                }
-                if (!regex.test(e.key)) {
-                    e.preventDefault();
-                }
-            }
+        const getEditFields = () => ({
+            nombre:   { el: document.getElementById('edit-alumno-nombre'),    error: document.getElementById('error-edit-alumno-nombre'),    validate: (v) => { if (!v.trim()) return 'El nombre completo es requerido.'; if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(v)) return 'El nombre solo debe contener letras y espacios.'; if (v.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.'; return ''; } },
+            correo:   { el: document.getElementById('edit-alumno-correo'),    error: document.getElementById('error-edit-alumno-correo'),    validate: (v) => { if (!v.trim()) return 'El correo electrónico es requerido.'; if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return 'El formato del correo es inválido.'; return ''; } },
+            matricula:{ el: document.getElementById('edit-alumno-matricula'), error: document.getElementById('error-edit-alumno-matricula'), validate: (v) => { if (!v.trim()) return 'El No. de Cuenta es requerido.'; if (!/^[0-9]+$/.test(v)) return 'El No. de Cuenta solo debe contener números.'; if (v.length < 5 || v.length > 20) return 'El No. de Cuenta debe tener entre 5 y 20 dígitos.'; return ''; } },
+            carrera:  { el: document.getElementById('edit-alumno-carrera'),   error: document.getElementById('error-edit-alumno-carrera'),   validate: (v) => { if (!v) return 'La carrera es requerida.'; return ''; } },
+            semestre: { el: document.getElementById('edit-alumno-semestre'),  error: document.getElementById('error-edit-alumno-semestre'),  validate: (v) => { if (!v) return 'Debes seleccionar un semestre.'; const s = parseInt(v); if (isNaN(s) || s < 1 || s > 12) return 'El semestre debe ser entre 1 y 12.'; return ''; } },
+            grupo:    { el: document.getElementById('edit-alumno-grupo'),     error: document.getElementById('error-edit-alumno-grupo'),     validate: (v) => { if (!v.trim()) return 'El grupo es requerido.'; if (!/^[a-zA-Z]$/.test(v)) return 'El grupo debe ser exactamente una letra.'; return ''; } },
+            asesor:   { el: document.getElementById('edit-alumno-asesor'),    error: document.getElementById('error-edit-alumno-asesor'),    validate: (v) => { if (v.trim() && v.trim().length < 3) return 'El nombre del asesor debe tener al menos 3 caracteres.'; return ''; } },
+            coasesor: { el: document.getElementById('edit-alumno-coasesor'),  error: document.getElementById('error-edit-alumno-coasesor'),  validate: (v) => { if (v.trim() && v.trim().length < 3) return 'El nombre del coasesor debe tener al menos 3 caracteres.'; return ''; } }
         });
 
-        form.addEventListener('input', function(e) {
-            const target = e.target;
-            if (!target || !target.classList) return;
-            
-            let regex = null;
-            if (target.classList.contains('restrict-letters')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]$/;
-            } else if (target.classList.contains('restrict-numbers')) {
-                regex = /^[0-9]$/;
-            } else if (target.classList.contains('restrict-letters-only')) {
-                regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]$/;
-            } else if (target.classList.contains('restrict-email')) {
-                regex = /^[a-zA-Z0-9@._+-]$/;
-            }
-            
-            if (regex) {
-                let newValue = '';
-                for (let char of target.value) {
-                    if (regex.test(char)) {
-                        newValue += char;
-                    }
-                }
-                if (target.value !== newValue) {
-                    target.value = newValue;
-                }
-            }
-            
-            if (target.id === 'edit-alumno-grupo') {
-                target.value = target.value.toUpperCase();
-            }
-        });
+        const editFields = getEditFields();
+        let isValid = true;
+        let firstInvalidInput = null;
 
-        // Setup individual validation events
-        Object.keys(editFields).forEach(key => {
+        for (const key in editFields) {
             const field = editFields[key];
-            const input = field.el;
-
-            const handleValidate = () => {
-                // Clear server errors for this field as soon as user types or modifies it
-                const parent = input.parentElement;
-                const serverErr = parent.querySelector('.server-error');
-                if (serverErr) serverErr.remove();
-                input.classList.remove('border-red-400', 'bg-red-50');
-
-                const errMessage = field.validate(input.value);
-                if (errMessage) {
-                    field.error.textContent = errMessage;
-                    field.error.classList.remove('hidden');
-                    input.classList.add('input-invalid');
-                    input.classList.remove('input-valid');
-                } else {
-                    field.error.textContent = '';
-                    field.error.classList.add('hidden');
-                    input.classList.remove('input-invalid');
-                    if (input.value.trim() !== '') {
-                        input.classList.add('input-valid');
-                    } else {
-                        input.classList.remove('input-valid');
-                    }
-                }
-            };
-
-            input.addEventListener('input', handleValidate);
-            input.addEventListener('change', handleValidate);
-            input.addEventListener('blur', handleValidate);
-        });
-
-        let isSubmittingConfirmed = false;
-
-        // Validate on submit
-        form.addEventListener('submit', function (e) {
-            if (isSubmittingConfirmed) {
-                return;
-            }
-
-            e.preventDefault();
-
-            let isValid = true;
-            let firstInvalidInput = null;
-
-            for (const key in editFields) {
-                const field = editFields[key];
-                const errorMsg = field.validate(field.el.value);
-                if (errorMsg) {
-                    isValid = false;
-                    field.error.textContent = errorMsg;
-                    field.error.classList.remove('hidden');
-                    field.el.classList.add('input-invalid');
-                    field.el.classList.add('field-shake');
-                    if (!firstInvalidInput) {
-                        firstInvalidInput = field.el;
-                    }
-                    setTimeout(() => {
-                        field.el.classList.remove('field-shake');
-                    }, 300);
-                } else {
-                    field.error.textContent = '';
-                    field.error.classList.add('hidden');
-                    field.el.classList.remove('input-invalid');
-                }
-            }
-
-            if (!isValid) {
-                if (firstInvalidInput) {
-                    firstInvalidInput.focus();
-                    firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return;
-            }
-
-            const nombreAlumno = editFields.nombre.el ? editFields.nombre.el.value.trim() : '';
-
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: '¿Guardar Cambios?',
-                    html: `<p class="text-sm text-gray-600">¿Estás seguro de que deseas actualizar la información del estudiante <strong>${nombreAlumno}</strong>?</p>`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4E7D24',
-                    cancelButtonColor: '#9CA3AF',
-                    confirmButtonText: 'Sí, guardar cambios',
-                    cancelButtonText: 'Cancelar',
-                    focusConfirm: false,
-                    focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        isSubmittingConfirmed = true;
-                        form.submit();
-                    }
-                });
+            const errorMsg = field.validate(field.el.value);
+            if (errorMsg) {
+                isValid = false;
+                field.error.textContent = errorMsg;
+                field.error.classList.remove('hidden');
+                field.el.classList.add('input-invalid');
+                field.el.classList.add('field-shake');
+                if (!firstInvalidInput) firstInvalidInput = field.el;
+                setTimeout(() => field.el.classList.remove('field-shake'), 300);
             } else {
-                if (confirm(`¿Estás seguro de que deseas actualizar la información de ${nombreAlumno}?`)) {
-                    isSubmittingConfirmed = true;
-                    form.submit();
-                }
+                field.error.textContent = '';
+                field.error.classList.add('hidden');
+                field.el.classList.remove('input-invalid');
             }
-        });
+        }
+
+        if (!isValid) {
+            if (firstInvalidInput) { firstInvalidInput.focus(); firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            return;
+        }
+
+        const nombreAlumno = editFields.nombre.el ? editFields.nombre.el.value.trim() : '';
+        if (document.activeElement) document.activeElement.blur();
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Guardar Cambios?',
+                html: `<p class="text-sm text-gray-600">¿Estás seguro de que deseas actualizar la información del estudiante <strong>${nombreAlumno}</strong>?</p>`,
+                icon: 'question', showCancelButton: true,
+                confirmButtonColor: '#4E7D24', cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, guardar cambios', cancelButtonText: 'Cancelar',
+                focusConfirm: false, focusCancel: false,
+                customClass: { popup: 'rounded-3xl p-6 font-sans shadow-2xl', confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]', cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm' }
+            }).then((result) => { if (result.isConfirmed) form.submit(); });
+        } else {
+            if (confirm(`¿Estás seguro de que deseas actualizar la información de ${nombreAlumno}?`)) form.submit();
+        }
     });
 </script>
