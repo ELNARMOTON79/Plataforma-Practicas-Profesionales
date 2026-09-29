@@ -66,10 +66,17 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('coordinador.proyectos');
     })->name('coordinador.proyectos');
 
-    Route::get('/coordinador/tramites', function () {
-        if (Auth::user()->rol_id != 2) return redirect('/');
-        return view('coordinador.tramites');
-    })->name('coordinador.tramites');
+    Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
+    Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
+    Route::patch('/coordinador/tramites/solicitud/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarSolicitud'])->name('coordinador.tramites.solicitud.rechazar');
+    Route::patch('/coordinador/tramites/documento/{id}/validar', [App\Http\Controllers\Coordinador\TramiteController::class, 'validarDocumento'])->name('coordinador.tramites.documento.validar');
+    Route::patch('/coordinador/tramites/documento/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarDocumento'])->name('coordinador.tramites.documento.rechazar');
+
+    Route::get('/coordinador/seguimiento', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'index'])->name('coordinador.seguimiento');
+    Route::get('/coordinador/seguimiento/{id}', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'show'])->name('coordinador.seguimiento.show');
+    Route::post('/coordinador/seguimiento/{id}/save-notes', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveNotes'])->name('coordinador.seguimiento.save-notes');
+    Route::post('/coordinador/seguimiento/{id}/save-responsable', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveResponsable'])->name('coordinador.seguimiento.save-responsable');
+
 
     Route::get('/coordinador/informes', function () {
         if (Auth::user()->rol_id != 2) return redirect('/');

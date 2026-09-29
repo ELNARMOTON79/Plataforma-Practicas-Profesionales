@@ -233,7 +233,7 @@
                             @if($empresa)
                                 <div class="text-[10px] text-gray-500 font-medium bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 flex items-center justify-between">
                                     <span class="truncate">Empresa: <strong class="text-gray-700 font-semibold">{{ $empresa }}</strong></span>
-                                    <a href="{{ route('coordinador.tramites') }}" class="text-[#4E7D24] hover:text-[#2E5417] font-bold text-[10px] flex items-center gap-0.5 ml-2 whitespace-nowrap">
+                                    <a href="{{ route('coordinador.tramites') }}?tab=doc-pendientes" class="text-[#4E7D24] hover:text-[#2E5417] font-bold text-[10px] flex items-center gap-0.5 ml-2 whitespace-nowrap">
                                         Revisar
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                     </a>
