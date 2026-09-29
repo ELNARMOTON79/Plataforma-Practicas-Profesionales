@@ -1,6 +1,12 @@
 @extends('layouts.coordinador', ['active' => 'tramites', 'title' => 'Trámites - Coordinador'])
 
 @section('content')
+@php
+    $activeTab = request('tab', 'solicitudes');
+    // Clases CSS para card activa vs inactiva
+    $cardActive   = 'glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 bg-white shadow-md transition-all duration-300 cursor-pointer';
+    $cardInactive = 'glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-gray-300';
+@endphp
     <!-- Header Section -->
     <x-page-header title="Trámites y Expedientes" description="Gestiona las solicitudes de inicio de prácticas y la validación de documentos oficiales." />
 
@@ -48,10 +54,10 @@
     <!-- Interactive Metrics Grid (Funciona como selector activo) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 fade-in-up delay-100">
         <!-- 1. Solicitudes Pendientes (Activo por defecto) -->
-        <button type="button" onclick="switchTab('solicitudes')" id="metric-solicitudes" 
-            class="glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer">
+        <button type="button" onclick="switchTab('solicitudes')" id="metric-solicitudes"
+            class="{{ in_array($activeTab, ['solicitudes', '']) ? $cardActive . ' border-[#4E7D24] ring-4 ring-[#4E7D24]/10' : $cardInactive . ' hover:border-[#4E7D24]/40' }}">
             <div class="flex items-center justify-between w-full mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#4E7D24]">Solicitudes Pendientes</span>
+                <span class="text-xs font-bold uppercase tracking-wider {{ in_array($activeTab, ['solicitudes', '']) ? 'text-[#4E7D24]' : 'text-gray-500 group-hover:text-[#4E7D24] transition-colors' }}">Solicitudes Pendientes</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></span>
             </div>
             <div class="flex items-end gap-3 mb-1">
@@ -66,10 +72,10 @@
         </button>
 
         <!-- 2. Documentos por Validar -->
-        <button type="button" onclick="switchTab('doc-pendientes')" id="metric-doc-pendientes" 
-            class="glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-amber-300">
+        <button type="button" onclick="switchTab('doc-pendientes')" id="metric-doc-pendientes"
+            class="{{ $activeTab === 'doc-pendientes' ? $cardActive . ' border-amber-400 ring-4 ring-amber-400/10' : $cardInactive . ' hover:border-amber-300' }}">
             <div class="flex items-center justify-between w-full mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:text-amber-700 transition-colors">Documentos por Validar</span>
+                <span class="text-xs font-bold uppercase tracking-wider {{ $activeTab === 'doc-pendientes' ? 'text-amber-700' : 'text-gray-500 group-hover:text-amber-700 transition-colors' }}">Documentos por Validar</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
             </div>
             <div class="flex items-end gap-3 mb-1">
@@ -84,10 +90,10 @@
         </button>
 
         <!-- 3. Documentos Validados -->
-        <button type="button" onclick="switchTab('doc-validados')" id="metric-doc-validados" 
-            class="glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-green-300">
+        <button type="button" onclick="switchTab('doc-validados')" id="metric-doc-validados"
+            class="{{ $activeTab === 'doc-validados' ? $cardActive . ' border-green-500 ring-4 ring-green-500/10' : $cardInactive . ' hover:border-green-300' }}">
             <div class="flex items-center justify-between w-full mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:text-green-700 transition-colors">Documentos Validados</span>
+                <span class="text-xs font-bold uppercase tracking-wider {{ $activeTab === 'doc-validados' ? 'text-green-700' : 'text-gray-500 group-hover:text-green-700 transition-colors' }}">Documentos Validados</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
             </div>
             <div class="flex items-end gap-3 mb-1">
@@ -97,10 +103,10 @@
         </button>
 
         <!-- 4. Total de Trámites -->
-        <button type="button" onclick="switchTab('solicitudes-todas')" id="metric-total" 
-            class="glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-[#6BA53A]/30">
+        <button type="button" onclick="switchTab('solicitudes-todas')" id="metric-total"
+            class="{{ $activeTab === 'solicitudes-todas' ? $cardActive . ' border-[#4E7D24] ring-4 ring-[#4E7D24]/10' : $cardInactive . ' hover:border-[#6BA53A]/30' }}">
             <div class="flex items-center justify-between w-full mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:text-[#4E7D24] transition-colors">Total de Trámites</span>
+                <span class="text-xs font-bold uppercase tracking-wider {{ $activeTab === 'solicitudes-todas' ? 'text-[#4E7D24]' : 'text-gray-500 group-hover:text-[#4E7D24] transition-colors' }}">Total de Trámites</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-[#4E7D24]"></span>
             </div>
             <div class="flex items-end gap-3 mb-1">
@@ -113,12 +119,33 @@
     <div class="glass-card rounded-3xl p-6 md:p-8 fade-in-up delay-200">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
             <div class="flex items-center gap-3">
-                <div id="section-icon" class="p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div id="section-icon" class="p-2.5 rounded-2xl transition-all
+                    {{ $activeTab === 'doc-pendientes' ? 'bg-amber-50 text-amber-600' : ($activeTab === 'doc-validados' ? 'bg-green-50 text-green-600' : 'bg-green-50 text-[#4E7D24]') }}">
+                    @if($activeTab === 'doc-pendientes')
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    @elseif($activeTab === 'doc-validados')
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    @elseif($activeTab === 'solicitudes-todas')
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+                    @else
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    @endif
                 </div>
                 <div>
-                    <h2 id="section-title" class="text-lg font-extrabold text-gray-800 leading-tight">Solicitudes Registradas</h2>
-                    <p id="section-subtitle" class="text-xs text-gray-400 font-medium">Revisión y autorización de inicio de prácticas profesionales</p>
+                    <h2 id="section-title" class="text-lg font-extrabold text-gray-800 leading-tight">
+                        @if($activeTab === 'doc-pendientes') Documentos Pendientes de Validar
+                        @elseif($activeTab === 'doc-validados') Historial de Documentos Validados
+                        @elseif($activeTab === 'solicitudes-todas') Todas las Solicitudes Registradas
+                        @else Solicitudes Pendientes de Prácticas
+                        @endif
+                    </h2>
+                    <p id="section-subtitle" class="text-xs text-gray-400 font-medium">
+                        @if($activeTab === 'doc-pendientes') Expedientes y documentos oficiales subidos por alumnos pendientes de revisión
+                        @elseif($activeTab === 'doc-validados') Registro histórico completo de los expedientes validados y autorizados
+                        @elseif($activeTab === 'solicitudes-todas') Historial general de todas las solicitudes de prácticas (Pendientes, Aprobadas y Rechazadas)
+                        @else Revisión y autorización de inicio de prácticas profesionales pendientes
+                        @endif
+                    </p>
                 </div>
             </div>
 
@@ -131,7 +158,7 @@
             </div>
         </div>
 
-        <div id="content-solicitudes" class="block animate-fade-in">
+        <div id="content-solicitudes" class="{{ in_array($activeTab, ['solicitudes', 'solicitudes-todas', '']) ? 'block' : 'hidden' }} animate-fade-in">
             <div class="overflow-x-auto">
                 <table id="solicitudes-table" class="min-w-full divide-y divide-gray-100">
                     <thead class="bg-gray-50/50">
@@ -231,7 +258,7 @@
         </div>
 
         <!-- DOCUMENTOS PENDIENTES -->
-        <div id="content-doc-pendientes" class="hidden animate-fade-in">
+        <div id="content-doc-pendientes" class="{{ $activeTab === 'doc-pendientes' ? 'block' : 'hidden' }} animate-fade-in">
             <div class="overflow-x-auto">
                 <table id="documentos-pendientes-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50/50">
@@ -309,7 +336,7 @@
         </div>
 
         <!-- DOCUMENTOS VALIDADOS -->
-        <div id="content-doc-validados" class="hidden animate-fade-in">
+        <div id="content-doc-validados" class="{{ $activeTab === 'doc-validados' ? 'block' : 'hidden' }} animate-fade-in">
             <div class="overflow-x-auto">
                 <table id="documentos-validados-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50/50">
@@ -384,6 +411,7 @@
             
             const urlParams = new URLSearchParams(window.location.search);
             const searchVal = urlParams.get('search') || '';
+            const tabParam = urlParams.get('tab') || '';
 
             const emptyStateHTML = `
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
@@ -453,9 +481,26 @@
                 tablaDocsPendientes.search(val).draw();
                 tablaDocsValidados.search(val).draw();
             });
+
+            if (tabParam) {
+                // Esperar a que la ÚLTIMA tabla termine de inicializarse (incluyendo carga async del idioma)
+                tablaDocsValidados.one('init.dt', function() {
+                    switchTab(tabParam);
+                });
+            }
         });
 
         function switchTab(tab) {
+            // Actualizar la URL sin recargar la página
+            const urlParams = new URLSearchParams(window.location.search);
+            if (tab && tab !== 'solicitudes') {
+                urlParams.set('tab', tab);
+            } else {
+                urlParams.delete('tab');
+            }
+            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            history.replaceState(null, '', newUrl);
+
             const contentSolicitudes = document.getElementById('content-solicitudes');
             const contentDocPendientes = document.getElementById('content-doc-pendientes');
             const contentDocValidados = document.getElementById('content-doc-validados');
@@ -469,7 +514,6 @@
             const sectionTitle = document.getElementById('section-title');
             const sectionSubtitle = document.getElementById('section-subtitle');
 
-        
             contentSolicitudes.classList.add('hidden');
             contentDocPendientes.classList.add('hidden');
             contentDocValidados.classList.add('hidden');
