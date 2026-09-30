@@ -76,11 +76,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/coordinador/seguimiento/{id}/save-notes', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveNotes'])->name('coordinador.seguimiento.save-notes');
     Route::post('/coordinador/seguimiento/{id}/save-responsable', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveResponsable'])->name('coordinador.seguimiento.save-responsable');
 
-    Route::get('/coordinador/informes', function () {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-        $carreras = \App\Models\Alumno::distinct()->pluck('carrera')->filter()->values();
-        return view('coordinador.informes', compact('carreras'));
-    })->name('coordinador.informes');
+    Route::get('/coordinador/informes', [App\Http\Controllers\Coordinador\InformeController::class, 'informes'])->name('coordinador.informes');
 
     Route::get('/coordinador/perfil', [App\Http\Controllers\Coordinador\PerfilController::class, 'perfil'])->name('coordinador.perfil');
     Route::post('/coordinador/perfil/password', [App\Http\Controllers\Coordinador\PerfilController::class, 'updatePassword'])->name('coordinador.perfil.password');
