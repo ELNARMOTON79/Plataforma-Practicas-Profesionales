@@ -483,7 +483,6 @@
             });
 
             if (tabParam) {
-                // Esperar a que la ÚLTIMA tabla termine de inicializarse (incluyendo carga async del idioma)
                 tablaDocsValidados.one('init.dt', function() {
                     switchTab(tabParam);
                 });
@@ -491,7 +490,6 @@
         });
 
         function switchTab(tab) {
-            // Actualizar la URL sin recargar la página
             const urlParams = new URLSearchParams(window.location.search);
             if (tab && tab !== 'solicitudes') {
                 urlParams.set('tab', tab);

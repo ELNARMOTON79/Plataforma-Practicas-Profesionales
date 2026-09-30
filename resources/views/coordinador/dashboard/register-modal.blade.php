@@ -188,7 +188,7 @@
 
 {{-- Cerrar modal con tecla Escape y Validaciones del Cliente --}}
 <script>
-    // Escape — delegado para funcionar con HTMX Boost
+
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const modal = document.getElementById('modal-registrar-alumno');
@@ -196,7 +196,6 @@
         }
     });
 
-    // Filtro de teclado — delegado en document
     document.addEventListener('keypress', function(e) {
         const target = e.target;
         if (!target || !target.classList) return;
@@ -226,7 +225,7 @@
         if (target.id === 'alumno-grupo') target.value = target.value.toUpperCase();
     });
 
-    // Submit con confirmación — delegado en document
+    // Submit con confirmación
     document.addEventListener('submit', function(e) {
         const form = e.target.closest('#form-registrar-alumno');
         if (!form) return;

@@ -179,14 +179,12 @@
 
 {{-- Cerrar modal con tecla Escape y Validaciones del Cliente --}}
 <script>
-    // Escape — delegado para funcionar con HTMX Boost
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.getElementById('modal-editar-alumno').classList.add('hidden');
         }
     });
 
-    // Submit con validación y confirmación — delegado en document
     document.addEventListener('submit', function (e) {
         const form = e.target.closest('#form-editar-alumno');
         if (!form) return;

@@ -125,7 +125,6 @@
         document.getElementById('modal-agregar-ur').classList.add('hidden');
     }
 
-    // Usamos delegación en document para que funcione con HTMX Boost
     document.addEventListener('submit', function (e) {
         const formUR = e.target.closest('#form-agregar-ur');
         if (!formUR) return;

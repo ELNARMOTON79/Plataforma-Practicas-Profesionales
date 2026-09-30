@@ -243,10 +243,6 @@
     </div>
 
     <script>
-        // HTMX Boost sustituye el contenido de la página via AJAX, por lo que
-        // los scripts embebidos en la sección swapeada no se re-ejecutan en navegaciones
-        // posteriores. Usamos htmx:afterSettle (o DOMContentLoaded en la primera carga)
-        // para asegurarnos de que alumnoDetails siempre esté disponible.
         function initAlumnosPage() {
             window.alumnoDetails = {
                 @foreach($alumnos as $alumno)
@@ -273,7 +269,6 @@
                 }, 5000);
             }
 
-            // Auto-ocultar alerta de error a los 5 segundos
             const errorAlert = document.getElementById('errorAlert');
             if (errorAlert) {
                 setTimeout(function() {
@@ -283,16 +278,13 @@
             }
         }
 
-        // Primera carga (sin HTMX)
         document.addEventListener('DOMContentLoaded', initAlumnosPage);
-        // Navegaciones posteriores vía HTMX Boost
         document.addEventListener('htmx:afterSettle', initAlumnosPage);
 
         function abrirEditarAlumno(id) {
             const alumno = (window.alumnoDetails || {})[id];
             if (!alumno) return;
 
-            // Populate form fields
             document.getElementById('edit-alumno-id').value = alumno.id;
             document.getElementById('edit-alumno-nombre').value = alumno.nombre;
             document.getElementById('edit-alumno-correo').value = alumno.correo;
@@ -301,20 +293,16 @@
             document.getElementById('edit-alumno-semestre').value = alumno.semestre;
             document.getElementById('edit-alumno-grupo').value = alumno.grupo;
             document.getElementById('edit-alumno-asesor').value = alumno.asesor;
-            document.getElementById('edit-alumno-coasesor').value = alumno.coasesor;
-
-            // Update form action route
+   
             const form = document.getElementById('form-editar-alumno');
             form.action = `/coordinador/alumnos/${id}`;
 
-            // Remove any old validation/error styles
             form.querySelectorAll('.server-error').forEach(err => err.remove());
             form.querySelectorAll('input, select').forEach(input => {
                 input.classList.remove('input-invalid', 'input-valid', 'border-red-400', 'bg-red-50');
             });
             form.querySelectorAll('p[id^="error-edit-alumno-"]').forEach(p => p.classList.add('hidden'));
 
-            // Show edit modal
             document.getElementById('modal-editar-alumno').classList.remove('hidden');
         }
     </script>

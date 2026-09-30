@@ -112,7 +112,7 @@
 
     <!-- Main Grid Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Left Column: Quick Students (60%) -->
+
         <div class="lg:col-span-2 flex flex-col gap-8">
             <div class="glass-card rounded-3xl p-8 fade-in-up delay-200 shadow-sm border border-gray-200/50">
                 <div class="flex items-center justify-between mb-6">
@@ -191,7 +191,7 @@
             </div>
         </div>
 
-        <!-- Right Column: Últimos Documentos y Reportes (40%) -->
+        <!-- Últimos Documentos y Reportes -->
         <div class="flex flex-col gap-8 h-full">
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-300 flex-1 flex flex-col border border-gray-200/50">
                 <div class="flex items-start justify-between gap-2 mb-6">
@@ -259,7 +259,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-ocultar alerta de éxito a los 5 segundos
             const successAlert = document.getElementById('successAlert');
             if (successAlert) {
                 setTimeout(function() {
@@ -270,7 +269,6 @@
                 }, 5000);
             }
 
-            // Auto-ocultar alerta de error a los 5 segundos
             const errorAlert = document.getElementById('errorAlert');
             if (errorAlert) {
                 setTimeout(function() {

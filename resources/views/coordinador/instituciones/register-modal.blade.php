@@ -184,7 +184,6 @@
 
 {{-- Script de confirmación con SweetAlert2 para Registro de Institución --}}
 <script>
-    // Escape key — delegado en document para funcionar con HTMX Boost
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const modal = document.getElementById('modal-registrar-institucion');
@@ -192,7 +191,6 @@
         }
     });
 
-    // Submit con confirmación — delegación en document
     document.addEventListener('submit', function (e) {
         const form = e.target.closest('#form-registrar-institucion');
         if (!form) return;
