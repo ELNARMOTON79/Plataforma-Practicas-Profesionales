@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CoordinadorController;
+use App\Http\Controllers\Coordinador\DashboardController as CoordinadorDashboardController;
 use App\Http\Controllers\Estudiante\DashboardController;
 
 Route::get('/', function () {
@@ -49,7 +49,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.usuarios');
     })->name('admin.usuarios');
 
-    Route::get('/coordinador/dashboard', [CoordinadorController::class, 'dashboard'])->name('coordinador.dashboard');
+    Route::get('/coordinador/dashboard', [CoordinadorDashboardController::class, 'dashboard'])->name('coordinador.dashboard');
 
     Route::get('/coordinador/instituciones', function () {
         if (Auth::user()->rol_id != 2) return redirect('/');
@@ -104,6 +104,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
     Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
+    Route::get('/estudiante/solicitudes/fecha-fin', [DashboardController::class, 'calcularFechaFinSolicitud'])->name('estudiante.calcularFechaFinSolicitud');
 
     Route::get('/empresa/dashboard', function () {
         if (Auth::user()->rol_id != 4) return redirect('/');

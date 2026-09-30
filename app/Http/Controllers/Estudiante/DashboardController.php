@@ -21,7 +21,7 @@ use PhpOffice\PhpWord\PhpWord;
 
 class DashboardController extends Controller
 {
-    public const HORAS_META = 480;
+    public const HORAS_META = Solicitud::HORAS_META;
 
     private const DOCS_REQUERIDOS = 6;
 
@@ -42,6 +42,7 @@ class DashboardController extends Controller
         $iniciales = $this->iniciales($nombre);
 
         $horasCompletadas = 0;
+        $horasMeta = $estudiante?->horasMetaPractica() ?? Solicitud::HORAS_META;
         $solicitudesActivas = 0;
         $solicitudesPendientes = 0;
         $documentosPendientes = 0;
@@ -58,15 +59,11 @@ class DashboardController extends Controller
                 ->where('estatus', 'pendiente')
                 ->count();
 
-            $activeSolicitud = Solicitud::where('estudiante_id', $estudiante->id)
-                ->whereIn('estatus', ['aprobada', 'en_proceso'])
-                ->with('documentos')
-                ->latest('id')
-                ->first();
+            $activeSolicitud = $this->getSolicitudActiva($estudiante, ['documentos'], incluirFinalizada: true);
 
             if ($activeSolicitud) {
                 $hasPracticaActiva = true;
-                $horasCompletadas = (float) $activeSolicitud->horas()->sum('cantidad_horas');
+                $horasCompletadas = $activeSolicitud->horasCompletadas();
 
                 $requiredDocuments = [
                     'Carta de Presentación',
@@ -97,8 +94,8 @@ class DashboardController extends Controller
             }
         }
 
-        $porcentajeHoras = self::HORAS_META > 0
-            ? min(100, (int) round(($horasCompletadas / self::HORAS_META) * 100))
+        $porcentajeHoras = $horasMeta > 0
+            ? min(100, (int) round(($horasCompletadas / $horasMeta) * 100))
             : 0;
 
         return view('estudiante.dashboard', [
@@ -109,7 +106,7 @@ class DashboardController extends Controller
             'grupo'     => $grupo,
             'iniciales' => $iniciales,
             'horasCompletadas' => (int) $horasCompletadas,
-            'horasMeta' => self::HORAS_META,
+            'horasMeta' => $horasMeta,
             'porcentajeHoras' => $porcentajeHoras,
             'solicitudesActivas' => $solicitudesActivas,
             'solicitudesPendientes' => $solicitudesPendientes,
@@ -233,11 +230,15 @@ class DashboardController extends Controller
             ->orderBy('carrera')
             ->pluck('carrera');
 
+        $estudianteActual = Estudiante::where('usuario_id', Auth::id())->first();
+        $horasMeta = $estudianteActual?->horasMetaPractica() ?? Solicitud::HORAS_META;
+
         return view('estudiante.convenios', [
             'conveniosAgrupados' => $conveniosAgrupados,
             'search'             => $search,
             'carreraFilter'      => $carreraFilter,
             'carreras'           => $carreras,
+            'horasMeta'          => $horasMeta,
         ]);
     }
 
@@ -257,23 +258,20 @@ class DashboardController extends Controller
 
         $solicitudActiva  = null;
         $horasCompletadas = 0;
+        $horasMeta        = $estudiante?->horasMetaPractica() ?? Solicitud::HORAS_META;
         $documentos       = collect();
 
         if ($estudiante) {
-            $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-                ->whereIn('estatus', ['aprobada', 'en_proceso'])
-                ->with(['unidadReceptora', 'documentos'])
-                ->latest('id')
-                ->first();
+            $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora', 'documentos'], incluirFinalizada: true);
 
             if ($solicitudActiva) {
-                $horasCompletadas = (float) $solicitudActiva->horas()->sum('cantidad_horas');
+                $horasCompletadas = $solicitudActiva->horasCompletadas();
                 $documentos       = $solicitudActiva->documentos;
             }
         }
 
-        $porcentajeHoras = self::HORAS_META > 0
-            ? min(100, round(($horasCompletadas / self::HORAS_META) * 100, 1))
+        $porcentajeHoras = $horasMeta > 0
+            ? min(100, round(($horasCompletadas / $horasMeta) * 100, 1))
             : 0;
 
         return view('estudiante.proyecto', [
@@ -283,7 +281,8 @@ class DashboardController extends Controller
             'iniciales'        => $iniciales,
             'solicitudActiva'  => $solicitudActiva,
             'horasCompletadas' => (int) $horasCompletadas,
-            'horasMeta'        => self::HORAS_META,
+            'horasMeta'        => $horasMeta,
+            'horasRestantes'   => max(0, $horasMeta - (int) $horasCompletadas),
             'porcentajeHoras'  => $porcentajeHoras,
             'documentos'       => $documentos,
         ]);
@@ -304,11 +303,7 @@ class DashboardController extends Controller
             abort(404, 'Estudiante no encontrado.');
         }
 
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->with('unidadReceptora')
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora'], incluirFinalizada: true);
 
         if (! $solicitudActiva) {
             abort(404, 'No hay una solicitud de prácticas activa.');
@@ -350,11 +345,7 @@ class DashboardController extends Controller
             abort(404, 'Estudiante no encontrado.');
         }
 
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->with('unidadReceptora')
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora'], incluirFinalizada: true);
 
         if (! $solicitudActiva) {
             abort(404, 'No hay una solicitud de prácticas activa.');
@@ -402,11 +393,7 @@ class DashboardController extends Controller
             abort(404, 'Estudiante no encontrado.');
         }
 
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->with('unidadReceptora')
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora'], incluirFinalizada: true);
 
         if (! $solicitudActiva) {
             abort(404, 'No hay una solicitud de prácticas activa.');
@@ -445,11 +432,7 @@ class DashboardController extends Controller
             abort(404, 'Estudiante no encontrado.');
         }
 
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->with('unidadReceptora')
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora'], incluirFinalizada: true);
 
         if (! $solicitudActiva) {
             abort(404, 'No hay una solicitud de prácticas activa.');
@@ -457,7 +440,7 @@ class DashboardController extends Controller
 
         $ur = $solicitudActiva->unidadReceptora;
 
-        $horasCompletadas = (int) round((float) $solicitudActiva->horas()->sum('cantidad_horas'));
+        $horasCompletadas = (int) round($solicitudActiva->horasCompletadas());
 
         $fechaInicio = $solicitudActiva->fecha_inicio
             ? Carbon::parse($solicitudActiva->fecha_inicio)->translatedFormat('d \d\e F \d\e Y')
@@ -512,7 +495,7 @@ class DashboardController extends Controller
         $body->addText(' al ');
         $body->addText($fechaFin ?: 'fecha de término', $fechaFin ? $bold : $placeholder);
         $body->addText(', acumulando un total de ');
-        $body->addText($horasCompletadas . '/' . self::HORAS_META, $bold);
+        $body->addText($horasCompletadas . '/' . $solicitudActiva->horasMeta(), $bold);
         $body->addText(' horas.');
 
         $section->addTextBreak(1);
@@ -560,10 +543,7 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Estudiante no encontrado.'], 404);
         }
 
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, [], incluirFinalizada: true);
 
         if (! $solicitudActiva) {
             return response()->json(['error' => 'No hay una solicitud de prácticas activa.'], 404);
@@ -652,10 +632,7 @@ class DashboardController extends Controller
         }
 
         // Verify that the document belongs to the student's active request
-        $solicitudActiva = Solicitud::where('estudiante_id', $estudiante->id)
-            ->whereIn('estatus', ['aprobada', 'en_proceso'])
-            ->latest('id')
-            ->first();
+        $solicitudActiva = $this->getSolicitudActiva($estudiante, [], incluirFinalizada: true);
 
         if (! $solicitudActiva || $documento->solicitud_id !== $solicitudActiva->id) {
             return response()->json(['error' => 'No tienes permiso para eliminar este documento.'], 403);
@@ -807,6 +784,33 @@ class DashboardController extends Controller
         return redirect()->route('estudiante.miPerfil')->with('success', 'Contraseña actualizada correctamente.');
     }
 
+    public function calcularFechaFinSolicitud(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        $user       = Auth::user();
+        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
+
+        if (! $estudiante) {
+            return response()->json(['error' => 'Estudiante no encontrado.'], 404);
+        }
+
+        $validated = $request->validate([
+            'fecha_inicio' => ['required', 'date'],
+            'horas_por_dia' => ['required', 'integer', Rule::in([6, 8])],
+        ]);
+
+        $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
+        $fechaFin = Solicitud::calcularFechaFin($fechaInicio, (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
+
+        return response()->json([
+            'fecha_fin' => $fechaFin->toDateString(),
+            'fecha_fin_formateada' => $fechaFin->locale('es')->translatedFormat('d \d\e F \d\e Y'),
+        ]);
+    }
+
     public function storeSolicitud(Request $request)
     {
         if (Auth::user()?->rol_id != 3) {
@@ -824,7 +828,7 @@ class DashboardController extends Controller
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
             'responsable' => ['required', 'string', 'max:255'],
             'fecha_inicio'=> ['required', 'date'],
-            'fecha_fin'   => ['required', 'date', 'after:fecha_inicio'],
+            'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
             'observaciones'=> ['nullable', 'string', 'max:1000'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
@@ -833,18 +837,21 @@ class DashboardController extends Controller
             'responsable.max'       => 'El nombre no puede superar 255 caracteres.',
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
             'fecha_inicio.date'     => 'La fecha de inicio no es válida.',
-            'fecha_fin.required'    => 'La fecha de fin es obligatoria.',
-            'fecha_fin.date'        => 'La fecha de fin no es válida.',
-            'fecha_fin.after'       => 'La fecha de fin debe ser posterior a la fecha de inicio.',
+            'horas_por_dia.required'=> 'Indica cuántas horas al día realizarás tus prácticas.',
+            'horas_por_dia.in'      => 'Las horas por día deben ser 6 u 8.',
             'observaciones.max'     => 'Las observaciones no pueden superar 1000 caracteres.',
         ]);
+
+        $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
+        $fechaFin = Solicitud::calcularFechaFin($fechaInicio, (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
 
         $solicitud = Solicitud::create([
             'estudiante_id' => $estudiante->id,
             'ur_id'         => $validated['ur_id'],
             'responsable'   => $validated['responsable'],
             'fecha_inicio'  => $validated['fecha_inicio'],
-            'fecha_fin'     => $validated['fecha_fin'],
+            'fecha_fin'     => $fechaFin->toDateString(),
+            'horas_por_dia' => $validated['horas_por_dia'],
             'estatus'       => 'pendiente',
             'observaciones' => $validated['observaciones'] ?? null,
         ]);
@@ -853,6 +860,7 @@ class DashboardController extends Controller
             'success' => true,
             'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
             'solicitud_id' => $solicitud->id,
+            'fecha_fin' => $fechaFin->translatedFormat('d \d\e F \d\e Y'),
         ]);
     }
 
@@ -890,6 +898,28 @@ class DashboardController extends Controller
             'iniciales' => $this->iniciales($estudiante->nombre_completo),
             'solicitudes' => $solicitudes,
         ]);
+    }
+
+    /**
+     * Fetches the student's current practice request, syncing its estatus
+     * (aprobada -> en_proceso -> finalizada) based on dates/hours before returning it.
+     */
+    private function getSolicitudActiva(Estudiante $estudiante, array $with = [], bool $incluirFinalizada = false): ?Solicitud
+    {
+        $estatuses = ['aprobada', 'en_proceso'];
+        if ($incluirFinalizada) {
+            $estatuses[] = 'finalizada';
+        }
+
+        $solicitud = Solicitud::where('estudiante_id', $estudiante->id)
+            ->whereIn('estatus', $estatuses)
+            ->with($with)
+            ->latest('id')
+            ->first();
+
+        $solicitud?->sincronizarEstatus();
+
+        return $solicitud;
     }
 
     private function iniciales(string $nombre): string

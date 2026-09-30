@@ -36,4 +36,13 @@ class Estudiante extends Model
     {
         return $this->hasMany(Solicitud::class, 'estudiante_id');
     }
+
+    /**
+     * Required practice hours by program: Ingeniería de Software requires 600,
+     * every other engineering program at the school requires 480.
+     */
+    public function horasMetaPractica(): int
+    {
+        return str_contains(mb_strtolower($this->carrera ?? ''), 'software') ? 600 : 480;
+    }
 }

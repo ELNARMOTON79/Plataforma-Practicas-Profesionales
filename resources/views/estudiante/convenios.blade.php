@@ -176,12 +176,26 @@
                         <p id="errFechaInicio" class="hidden text-xs text-red-500 font-medium"></p>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-sm font-semibold text-gray-700">Fecha de fin <span class="text-red-500">*</span></label>
-                        <input type="date" name="fecha_fin" id="solicitudFechaFin"
+                        <label class="text-sm font-semibold text-gray-700">Horas por día <span class="text-red-500">*</span></label>
+                        <select name="horas_por_dia" id="solicitudHorasPorDia"
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
-                        <p id="errFechaFin" class="hidden text-xs text-red-500 font-medium"></p>
+                            <option value="8">8 horas</option>
+                            <option value="6">6 horas</option>
+                        </select>
+                        <p id="errHorasPorDia" class="hidden text-xs text-red-500 font-medium"></p>
                     </div>
                 </div>
+
+                <div id="solicitudFechaFinBox" class="rounded-xl border border-[#6BA53A]/20 bg-[#6BA53A]/5 px-4 py-3 flex items-center gap-2.5">
+                    <svg class="w-4 h-4 text-[#4E7D24] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Fecha de finalización estimada</p>
+                        <p id="solicitudFechaFinTexto" class="text-sm font-semibold text-gray-800">Selecciona la fecha de inicio para calcularla</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 -mt-2">
+                    Se calcula automáticamente para completar {{ $horasMeta ?? 480 }} horas, contando solo días hábiles (sin fines de semana ni días festivos).
+                </p>
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Observaciones <span class="text-gray-400 font-normal">(opcional)</span></label>
@@ -295,10 +309,11 @@
             document.getElementById('solicitudEmpresaNombre').textContent = nombre;
             document.getElementById('solicitudResponsable').value = '';
             document.getElementById('solicitudFechaInicio').value = '';
-            document.getElementById('solicitudFechaFin').value = '';
+            document.getElementById('solicitudHorasPorDia').value = '8';
             document.getElementById('solicitudObservaciones').value = '';
             document.getElementById('solicitudError').classList.add('hidden');
-            ['errResponsable','errFechaInicio','errFechaFin'].forEach(function(id) {
+            document.getElementById('solicitudFechaFinTexto').textContent = 'Selecciona la fecha de inicio para calcularla';
+            ['errResponsable','errFechaInicio','errHorasPorDia'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById('solicitudModal').classList.remove('hidden');
@@ -308,10 +323,42 @@
             document.getElementById('solicitudModal').classList.add('hidden');
         }
 
+        var _fechaFinRequestId = 0;
+
+        function actualizarFechaFinEstimada() {
+            var fechaInicio = document.getElementById('solicitudFechaInicio').value;
+            var horasPorDia = document.getElementById('solicitudHorasPorDia').value;
+            var textoEl = document.getElementById('solicitudFechaFinTexto');
+
+            if (!fechaInicio || !horasPorDia) {
+                textoEl.textContent = 'Selecciona la fecha de inicio para calcularla';
+                return;
+            }
+
+            textoEl.textContent = 'Calculando...';
+            var requestId = ++_fechaFinRequestId;
+
+            var url = '{{ route("estudiante.calcularFechaFinSolicitud") }}?fecha_inicio=' + encodeURIComponent(fechaInicio) + '&horas_por_dia=' + encodeURIComponent(horasPorDia);
+
+            fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then(function(r) { return r.json().then(function(d) { if (!r.ok) throw d; return d; }); })
+                .then(function(data) {
+                    if (requestId !== _fechaFinRequestId) return;
+                    textoEl.textContent = data.fecha_fin_formateada;
+                })
+                .catch(function() {
+                    if (requestId !== _fechaFinRequestId) return;
+                    textoEl.textContent = 'No se pudo calcular la fecha. Verifica la fecha de inicio.';
+                });
+        }
+
+        document.getElementById('solicitudFechaInicio').addEventListener('change', actualizarFechaFinEstimada);
+        document.getElementById('solicitudHorasPorDia').addEventListener('change', actualizarFechaFinEstimada);
+
         function submitSolicitud() {
             var btn = document.getElementById('solicitudSubmitBtn');
             var errBox = document.getElementById('solicitudError');
-            ['errResponsable','errFechaInicio','errFechaFin'].forEach(function(id) {
+            ['errResponsable','errFechaInicio','errHorasPorDia'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             errBox.classList.add('hidden');
@@ -319,7 +366,7 @@
             var urId       = document.getElementById('solicitudUrId').value;
             var responsable= document.getElementById('solicitudResponsable').value.trim();
             var fechaInicio= document.getElementById('solicitudFechaInicio').value;
-            var fechaFin   = document.getElementById('solicitudFechaFin').value;
+            var horasPorDia= document.getElementById('solicitudHorasPorDia').value;
             var observaciones = document.getElementById('solicitudObservaciones').value.trim();
 
             var hasError = false;
@@ -333,15 +380,6 @@
                 document.getElementById('errFechaInicio').classList.remove('hidden');
                 hasError = true;
             }
-            if (!fechaFin) {
-                document.getElementById('errFechaFin').textContent = 'La fecha de fin es obligatoria.';
-                document.getElementById('errFechaFin').classList.remove('hidden');
-                hasError = true;
-            } else if (fechaInicio && fechaFin <= fechaInicio) {
-                document.getElementById('errFechaFin').textContent = 'La fecha de fin debe ser posterior a la fecha de inicio.';
-                document.getElementById('errFechaFin').classList.remove('hidden');
-                hasError = true;
-            }
             if (hasError) return;
 
             btn.disabled = true;
@@ -353,7 +391,7 @@
             formData.append('ur_id', urId);
             formData.append('responsable', responsable);
             formData.append('fecha_inicio', fechaInicio);
-            formData.append('fecha_fin', fechaFin);
+            formData.append('horas_por_dia', horasPorDia);
             if (observaciones) formData.append('observaciones', observaciones);
 
             fetch('{{ route("estudiante.storeSolicitud") }}', {
@@ -366,7 +404,9 @@
             })
             .then(function(data) {
                 closeSolicitudModal();
-                showConvenioToast(data.message || 'Solicitud enviada correctamente.');
+                var msg = data.message || 'Solicitud enviada correctamente.';
+                if (data.fecha_fin) { msg += ' Fecha estimada de término: ' + data.fecha_fin + '.'; }
+                showConvenioToast(msg);
             })
             .catch(function(err) {
                 btn.disabled = false;
