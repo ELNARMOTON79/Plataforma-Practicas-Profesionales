@@ -51,20 +51,14 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     Route::get('/coordinador/dashboard', [CoordinadorDashboardController::class, 'dashboard'])->name('coordinador.dashboard');
 
-    Route::get('/coordinador/instituciones', function () {
-        if (Auth::user()->rol_id != 2) return redirect('/');
-        return view('coordinador.instituciones');
-    })->name('coordinador.instituciones');
+    Route::get('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'instituciones'])->name('coordinador.instituciones');
 
     Route::get('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'alumnos'])->name('coordinador.alumnos');
     Route::post('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
-    Route::post('/coordinador/alumnos/bulk', [App\Http\Controllers\Coordinador\AlumnoController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk');
+    Route::post('/coordinador/alumnos/bulk', [App\Http\Controllers\Coordinador\AlumnoController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk-store');
     Route::put('/coordinador/alumnos/{id}', [App\Http\Controllers\Coordinador\AlumnoController::class, 'updateAlumno'])->name('coordinador.alumnos.update');
 
-    Route::get('/coordinador/proyectos', function () {
-        if (Auth::user()->rol_id != 2) return redirect('/');
-        return view('coordinador.proyectos');
-    })->name('coordinador.proyectos');
+    Route::get('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'proyectos'])->name('coordinador.proyectos');
 
     Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
     Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
