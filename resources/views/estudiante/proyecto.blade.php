@@ -103,7 +103,9 @@
                         <span class="text-gray-400 font-bold">Horas restantes</span>
                         <span>{{ $horasRestantes }} horas</span>
                     </div>
-                    @if($solicitudActiva->estatus === 'finalizada')
+                    @if(! $solicitudActiva->documentosInicialesValidados())
+                        <p class="text-[11px] text-gray-400 italic pt-1">Tus horas comenzarán a contabilizarse cuando el coordinador valide tu Carta de Presentación, Carta de Aceptación y Plan de Trabajo.</p>
+                    @elseif($solicitudActiva->estatus === 'finalizada')
                         <p class="text-[11px] text-gray-400 italic pt-1">Meta de horas alcanzada.</p>
                     @else
                         <p class="text-[11px] text-gray-400 italic pt-1">El avance se calcula automáticamente contando los días hábiles transcurridos desde tu fecha de inicio (excluyendo fines de semana y días festivos).</p>
