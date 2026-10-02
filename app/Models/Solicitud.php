@@ -14,6 +14,11 @@ class Solicitud extends Model
     /** Fallback used only when the practice has no linked estudiante to read the program from. */
     public const HORAS_META = 480;
 
+    public const MODALIDADES = [
+        'practica_integrativa' => 'Práctica integrativa',
+        'estancia_profesional' => 'Estancia profesional',
+    ];
+
     protected $table = 'solicitudes';
 
     public $timestamps = false;
@@ -25,6 +30,7 @@ class Solicitud extends Model
         'fecha_inicio',
         'fecha_fin',
         'horas_por_dia',
+        'modalidad',
         'estatus',
         'observaciones',
     ];
