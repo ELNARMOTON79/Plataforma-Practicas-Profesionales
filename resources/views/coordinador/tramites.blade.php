@@ -102,17 +102,17 @@
             <span class="text-[11px] text-gray-400 font-medium">Historial completo</span>
         </button>
 
-        <!-- 4. Total de Trámites -->
+        <!-- 4. Solicitudes Aprobadas -->
         <button type="button" onclick="switchTab('solicitudes-todas')" id="metric-total"
             class="{{ $activeTab === 'solicitudes-todas' ? $cardActive . ' border-[#4E7D24] ring-4 ring-[#4E7D24]/10' : $cardInactive . ' hover:border-[#6BA53A]/30' }}">
             <div class="flex items-center justify-between w-full mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider {{ $activeTab === 'solicitudes-todas' ? 'text-[#4E7D24]' : 'text-gray-500 group-hover:text-[#4E7D24] transition-colors' }}">Total de Trámites</span>
+                <span class="text-xs font-bold uppercase tracking-wider {{ $activeTab === 'solicitudes-todas' ? 'text-[#4E7D24]' : 'text-gray-500 group-hover:text-[#4E7D24] transition-colors' }}">Solicitudes Aprobadas</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-[#4E7D24]"></span>
             </div>
             <div class="flex items-end gap-3 mb-1">
-                <span class="text-3xl font-extrabold text-gray-900">{{ $totalTramitesCount }}</span>
+                <span class="text-3xl font-extrabold text-gray-900">{{ $solicitudesAprobadasCount }}</span>
             </div>
-            <span class="text-[11px] text-gray-400 font-medium">Ciclo Escolar Activo</span>
+            <span class="text-[11px] text-gray-400 font-medium">Prácticas activas</span>
         </button>
     </div>
 
@@ -135,14 +135,14 @@
                     <h2 id="section-title" class="text-lg font-extrabold text-gray-800 leading-tight">
                         @if($activeTab === 'doc-pendientes') Documentos Pendientes de Validar
                         @elseif($activeTab === 'doc-validados') Historial de Documentos Validados
-                        @elseif($activeTab === 'solicitudes-todas') Todas las Solicitudes Registradas
+                        @elseif($activeTab === 'solicitudes-todas') Solicitudes de Prácticas Aprobadas
                         @else Solicitudes Pendientes de Prácticas
                         @endif
                     </h2>
                     <p id="section-subtitle" class="text-xs text-gray-400 font-medium">
                         @if($activeTab === 'doc-pendientes') Expedientes y documentos oficiales subidos por alumnos pendientes de revisión
                         @elseif($activeTab === 'doc-validados') Registro histórico completo de los expedientes validados y autorizados
-                        @elseif($activeTab === 'solicitudes-todas') Historial general de todas las solicitudes de prácticas (Pendientes, Aprobadas y Rechazadas)
+                        @elseif($activeTab === 'solicitudes-todas') Historial de las solicitudes que ya fueron aprobadas para inicio de prácticas
                         @else Revisión y autorización de inicio de prácticas profesionales pendientes
                         @endif
                     </p>
@@ -171,7 +171,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-transparent divide-y divide-gray-100">
-                        @foreach($solicitudesPendientes as $solicitud)
+                        @foreach($solicitudes as $solicitud)
                             <tr class="hover:bg-[#6BA53A]/5 transition-colors group">
                                 <!-- Estudiante -->
                                 <td class="px-6 py-3 whitespace-nowrap text-left">
@@ -230,9 +230,10 @@
                                 <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
                                     @if($solicitud->estatus == 'pendiente')
                                         <div class="flex justify-center gap-2">
-                                            <form id="form-aprobar-{{ $solicitud->id }}" action="{{ route('coordinador.tramites.solicitud.aprobar', $solicitud->id) }}" method="POST">
+                                            <form id="form-aprobar-{{ $solicitud->id }}" action="{{ route('coordinador.tramites.solicitud.aprobar', $solicitud->id) }}" method="POST" onsubmit="document.getElementById('hidden-aprobar-obs-{{ $solicitud->id }}').value = document.getElementById('obs-input-{{ $solicitud->id }}').value">
                                                 @csrf
                                                 @method('PATCH')
+                                                <input type="hidden" id="hidden-aprobar-obs-{{ $solicitud->id }}" name="observaciones">
                                                 <button type="submit" class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Aprobar solicitud">
                                                     Aprobar
                                                 </button>
@@ -311,9 +312,10 @@
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center gap-2">
-                                        <form id="form-doc-validar-{{ $doc->id }}" action="{{ route('coordinador.tramites.documento.validar', $doc->id) }}" method="POST">
+                                        <form id="form-doc-validar-{{ $doc->id }}" action="{{ route('coordinador.tramites.documento.validar', $doc->id) }}" method="POST" onsubmit="document.getElementById('hidden-doc-validar-obs-{{ $doc->id }}').value = document.getElementById('obs-doc-input-{{ $doc->id }}').value">
                                             @csrf
                                             @method('PATCH')
+                                            <input type="hidden" id="hidden-doc-validar-obs-{{ $doc->id }}" name="observaciones">
                                             <button type="submit" class="px-3 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 rounded-xl text-xs font-bold transition-all shadow-sm" title="Validar documento">
                                                 Validar
                                             </button>
@@ -554,11 +556,11 @@
 
                 sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
                 sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>`;
-                sectionTitle.textContent = "Todas las Solicitudes Registradas";
-                sectionSubtitle.textContent = "Historial general de todas las solicitudes de prácticas (Pendientes, Aprobadas y Rechazadas)";
+                sectionTitle.textContent = "Solicitudes de Prácticas Aprobadas";
+                sectionSubtitle.textContent = "Historial de las solicitudes que ya fueron aprobadas para inicio de prácticas";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('').draw();
+                    tablaSolicitudes.column(2).search('^aprobada$', true, false).draw();
                 }
             } else {
                 contentSolicitudes.classList.remove('hidden');

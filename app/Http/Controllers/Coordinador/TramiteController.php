@@ -66,7 +66,7 @@ class TramiteController extends Controller
         $solicitudesPendientesCount = Solicitud::where('estatus', 'pendiente')->count();
         $documentosPendientesCount  = Documento::where('estatus', 'pendiente')->count();
         $documentosValidadosCount   = Documento::where('estatus', 'validado')->count();
-        $totalTramitesCount         = Solicitud::count() + Documento::count();
+        $solicitudesAprobadasCount  = Solicitud::where('estatus', 'aprobada')->count();
 
         return view('coordinador.tramites', compact(
             'solicitudesPendientes',
@@ -76,7 +76,7 @@ class TramiteController extends Controller
             'solicitudesPendientesCount',
             'documentosPendientesCount',
             'documentosValidadosCount',
-            'totalTramitesCount'
+            'solicitudesAprobadasCount'
         ));
     }
 
