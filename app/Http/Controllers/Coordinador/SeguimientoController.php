@@ -16,10 +16,8 @@ class SeguimientoController extends Controller
     {
         $sessionData = session()->get('seguimiento_data', []);
 
-        // 1. Initial mock data
         $data = $this->getInitialData();
 
-        // 2. Query all database students
         $dbAlumnos = \App\Models\Alumno::with(['user'])->get();
 
         foreach ($dbAlumnos as $alumno) {
@@ -28,14 +26,12 @@ class SeguimientoController extends Controller
                 ->orderBy('id', 'desc')
                 ->first();
 
-            // Only include students who have been accepted / approved for practice
+            
             $isAceptado = ($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada', 'acreditado'])) || $alumno->activo_practica == 1;
 
             if (!$isAceptado) {
                 continue;
             }
-
-            // Status determination
             $estatus = 'EN PROCESO';
             if ($solicitud && in_array($solicitud->estatus, ['finalizada', 'acreditado'])) {
                 $estatus = 'ACREDITADO';
@@ -44,7 +40,7 @@ class SeguimientoController extends Controller
             $urNombre = 'INSTITUCIÓN NO ASIGNADA';
             $responsable = !empty($alumno->asesor) ? $alumno->asesor : 'Dr. Coordinador de Prácticas';
             $cargo = 'Asesor Académico / Responsable';
-            $correoDestino = $alumno->user->correo ?? '';
+            $correoDestino = $alumno->user->correo ?? 'Sin correo asignado';
             $fechaInicio = '01/02/2026';
             $fechaTermino = '01/07/2026';
             $observaciones = 'Sin observaciones registradas.';
@@ -73,19 +69,29 @@ class SeguimientoController extends Controller
                 }
             }
 
-            // 1. First look for a project directly assigned to this student (estudiante_id)
             $proyectoReal = \App\Models\Proyecto::where('estudiante_id', $alumno->id)->first();
 
-            // 2. Otherwise look for a project of the student's receptor unit
             if (!$proyectoReal && $solicitud && !empty($solicitud->ur_id)) {
                 $proyectoReal = \App\Models\Proyecto::where('unidad_receptora_id', $solicitud->ur_id)->first();
             }
-
-            // Prioritize the project's specific Unidad Receptora if set
             if ($proyectoReal && !empty($proyectoReal->unidad_receptora_id)) {
                 $projUr = \App\Models\UnidadReceptora::find($proyectoReal->unidad_receptora_id);
                 if ($projUr) {
                     $urModel = $projUr;
+                }
+            }
+            if ($urModel) {
+                if (!empty($urModel->titular)) {
+                    $responsable = $urModel->titular;
+                }
+                if (!empty($urModel->cargo)) {
+                    $cargo = $urModel->cargo;
+                }
+                if (!empty($urModel->usuario_id)) {
+                    $urUser = \App\Models\User::find($urModel->usuario_id);
+                    if ($urUser) {
+                        $correoDestino = $urUser->correo;
+                    }
                 }
             }
 
@@ -112,7 +118,6 @@ class SeguimientoController extends Controller
             $titular = !empty($urModel?->titular) ? $urModel->titular : (!empty($alumno->asesor) ? $alumno->asesor : 'ASESOR ACADÉMICO');
             $domicilio = !empty($urModel?->direccion) ? $urModel->direccion : 'Facultad de Ingeniería Electromecánica, Universidad de Colima';
 
-            // Documents list status dynamically resolved from DB
             $docsList = [
                 'carta_presentacion' => [
                     'label' => 'Carta Presentación',
@@ -187,7 +192,6 @@ class SeguimientoController extends Controller
 
             $key = $alumno->id;
 
-            // If session already has custom modifications for this student, respect them
             if (isset($sessionData[$key])) {
                 $data[$key] = $sessionData[$key];
             } else {

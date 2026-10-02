@@ -56,9 +56,10 @@
                 <div>
                     <label for="filtro-ciclo" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ciclo Escolar</label>
                     <select id="filtro-ciclo" onchange="updateReportPreview()" name="ciclo" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-xs font-semibold text-gray-700 outline-none cursor-pointer appearance-none">
-                        <option value="AGO-2026/ENE-2027">AGO-2026/ENE-2027</option>
-                        <option value="FEB-2026/JUL-2026">FEB-2026/JUL-2026</option>
-                        <option value="AGO-2025/ENE-2026">AGO-2025/ENE-2026</option>
+                        <option value="">Todos los ciclos</option>
+                        @foreach($ciclosEscolares as $ciclo)
+                            <option value="{{ $ciclo }}">{{ $ciclo }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -168,8 +169,123 @@
         </div>
     </div>
 
-    <!-- Live Preview Panel -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 text-left fade-in-up delay-200">
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in-up delay-200">
+        <!-- Carreras Distribution (62.5% SW, 25% Info, 12.5% Tele) -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="text-md font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    Distribución por Carrera
+                </h3>
+                <div class="space-y-4 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
+                    @foreach($carrerasStats as $carrera => $count)
+                        @php
+                            $percentage = $totalAlumnos > 0 ? round(($count / $totalAlumnos) * 100) : 0;
+                            // Generate a consistent color based on the string length or just use a default palette
+                            $colors = ['bg-[#6BA53A]', 'bg-blue-500', 'bg-orange-500', 'bg-purple-500', 'bg-teal-500'];
+                            $colorIndex = crc32($carrera) % count($colors);
+                            $barColor = $colors[$colorIndex];
+                            
+                            $textColors = ['text-[#4E7D24]', 'text-blue-600', 'text-orange-600', 'text-purple-600', 'text-teal-600'];
+                            $textColor = $textColors[$colorIndex];
+                        @endphp
+                        <div>
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700 mb-1">
+                                <span>{{ $carrera }}</span>
+                                <span class="{{ $textColor }}">{{ $count }} alumnos ({{ $percentage }}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-3">
+                                <div class="{{ $barColor }} h-3 rounded-full transition-all duration-500" style="width: {{ $percentage }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <span class="text-[10px] text-gray-400 font-semibold mt-4">Actualizado dinámicamente según filtros.</span>
+        </div>
+
+        <!-- Genero Distribution -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="text-md font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Distribución por Género
+                </h3>
+                
+                <div class="space-y-6 py-2">
+                    @php
+                        $countF = $generosStats['FEMENINO'] ?? 0;
+                        $countM = $generosStats['MASCULINO'] ?? 0;
+                        $totalGen = $countF + $countM;
+                        $pctF = $totalGen > 0 ? round(($countF / $totalGen) * 100) : 0;
+                        $pctM = $totalGen > 0 ? round(($countM / $totalGen) * 100) : 0;
+                    @endphp
+                    <div class="flex items-center justify-between text-xs font-bold text-gray-700">
+                        <span class="flex items-center gap-1.5 text-purple-600"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Femenino: {{ $countF }} ({{ $pctF }}%)</span>
+                        <span class="flex items-center gap-1.5 text-blue-600"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Masculino: {{ $countM }} ({{ $pctM }}%)</span>
+                    </div>
+
+                    <!-- Split Progress Bar -->
+                    <div class="w-full bg-gray-100 rounded-full h-5 overflow-hidden flex">
+                        <div class="bg-purple-500 h-full transition-all duration-500" style="width: {{ $pctF }}%" title="Femenino"></div>
+                        <div class="bg-blue-500 h-full transition-all duration-500" style="width: {{ $pctM }}%" title="Masculino"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-center text-xs">
+                        <div class="bg-purple-50 p-2.5 rounded-2xl border border-purple-100">
+                            <span class="text-[10px] text-purple-500 block font-bold">Mujeres</span>
+                            <span class="font-extrabold text-purple-800 text-lg">{{ $countF }}</span>
+                        </div>
+                        <div class="bg-blue-50 p-2.5 rounded-2xl border border-blue-100">
+                            <span class="text-[10px] text-blue-500 block font-bold">Hombres</span>
+                            <span class="font-extrabold text-blue-800 text-lg">{{ $countM }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <span class="text-[10px] text-gray-400 font-semibold mt-4">Métrica global del periodo actual.</span>
+        </div>
+
+        <!-- Modalidad Distribucion -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="text-md font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Distribución por Modalidad
+                </h3>
+                <div class="space-y-4 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
+                    @foreach($modalidadesStats as $modalidad => $count)
+                        @php
+                            $percentage = $totalProyectos > 0 ? round(($count / $totalProyectos) * 100) : 0;
+                            
+                            $modLower = strtolower($modalidad);
+                            if (str_contains($modLower, 'hibrido') || str_contains($modLower, 'híbrido')) {
+                                $gradient = 'from-blue-400 to-indigo-500';
+                            } elseif (str_contains($modLower, 'remoto') || str_contains($modLower, 'virtual')) {
+                                $gradient = 'from-green-400 to-[#6BA53A]';
+                            } else {
+                                $gradient = 'from-yellow-400 to-orange-500';
+                            }
+                        @endphp
+                        <div>
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700 mb-1">
+                                <span class="capitalize">{{ $modalidad }}</span>
+                                <span class="text-gray-800">{{ $count }} proyectos ({{ $percentage }}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-3">
+                                <div class="bg-gradient-to-r {{ $gradient }} h-3 rounded-full transition-all duration-500" style="width: {{ $percentage }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <span class="text-[10px] text-gray-400 font-semibold mt-4">Modalidades del catálogo activo.</span>
+        </div>
+    </div>
+
+    <!-- Panel previo -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 text-left fade-in-up delay-300">
         <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
             <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
                 <div class="bg-[#6BA53A]/10 p-2 rounded-xl text-[#4E7D24]">
@@ -183,70 +299,22 @@
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50/50" id="preview-thead">
-                    <!-- Dynamic Headers will be rendered here -->
+                   
                 </thead>
                 <tbody class="bg-transparent divide-y divide-gray-100" id="preview-tbody">
-                    <!-- Dynamic Rows will be rendered here -->
+                    
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Script Block: Dynamic table updating, stat bars updates & Toast simulation -->
     <script>
-        // Mock databases for the 3 report types
-        const mockDatabase = {
-            estudiantes: {
-                headers: ['Alumno / Matrícula', 'Carrera', 'Género', 'Ciclo Escolar', 'Estatus'],
-                rows: [
-                    ['DOMINGUEZ MARCOS JAZMIN<br><span class="text-[9px] text-gray-400 font-semibold">20206744</span>', 'Ingeniería de Software', 'Femenino', 'AGO-2026/ENE-2027', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">ACTIVO</span>'],
-                    ['HERRERA RUIZ ALEJANDRO<br><span class="text-[9px] text-gray-400 font-semibold">20194852</span>', 'Ingeniería de Software', 'Masculino', 'AGO-2026/ENE-2027', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100">ASIGNADO</span>'],
-                    ['FLORES SILVA MARIANA<br><span class="text-[9px] text-gray-400 font-semibold">20213094</span>', 'Ingeniería de Software', 'Femenino', 'AGO-2026/ENE-2027', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">ACTIVO</span>'],
-                    ['PEREZ LOPEZ JUAN<br><span class="text-[9px] text-gray-400 font-semibold">20184752</span>', 'Ingeniero en Mecatronica', 'Masculino', 'AGO-2025/ENE-2026', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100">ASIGNADO</span>'],
-                    ['ALONSO CÁRDENAS HÉCTOR<br><span class="text-[9px] text-gray-400 font-semibold">20201104</span>', 'Ingeniero en Mecatronica', 'Masculino', 'FEB-2026/JUL-2026', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">PENDIENTE</span>']
-                ],
-                stats: [
-                    { label: 'Ingeniería de Software', percentage: 60, colorClass: 'bg-[#4E7D24]' },
-                    { label: 'Ingeniero en Mecatronica', percentage: 40, colorClass: 'bg-[#6BA53A]' }
-                ]
-            },
-            instituciones: {
-                headers: ['Institución de Vinculación', 'Contacto Principal', 'Sector', 'Ubicación', 'Estatus Convenio'],
-                rows: [
-                    ['H. AYUNTAMIENTO DE COLIMA', 'Lic. Alejandro Silva<br><span class="text-[9px] text-gray-400 font-semibold">Ecología</span>', 'Público', 'Colima, Col.', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">VIGENTE</span>'],
-                    ['TERNIUM MÉXICO S.A. DE C.V.', 'Ing. Roberto Garza<br><span class="text-[9px] text-gray-400 font-semibold">Sistemas TI</span>', 'Privado', 'San Nicolás de los G., NL', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">VIGENTE</span>'],
-                    ['IMSS - DELEGACIÓN COLIMA', 'Arq. Patricia Orozco<br><span class="text-[9px] text-gray-400 font-semibold">Infraestructura</span>', 'Público', 'Colima, Col.', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">VIGENTE</span>'],
-                    ['BRIGHTCODERS CONSULTING S.A. DE C.V.', 'Mtro. Carlos Rocha<br><span class="text-[9px] text-gray-400 font-semibold">Director Académico</span>', 'Privado', 'Colima, Col.', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">VIGENTE</span>'],
-                    ['UNIVERSIDAD DE COLIMA', 'Mtra. Lucía Romero<br><span class="text-[9px] text-gray-400 font-semibold">Vinculación</span>', 'Público', 'Colima, Col.', '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-700 border border-red-100">POR RENOVAR</span>']
-                ],
-                stats: [
-                    { label: 'Sector Público', percentage: 60, colorClass: 'bg-[#4E7D24]' },
-                    { label: 'Sector Privado', percentage: 40, colorClass: 'bg-[#6BA53A]' }
-                ]
-            },
-            proyectos: {
-                headers: ['Título del Proyecto', 'Unidad Receptora', 'Modalidad', 'Cupos Disponibles', 'Ciclo Escolar'],
-                rows: [
-                    ['PLATAFORMA WEB PARA ADMINISTRACIÓN DE PRÁCTICAS', 'BRIGHTCODERS CONSULTING', 'Virtual', '0 de 1', 'AGO-2026/ENE-2027'],
-                    ['DESARROLLO DE MÓDULO DE SEGUIMIENTO DE EGRESADOS', 'TERNIUM MÉXICO', 'Híbrido', '0 de 2', 'AGO-2026/ENE-2027'],
-                    ['IMPLEMENTACIÓN DE REDES E INFRAESTRUCTURA DE TELECOM.', 'H. AYUNTAMIENTO DE COLIMA', 'Presencial', '3 de 3', 'AGO-2026/ENE-2027'],
-                    ['ANÁLISIS Y OPTIMIZACIÓN DE EFICIENCIA ENERGÉTICA', 'IMSS - DELEGACIÓN COLIMA', 'Híbrido', '1 de 2', 'AGO-2026/ENE-2027'],
-                    ['SISTEMA DE MONITOREO CLIMÁTICO CON IOT', 'H. AYUNTAMIENTO DE COLIMA', 'Presencial', '2 de 2', 'AGO-2026/ENE-2027']
-                ],
-                stats: [
-                    { label: 'Modalidad Presencial', percentage: 40, colorClass: 'bg-[#4E7D24]' },
-                    { label: 'Modalidad Híbrida', percentage: 40, colorClass: 'bg-[#6BA53A]' },
-                    { label: 'Modalidad Virtual', percentage: 20, colorClass: 'bg-yellow-500' }
-                ]
-            }
-        };
+        const mockDatabase = {!! $dbDataJson !!};
 
-        // Populate Table headers and rows
         function updateReportPreview() {
             const reportType = document.getElementById('tipo-reporte').value;
             const db = mockDatabase[reportType];
             
-            // 1. Update Table Headers
             let theadHtml = '<tr>';
             db.headers.forEach((header, index) => {
                 let borderClass = '';
@@ -257,7 +325,6 @@
             theadHtml += '</tr>';
             document.getElementById('preview-thead').innerHTML = theadHtml;
 
-            // 2. Update Table Rows (Filtering mockups loosely for Carrera and Gender)
             const carrera = document.getElementById('filtro-carrera').value;
             const genero = document.getElementById('filtro-genero').value;
             const ciclo = document.getElementById('filtro-ciclo').value;
@@ -267,7 +334,6 @@
             let count = 0;
 
             db.rows.forEach(row => {
-                // Apply mock filters to simulate real filtering
                 if (reportType === 'estudiantes') {
                     if (carrera && row[1] !== carrera) return;
                     if (genero === 'femenino' && row[2] !== 'Femenino') return;
@@ -296,7 +362,6 @@
 
             document.getElementById('preview-tbody').innerHTML = tbodyHtml;
 
-            // 3. Update Distribution Stats Panel
             let statsHtml = '';
             db.stats.forEach(stat => {
                 statsHtml += `
@@ -313,11 +378,10 @@
             });
             document.getElementById('stats-bars-container').innerHTML = statsHtml;
 
-            // Update badge text
+ 
             document.getElementById('preview-badge').innerText = `${count} de muestra`;
         }
 
-        // Simula la exportación del reporte seleccionado
         function triggerExport(format) {
             const reportSelect = document.getElementById('tipo-reporte');
             const reportName = reportSelect.options[reportSelect.selectedIndex].text;
@@ -333,23 +397,22 @@
                 icon = document.getElementById('excel-icon');
             }
 
-            // Lock click & trigger loading spinners
             btn.style.pointerEvents = 'none';
             icon.classList.add('hidden');
             spinner.classList.remove('hidden');
 
             setTimeout(() => {
-                // Restore normal button state
+
                 btn.style.pointerEvents = '';
                 spinner.classList.add('hidden');
                 icon.classList.remove('hidden');
 
-                // Launch floating Toast
+
                 const toast = document.getElementById('export-toast');
                 document.getElementById('toast-message').innerText = `El "${reportName}" en formato ${format} se ha generado y descargado correctamente.`;
                 toast.classList.remove('translate-x-[150%]');
 
-                // Slide out toast after 4.5 seconds
+
                 setTimeout(() => {
                     toast.classList.add('translate-x-[150%]');
                 }, 4500);
@@ -357,14 +420,14 @@
             }, 1500);
         }
 
-        // Initialize view on load
+
         document.addEventListener('DOMContentLoaded', function() {
             updateReportPreview();
         });
     </script>
 
     <style>
-        /* Personalización de la flecha nativa de los selectores */
+
         select {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: right 1rem center;

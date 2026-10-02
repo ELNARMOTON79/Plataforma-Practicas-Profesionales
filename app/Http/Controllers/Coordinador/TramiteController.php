@@ -66,7 +66,7 @@ class TramiteController extends Controller
         $solicitudesPendientesCount = Solicitud::where('estatus', 'pendiente')->count();
         $documentosPendientesCount  = Documento::where('estatus', 'pendiente')->count();
         $documentosValidadosCount   = Documento::where('estatus', 'validado')->count();
-        $totalTramitesCount         = Solicitud::count() + Documento::count();
+        $solicitudesAprobadasCount  = Solicitud::where('estatus', 'aprobada')->count();
 
         return view('coordinador.tramites', compact(
             'solicitudesPendientes',
@@ -76,7 +76,7 @@ class TramiteController extends Controller
             'solicitudesPendientesCount',
             'documentosPendientesCount',
             'documentosValidadosCount',
-            'totalTramitesCount'
+            'solicitudesAprobadasCount'
         ));
     }
 
@@ -93,7 +93,8 @@ class TramiteController extends Controller
         $solicitud->estatus = 'aprobada';
         
         if ($request->filled('observaciones')) {
-            $solicitud->observaciones = $request->input('observaciones');
+            $request->validate(['observaciones' => 'string|max:500']);
+            $solicitud->observaciones = strip_tags(trim($request->input('observaciones')));
         }
         
         $solicitud->save();
@@ -119,7 +120,8 @@ class TramiteController extends Controller
         $solicitud->estatus = 'rechazada';
 
         if ($request->filled('observaciones')) {
-            $solicitud->observaciones = $request->input('observaciones');
+            $request->validate(['observaciones' => 'string|max:500']);
+            $solicitud->observaciones = strip_tags(trim($request->input('observaciones')));
         }
 
         $solicitud->save();
@@ -140,7 +142,8 @@ class TramiteController extends Controller
         $documento->estatus = 'validado';
 
         if ($request->filled('observaciones')) {
-            $documento->observaciones = $request->input('observaciones');
+            $request->validate(['observaciones' => 'string|max:500']);
+            $documento->observaciones = strip_tags(trim($request->input('observaciones')));
         }
 
         $documento->save();
@@ -161,7 +164,8 @@ class TramiteController extends Controller
         $documento->estatus = 'rechazado';
 
         if ($request->filled('observaciones')) {
-            $documento->observaciones = $request->input('observaciones');
+            $request->validate(['observaciones' => 'string|max:500']);
+            $documento->observaciones = strip_tags(trim($request->input('observaciones')));
         }
 
         $documento->save();

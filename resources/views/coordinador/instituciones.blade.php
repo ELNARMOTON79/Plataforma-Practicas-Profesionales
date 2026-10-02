@@ -108,7 +108,7 @@
                     <tr>
                         <th scope="col" class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider rounded-tl-xl max-w-[200px] whitespace-normal">Nombre de la Institución</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Convenio</th>
-                        <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Tipo Persona</th>
+
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sistema</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Sector</th>
                         <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Unidades Receptoras</th>
@@ -165,17 +165,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> {{ $codigoConvenio }}
                                 </span>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-center">
-                                @if(strcasecmp($inst->tipo_persona, 'moral') === 0 || str_contains(strtolower($inst->tipo_persona), 'moral'))
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5 mt-1.5"></span> Moral
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-purple-50 text-purple-700 border border-purple-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-1.5 mt-1.5"></span> Física
-                                    </span>
-                                @endif
-                            </td>
+
                             <td class="px-3 py-4 whitespace-nowrap text-xs text-center text-gray-500 font-bold uppercase">
                                 {{ $sistema }}
                             </td>
@@ -247,20 +237,17 @@
     </script>
 
     <script>
-        // Modal: Unidades Receptoras
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.open-ur-modal').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const empresa = this.dataset.empresa;
-                    let unidades = [];
-                    try {
-                        unidades = JSON.parse(this.dataset.unidades);
-                    } catch (e) {
-                        console.error('Error parseando Unidades Receptoras:', e);
-                    }
-                    openUnidadesModal(empresa, unidades);
-                });
-            });
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.open-ur-modal');
+            if (!btn) return;
+            const empresa = btn.dataset.empresa;
+            let unidades = [];
+            try {
+                unidades = JSON.parse(btn.dataset.unidades);
+            } catch (err) {
+                console.error('Error parseando Unidades Receptoras:', err);
+            }
+            openUnidadesModal(empresa, unidades);
         });
 
         window.currentUnidadesList = [];
@@ -318,11 +305,9 @@
                 { key: 'cp',                label: 'C.P.' },
                 { key: 'municipio',         label: 'Municipio' },
                 { key: 'estado',            label: 'Estado' },
-                { key: 'tipo_persona',      label: 'Tipo Persona' },
                 { key: 'sistema',           label: 'Sistema' },
                 { key: 'sector',            label: 'Sector' },
                 { key: 'convenio',          label: 'Convenio' },
-                { key: 'fecha_vencimiento', label: 'Fecha de Vencimiento' },
             ];
 
             const body = document.getElementById('unidadesModalBody');
@@ -355,12 +340,7 @@
                     let val = ur[field.key];
                     if (!val && val !== 0) return;
 
-                    if (field.key === 'fecha_vencimiento' && typeof val === 'string') {
-                        const parts = val.split('-');
-                        if (parts.length === 3) {
-                            val = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        }
-                    }
+
 
                     const item = document.createElement('div');
                     item.innerHTML = `

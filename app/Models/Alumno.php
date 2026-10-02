@@ -20,27 +20,33 @@ class Alumno extends Model
      */
     public function getEstatusAttribute()
     {
+        // Cuenta deshabilitada
         if (!$this->user || !$this->user->activo) {
             return 'INACTIVO';
         }
+
+        // Práctica formalmente aprobada
         if ($this->activo_practica == 1) {
             return 'ACTIVO';
         }
-        
+
         $solicitud = \DB::table('solicitudes')
             ->where('estudiante_id', $this->id)
             ->orderBy('id', 'desc')
             ->first();
-            
-        if ($solicitud) {
-            if (in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'])) {
-                return 'ASIGNADO';
-            } elseif ($solicitud->estatus == 'pendiente') {
-                return 'PENDIENTE';
-            }
+
+        // Tiene solicitud aprobada/en proceso → también ACTIVO
+        if ($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'])) {
+            return 'ACTIVO';
         }
-        
-        return 'PENDIENTE';
+
+        // Tiene solicitud enviada pero aún sin respuesta
+        if ($solicitud && $solicitud->estatus === 'pendiente') {
+            return 'PENDIENTE';
+        }
+
+        // Sin ninguna solicitud enviada
+        return 'INACTIVO';
     }
 
     /**
@@ -85,13 +91,12 @@ class Alumno extends Model
     public function getEstatusClassAttribute()
     {
         $estatus = $this->estatus;
-        if ($estatus == 'ACTIVO') {
+        if ($estatus === 'ACTIVO') {
             return 'bg-green-50 text-green-700 border-green-200';
-        } elseif ($estatus == 'ASIGNADO') {
-            return 'bg-blue-50 text-blue-700 border-blue-200';
-        } elseif ($estatus == 'PENDIENTE') {
+        } elseif ($estatus === 'PENDIENTE') {
             return 'bg-yellow-50 text-yellow-700 border-yellow-200';
         } else {
+            // INACTIVO
             return 'bg-red-50 text-red-700 border-red-200';
         }
     }

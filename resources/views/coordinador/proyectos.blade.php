@@ -163,17 +163,14 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         <div class="mt-6">
             {{ $proyectos->appends(request()->query())->links() }}
         </div>
     </div>
 
-    <!-- Vanilla Javascript Dynamic Engine -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Build JS mock dictionary dynamically from Eloquent items for view & edit modals prefilling
-            const projectDetails = {
+        function initProyectosPage() {
+            window.projectDetails = {
                 @foreach($proyectos as $proyecto)
                     "{{ $proyecto->id }}": {
                         id: "{{ $proyecto->id }}",
@@ -195,78 +192,71 @@
                 @endforeach
             };
 
-            // Global functions for modal opening
-            window.abrirVerProyecto = function(id) {
-                const project = projectDetails[id];
-                if (!project) return;
-
-                document.getElementById('view-id').textContent = '#' + project.id;
-                document.getElementById('view-title').textContent = project.titulo;
-                document.getElementById('view-titulo-label').textContent = project.titulo;
-                document.getElementById('view-unidad').textContent = project.unidad;
-                document.getElementById('view-tipo-proyecto').textContent = project.tipoProyecto;
-                document.getElementById('view-tipo-modalidad').textContent = project.tipoModalidad;
-                document.getElementById('view-plan').textContent = project.plan;
-                document.getElementById('view-ciclo').textContent = project.ciclo;
-                document.getElementById('view-cupo').textContent = project.cupo;
-                document.getElementById('view-objetivo').textContent = project.objetivo;
-                document.getElementById('view-justificacion').textContent = project.justificacion;
-                document.getElementById('view-actividades').textContent = project.actividades;
-                document.getElementById('view-impacto').textContent = project.impactoSocial;
-
-                document.getElementById('modal-ver-proyecto').classList.remove('hidden');
-            };
-
-            window.abrirEditarProyecto = function(id) {
-                const project = projectDetails[id];
-                if (!project) return;
-
-                // Set form action dynamically
-                const form = document.getElementById('form-editar-proyecto');
-                form.action = `/coordinador/proyectos/${project.id}`;
-
-                // Set edit header text
-                document.getElementById('edit-id-display').textContent = '#' + project.id;
-
-                // Pre-fill inputs
-                document.getElementById('edit-unidad').value = project.unidadId;
-                if (document.getElementById('edit-estudiante')) {
-                    document.getElementById('edit-estudiante').value = project.estudianteId || '';
-                }
-                document.getElementById('edit-titulo').value = project.titulo;
-                document.getElementById('edit-tipo-proyecto').value = project.tipoProyecto;
-                document.getElementById('edit-tipo-modalidad').value = project.tipoModalidad;
-                document.getElementById('edit-cupos-totales').value = project.cuposTotales;
-                document.getElementById('edit-objetivo').value = project.objetivo;
-                document.getElementById('edit-justificacion').value = project.justificacion;
-                document.getElementById('edit-actividades').value = project.actividades;
-                document.getElementById('edit-impacto').value = project.impactoSocial;
-
-                document.getElementById('modal-editar-proyecto').classList.remove('hidden');
-            };
-
-            // Auto-ocultar alerta de éxito a los 5 segundos
             const successAlert = document.getElementById('successAlert');
             if (successAlert) {
                 setTimeout(function() {
                     successAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function() {
-                        successAlert.remove();
-                    }, 500);
+                    setTimeout(function() { successAlert.remove(); }, 500);
                 }, 5000);
             }
 
-            // Auto-ocultar alerta de error a los 5 segundos
             const errorAlert = document.getElementById('errorAlert');
             if (errorAlert) {
                 setTimeout(function() {
                     errorAlert.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function() {
-                        errorAlert.remove();
-                    }, 500);
+                    setTimeout(function() { errorAlert.remove(); }, 500);
                 }, 5000);
             }
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', initProyectosPage);
+    
+        document.addEventListener('htmx:afterSettle', initProyectosPage);
+
+        window.abrirVerProyecto = function(id) {
+            const project = (window.projectDetails || {})[id];
+            if (!project) return;
+
+            document.getElementById('view-id').textContent = '#' + project.id;
+            document.getElementById('view-title').textContent = project.titulo;
+            document.getElementById('view-titulo-label').textContent = project.titulo;
+            document.getElementById('view-unidad').textContent = project.unidad;
+            document.getElementById('view-tipo-proyecto').textContent = project.tipoProyecto;
+            document.getElementById('view-tipo-modalidad').textContent = project.tipoModalidad;
+            document.getElementById('view-plan').textContent = project.plan;
+            document.getElementById('view-ciclo').textContent = project.ciclo;
+            document.getElementById('view-cupo').textContent = project.cupo;
+            document.getElementById('view-objetivo').textContent = project.objetivo;
+            document.getElementById('view-justificacion').textContent = project.justificacion;
+            document.getElementById('view-actividades').textContent = project.actividades;
+            document.getElementById('view-impacto').textContent = project.impactoSocial;
+
+            document.getElementById('modal-ver-proyecto').classList.remove('hidden');
+        };
+
+        window.abrirEditarProyecto = function(id) {
+            const project = (window.projectDetails || {})[id];
+            if (!project) return;
+
+            const form = document.getElementById('form-editar-proyecto');
+            form.action = `/coordinador/proyectos/${project.id}`;
+            document.getElementById('edit-id-display').textContent = '#' + project.id;
+
+            document.getElementById('edit-unidad').value = project.unidadId;
+            if (document.getElementById('edit-estudiante')) {
+                document.getElementById('edit-estudiante').value = project.estudianteId || '';
+            }
+            document.getElementById('edit-titulo').value = project.titulo;
+            document.getElementById('edit-tipo-proyecto').value = project.tipoProyecto;
+            document.getElementById('edit-tipo-modalidad').value = project.tipoModalidad;
+            document.getElementById('edit-cupos-totales').value = project.cuposTotales;
+            document.getElementById('edit-objetivo').value = project.objetivo;
+            document.getElementById('edit-justificacion').value = project.justificacion;
+            document.getElementById('edit-actividades').value = project.actividades;
+            document.getElementById('edit-impacto').value = project.impactoSocial;
+
+            document.getElementById('modal-editar-proyecto').classList.remove('hidden');
+        };
     </script>
 @endsection
 

@@ -60,37 +60,41 @@ class AlumnoController extends Controller
         // Estatus filter
         if ($estatus) {
             if ($estatus === 'activo') {
-                $query->where('activo_practica', 1)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
+                // Práctica activa: activo_practica=1 o solicitud aprobada/en_proceso/finalizada
+                $query->whereHas('user', fn($q) => $q->where('activo', 1))
+                      ->where(function ($q) {
+                          $q->where('activo_practica', 1)
+                            ->orWhereExists(function ($qex) {
+                                $qex->select(\DB::raw(1))
+                                    ->from('solicitudes')
+                                    ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                                    ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
+                            });
                       });
-            } elseif ($estatus === 'inactivo') {
-                $query->whereHas('user', function($qu) {
-                    $qu->where('activo', 0);
-                });
-            } elseif ($estatus === 'asignado') {
+            } elseif ($estatus === 'pendiente') {
+                // Solicitud enviada pero sin respuesta aún
                 $query->where('activo_practica', 0)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
-                      })
+                      ->whereHas('user', fn($q) => $q->where('activo', 1))
                       ->whereExists(function ($qex) {
+                          $qex->select(\DB::raw(1))
+                              ->from('solicitudes')
+                              ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                              ->where('solicitudes.estatus', 'pendiente');
+                      })
+                      ->whereNotExists(function ($qex) {
                           $qex->select(\DB::raw(1))
                               ->from('solicitudes')
                               ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
                               ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
                       });
-            } elseif ($estatus === 'pendiente') {
+            } elseif ($estatus === 'inactivo') {
+                // Sin ninguna solicitud enviada (cuenta activa)
                 $query->where('activo_practica', 0)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
-                      })
-                      ->where(function ($qor) {
-                          $qor->whereNotExists(function ($qex) {
-                              $qex->select(\DB::raw(1))
-                                  ->from('solicitudes')
-                                  ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
-                                  ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
-                          });
+                      ->whereHas('user', fn($q) => $q->where('activo', 1))
+                      ->whereNotExists(function ($qex) {
+                          $qex->select(\DB::raw(1))
+                              ->from('solicitudes')
+                              ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id');
                       });
             }
         }
@@ -114,7 +118,7 @@ class AlumnoController extends Controller
         $request->validate([
             'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
             'correo'    => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
-            'matricula' => ['required', 'string', 'max:50', 'unique:estudiantes,matricula', 'regex:/^[0-9]+$/'],
+            'matricula' => ['required', 'digits:8', 'unique:estudiantes,matricula'],
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
@@ -306,7 +310,7 @@ class AlumnoController extends Controller
         $request->validate([
             'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
             'correo'    => ['required', 'email', 'max:255', Rule::unique('usuarios', 'correo')->ignore($user->id)],
-            'matricula' => ['required', 'string', 'max:50', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id), 'regex:/^[0-9]+$/'],
+            'matricula' => ['required', 'digits:8', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id)],
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],

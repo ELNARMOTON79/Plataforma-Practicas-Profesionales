@@ -174,80 +174,65 @@
 {{-- Auto-open modal si hay errores de validación y el formulario no tiene ID de bulk upload --}}
 @if($errors->any() && (old('institucion') || old('correo') || old('direccion') || old('titular') || old('cargo')))
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function openRegistrarInstitucionOnError() {
         document.getElementById('modal-registrar-institucion').classList.remove('hidden');
-    });
+    }
+    document.addEventListener('DOMContentLoaded', openRegistrarInstitucionOnError);
+    document.addEventListener('htmx:afterSettle', openRegistrarInstitucionOnError);
 </script>
 @endif
 
 {{-- Script de confirmación con SweetAlert2 para Registro de Institución --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Escape key listener to close modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('modal-registrar-institucion');
-                if (modal) modal.classList.add('hidden');
-            }
-        });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('modal-registrar-institucion');
+            if (modal) modal.classList.add('hidden');
+        }
+    });
 
-        const form = document.getElementById('form-registrar-institucion');
+    document.addEventListener('submit', function (e) {
+        const form = e.target.closest('#form-registrar-institucion');
         if (!form) return;
 
-        let isSubmittingConfirmed = false;
+        e.preventDefault();
 
-        form.addEventListener('submit', function(e) {
-            if (isSubmittingConfirmed) {
-                return;
-            }
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
 
-            e.preventDefault();
+        const nombreInstEl = document.getElementById('inst-nombre');
+        const correoInstEl = document.getElementById('inst-correo');
+        const nombreInst = nombreInstEl ? nombreInstEl.value.trim() : '';
+        const correoInst = correoInstEl ? correoInstEl.value.trim() : '';
 
-            // Native HTML validation check
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+        if (document.activeElement) document.activeElement.blur();
 
-            const nombreInstEl = document.getElementById('inst-nombre');
-            const correoInstEl = document.getElementById('inst-correo');
-
-            const nombreInst = nombreInstEl ? nombreInstEl.value.trim() : '';
-            const correoInst = correoInstEl ? correoInstEl.value.trim() : '';
-
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: '¿Confirmar Registro?',
-                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta la institución <strong>${nombreInst}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán las credenciales de acceso y se enviarán automáticamente al correo <strong>${correoInst}</strong>.</p>`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4E7D24',
-                    cancelButtonColor: '#9CA3AF',
-                    confirmButtonText: 'Sí, registrar institución',
-                    cancelButtonText: 'Revisar datos',
-                    focusConfirm: false,
-                    focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        isSubmittingConfirmed = true;
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(`¿Estás seguro de registrar la institución ${nombreInst}? Se enviarán las credenciales a ${correoInst}.`)) {
-                    isSubmittingConfirmed = true;
-                    form.submit();
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Confirmar Registro?',
+                html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta la institución <strong>${nombreInst}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán las credenciales de acceso y se enviarán automáticamente al correo <strong>${correoInst}</strong>.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4E7D24',
+                cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, registrar institución',
+                cancelButtonText: 'Revisar datos',
+                focusConfirm: false,
+                focusCancel: false,
+                customClass: {
+                    popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                    cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
                 }
+            }).then((result) => {
+                if (result.isConfirmed) form.submit();
+            });
+        } else {
+            if (confirm(`¿Estás seguro de registrar la institución ${nombreInst}? Se enviarán las credenciales a ${correoInst}.`)) {
+                form.submit();
             }
-        });
+        }
     });
 </script>
