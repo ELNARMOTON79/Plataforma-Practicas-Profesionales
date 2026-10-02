@@ -305,11 +305,9 @@
                 { key: 'cp',                label: 'C.P.' },
                 { key: 'municipio',         label: 'Municipio' },
                 { key: 'estado',            label: 'Estado' },
-                { key: 'tipo_persona',      label: 'Tipo Persona' },
                 { key: 'sistema',           label: 'Sistema' },
                 { key: 'sector',            label: 'Sector' },
                 { key: 'convenio',          label: 'Convenio' },
-                { key: 'fecha_vencimiento', label: 'Fecha de Vencimiento' },
             ];
 
             const body = document.getElementById('unidadesModalBody');
@@ -342,12 +340,7 @@
                     let val = ur[field.key];
                     if (!val && val !== 0) return;
 
-                    if (field.key === 'fecha_vencimiento' && typeof val === 'string') {
-                        const parts = val.split('-');
-                        if (parts.length === 3) {
-                            val = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        }
-                    }
+
 
                     const item = document.createElement('div');
                     item.innerHTML = `
