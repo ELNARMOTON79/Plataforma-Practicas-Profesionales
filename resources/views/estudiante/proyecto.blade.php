@@ -28,9 +28,13 @@
         <div class="lg:col-span-1 flex flex-col gap-6">
 
             {{-- Project details card --}}
+            @php
+                $estatusLabels = ['aprobada' => 'Aprobada', 'en_proceso' => 'En Proceso', 'finalizada' => 'Finalizada'];
+                $estatusLabel = $estatusLabels[$solicitudActiva->estatus] ?? 'Aprobada';
+            @endphp
             <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-white to-[#6BA53A]/5 border border-[#6BA53A]/10 fade-in-up delay-100">
                 <span class="inline-block text-[10px] font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mb-3">
-                    {{ $solicitudActiva->estatus === 'aprobada' ? 'Aprobada' : 'En Proceso' }}
+                    {{ $estatusLabel }}
                 </span>
                 <h3 class="text-xl font-bold text-gray-900 mb-1">
                     {{ $solicitudActiva->unidadReceptora?->nombre_empresa ?? 'Sin empresa' }}
@@ -60,10 +64,12 @@
                         <span class="block text-gray-400 font-bold mb-0.5">Estatus</span>
                         <span class="inline-flex items-center gap-1.5 text-xs font-bold text-[#4E7D24]">
                             <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6BA53A] opacity-75"></span>
+                                @if($solicitudActiva->estatus !== 'finalizada')
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6BA53A] opacity-75"></span>
+                                @endif
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-[#4E7D24]"></span>
                             </span>
-                            {{ $solicitudActiva->estatus === 'en_proceso' ? 'En Proceso' : 'Aprobada' }}
+                            {{ $estatusLabel }}
                         </span>
                     </div>
                 </div>
@@ -86,6 +92,24 @@
                         <div class="w-full bg-gray-150 rounded-full h-3 overflow-hidden border border-gray-100 mt-4">
                         <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500" id="hoursProgressBar"></div>
                     </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 space-y-2.5 text-xs text-gray-700 font-medium">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-bold">Horas por día</span>
+                        <span>{{ $solicitudActiva->horas_por_dia }} horas</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-bold">Horas restantes</span>
+                        <span>{{ $horasRestantes }} horas</span>
+                    </div>
+                    @if(! $solicitudActiva->documentosInicialesValidados())
+                        <p class="text-[11px] text-gray-400 italic pt-1">Tus horas comenzarán a contabilizarse cuando el coordinador valide tu Carta de Presentación, Carta de Aceptación y Plan de Trabajo.</p>
+                    @elseif($solicitudActiva->estatus === 'finalizada')
+                        <p class="text-[11px] text-gray-400 italic pt-1">Meta de horas alcanzada.</p>
+                    @else
+                        <p class="text-[11px] text-gray-400 italic pt-1">El avance se calcula automáticamente contando los días hábiles transcurridos desde tu fecha de inicio (excluyendo fines de semana y días festivos).</p>
+                    @endif
                 </div>
             </div>
 
@@ -289,6 +313,12 @@
         var projectEl = document.getElementById('projectData');
         var currentHours = parseInt(projectEl?.dataset.currentHours || 0, 10);
         var totalHours   = parseInt(projectEl?.dataset.totalHours || 480, 10);
+
+        (function initHoursBar() {
+            var pct = parseFloat(projectEl?.dataset.porcentaje || 0);
+            var barEl = document.getElementById('hoursProgressBar');
+            if (barEl) barEl.style.width = pct + '%';
+        })();
 
         var activeDocName = '';
 

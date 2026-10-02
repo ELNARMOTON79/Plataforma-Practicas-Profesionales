@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Coordinador\DashboardController as CoordinadorDashboardController;
 use App\Http\Controllers\Estudiante\DashboardController;
 
 Route::get('/', function () {
@@ -48,22 +49,22 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('admin.usuarios');
     })->name('admin.usuarios');
 
-    Route::get('/coordinador/dashboard', [App\Http\Controllers\Coordinador\DashboardController::class, 'dashboard'])->name('coordinador.dashboard');
+    Route::get('/coordinador/dashboard', [CoordinadorDashboardController::class, 'dashboard'])->name('coordinador.dashboard');
 
-    Route::get('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'instituciones'])->name('coordinador.instituciones');
-    Route::post('/coordinador/instituciones', [App\Http\Controllers\Coordinador\InstitucionController::class, 'storeInstitucion'])->name('coordinador.instituciones.store');
-    Route::post('/coordinador/instituciones/unidades', [App\Http\Controllers\Coordinador\UnidadReceptoraController::class, 'storeUnidadReceptora'])->name('coordinador.instituciones.store-ur');
-    Route::post('/coordinador/instituciones/bulk-store', [App\Http\Controllers\Coordinador\InstitucionController::class, 'bulkStoreInstituciones'])->name('coordinador.instituciones.bulk-store');
+    Route::get('/coordinador/instituciones', function () {
+        if (Auth::user()->rol_id != 2) return redirect('/');
+        return view('coordinador.instituciones');
+    })->name('coordinador.instituciones');
 
-    Route::get('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'alumnos'])->name('coordinador.alumnos');
-    Route::post('/coordinador/alumnos/bulk-store', [App\Http\Controllers\Coordinador\AlumnoController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk-store');
-    Route::post('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
-    Route::put('/coordinador/alumnos/{id}', [App\Http\Controllers\Coordinador\AlumnoController::class, 'updateAlumno'])->name('coordinador.alumnos.update');
+    Route::get('/coordinador/alumnos', function () {
+        if (Auth::user()->rol_id != 2) return redirect('/');
+        return view('coordinador.alumnos');
+    })->name('coordinador.alumnos');
 
-    Route::get('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'proyectos'])->name('coordinador.proyectos');
-    Route::post('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
-    Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\Coordinador\ProyectoController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
-    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
+    Route::get('/coordinador/proyectos', function () {
+        if (Auth::user()->rol_id != 2) return redirect('/');
+        return view('coordinador.proyectos');
+    })->name('coordinador.proyectos');
 
     Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
     Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
@@ -78,8 +79,10 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     Route::get('/coordinador/informes', [App\Http\Controllers\Coordinador\InformeController::class, 'informes'])->name('coordinador.informes');
 
-    Route::get('/coordinador/perfil', [App\Http\Controllers\Coordinador\PerfilController::class, 'perfil'])->name('coordinador.perfil');
-    Route::post('/coordinador/perfil/password', [App\Http\Controllers\Coordinador\PerfilController::class, 'updatePassword'])->name('coordinador.perfil.password');
+    Route::get('/coordinador/perfil', function () {
+        if (Auth::user()->rol_id != 2) return redirect('/');
+        return view('coordinador.perfil');
+    })->name('coordinador.perfil');
 
     Route::get('/estudiante/dashboard', [DashboardController::class, 'index'])->name('estudiante.dashboard');
 
@@ -97,6 +100,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
     Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
+    Route::get('/estudiante/solicitudes/fecha-fin', [DashboardController::class, 'calcularFechaFinSolicitud'])->name('estudiante.calcularFechaFinSolicitud');
 
     Route::get('/empresa/dashboard', function () {
         if (Auth::user()->rol_id != 4) return redirect('/');
