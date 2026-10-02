@@ -56,10 +56,10 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('coordinador.instituciones');
     })->name('coordinador.instituciones');
 
-    Route::get('/coordinador/alumnos', function () {
-        if (Auth::user()->rol_id != 2) return redirect('/');
-        return view('coordinador.alumnos');
-    })->name('coordinador.alumnos');
+    Route::get('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'alumnos'])->name('coordinador.alumnos');
+    Route::post('/coordinador/alumnos', [App\Http\Controllers\Coordinador\AlumnoController::class, 'storeAlumno'])->name('coordinador.alumnos.store');
+    Route::post('/coordinador/alumnos/bulk', [App\Http\Controllers\Coordinador\AlumnoController::class, 'bulkStoreAlumnos'])->name('coordinador.alumnos.bulk');
+    Route::put('/coordinador/alumnos/{id}', [App\Http\Controllers\Coordinador\AlumnoController::class, 'updateAlumno'])->name('coordinador.alumnos.update');
 
     Route::get('/coordinador/proyectos', function () {
         if (Auth::user()->rol_id != 2) return redirect('/');
