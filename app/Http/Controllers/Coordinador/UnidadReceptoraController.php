@@ -24,17 +24,23 @@ class UnidadReceptoraController extends Controller
         }
 
         $request->validate([
-            'nombre_empresa'    => ['required', 'string', 'max:255'],
-            'titular'           => ['required', 'string', 'max:100'],
-            'cargo'             => ['required', 'string', 'max:100'],
+            'nombre_empresa'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\.\,\-\#\/]+$/u'],
+            'titular'           => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\.]+$/u'],
+            'cargo'             => ['required', 'string', 'max:80',  'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\.]+$/u'],
             'unidad_receptora'  => ['nullable', 'string', 'max:100'],
-            'telefono'          => ['nullable', 'string', 'max:50'],
-            'direccion'         => ['nullable', 'string', 'max:500'],
-            'municipio'         => ['nullable', 'string', 'max:100'],
+            'telefono'          => ['nullable', 'string', 'max:15', 'regex:/^[0-9\-\+\(\)\s]+$/'],
+            'direccion'         => ['nullable', 'string', 'max:200', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\.\,\-\#\/]+$/u'],
+            'municipio'         => ['nullable', 'string', 'max:80',  'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
         ], [
             'nombre_empresa.required' => 'La empresa u institución es requerida.',
+            'nombre_empresa.regex'    => 'El nombre de la empresa contiene caracteres no permitidos.',
             'titular.required'        => 'El nombre del titular es obligatorio.',
+            'titular.regex'           => 'El nombre del titular solo debe contener letras y espacios.',
             'cargo.required'          => 'El cargo del titular es obligatorio.',
+            'cargo.regex'             => 'El cargo solo debe contener letras, espacios y puntos.',
+            'telefono.regex'          => 'El teléfono solo puede contener números, guiones y paréntesis.',
+            'direccion.regex'         => 'La dirección contiene caracteres no permitidos.',
+            'municipio.regex'         => 'El municipio solo debe contener letras y espacios.',
         ]);
 
         $nombreEmpresa = trim($request->input('nombre_empresa'));
