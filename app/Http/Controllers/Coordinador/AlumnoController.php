@@ -118,7 +118,7 @@ class AlumnoController extends Controller
         $request->validate([
             'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
             'correo'    => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
-            'matricula' => ['required', 'string', 'max:50', 'unique:estudiantes,matricula', 'regex:/^[0-9]+$/'],
+            'matricula' => ['required', 'digits:8', 'unique:estudiantes,matricula'],
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
@@ -310,7 +310,7 @@ class AlumnoController extends Controller
         $request->validate([
             'nombre'    => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u'],
             'correo'    => ['required', 'email', 'max:255', Rule::unique('usuarios', 'correo')->ignore($user->id)],
-            'matricula' => ['required', 'string', 'max:50', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id), 'regex:/^[0-9]+$/'],
+            'matricula' => ['required', 'digits:8', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id)],
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
