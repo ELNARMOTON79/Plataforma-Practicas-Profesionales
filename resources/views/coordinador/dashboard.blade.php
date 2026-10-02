@@ -94,7 +94,7 @@
             <div class="flex items-end gap-3 mb-2">
                 <span class="text-4xl font-extrabold text-yellow-600 leading-none">{{ $tramitesPendientes }}</span>
             </div>
-            <span class="text-xs text-yellow-500 font-medium">Documentos pendientes</span>
+            <span class="text-xs text-yellow-500 font-medium">Solicitudes pendientes</span>
         </div>
 
         <!-- Metric Card 4: Proyectos Registrados -->
