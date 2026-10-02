@@ -116,11 +116,12 @@
                                 <div class="pt-3 mt-3 border-t border-gray-100/70 flex gap-2">
                                     <button
                                         type="button"
-                                        data-unidad='{{ json_encode($unidad->only(['id', 'nombre_empresa', 'direccion', 'tipo_persona']), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
-                                        onclick="showEmpresaModal(this)"
+                                        data-empresa="{{ $unidad->nombre_empresa }}"
+                                        data-unidades='{{ json_encode($unidad->unidades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                        onclick="showUnidadesModal(this)"
                                         class="flex-1 text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
                                     >
-                                        Ver detalle
+                                        Ver unidades receptoras
                                     </button>
                                     <button
                                         type="button"
@@ -254,53 +255,75 @@
             }
         });
 
-        function showEmpresaModal(button) {
-            const unidad = JSON.parse(button.getAttribute('data-unidad') || '{}');
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function closeUnidadesModal() {
+            document.querySelector('.unidades-modal-root')?.remove();
+        }
+
+        function solicitarDesdeUnidad(button) {
+            openSolicitudModal(button.dataset.id, button.dataset.nombre);
+            closeUnidadesModal();
+        }
+
+        function showUnidadesModal(button) {
+            const empresa  = button.getAttribute('data-empresa') || '';
+            const unidades = JSON.parse(button.getAttribute('data-unidades') || '[]');
+
+            const items = unidades.length ? unidades.map(function(u) {
+                const nombreUnidad = u.unidad_receptora || u.nombre_empresa;
+                const ubicacion = [u.direccion, u.colonia, u.municipio, u.estado].filter(Boolean).join(', ');
+                const titular = [u.titular, u.cargo].filter(Boolean).join(' · ');
+                const etiquetaSolicitud = u.unidad_receptora ? (u.nombre_empresa + ' — ' + u.unidad_receptora) : u.nombre_empresa;
+                return `
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50/60 p-4 flex flex-col gap-3">
+                        <div>
+                            <h4 class="font-bold text-gray-900">${escapeHtml(nombreUnidad)}</h4>
+                            ${titular ? `<p class="text-sm text-gray-600 mt-1">${escapeHtml(titular)}</p>` : ''}
+                            ${ubicacion ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(ubicacion)}</p>` : ''}
+                            ${u.telefono ? `<p class="text-sm text-gray-500 mt-1">Tel. ${escapeHtml(u.telefono)}</p>` : ''}
+                        </div>
+                        <button type="button"
+                            data-id="${escapeHtml(u.id)}"
+                            data-nombre="${escapeHtml(etiquetaSolicitud)}"
+                            onclick="solicitarDesdeUnidad(this)"
+                            class="self-end text-xs font-bold text-white bg-[#4E7D24] px-4 py-2 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm">
+                            Solicitar práctica
+                        </button>
+                    </div>`;
+            }).join('') : '<p class="text-sm text-gray-500 text-center py-6">Esta empresa no tiene unidades receptoras registradas.</p>';
 
             const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-auto';
+            modal.className = 'unidades-modal-root fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-auto';
             modal.onclick = function(e) {
                 if (e.target === modal) modal.remove();
             };
 
             modal.innerHTML = `
                 <div class="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-white/60 overflow-hidden">
-                    <div class="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between gap-4">
+                    <div class="bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between gap-4">
                         <div>
-                            <p class="text-sm text-black/70">Empresa</p>
-                            <h2 class="text-2xl font-bold text-black leading-tight">${unidad.nombre_empresa}</h2>
+                            <p class="text-sm text-black/70">Unidades receptoras (${unidades.length})</p>
+                            <h2 class="text-2xl font-bold text-black leading-tight">${escapeHtml(empresa)}</h2>
                         </div>
-                        <button type="button" onclick="document.querySelector('.empresa-modal-root')?.remove()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-colors">
+                        <button type="button" onclick="closeUnidadesModal()" class="text-gray-400 hover:text-gray-600 rounded-full p-2 transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
-                    <div class="p-6 space-y-6">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="rounded-3xl bg-[#F7FDF1] border border-green-100 p-4">
-                                <p class="text-xs uppercase tracking-wide text-black font-semibold mb-2">Dirección</p>
-                                <p class="text-sm text-black">${unidad.direccion || 'No especificada'}</p>
-                            </div>
-                            <div class="rounded-3xl bg-[#F5FAFF] border border-blue-100 p-4">
-                                <p class="text-xs uppercase tracking-wide text-black font-semibold mb-2">Tipo</p>
-                                <p class="text-sm text-black">${unidad.tipo_persona ? unidad.tipo_persona.charAt(0).toUpperCase() + unidad.tipo_persona.slice(1) : 'No especificado'}</p>
-                            </div>
-                        </div>
-
-                        <div class="pt-4 border-t border-gray-100 flex gap-3">
-                            <button type="button" onclick="document.querySelector('.empresa-modal-root')?.remove()" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
-                                Cerrar
-                            </button>
-                            <button type="button"
-                                onclick="openSolicitudModal(${unidad.id}, '${unidad.nombre_empresa.replace(/'/g, "\\'")}'); document.querySelector('.empresa-modal-root')?.remove();"
-                                class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4E7D24] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#4E7D24]/10 hover:bg-[#3B6620] transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                                Solicitar práctica
-                            </button>
-                        </div>
+                    <div class="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                        ${items}
+                    </div>
+                    <div class="px-6 pb-6">
+                        <button type="button" onclick="closeUnidadesModal()" class="w-full rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                            Cerrar
+                        </button>
                     </div>
                 </div>
             `;
-            modal.classList.add('empresa-modal-root');
             document.body.appendChild(modal);
         }
 

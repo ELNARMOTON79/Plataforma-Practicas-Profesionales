@@ -8,6 +8,7 @@ use App\Models\Estudiante;
 use App\Models\Hora;
 use App\Models\Solicitud;
 use App\Models\Convenio;
+use App\Models\UnidadReceptora;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -223,6 +224,19 @@ class DashboardController extends Controller
                 ];
             })
             ->values();
+
+        // Unidades receptoras de cada empresa (agrupadas por la cuenta de la empresa)
+        $usuarioIds = $conveniosAgrupados->flatMap(fn ($c) => $c->empresas->pluck('usuario_id'))->filter()->unique();
+        $unidadesPorEmpresa = UnidadReceptora::whereIn('usuario_id', $usuarioIds)
+            ->orderBy('unidad_receptora')
+            ->get(['id', 'usuario_id', 'nombre_empresa', 'unidad_receptora', 'titular', 'cargo', 'direccion', 'colonia', 'municipio', 'estado', 'telefono'])
+            ->groupBy('usuario_id');
+
+        $conveniosAgrupados->each(function ($convenio) use ($unidadesPorEmpresa) {
+            $convenio->empresas->each(function ($empresa) use ($unidadesPorEmpresa) {
+                $empresa->setAttribute('unidades', $unidadesPorEmpresa->get($empresa->usuario_id, collect([$empresa]))->values());
+            });
+        });
 
         $carreras = Estudiante::whereNotNull('carrera')
             ->where('carrera', '!=', '')
