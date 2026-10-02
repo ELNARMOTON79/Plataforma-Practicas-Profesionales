@@ -60,37 +60,41 @@ class AlumnoController extends Controller
         // Estatus filter
         if ($estatus) {
             if ($estatus === 'activo') {
-                $query->where('activo_practica', 1)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
+                // Práctica activa: activo_practica=1 o solicitud aprobada/en_proceso/finalizada
+                $query->whereHas('user', fn($q) => $q->where('activo', 1))
+                      ->where(function ($q) {
+                          $q->where('activo_practica', 1)
+                            ->orWhereExists(function ($qex) {
+                                $qex->select(\DB::raw(1))
+                                    ->from('solicitudes')
+                                    ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                                    ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
+                            });
                       });
-            } elseif ($estatus === 'inactivo') {
-                $query->whereHas('user', function($qu) {
-                    $qu->where('activo', 0);
-                });
-            } elseif ($estatus === 'asignado') {
+            } elseif ($estatus === 'pendiente') {
+                // Solicitud enviada pero sin respuesta aún
                 $query->where('activo_practica', 0)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
-                      })
+                      ->whereHas('user', fn($q) => $q->where('activo', 1))
                       ->whereExists(function ($qex) {
+                          $qex->select(\DB::raw(1))
+                              ->from('solicitudes')
+                              ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
+                              ->where('solicitudes.estatus', 'pendiente');
+                      })
+                      ->whereNotExists(function ($qex) {
                           $qex->select(\DB::raw(1))
                               ->from('solicitudes')
                               ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
                               ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
                       });
-            } elseif ($estatus === 'pendiente') {
+            } elseif ($estatus === 'inactivo') {
+                // Sin ninguna solicitud enviada (cuenta activa)
                 $query->where('activo_practica', 0)
-                      ->whereHas('user', function($qu) {
-                          $qu->where('activo', 1);
-                      })
-                      ->where(function ($qor) {
-                          $qor->whereNotExists(function ($qex) {
-                              $qex->select(\DB::raw(1))
-                                  ->from('solicitudes')
-                                  ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id')
-                                  ->whereIn('solicitudes.estatus', ['aprobada', 'en_proceso', 'finalizada']);
-                          });
+                      ->whereHas('user', fn($q) => $q->where('activo', 1))
+                      ->whereNotExists(function ($qex) {
+                          $qex->select(\DB::raw(1))
+                              ->from('solicitudes')
+                              ->whereColumn('solicitudes.estudiante_id', 'estudiantes.id');
                       });
             }
         }

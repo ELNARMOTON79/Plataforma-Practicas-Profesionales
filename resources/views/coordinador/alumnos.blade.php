@@ -85,7 +85,6 @@
                 <select name="estatus" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
                     <option value="">Todos los Estatus</option>
                     <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>ACTIVO</option>
-                    <option value="asignado" {{ request('estatus') == 'asignado' ? 'selected' : '' }}>ASIGNADO</option>
                     <option value="pendiente" {{ request('estatus') == 'pendiente' ? 'selected' : '' }}>PENDIENTE</option>
                     <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>INACTIVO</option>
                 </select>
@@ -136,10 +135,11 @@
                                 $avatarBg = 'bg-gray-100 text-gray-400';
                             } elseif ($estatus == 'ACTIVO') {
                                 $avatarBg = 'bg-green-100 text-green-700';
-                            } elseif ($estatus == 'ASIGNADO') {
-                                $avatarBg = 'bg-blue-100 text-blue-700';
                             } elseif ($estatus == 'PENDIENTE') {
                                 $avatarBg = 'bg-yellow-100 text-yellow-700';
+                            } else {
+                                // INACTIVO
+                                $avatarBg = 'bg-gray-100 text-gray-400';
                             }
                         @endphp
                         <tr class="transition-colors group {{ !$activo ? 'bg-gray-50/50 opacity-60 text-gray-400' : 'hover:bg-[#6BA53A]/5' }}">
@@ -197,13 +197,14 @@
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-green-50 text-green-700 border border-green-100">
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 mt-1.5"></span> Activo
                                     </span>
-                                @elseif($estatus == 'ASIGNADO')
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5 mt-1.5"></span> Asignado
-                                    </span>
                                 @elseif($estatus == 'PENDIENTE')
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-100">
                                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mr-1.5 mt-1.5"></span> Pendiente
+                                    </span>
+                                @else
+                                    {{-- INACTIVO: registrado pero sin solicitud --}}
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-lg bg-gray-100 text-gray-500 border border-gray-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5 mt-1.5"></span> Inactivo
                                     </span>
                                 @endif
                             </td>
