@@ -41,7 +41,7 @@
     <!-- Success / Error Alerts -->
     @if(session('success'))
         <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center gap-3 font-semibold text-sm animate-fade-in">
-            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>
+            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
             {{ session('success') }}
         </div>
     @endif
@@ -55,7 +55,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
             <div class="flex items-center gap-3">
                 <div id="section-icon" class="p-2.5 rounded-2xl bg-yellow-50 text-yellow-600 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                 </div>
                 <div>
                     <h2 id="section-title" class="text-lg font-extrabold text-gray-800 leading-tight">Alumnos En Proceso de Prácticas</h2>
@@ -79,15 +79,22 @@
         @include('coordinador.seguimiento.partials.tabla-todos')
     </div>
 
-    <!-- Scripts: Tab Switcher + DataTables -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script>
-        let tableProceso = null;
-        let tableConcluido = null;
-        let tableTodos = null;
+        var tableProceso = null;
+        var tableConcluido = null;
+        var tableTodos = null;
 
-        $(document).ready(function() {
+        function initSeguimientoPage() {
+            if (!document.getElementById('tabla-proceso')) return;
+            if (typeof $ === 'undefined' || !$.fn.DataTable) return;
+
+            // Purge any detached or orphan table instances left over by HTMX page swaps
+            if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.settings) {
+                $.fn.dataTable.settings = $.fn.dataTable.settings.filter(function(s) {
+                    return s && s.nTable && document.body.contains(s.nTable) && s.nTableWrapper && s.nTableWrapper.parentNode;
+                });
+            }
+
             const dtConfig = {
                 searching: true,
                 lengthChange: false,
@@ -109,56 +116,68 @@
                 }
             };
 
-            tableProceso = $('#tabla-proceso').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 4] }],
-                language: {
-                    ...dtConfig.language,
-                    emptyTable: `
-                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                            <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mb-3 shadow-inner border border-yellow-100">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>
+            if ($.fn.DataTable.isDataTable('#tabla-proceso')) {
+                tableProceso = $('#tabla-proceso').DataTable();
+            } else {
+                tableProceso = $('#tabla-proceso').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [2, 4] }],
+                    language: {
+                        ...dtConfig.language,
+                        emptyTable: `
+                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                                <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mb-3 shadow-inner border border-yellow-100">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-700">Sin alumnos en proceso</h3>
+                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes con prácticas profesionales activas actualmente.</p>
                             </div>
-                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos en proceso</h3>
-                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes con prácticas profesionales activas actualmente.</p>
-                        </div>
-                    `
-                }
-            });
+                        `
+                    }
+                });
+            }
 
-            tableConcluido = $('#tabla-concluidos').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 4] }],
-                language: {
-                    ...dtConfig.language,
-                    emptyTable: `
-                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                            <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3 shadow-inner border border-green-100">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>
+            if ($.fn.DataTable.isDataTable('#tabla-concluidos')) {
+                tableConcluido = $('#tabla-concluidos').DataTable();
+            } else {
+                tableConcluido = $('#tabla-concluidos').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [2, 4] }],
+                    language: {
+                        ...dtConfig.language,
+                        emptyTable: `
+                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                                <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3 shadow-inner border border-green-100">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-700">Sin alumnos concluidos</h3>
+                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes que hayan acreditado o finalizado sus prácticas aún.</p>
                             </div>
-                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos concluidos</h3>
-                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes que hayan acreditado o finalizado sus prácticas aún.</p>
-                        </div>
-                    `
-                }
-            });
+                        `
+                    }
+                });
+            }
 
-            tableTodos = $('#tabla-todos').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 4] }],
-                language: {
-                    ...dtConfig.language,
-                    emptyTable: `
-                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                            <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            if ($.fn.DataTable.isDataTable('#tabla-todos')) {
+                tableTodos = $('#tabla-todos').DataTable();
+            } else {
+                tableTodos = $('#tabla-todos').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [2, 4] }],
+                    language: {
+                        ...dtConfig.language,
+                        emptyTable: `
+                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                                <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
+                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No se encontraron estudiantes en el sistema.</p>
                             </div>
-                            <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
-                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No se encontraron estudiantes en el sistema.</p>
-                        </div>
-                    `
-                }
-            });
+                        `
+                    }
+                });
+            }
 
             // Read search parameter from URL if provided
             const urlParams = new URLSearchParams(window.location.search);
@@ -175,13 +194,17 @@
             }
 
             // Bind unified search bar
-            $('#search-tracking').on('keyup input', function() {
+            $('#search-tracking').off('keyup input').on('keyup input', function() {
                 const val = this.value;
-                tableProceso.search(val).draw();
-                tableConcluido.search(val).draw();
-                tableTodos.search(val).draw();
+                if (tableProceso) tableProceso.search(val).draw();
+                if (tableConcluido) tableConcluido.search(val).draw();
+                if (tableTodos) tableTodos.search(val).draw();
             });
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', initSeguimientoPage);
+        document.addEventListener('htmx:afterSettle', initSeguimientoPage);
+        window.switchTrackingTab = switchTrackingTab;
 
         // ── Tab Switcher estilo Trámites ─────────────────────────────
         function switchTrackingTab(tab) {
@@ -197,11 +220,14 @@
             const sectionTitle = document.getElementById('section-title');
             const sectionSubtitle = document.getElementById('section-subtitle');
 
+            if (!contentProceso || !contentConcluido || !contentTodos) return;
+
             contentProceso.classList.add('hidden');
             contentConcluido.classList.add('hidden');
             contentTodos.classList.add('hidden');
 
             const resetMetricCard = (el, titleColor) => {
+                if (!el) return;
                 el.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-gray-300";
                 const spanTitle = el.querySelector('span');
                 if (spanTitle) {
@@ -215,31 +241,46 @@
 
             if (tab === 'concluido') {
                 contentConcluido.classList.remove('hidden');
-                mConcluido.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-green-500 bg-white ring-4 ring-green-500/10 shadow-md transition-all duration-300 cursor-pointer";
-                mConcluido.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-green-700";
+                if (mConcluido) {
+                    mConcluido.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-green-500 bg-white ring-4 ring-green-500/10 shadow-md transition-all duration-300 cursor-pointer";
+                    const spanC = mConcluido.querySelector('span');
+                    if (spanC) spanC.className = "text-xs font-bold uppercase tracking-wider text-green-700";
+                }
 
-                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-green-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 0118 0z"></path></svg>`;
-                sectionTitle.textContent = "Alumnos Concluidos / Acreditados";
-                sectionSubtitle.textContent = "Historial completo de estudiantes que finalizaron exitosamente su proceso de prácticas";
+                if (sectionIcon) {
+                    sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-green-600 transition-all";
+                    sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
+                }
+                if (sectionTitle) sectionTitle.textContent = "Alumnos Concluidos / Acreditados";
+                if (sectionSubtitle) sectionSubtitle.textContent = "Historial completo de estudiantes que finalizaron exitosamente su proceso de prácticas";
             } else if (tab === 'todos') {
                 contentTodos.classList.remove('hidden');
-                mTodos.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
-                mTodos.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+                if (mTodos) {
+                    mTodos.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
+                    const spanT = mTodos.querySelector('span');
+                    if (spanT) spanT.className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+                }
 
-                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
-                sectionTitle.textContent = "Todos los Alumnos en Seguimiento";
-                sectionSubtitle.textContent = "Registro general de estudiantes en prácticas (En Proceso y Acreditados)";
+                if (sectionIcon) {
+                    sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
+                    sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+                }
+                if (sectionTitle) sectionTitle.textContent = "Todos los Alumnos en Seguimiento";
+                if (sectionSubtitle) sectionSubtitle.textContent = "Registro general de estudiantes en prácticas (En Proceso y Acreditados)";
             } else {
                 contentProceso.classList.remove('hidden');
-                mProceso.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
-                mProceso.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+                if (mProceso) {
+                    mProceso.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
+                    const spanP = mProceso.querySelector('span');
+                    if (spanP) spanP.className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
+                }
 
-                sectionIcon.className = "p-2.5 rounded-2xl bg-yellow-50 text-yellow-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 0118 0z"></path></svg>`;
-                sectionTitle.textContent = "Alumnos En Proceso de Prácticas";
-                sectionSubtitle.textContent = "Supervisión de actividades y responsables asignados";
+                if (sectionIcon) {
+                    sectionIcon.className = "p-2.5 rounded-2xl bg-yellow-50 text-yellow-600 transition-all";
+                    sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
+                }
+                if (sectionTitle) sectionTitle.textContent = "Alumnos En Proceso de Prácticas";
+                if (sectionSubtitle) sectionSubtitle.textContent = "Supervisión de actividades y responsables asignados";
             }
         }
     </script>
