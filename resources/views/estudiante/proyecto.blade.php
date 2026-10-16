@@ -156,13 +156,13 @@
                             $estatusDoc = $doc?->estatus ?? 'pendiente';
                             $badge = match(true) {
                                 !$doc => ['label' => 'Sin Subir', 'classes' => 'bg-gray-50 text-gray-500 border-gray-200', 'dot' => 'bg-gray-400'],
-                                $estatusDoc === 'aprobado' => ['label' => 'Validado', 'classes' => 'bg-green-50 text-green-700 border-green-150', 'dot' => 'bg-green-600'],
+                                in_array($estatusDoc, ['aprobado', 'validado']) => ['label' => 'Validado', 'classes' => 'bg-green-50 text-green-700 border-green-150', 'dot' => 'bg-green-600'],
                                 $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'classes' => 'bg-red-50 text-red-700 border-red-150', 'dot' => 'bg-red-600'],
                                 default => ['label' => 'En proceso de validación', 'classes' => 'bg-amber-50 text-amber-700 border-amber-150', 'dot' => 'bg-amber-500'],
                             };
                             $iconClasses = match(true) {
                                 !$doc => 'bg-gray-50 text-gray-400',
-                                $estatusDoc === 'aprobado' => 'bg-green-50 text-green-600',
+                                in_array($estatusDoc, ['aprobado', 'validado']) => 'bg-green-50 text-green-600',
                                 $estatusDoc === 'rechazado' => 'bg-red-50 text-red-600',
                                 default => 'bg-amber-50 text-amber-600',
                             };
