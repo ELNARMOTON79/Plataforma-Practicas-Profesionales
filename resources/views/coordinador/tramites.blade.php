@@ -122,9 +122,9 @@
                 <div id="section-icon" class="p-2.5 rounded-2xl transition-all
                     {{ $activeTab === 'doc-pendientes' ? 'bg-amber-50 text-amber-600' : ($activeTab === 'doc-validados' ? 'bg-green-50 text-green-600' : 'bg-green-50 text-[#4E7D24]') }}">
                     @if($activeTab === 'doc-pendientes')
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                     @elseif($activeTab === 'doc-validados')
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                     @elseif($activeTab === 'solicitudes-todas')
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
                     @else
@@ -402,14 +402,21 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script>
-        let tablaSolicitudes = null;
-        let tablaDocsPendientes = null;
-        let tablaDocsValidados = null;
+        var tablaSolicitudes = null;
+        var tablaDocsPendientes = null;
+        var tablaDocsValidados = null;
 
-        $(document).ready(function() {
+        function initTramitesPage() {
+            if (!document.getElementById('solicitudes-table')) return;
+            if (typeof $ === 'undefined' || !$.fn.DataTable) return;
+
+            // Purge any detached or orphan table instances left over by HTMX page swaps
+            if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.settings) {
+                $.fn.dataTable.settings = $.fn.dataTable.settings.filter(function(s) {
+                    return s && s.nTable && document.body.contains(s.nTable) && s.nTableWrapper && s.nTableWrapper.parentNode;
+                });
+            }
             
             const urlParams = new URLSearchParams(window.location.search);
             const searchVal = urlParams.get('search') || '';
@@ -448,25 +455,35 @@
             };
 
             // Solicitudes
-            tablaSolicitudes = $('#solicitudes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [3, 4] }]
-            });
-
-
-            tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
+            if ($.fn.DataTable.isDataTable('#solicitudes-table')) {
+                tablaSolicitudes = $('#solicitudes-table').DataTable();
+            } else {
+                tablaSolicitudes = $('#solicitudes-table').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [3, 4] }]
+                });
+                tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
+            }
 
             // Documentos Pendientes
-            tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
-            });
+            if ($.fn.DataTable.isDataTable('#documentos-pendientes-table')) {
+                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable();
+            } else {
+                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
+                });
+            }
 
             // Documentos Validados
-            tablaDocsValidados = $('#documentos-validados-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [3, 4] }]
-            });
+            if ($.fn.DataTable.isDataTable('#documentos-validados-table')) {
+                tablaDocsValidados = $('#documentos-validados-table').DataTable();
+            } else {
+                tablaDocsValidados = $('#documentos-validados-table').DataTable({
+                    ...dtConfig,
+                    columnDefs: [{ orderable: false, targets: [3, 4] }]
+                });
+            }
 
 
             if (searchVal) {
@@ -489,7 +506,11 @@
                     switchTab(tabParam);
                 });
             }
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', initTramitesPage);
+        document.addEventListener('htmx:afterSettle', initTramitesPage);
+        window.switchTab = switchTab;
 
         function switchTab(tab) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -537,7 +558,7 @@
                 mDocPendientes.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-amber-700";
 
                 sectionIcon.className = "p-2.5 rounded-2xl bg-amber-50 text-amber-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
                 sectionTitle.textContent = "Documentos Pendientes de Validar";
                 sectionSubtitle.textContent = "Expedientes y documentos oficiales subidos por alumnos pendientes de revisión";
             } else if (tab === 'doc-validados') {
@@ -546,7 +567,7 @@
                 mDocValidados.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-green-700";
 
                 sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-green-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
                 sectionTitle.textContent = "Historial de Documentos Validados";
                 sectionSubtitle.textContent = "Registro histórico completo de los expedientes validados y autorizados";
             } else if (tab === 'solicitudes-todas') {

@@ -67,22 +67,15 @@ class Solicitud extends Model
         return $this->hasMany(Documento::class, 'solicitud_id');
     }
 
-    /**
-     * Required practice hours for this request: 600 for Ingeniería de Software,
-     * 480 for every other program (see Estudiante::horasMetaPractica()).
-     */
     public function horasMeta(): int
     {
         return $this->estudiante?->horasMetaPractica() ?? self::HORAS_META;
     }
 
-    /**
-     * True when the coordinator has validated every document required to start the practice.
-     */
     public function documentosInicialesValidados(): bool
     {
         $validados = $this->documentos
-            ->where('estatus', 'validado')
+            ->filter(fn ($doc) => in_array($doc->estatus, ['validado', 'aprobado']))
             ->map(fn ($doc) => mb_strtolower(trim($doc->nombre_doc)));
 
         foreach (self::DOCUMENTOS_INICIALES as $requerido) {
@@ -94,11 +87,6 @@ class Solicitud extends Model
         return true;
     }
 
-    /**
-     * Hours earned so far, computed from elapsed working days (weekends and Mexico's
-     * official holidays excluded) since fecha_inicio — never self-reported.
-     * Stays at 0 until the initial documents are validated.
-     */
     public function horasCompletadas(): float
     {
         if (! $this->fecha_inicio || ! $this->fecha_fin || ! $this->documentosInicialesValidados()) {
@@ -118,14 +106,6 @@ class Solicitud extends Model
         return CalendarioPracticas::calcularFechaFin($fechaInicio, $horasPorDia, $metaHoras);
     }
 
-    /**
-     * Advances estatus automatically as the practice progresses:
-     * aprobada -> en_proceso once fecha_inicio arrives, en_proceso -> finalizada
-     * once fecha_fin (the calculated day the hours goal is reached) has passed
-     * and the initial documents are validated. A finalizada practice without
-     * those documents validated goes back to en_proceso.
-     * Returns true if it changed.
-     */
     public function sincronizarEstatus(): bool
     {
         if (! in_array($this->estatus, ['aprobada', 'en_proceso', 'finalizada'], true)) {
