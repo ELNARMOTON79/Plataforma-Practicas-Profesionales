@@ -7,7 +7,7 @@
     <!-- Floating Toast Notification -->
     <div id="export-toast" class="fixed top-6 right-6 z-[9999] transform translate-x-[150%] transition-transform duration-500 ease-out bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 max-w-sm flex items-start gap-3 text-left">
         <div class="bg-green-50 p-2 rounded-xl text-green-600 flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
         </div>
         <div>
             <h4 class="text-xs font-bold text-gray-900 uppercase">Exportación Exitosa</h4>
