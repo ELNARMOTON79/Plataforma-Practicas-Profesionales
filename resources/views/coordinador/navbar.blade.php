@@ -1,35 +1,48 @@
 <!-- Navigation -->
-<nav class="relative z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm sticky top-0">
+<nav class="relative z-50 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-sm sticky top-0" id="coordinator-navbar">
+    @php
+        $activeSection = $active ?? '';
+        $isGestionActive = in_array($activeSection, ['instituciones', 'proyectos', 'alumnos']);
+        $isPracticasActive = in_array($activeSection, ['tramites', 'seguimiento']);
+    @endphp
+
     <!-- Top Bar: Logo & Profile -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100/60">
         <div class="flex justify-between h-16 items-center">
-            <!-- Left Logo -->
-            <div class="flex items-center shrink-0">
-                <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-10 w-auto object-contain transition-transform hover:scale-105 duration-300">
+            <!-- Left: Logo & Title -->
+            <a href="{{ route('coordinador.dashboard') }}" class="flex items-center shrink-0 group transition-transform hover:scale-[1.01]">
+                <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-10 w-auto object-contain transition-transform group-hover:scale-105 duration-300">
                 <div class="ml-3 flex flex-col justify-center">
                     <span class="text-lg font-extrabold text-gray-900 leading-none whitespace-nowrap">Control de Prácticas</span>
-                    <span class="text-[10px] font-bold text-[#4E7D24] uppercase tracking-wider mt-0.5">Coordinación</span>
+                    <span class="text-[10px] font-bold text-[#4E7D24] uppercase tracking-wider mt-0.5">Panel Coordinación</span>
                 </div>
-            </div>
+            </a>
             
-            <!-- Right Info & Actions -->
-            <div class="flex items-center gap-4 shrink-0">
-                <!-- User Label (Desktop) -->
-                <div class="hidden md:flex flex-col items-end">
-                    <span class="text-xs font-bold text-gray-900 leading-none">{{ auth()->user()->correo ?? 'Coordinador' }}</span>
-                    <span class="text-[10px] font-medium text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mt-1">Coordinador de Prácticas</span>
-                </div>
-                
-                <!-- Avatar Circular Badge -->
-                <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] p-[2px] shadow-sm">
-                    <div class="h-full w-full rounded-full bg-white flex items-center justify-center">
-                        <svg class="w-4.5 h-4.5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
+            <!-- Right: User Profile & Actions -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- User Profile Quick Link -->
+                <a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" 
+                   class="flex items-center gap-3 py-1.5 px-3 rounded-2xl hover:bg-gray-100/70 transition-all duration-200 group {{ $activeSection === 'perfil' ? 'bg-[#6BA53A]/10 ring-1 ring-[#4E7D24]/20' : '' }}"
+                   title="Ver Mi Perfil">
+                    <div class="hidden md:flex flex-col items-end">
+                        <span class="text-xs font-bold text-gray-900 leading-none group-hover:text-[#4E7D24] transition-colors">
+                            {{ auth()->user()->correo ?? 'Coordinador' }}
+                        </span>
+                        <span class="text-[10px] font-medium text-[#4E7D24] bg-[#6BA53A]/10 px-2 py-0.5 rounded-md mt-1">
+                            Mi Perfil
+                        </span>
                     </div>
-                </div>
+                    <!-- Avatar Circular Badge -->
+                    <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4E7D24] to-[#6BA53A] p-[2px] shadow-sm transition-transform group-hover:scale-105">
+                        <div class="h-full w-full rounded-full bg-white flex items-center justify-center">
+                            <svg class="w-4.5 h-4.5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
                 
-                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                <div class="h-6 w-px bg-gray-200 mx-0.5 hidden sm:block"></div>
                 
                 <!-- Logout Button -->
                 <form method="POST" action="{{ route('logout') }}" class="m-0">
@@ -38,7 +51,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
-                        <span>Cerrar sesión</span>
+                        <span class="hidden sm:inline">Cerrar sesión</span>
                     </button>
                 </form>
             </div>
@@ -48,28 +61,218 @@
     <!-- Bottom Bar: Navigation Links (Desktop) -->
     <div class="hidden xl:block bg-white/40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-center h-12 gap-1 py-1">
-                <a href="{{ Route::has('coordinador.dashboard') ? route('coordinador.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Inicio</a>
-                <a href="{{ Route::has('coordinador.instituciones') ? route('coordinador.instituciones') : '#' }}" class="{{ (isset($active) && $active === 'instituciones') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Instituciones</a>
-                <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="{{ (isset($active) && $active === 'alumnos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Alumnos</a>
-                <a href="{{ Route::has('coordinador.proyectos') ? route('coordinador.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Proyectos</a>
-                <a href="{{ Route::has('coordinador.tramites') ? route('coordinador.tramites') : '#' }}" class="{{ (isset($active) && $active === 'tramites') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Trámites</a>
-                <a href="{{ route('coordinador.seguimiento') }}" class="{{ (isset($active) && $active === 'seguimiento') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Seguimiento</a>
-                <a href="{{ Route::has('coordinador.informes') ? route('coordinador.informes') : '#' }}" class="{{ (isset($active) && $active === 'informes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Informes</a>
-                <a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">Mi Perfil</a>
+            <div class="flex items-center justify-center h-12 gap-2 py-1">
+                
+                <!-- 1. Inicio Directo -->
+                <a href="{{ route('coordinador.dashboard') }}" 
+                   class="{{ $activeSection === 'dashboard' ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold shadow-xs' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">
+                    Inicio
+                </a>
+
+                <!-- 2. Menú Desplegable: Gestión -->
+                <div class="relative group" data-dropdown="gestion">
+                    <button type="button" 
+                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm transition-all cursor-pointer {{ $isGestionActive ? 'text-[#4E7D24] bg-[#6BA53A]/10 font-semibold ring-1 ring-[#4E7D24]/20' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 font-medium' }}"
+                            aria-expanded="false"
+                            onclick="toggleNavbarDropdown(event, 'gestion')">
+                        <span>Gestión</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Panel -->
+                    <div id="dropdown-menu-gestion"
+                         class="absolute left-1/2 -translate-x-1/2 mt-1.5 w-64 rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                        <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Catálogos y Directorio</span>
+                        </div>
+                        
+                        <!-- Instituciones -->
+                        <a href="{{ route('coordinador.instituciones') }}" 
+                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'instituciones' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                            <div class="p-2 rounded-lg {{ $activeSection === 'instituciones' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold leading-tight">Instituciones</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Empresas y Unidades Receptoras</div>
+                            </div>
+                        </a>
+
+                        <!-- Proyectos -->
+                        <a href="{{ route('coordinador.proyectos') }}" 
+                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'proyectos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                            <div class="p-2 rounded-lg {{ $activeSection === 'proyectos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold leading-tight">Proyectos</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Plazas y ofertas de prácticas</div>
+                            </div>
+                        </a>
+
+                        <!-- Alumnos -->
+                        <a href="{{ route('coordinador.alumnos') }}" 
+                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'alumnos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                            <div class="p-2 rounded-lg {{ $activeSection === 'alumnos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold leading-tight">Alumnos</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Padrón de estudiantes</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Menú Desplegable: Prácticas -->
+                <div class="relative group" data-dropdown="practicas">
+                    <button type="button" 
+                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm transition-all cursor-pointer {{ $isPracticasActive ? 'text-[#4E7D24] bg-[#6BA53A]/10 font-semibold ring-1 ring-[#4E7D24]/20' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 font-medium' }}"
+                            aria-expanded="false"
+                            onclick="toggleNavbarDropdown(event, 'practicas')">
+                        <span>Prácticas</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Panel -->
+                    <div id="dropdown-menu-practicas"
+                         class="absolute left-1/2 -translate-x-1/2 mt-1.5 w-64 rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                        <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Flujo Operativo</span>
+                        </div>
+
+                        <!-- Trámites -->
+                        <a href="{{ route('coordinador.tramites') }}" 
+                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'tramites' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                            <div class="p-2 rounded-lg {{ $activeSection === 'tramites' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold leading-tight">Trámites</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Validación de solicitudes y docs</div>
+                            </div>
+                        </a>
+
+                        <!-- Seguimiento -->
+                        <a href="{{ route('coordinador.seguimiento') }}" 
+                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'seguimiento' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                            <div class="p-2 rounded-lg {{ $activeSection === 'seguimiento' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold leading-tight">Seguimiento</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Alumnos activos y horas</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. Informes Directo -->
+                <a href="{{ route('coordinador.informes') }}" 
+                   class="{{ $activeSection === 'informes' ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-1.5 rounded-xl text-sm font-semibold shadow-xs' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-1.5 rounded-xl text-sm font-medium transition-all' }}">
+                    Informes
+                </a>
+
             </div>
         </div>
     </div>
     
-    <!-- Mobile/Tablet Navigation Scroll (Visible only on screens smaller than xl) -->
-    <div class="xl:hidden border-t border-gray-100 bg-white/95 py-2 overflow-x-auto whitespace-nowrap scrollbar-none flex items-center px-4 gap-2">
-        <a href="{{ Route::has('coordinador.dashboard') ? route('coordinador.dashboard') : '#' }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Inicio</a>
-        <a href="{{ Route::has('coordinador.instituciones') ? route('coordinador.instituciones') : '#' }}" class="{{ (isset($active) && $active === 'instituciones') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Instituciones</a>
-        <a href="{{ Route::has('coordinador.alumnos') ? route('coordinador.alumnos') : '#' }}" class="{{ (isset($active) && $active === 'alumnos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Alumnos</a>
-        <a href="{{ Route::has('coordinador.proyectos') ? route('coordinador.proyectos') : '#' }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Proyectos</a>
-        <a href="{{ Route::has('coordinador.tramites') ? route('coordinador.tramites') : '#' }}" class="{{ (isset($active) && $active === 'tramites') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Trámites</a>
-        <a href="{{ route('coordinador.seguimiento') }}" class="{{ (isset($active) && $active === 'seguimiento') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Seguimiento</a>
-        <a href="{{ Route::has('coordinador.informes') ? route('coordinador.informes') : '#' }}" class="{{ (isset($active) && $active === 'informes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Informes</a>
-        <a href="{{ Route::has('coordinador.perfil') ? route('coordinador.perfil') : '#' }}" class="{{ (isset($active) && $active === 'perfil') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-3.5 py-1.5 rounded-lg text-xs font-semibold inline-block' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-3.5 py-1.5 rounded-lg text-xs font-medium inline-block' }}">Mi Perfil</a>
+    <!-- Mobile/Tablet Navigation (Streamlined Pills with Group Indicators) -->
+    <div class="xl:hidden border-t border-gray-100 bg-white/95 py-2.5 overflow-x-auto whitespace-nowrap scrollbar-none flex items-center px-4 gap-2">
+        <a href="{{ route('coordinador.dashboard') }}" 
+           class="{{ $activeSection === 'dashboard' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Inicio
+        </a>
+        
+        <span class="text-gray-300 text-xs">|</span>
+
+        <!-- Grupo Gestión (Mobile Links) -->
+        <a href="{{ route('coordinador.instituciones') }}" 
+           class="{{ $activeSection === 'instituciones' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Instituciones
+        </a>
+        <a href="{{ route('coordinador.proyectos') }}" 
+           class="{{ $activeSection === 'proyectos' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Proyectos
+        </a>
+        <a href="{{ route('coordinador.alumnos') }}" 
+           class="{{ $activeSection === 'alumnos' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Alumnos
+        </a>
+
+        <span class="text-gray-300 text-xs">|</span>
+
+        <!-- Grupo Prácticas (Mobile Links) -->
+        <a href="{{ route('coordinador.tramites') }}" 
+           class="{{ $activeSection === 'tramites' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Trámites
+        </a>
+        <a href="{{ route('coordinador.seguimiento') }}" 
+           class="{{ $activeSection === 'seguimiento' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Seguimiento
+        </a>
+
+        <span class="text-gray-300 text-xs">|</span>
+
+        <a href="{{ route('coordinador.informes') }}" 
+           class="{{ $activeSection === 'informes' ? 'text-[#4E7D24] bg-[#6BA53A]/15 font-bold' : 'text-gray-600 hover:text-[#4E7D24]' }} px-3 py-1.5 rounded-lg text-xs transition-all">
+            Informes
+        </a>
     </div>
 </nav>
+
+<script>
+    // Lightweight script for click-toggle on touch screens and outside-click closing
+    function toggleNavbarDropdown(event, name) {
+        event.stopPropagation();
+        const menu = document.getElementById('dropdown-menu-' + name);
+        if (!menu) return;
+
+        const isCurrentlyOpen = !menu.classList.contains('invisible');
+
+        // Close all dropdowns first
+        document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
+            m.classList.add('invisible', 'opacity-0', 'translate-y-1');
+            m.classList.remove('opacity-100', 'translate-y-0');
+        });
+
+        // Toggle this one if it wasn't open
+        if (!isCurrentlyOpen) {
+            menu.classList.remove('invisible', 'opacity-0', 'translate-y-1');
+            menu.classList.add('opacity-100', 'translate-y-0');
+        }
+    }
+
+    // Close on outside click or ESC key
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[data-dropdown]')) {
+            document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
+                m.classList.add('invisible', 'opacity-0', 'translate-y-1');
+                m.classList.remove('opacity-100', 'translate-y-0');
+            });
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
+                m.classList.add('invisible', 'opacity-0', 'translate-y-1');
+                m.classList.remove('opacity-100', 'translate-y-0');
+            });
+        }
+    });
+</script>
