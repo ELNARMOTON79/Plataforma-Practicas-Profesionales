@@ -112,27 +112,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Observaciones del Coordinador (Notes) -->
-            <div class="glass-card rounded-3xl p-6 border border-gray-100 shadow-sm text-left">
-                <h2 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
-                    <svg class="w-5 h-5 text-[#6BA53A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    Observaciones y Folio Oficial
-                </h2>
-                
-                <form action="{{ route('coordinador.seguimiento.save-notes', $student['id']) }}" method="POST" class="m-0 space-y-4">
-                    @csrf
-                    <div>
-                        <label for="notes" class="sr-only">Comentarios de observaciones</label>
-                        <textarea id="notes" name="notes" rows="6" class="block w-full px-3 py-2 text-xs border border-gray-200 rounded-2xl bg-white/50 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] focus:outline-none placeholder-gray-400 font-medium" placeholder="Escribe el folio y notas oficiales aquí...">{{ $student['folio_observaciones'] }}</textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full py-2 bg-[#4E7D24] hover:bg-[#2E5417] text-white rounded-xl text-xs font-bold transition-all shadow-md">
-                            Guardar Observaciones
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 

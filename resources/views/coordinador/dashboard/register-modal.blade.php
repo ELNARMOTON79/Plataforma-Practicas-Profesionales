@@ -5,7 +5,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
+        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" hx-boost="false" onsubmit="event.preventDefault(); validarYConfirmarRegistroAlumno();" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
             <!-- Style for shake animation and input states -->
@@ -60,7 +60,7 @@
                         <!-- Nombre Completo -->
                         <div class="md:col-span-2">
                             <label for="alumno-nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-letters" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
+                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-letters @error('nombre') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
                             <p id="error-alumno-nombre" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('nombre')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -70,7 +70,7 @@
                         <!-- Correo Electrónico -->
                         <div>
                             <label for="alumno-correo" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
-                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-email" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
+                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-email @error('correo') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
                             <p id="error-alumno-correo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('correo')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -80,7 +80,7 @@
                         <!-- No. de cuenta -->
                         <div>
                             <label for="alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">No. de cuenta <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]{8}$" maxlength="8" title="El No. de cuenta debe tener exactamente 8 dígitos.">
+                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-numbers @error('matricula') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]{8}$" maxlength="8" title="El No. de cuenta debe tener exactamente 8 dígitos.">
                             <p id="error-alumno-matricula" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('matricula')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -166,7 +166,7 @@
                 <button type="button" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
                     Cancelar
                 </button>
-                <button type="submit" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                <button type="button" onclick="validarYConfirmarRegistroAlumno()" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Registrar Alumno
                 </button>
@@ -179,7 +179,16 @@
 @if($errors->any() && !old('id'))
 <script>
     function openRegistrarAlumnoOnError() {
-        document.getElementById('modal-registrar-alumno').classList.remove('hidden');
+        const modal = document.getElementById('modal-registrar-alumno');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                const firstInvalid = modal.querySelector('.server-error, .border-red-500');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
     }
     document.addEventListener('DOMContentLoaded', openRegistrarAlumnoOnError);
     document.addEventListener('htmx:afterSettle', openRegistrarAlumnoOnError);
@@ -225,12 +234,10 @@
         if (target.id === 'alumno-grupo') target.value = target.value.toUpperCase();
     });
 
-    // Submit con confirmación
-    document.addEventListener('submit', function(e) {
-        const form = e.target.closest('#form-registrar-alumno');
+    // Validar y Confirmar Registro de Alumno
+    window.validarYConfirmarRegistroAlumno = function() {
+        const form = document.getElementById('form-registrar-alumno');
         if (!form) return;
-
-        e.preventDefault();
 
         const getFields = () => ({
             nombre:   { el: document.getElementById('alumno-nombre'),    error: document.getElementById('error-alumno-nombre'),    validate: (v) => { if (!v.trim()) return 'El nombre completo es requerido.'; if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(v)) return 'El nombre solo debe contener letras y espacios.'; if (v.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.'; return ''; } },
@@ -259,6 +266,9 @@
                 input.classList.add('input-invalid');
                 input.classList.remove('field-shake'); void input.offsetWidth; input.classList.add('field-shake');
                 if (!firstInvalidInput) firstInvalidInput = input;
+            } else {
+                if (field.error) { field.error.textContent = ''; field.error.classList.add('hidden'); }
+                input.classList.remove('input-invalid');
             }
         });
 
@@ -275,14 +285,28 @@
             Swal.fire({
                 title: '¿Confirmar Registro?',
                 html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta al estudiante <strong>${nombreAlumno}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán sus accesos y se enviarán automáticamente al correo <strong>${correoAlumno}</strong>.</p>`,
-                icon: 'question', showCancelButton: true,
-                confirmButtonColor: '#4E7D24', cancelButtonColor: '#9CA3AF',
-                confirmButtonText: 'Sí, registrar alumno', cancelButtonText: 'Revisar datos',
-                focusConfirm: false, focusCancel: false,
-                customClass: { popup: 'rounded-3xl p-6 font-sans shadow-2xl', confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]', cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm' }
-            }).then((result) => { if (result.isConfirmed) form.submit(); });
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4E7D24',
+                cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, registrar alumno',
+                cancelButtonText: 'Revisar datos',
+                focusConfirm: false,
+                focusCancel: false,
+                customClass: {
+                    popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                    cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         } else {
-            if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) form.submit();
+            if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) {
+                form.submit();
+            }
         }
-    });
+    };
 </script>

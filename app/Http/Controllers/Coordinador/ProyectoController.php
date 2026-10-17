@@ -146,7 +146,7 @@ class ProyectoController extends Controller
             ->value('nombre_empresa');
 
         return redirect()->back()
-            ->with('success', "Proyecto \"{$proyecto->titulo}\" (ID #{$proyecto->id}) registrado correctamente para la unidad receptora \"{$urName}\" en la base de datos.");
+            ->with('success', "Proyecto \"{$proyecto->titulo}\" registrado correctamente para la unidad receptora \"{$urName}\".");
     }
 
     /**
@@ -225,7 +225,7 @@ class ProyectoController extends Controller
             ->value('nombre_empresa');
 
         return redirect()->back()
-            ->with('success', "Proyecto ID #{$proyecto->id} (\"{$proyecto->titulo}\") actualizado correctamente para la unidad receptora \"{$urName}\" en la base de datos.");
+            ->with('success', "Proyecto \"{$proyecto->titulo}\" actualizado correctamente para la unidad receptora \"{$urName}\".");
     }
 
     /**

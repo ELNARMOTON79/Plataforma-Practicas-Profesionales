@@ -88,14 +88,16 @@
             if (!document.getElementById('tabla-proceso')) return;
             if (typeof $ === 'undefined' || !$.fn.DataTable) return;
 
-            // Purge any detached or orphan table instances left over by HTMX page swaps
-            if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.settings) {
-                $.fn.dataTable.settings = $.fn.dataTable.settings.filter(function(s) {
-                    return s && s.nTable && document.body.contains(s.nTable) && s.nTableWrapper && s.nTableWrapper.parentNode;
-                });
-            }
+            // Destruir instancias previas y limpiar paginaciones residuales
+            ['#tabla-proceso', '#tabla-concluidos', '#tabla-todos'].forEach(function(selector) {
+                if ($.fn.DataTable.isDataTable(selector)) {
+                    $(selector).DataTable().destroy();
+                }
+                $(selector).closest('.overflow-x-auto').find('.dataTables_paginate').remove();
+            });
 
             const dtConfig = {
+                destroy: true,
                 searching: true,
                 lengthChange: false,
                 pageLength: 5,
@@ -116,68 +118,56 @@
                 }
             };
 
-            if ($.fn.DataTable.isDataTable('#tabla-proceso')) {
-                tableProceso = $('#tabla-proceso').DataTable();
-            } else {
-                tableProceso = $('#tabla-proceso').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [2, 4] }],
-                    language: {
-                        ...dtConfig.language,
-                        emptyTable: `
-                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                                <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mb-3 shadow-inner border border-yellow-100">
-                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
-                                </div>
-                                <h3 class="text-sm font-bold text-gray-700">Sin alumnos en proceso</h3>
-                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes con prácticas profesionales activas actualmente.</p>
+            tableProceso = $('#tabla-proceso').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mb-3 shadow-inner border border-yellow-100">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                             </div>
-                        `
-                    }
-                });
-            }
+                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos en proceso</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes con prácticas profesionales activas actualmente.</p>
+                        </div>
+                    `
+                }
+            });
 
-            if ($.fn.DataTable.isDataTable('#tabla-concluidos')) {
-                tableConcluido = $('#tabla-concluidos').DataTable();
-            } else {
-                tableConcluido = $('#tabla-concluidos').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [2, 4] }],
-                    language: {
-                        ...dtConfig.language,
-                        emptyTable: `
-                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                                <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3 shadow-inner border border-green-100">
-                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
-                                </div>
-                                <h3 class="text-sm font-bold text-gray-700">Sin alumnos concluidos</h3>
-                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes que hayan acreditado o finalizado sus prácticas aún.</p>
+            tableConcluido = $('#tabla-concluidos').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3 shadow-inner border border-green-100">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>
                             </div>
-                        `
-                    }
-                });
-            }
+                            <h3 class="text-sm font-bold text-gray-700">Sin alumnos concluidos</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen estudiantes que hayan acreditado o finalizado sus prácticas aún.</p>
+                        </div>
+                    `
+                }
+            });
 
-            if ($.fn.DataTable.isDataTable('#tabla-todos')) {
-                tableTodos = $('#tabla-todos').DataTable();
-            } else {
-                tableTodos = $('#tabla-todos').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [2, 4] }],
-                    language: {
-                        ...dtConfig.language,
-                        emptyTable: `
-                            <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                                <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
-                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                </div>
-                                <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
-                                <p class="text-xs text-gray-400 mt-1 max-w-xs">No se encontraron estudiantes en el sistema.</p>
+            tableTodos = $('#tabla-todos').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 4] }],
+                language: {
+                    ...dtConfig.language,
+                    emptyTable: `
+                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             </div>
-                        `
-                    }
-                });
-            }
+                            <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
+                            <p class="text-xs text-gray-400 mt-1 max-w-xs">No se encontraron estudiantes en el sistema.</p>
+                        </div>
+                    `
+                }
+            });
 
             // Read search parameter from URL if provided
             const urlParams = new URLSearchParams(window.location.search);
@@ -202,8 +192,19 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', initSeguimientoPage);
-        document.addEventListener('htmx:afterSettle', initSeguimientoPage);
+        if (!window._seguimientoListenersRegistered) {
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof initSeguimientoPage === 'function') initSeguimientoPage();
+            });
+            document.addEventListener('htmx:afterSettle', function() {
+                if (typeof initSeguimientoPage === 'function') initSeguimientoPage();
+            });
+            window._seguimientoListenersRegistered = true;
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initSeguimientoPage();
+        }
         window.switchTrackingTab = switchTrackingTab;
 
         // ── Tab Switcher estilo Trámites ─────────────────────────────
