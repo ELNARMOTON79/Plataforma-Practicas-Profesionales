@@ -208,6 +208,14 @@
                                         <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-green-100 text-green-800 border border-green-200 uppercase">
                                             Aprobada
                                         </span>
+                                    @elseif($solicitud->estatus == 'en_proceso')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-blue-100 text-blue-800 border border-blue-200 uppercase">
+                                            En Proceso
+                                        </span>
+                                    @elseif($solicitud->estatus == 'finalizada')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase">
+                                            Finalizada
+                                        </span>
                                     @elseif($solicitud->estatus == 'rechazada')
                                         <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-red-100 text-red-800 border border-red-200 uppercase">
                                             Rechazada
@@ -462,7 +470,6 @@
                     ...dtConfig,
                     columnDefs: [{ orderable: false, targets: [3, 4] }]
                 });
-                tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
             }
 
             // Documentos Pendientes
@@ -501,11 +508,8 @@
                 tablaDocsValidados.search(val).draw();
             });
 
-            if (tabParam) {
-                tablaDocsValidados.one('init.dt', function() {
-                    switchTab(tabParam);
-                });
-            }
+            const targetTab = tabParam || '{{ $activeTab }}' || 'solicitudes';
+            switchTab(targetTab);
         }
 
         document.addEventListener('DOMContentLoaded', initTramitesPage);
@@ -581,7 +585,7 @@
                 sectionSubtitle.textContent = "Historial de las solicitudes que ya fueron aprobadas para inicio de prácticas";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('^aprobada$', true, false).draw();
+                    tablaSolicitudes.column(2).search('aprobada|en_proceso|finalizada', true, false).draw();
                 }
             } else {
                 contentSolicitudes.classList.remove('hidden');
@@ -594,7 +598,7 @@
                 sectionSubtitle.textContent = "Revisión y autorización de inicio de prácticas profesionales pendientes";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
+                    tablaSolicitudes.column(2).search('pendiente', false, false).draw();
                 }
             }
         }
