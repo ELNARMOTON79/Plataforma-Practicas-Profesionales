@@ -63,7 +63,7 @@ class DashboardController extends Controller
                 'detalle' => $solicitud->unidadReceptora->nombre_empresa ?? 'No especificada',
                 'badge_text' => 'Solicitud Prácticas',
                 'badge_class' => 'bg-amber-50 text-amber-700 border-amber-200',
-                'link' => route('coordinador.tramites'),
+                'link' => route('coordinador.tramites', ['tab' => 'solicitudes']),
                 'accion_label' => 'Revisar',
                 'fecha' => $solicitud->fecha_inicio
             ]);
@@ -74,11 +74,11 @@ class DashboardController extends Controller
                 'id' => 'doc-' . $documento->id,
                 'estudiante' => $documento->solicitud->estudiante ?? null,
                 'tipo' => 'documento',
-                'detalle' => 'Validar: ' . $documento->nombre_doc,
+                'detalle' => $documento->nombre_doc,
                 'badge_text' => 'Documento Pendiente',
                 'badge_class' => 'bg-blue-50 text-blue-700 border-blue-200',
-                'link' => route('coordinador.tramites'),
-                'accion_label' => 'Validar',
+                'link' => route('coordinador.tramites', ['tab' => 'doc-pendientes']),
+                'accion_label' => 'Revisar',
                 'fecha' => $documento->fecha_carga
             ]);
         }
