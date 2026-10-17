@@ -139,7 +139,7 @@
     {{-- Modal Solicitar Práctica --}}
     <div id="solicitudModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSolicitudModal()"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden">
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full overflow-hidden" style="max-width: 42rem; max-height: 100%; display: flex; flex-direction: column;">
             <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Solicitar práctica en</p>
@@ -150,7 +150,7 @@
                 </button>
             </div>
 
-            <form id="solicitudForm" class="p-6 space-y-4">
+            <form id="solicitudForm" class="p-6 space-y-4" style="overflow-y: auto; flex: 1 1 auto; min-height: 0;">
                 @csrf
                 <input type="hidden" id="solicitudUrId" name="ur_id">
 
@@ -346,7 +346,14 @@
             ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
-            document.getElementById('solicitudModal').classList.remove('hidden');
+            var modal = document.getElementById('solicitudModal');
+            // Mismo espacio arriba (debajo del navbar) y abajo
+            var nav = document.querySelector('nav');
+            var navBottom = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
+            var gap = 24;
+            modal.style.paddingTop = (navBottom + gap) + 'px';
+            modal.style.paddingBottom = gap + 'px';
+            modal.classList.remove('hidden');
         }
 
         function closeSolicitudModal() {
