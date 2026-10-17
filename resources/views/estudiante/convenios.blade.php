@@ -230,15 +230,17 @@
     </div>
 
     {{-- Toast éxito --}}
-    <div id="convenioToast" class="hidden fixed top-5 right-5 z-[200]">
-        <div id="convenioToastCard" class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-2xl shadow-md max-w-sm flex items-start gap-3 transform transition-all duration-300 opacity-0 translate-y-2">
-            <div class="p-2 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <div id="convenioToast" class="hidden fixed inset-0 flex items-center justify-center p-4" style="z-index: 9999;">
+        <div class="absolute inset-0" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" onclick="hideConvenioToast()"></div>
+        <div id="convenioToastCard" class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full p-8 text-center" style="max-width: 26rem; opacity: 0; transform: scale(0.95); transition: opacity .25s ease, transform .25s ease;">
+            <div class="mx-auto flex items-center justify-center rounded-full bg-green-100 text-green-600" style="width: 4rem; height: 4rem;">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <div class="flex-1">
-                <h4 class="font-bold text-sm">¡Solicitud enviada!</h4>
-                <p id="convenioToastMsg" class="text-xs text-green-900/80 mt-0.5"></p>
-            </div>
+            <h4 class="text-xl font-bold text-gray-900 mt-4">¡Solicitud enviada!</h4>
+            <p id="convenioToastMsg" class="text-sm text-gray-600 mt-2"></p>
+            <button type="button" onclick="hideConvenioToast()" class="mt-6 w-full bg-[#4E7D24] hover:bg-[#3b6620] text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm">
+                Entendido
+            </button>
         </div>
     </div>
 
@@ -516,13 +518,16 @@
             document.getElementById('convenioToastMsg').textContent = msg;
             toast.classList.remove('hidden');
             void card.offsetWidth;
-            card.classList.remove('opacity-0','translate-y-2');
-            card.classList.add('opacity-100','translate-y-0');
-            setTimeout(function() {
-                card.classList.remove('opacity-100','translate-y-0');
-                card.classList.add('opacity-0','translate-y-2');
-                setTimeout(function() { toast.classList.add('hidden'); }, 300);
-            }, 4500);
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        }
+
+        function hideConvenioToast() {
+            var toast = document.getElementById('convenioToast');
+            var card  = document.getElementById('convenioToastCard');
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(function() { toast.classList.add('hidden'); }, 250);
         }
     </script>
 @endsection

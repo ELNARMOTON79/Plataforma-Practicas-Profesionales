@@ -913,7 +913,7 @@ class DashboardController extends Controller
             'success' => true,
             'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
             'solicitud_id' => $solicitud->id,
-            'fecha_fin' => $fechaFin->translatedFormat('d \d\e F \d\e Y'),
+            'fecha_fin' => $fechaFin->locale('es')->translatedFormat('d \d\e F \d\e Y'),
         ]);
     }
 
