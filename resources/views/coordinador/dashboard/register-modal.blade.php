@@ -5,7 +5,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
+        <form id="form-registrar-alumno" action="{{ route('coordinador.alumnos.store') }}" method="POST" hx-boost="false" onsubmit="event.preventDefault(); validarYConfirmarRegistroAlumno();" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
             <!-- Style for shake animation and input states -->
@@ -166,7 +166,7 @@
                 <button type="button" onclick="document.getElementById('modal-registrar-alumno').classList.add('hidden')" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
                     Cancelar
                 </button>
-                <button type="submit" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                <button type="button" onclick="validarYConfirmarRegistroAlumno()" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Registrar Alumno
                 </button>
@@ -234,12 +234,10 @@
         if (target.id === 'alumno-grupo') target.value = target.value.toUpperCase();
     });
 
-    // Submit con confirmación
-    document.addEventListener('submit', function(e) {
-        const form = e.target.closest('#form-registrar-alumno');
+    // Validar y Confirmar Registro de Alumno
+    window.validarYConfirmarRegistroAlumno = function() {
+        const form = document.getElementById('form-registrar-alumno');
         if (!form) return;
-
-        e.preventDefault();
 
         const getFields = () => ({
             nombre:   { el: document.getElementById('alumno-nombre'),    error: document.getElementById('error-alumno-nombre'),    validate: (v) => { if (!v.trim()) return 'El nombre completo es requerido.'; if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(v)) return 'El nombre solo debe contener letras y espacios.'; if (v.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.'; return ''; } },
@@ -268,6 +266,9 @@
                 input.classList.add('input-invalid');
                 input.classList.remove('field-shake'); void input.offsetWidth; input.classList.add('field-shake');
                 if (!firstInvalidInput) firstInvalidInput = input;
+            } else {
+                if (field.error) { field.error.textContent = ''; field.error.classList.add('hidden'); }
+                input.classList.remove('input-invalid');
             }
         });
 
@@ -284,14 +285,28 @@
             Swal.fire({
                 title: '¿Confirmar Registro?',
                 html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de dar de alta al estudiante <strong>${nombreAlumno}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">Se generarán sus accesos y se enviarán automáticamente al correo <strong>${correoAlumno}</strong>.</p>`,
-                icon: 'question', showCancelButton: true,
-                confirmButtonColor: '#4E7D24', cancelButtonColor: '#9CA3AF',
-                confirmButtonText: 'Sí, registrar alumno', cancelButtonText: 'Revisar datos',
-                focusConfirm: false, focusCancel: false,
-                customClass: { popup: 'rounded-3xl p-6 font-sans shadow-2xl', confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]', cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm' }
-            }).then((result) => { if (result.isConfirmed) form.submit(); });
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4E7D24',
+                cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, registrar alumno',
+                cancelButtonText: 'Revisar datos',
+                focusConfirm: false,
+                focusCancel: false,
+                customClass: {
+                    popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                    cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         } else {
-            if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) form.submit();
+            if (confirm(`¿Estás seguro de registrar al estudiante ${nombreAlumno}? Se enviarán las credenciales a ${correoAlumno}.`)) {
+                form.submit();
+            }
         }
-    });
+    };
 </script>
