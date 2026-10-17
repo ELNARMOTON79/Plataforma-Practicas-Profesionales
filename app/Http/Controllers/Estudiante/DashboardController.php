@@ -212,11 +212,14 @@ class DashboardController extends Controller
 
         $convenios = $query->orderBy('codigo_convenio')->get();
 
+        $folios = Convenio::folios();
+
         $conveniosAgrupados = $convenios
             ->groupBy('codigo_convenio')
-            ->map(function ($grupo, $codigo) {
+            ->map(function ($grupo, $codigo) use ($folios) {
                 return (object) [
                     'codigo_convenio' => $codigo,
+                    'folio'           => $folios[$codigo] ?? $codigo,
                     'fecha_inicio'    => $grupo->min('fecha_inicio'),
                     'fecha_termino'   => $grupo->max('fecha_termino'),
                     'vigente'         => $grupo->contains(fn ($c) => $c->estatus === 'activo' && $c->fecha_termino >= now()->toDateString()),
