@@ -31,63 +31,87 @@
         </x-slot>
     </x-page-header>
 
-    <!-- Metrics Grid -->
+    <!-- Metrics Grid (Quick Nav Shortcuts) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 fade-in-up delay-100">
         <!-- Metric Card 1: Estudiantes Activos -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-green-100 hover:border-[#6BA53A] transition-all">
+        <a href="{{ route('coordinador.alumnos') }}" title="Ver catálogo de alumnos"
+           class="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group border border-green-100 hover:border-[#6BA53A] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                 <svg class="w-12 h-12 text-[#6BA53A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h12v-1a7 7 0 00-7-7z"></path></svg>
             </div>
-            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Estudiantes Activos</span>
-            <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-[#4E7D24] leading-none">{{ $estudiantesActivos }}</span>
-                <span class="flex items-center text-xs font-semibold {{ ($porcentajeActivos ?? 0) > 0 ? 'text-green-600 bg-green-50' : 'text-gray-500 bg-gray-100' }} px-2 py-0.5 rounded-md mb-0.5">
-                    @if(($porcentajeActivos ?? 0) > 0)
-                        <svg class="w-3 h-3 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                        +{{ $porcentajeActivos }}%
-                    @else
-                        {{ $porcentajeActivos ?? 0 }}%
-                    @endif
-                </span>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider group-hover:text-[#4E7D24] transition-colors">Estudiantes Activos</span>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#4E7D24] group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <div class="flex items-end gap-3 mb-2">
+                    <span class="text-4xl font-extrabold text-[#4E7D24] leading-none">{{ $estudiantesActivos }}</span>
+                    <span class="flex items-center text-xs font-semibold {{ ($porcentajeActivos ?? 0) > 0 ? 'text-green-600 bg-green-50' : 'text-gray-500 bg-gray-100' }} px-2 py-0.5 rounded-md mb-0.5">
+                        @if(($porcentajeActivos ?? 0) > 0)
+                            <svg class="w-3 h-3 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                            +{{ $porcentajeActivos }}%
+                        @else
+                            {{ $porcentajeActivos ?? 0 }}%
+                        @endif
+                    </span>
+                </div>
             </div>
-            <span class="text-xs text-gray-400 font-medium">Inscritos en el periodo actual</span>
-        </div>
+            <span class="text-xs text-gray-400 font-medium mt-1">Inscritos en el periodo actual</span>
+        </a>
 
         <!-- Metric Card 2: Instituciones -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-teal-100 hover:border-teal-400 transition-all">
+        <a href="{{ route('coordinador.instituciones') }}" title="Ver instituciones registradas"
+           class="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group border border-teal-100 hover:border-teal-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                 <svg class="w-12 h-12 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
             </div>
-            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Instituciones</span>
-            <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-teal-600 leading-none">{{ $instituciones }}</span>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider group-hover:text-teal-600 transition-colors">Instituciones</span>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <div class="flex items-end gap-3 mb-2">
+                    <span class="text-4xl font-extrabold text-teal-600 leading-none">{{ $instituciones }}</span>
+                </div>
             </div>
-            <span class="text-xs text-gray-400 font-medium">Unidades receptoras registradas</span>
-        </div>
+            <span class="text-xs text-gray-400 font-medium mt-1">Unidades receptoras registradas</span>
+        </a>
 
         <!-- Metric Card 3: Solicitudes Pendientes -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-amber-100 hover:border-amber-400 transition-all">
+        <a href="{{ route('coordinador.tramites') }}" title="Ir a trámites pendientes"
+           class="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group border border-amber-100 hover:border-amber-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                 <svg class="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
             </div>
-            <span class="text-xs font-bold text-yellow-600 mb-2 uppercase tracking-wider">Trámites Pendientes</span>
-            <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-yellow-600 leading-none">{{ $tramitesPendientes }}</span>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-yellow-600 uppercase tracking-wider group-hover:text-yellow-700 transition-colors">Trámites Pendientes</span>
+                    <svg class="w-4 h-4 text-amber-300 group-hover:text-yellow-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <div class="flex items-end gap-3 mb-2">
+                    <span class="text-4xl font-extrabold text-yellow-600 leading-none">{{ $tramitesPendientes }}</span>
+                </div>
             </div>
-            <span class="text-xs text-yellow-500 font-medium">Solicitudes pendientes</span>
-        </div>
+            <span class="text-xs text-yellow-500 font-medium mt-1">Solicitudes y documentos pendientes</span>
+        </a>
 
         <!-- Metric Card 4: Proyectos Registrados -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col relative overflow-hidden group border-indigo-100 hover:border-indigo-400 transition-all">
+        <a href="{{ route('coordinador.proyectos') }}" title="Ver catálogo de proyectos"
+           class="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group border border-indigo-100 hover:border-indigo-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div class="absolute inset-y-0 right-0 pr-5 flex items-center opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                 <svg class="w-12 h-12 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path></svg>
             </div>
-            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Proyectos Registrados</span>
-            <div class="flex items-end gap-3 mb-2">
-                <span class="text-4xl font-extrabold text-indigo-600 leading-none">{{ $proyectosActivos }}</span>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Proyectos Registrados</span>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+                <div class="flex items-end gap-3 mb-2">
+                    <span class="text-4xl font-extrabold text-indigo-600 leading-none">{{ $proyectosActivos }}</span>
+                </div>
             </div>
-            <span class="text-xs text-gray-400 font-medium">Proyectos de prácticas activos</span>
-        </div>
+            <span class="text-xs text-gray-400 font-medium mt-1">Proyectos de prácticas activos</span>
+        </a>
     </div>
 
     <!-- Main Grid Content -->
