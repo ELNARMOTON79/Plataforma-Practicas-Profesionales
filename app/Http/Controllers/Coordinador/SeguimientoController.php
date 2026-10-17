@@ -14,9 +14,7 @@ class SeguimientoController extends Controller
 
     private function getSessionData()
     {
-        $sessionData = session()->get('seguimiento_data', []);
-
-        $data = $this->getInitialData();
+        $data = [];
 
         $dbAlumnos = \App\Models\Alumno::with(['user'])->get();
 
@@ -26,28 +24,33 @@ class SeguimientoController extends Controller
                 ->orderBy('id', 'desc')
                 ->first();
 
-            
+            // 1. Debe tener práctica aceptada / activa
             $isAceptado = ($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada', 'acreditado'])) || $alumno->activo_practica == 1;
 
             if (!$isAceptado) {
                 continue;
             }
+
+            // 2. El estudiante DEBE tener un proyecto registrado y formalmente asignado a su nombre
+            $proyectoReal = \App\Models\Proyecto::where('estudiante_id', $alumno->id)->first();
+
+            if (!$proyectoReal) {
+                // Si aún no se le ha registrado su proyecto en la unidad receptora, no entra a seguimiento todavía
+                continue;
+            }
+
             $estatus = 'EN PROCESO';
             if ($solicitud && in_array($solicitud->estatus, ['finalizada', 'acreditado'])) {
                 $estatus = 'ACREDITADO';
             }
 
-            $urNombre = 'INSTITUCIÓN NO ASIGNADA';
             $responsable = !empty($alumno->asesor) ? $alumno->asesor : 'Dr. Coordinador de Prácticas';
             $cargo = 'Asesor Académico / Responsable';
             $correoDestino = $alumno->user->correo ?? 'Sin correo asignado';
             $fechaInicio = '01/02/2026';
             $fechaTermino = '01/07/2026';
             $observaciones = 'Sin observaciones registradas.';
-            $tituloProyecto = 'Prácticas Profesionales - ' . ($alumno->carrera ?: 'Ingeniería');
 
-            $proyectoReal = null;
-            $urModel = null;
             if ($solicitud) {
                 if (!empty($solicitud->responsable)) {
                     $responsable = $solicitud->responsable;
@@ -61,25 +64,16 @@ class SeguimientoController extends Controller
                 if (!empty($solicitud->fecha_fin)) {
                     $fechaTermino = \Carbon\Carbon::parse($solicitud->fecha_fin)->format('d/m/Y');
                 }
-                if (!empty($solicitud->ur_id)) {
-                    $urModel = \App\Models\UnidadReceptora::find($solicitud->ur_id);
-                    if ($urModel) {
-                        $urNombre = $urModel->nombre_empresa ?? $urModel->nombre ?? $urNombre;
-                    }
-                }
             }
 
-            $proyectoReal = \App\Models\Proyecto::where('estudiante_id', $alumno->id)->first();
+            // Unidad Receptora asociada al proyecto o a la solicitud
+            $urModel = null;
+            if (!empty($proyectoReal->unidad_receptora_id)) {
+                $urModel = \App\Models\UnidadReceptora::find($proyectoReal->unidad_receptora_id);
+            } elseif ($solicitud && !empty($solicitud->ur_id)) {
+                $urModel = \App\Models\UnidadReceptora::find($solicitud->ur_id);
+            }
 
-            if (!$proyectoReal && $solicitud && !empty($solicitud->ur_id)) {
-                $proyectoReal = \App\Models\Proyecto::where('unidad_receptora_id', $solicitud->ur_id)->first();
-            }
-            if ($proyectoReal && !empty($proyectoReal->unidad_receptora_id)) {
-                $projUr = \App\Models\UnidadReceptora::find($proyectoReal->unidad_receptora_id);
-                if ($projUr) {
-                    $urModel = $projUr;
-                }
-            }
             if ($urModel) {
                 if (!empty($urModel->titular)) {
                     $responsable = $urModel->titular;
@@ -102,18 +96,11 @@ class SeguimientoController extends Controller
                 $unidadReceptoraNombre = !empty($urModel->unidad_receptora) ? $urModel->unidad_receptora : $institucionNombre;
             }
 
-            if ($proyectoReal) {
-                $tituloProyecto = $proyectoReal->titulo;
-                $descripcion = $proyectoReal->tipo_proyecto . ' (' . $proyectoReal->tipo_modalidad . ') - ' . $proyectoReal->impacto_social;
-                $objetivo = $proyectoReal->objetivo;
-                $justificacion = $proyectoReal->justificacion;
-                $actividades = $proyectoReal->actividades;
-            } else {
-                $descripcion = 'Proyecto de prácticas profesionales en la carrera de ' . ($alumno->carrera ?: 'Ingeniería') . ' (' . $alumno->semestre . '° Semestre).';
-                $objetivo = 'Aplicar conocimientos académicos teóricos y prácticos en un entorno profesional real.';
-                $justificacion = 'Fomentar la formación integral y el desarrollo de habilidades técnicas e interpersonales en los alumnos.';
-                $actividades = 'Desarrollo de actividades asignadas en el plan de trabajo, reporte de horas y entregas de expedientes oficiales.';
-            }
+            $tituloProyecto = $proyectoReal->titulo;
+            $descripcion = $proyectoReal->tipo_proyecto . ' (' . $proyectoReal->tipo_modalidad . ') - ' . $proyectoReal->impacto_social;
+            $objetivo = $proyectoReal->objetivo;
+            $justificacion = $proyectoReal->justificacion;
+            $actividades = $proyectoReal->actividades;
 
             $titular = !empty($urModel?->titular) ? $urModel->titular : (!empty($alumno->asesor) ? $alumno->asesor : 'ASESOR ACADÉMICO');
             $domicilio = !empty($urModel?->direccion) ? $urModel->direccion : 'Facultad de Ingeniería Electromecánica, Universidad de Colima';
@@ -192,34 +179,30 @@ class SeguimientoController extends Controller
 
             $key = $alumno->id;
 
-            if (isset($sessionData[$key])) {
-                $data[$key] = $sessionData[$key];
-            } else {
-                $data[$key] = [
-                    'id' => $key,
-                    'matricula' => $alumno->matricula,
-                    'nombre_completo' => mb_strtoupper($alumno->nombre_completo, 'UTF-8'),
-                    'fecha_inicio' => $fechaInicio,
-                    'fecha_termino' => $fechaTermino,
-                    'institucion' => $institucionNombre,
-                    'unidad_receptora' => $unidadReceptoraNombre,
-                    'titulo_proyecto' => $tituloProyecto,
-                    'responsable' => $responsable,
-                    'cargo' => $cargo,
-                    'correo_destino' => $correoDestino,
-                    'estatus' => $estatus,
-                    'proyecto_detalle' => [
-                        'descripcion' => $descripcion,
-                        'objetivo' => $objetivo,
-                        'justificacion' => $justificacion,
-                        'actividades' => $actividades,
-                        'titular' => $titular,
-                        'domicilio' => $domicilio
-                    ],
-                    'folio_observaciones' => $observaciones,
-                    'documentos' => $docsList
-                ];
-            }
+            $data[$key] = [
+                'id' => $key,
+                'matricula' => $alumno->matricula,
+                'nombre_completo' => mb_strtoupper($alumno->nombre_completo, 'UTF-8'),
+                'fecha_inicio' => $fechaInicio,
+                'fecha_termino' => $fechaTermino,
+                'institucion' => $institucionNombre,
+                'unidad_receptora' => $unidadReceptoraNombre,
+                'titulo_proyecto' => $tituloProyecto,
+                'responsable' => $responsable,
+                'cargo' => $cargo,
+                'correo_destino' => $correoDestino,
+                'estatus' => $estatus,
+                'proyecto_detalle' => [
+                    'descripcion' => $descripcion,
+                    'objetivo' => $objetivo,
+                    'justificacion' => $justificacion,
+                    'actividades' => $actividades,
+                    'titular' => $titular,
+                    'domicilio' => $domicilio
+                ],
+                'folio_observaciones' => $observaciones,
+                'documentos' => $docsList
+            ];
         }
 
         return $data;
@@ -241,7 +224,7 @@ class SeguimientoController extends Controller
         $data = $this->getSessionData();
 
         if (!isset($data[$id])) {
-            return redirect()->route('coordinador.seguimiento')->with('error', 'Estudiante no encontrado.');
+            return redirect()->route('coordinador.seguimiento')->with('error', 'El estudiante aún no tiene un proyecto asignado en la unidad receptora.');
         }
 
         $student = $data[$id];
@@ -252,15 +235,6 @@ class SeguimientoController extends Controller
     public function saveNotes(Request $request, $id)
     {
         if (auth()->user()->rol_id != 2) return redirect('/');
-
-        $data = $this->getSessionData();
-
-        if (!isset($data[$id])) {
-            return redirect()->back()->with('error', 'Estudiante no encontrado.');
-        }
-
-        $data[$id]['folio_observaciones'] = $request->input('notes', '');
-        session()->put('seguimiento_data', $data);
 
         $solicitud = \DB::table('solicitudes')->where('estudiante_id', $id)->orderBy('id', 'desc')->first();
         if ($solicitud) {
@@ -275,17 +249,6 @@ class SeguimientoController extends Controller
     public function saveResponsable(Request $request, $id)
     {
         if (auth()->user()->rol_id != 2) return redirect('/');
-
-        $data = $this->getSessionData();
-
-        if (!isset($data[$id])) {
-            return redirect()->back()->with('error', 'Estudiante no encontrado.');
-        }
-
-        $data[$id]['responsable'] = $request->input('responsable', '');
-        $data[$id]['cargo'] = $request->input('cargo', '');
-        $data[$id]['correo_destino'] = $request->input('correo_destino', '');
-        session()->put('seguimiento_data', $data);
 
         $solicitud = \DB::table('solicitudes')->where('estudiante_id', $id)->orderBy('id', 'desc')->first();
         if ($solicitud) {
