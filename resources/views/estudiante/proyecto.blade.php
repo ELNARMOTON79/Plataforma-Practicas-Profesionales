@@ -39,9 +39,6 @@
                 <h3 class="text-xl font-bold text-gray-900 mb-1">
                     {{ $solicitudActiva->unidadReceptora?->nombre_empresa ?? 'Sin empresa' }}
                 </h3>
-                @if($solicitudActiva->observaciones)
-                    <p class="text-sm text-gray-500 mb-4">{{ $solicitudActiva->observaciones }}</p>
-                @endif
 
                 <div class="border-t border-gray-150/50 pt-4 space-y-3.5 text-xs text-gray-700 font-medium">
                     @if($solicitudActiva->unidadReceptora?->unidad_receptora)
@@ -202,6 +199,12 @@
                                         <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
                                         {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
                                     </span>
+                                    @if($doc && $doc->observaciones && $estatusDoc !== 'pendiente')
+                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 {{ $estatusDoc === 'rechazado' ? 'bg-red-50 border-red-100' : 'bg-[#6BA53A]/5 border-[#6BA53A]/20' }}">
+                                            <p class="text-[10px] font-bold uppercase tracking-wide {{ $estatusDoc === 'rechazado' ? 'text-red-600' : 'text-[#4E7D24]' }}">Comentario del coordinador</p>
+                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones }}</p>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="shrink-0 flex items-center gap-2">
@@ -549,6 +552,13 @@
             if (statusEl) {
                 statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-150 mt-1';
                 statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En proceso de validación — ' + documento.fecha_carga;
+                statusEl.removeAttribute('title');
+            }
+
+            // Al volver a subir, el comentario anterior del coordinador ya no aplica
+            var commentEl = card.querySelector('[data-doc-comment]');
+            if (commentEl) {
+                commentEl.remove();
             }
 
             var iconEl = card.querySelector('[data-doc-icon]');
