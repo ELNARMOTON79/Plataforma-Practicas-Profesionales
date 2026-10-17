@@ -156,7 +156,7 @@
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Nombre del responsable / asesor <span class="text-red-500">*</span></label>
-                    <input type="text" name="responsable" id="solicitudResponsable"
+                    <input type="text" name="responsable" id="solicitudResponsable" maxlength="50"
                         placeholder="Ej: Ing. María González"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
                     <p id="errResponsable" class="hidden text-xs text-red-500 font-medium"></p>
@@ -206,9 +206,10 @@
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Observaciones <span class="text-gray-400 font-normal">(opcional)</span></label>
-                    <textarea name="observaciones" id="solicitudObservaciones" rows="3"
+                    <textarea name="observaciones" id="solicitudObservaciones" rows="3" maxlength="200"
                         placeholder="Describe brevemente el área o proyecto donde realizarás tus prácticas..."
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all resize-none"></textarea>
+                    <p id="errObservaciones" class="hidden text-xs text-red-500 font-medium"></p>
                 </div>
 
                 <div id="solicitudError" class="hidden rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700 font-medium"></div>
@@ -343,9 +344,10 @@
             document.getElementById('solicitudObservaciones').value = '';
             document.getElementById('solicitudError').classList.add('hidden');
             document.getElementById('solicitudFechaFinTexto').textContent = 'Selecciona la fecha de inicio para calcularla';
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia'].forEach(function(id) {
+            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
+            document.getElementById('solicitudFechaInicio').min = fechaHoyLocal();
             var modal = document.getElementById('solicitudModal');
             // Mismo espacio arriba (debajo del navbar) y abajo
             var nav = document.querySelector('nav');
@@ -392,10 +394,30 @@
         document.getElementById('solicitudFechaInicio').addEventListener('change', actualizarFechaFinEstimada);
         document.getElementById('solicitudHorasPorDia').addEventListener('change', actualizarFechaFinEstimada);
 
+        // Solo letras (con acentos), espacios y punto para títulos como "Ing."
+        var SOLO_LETRAS_RESPONSABLE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.]+$/;
+        // Solo letras, espacios y puntuación básica para redactar
+        var SOLO_LETRAS_OBSERVACIONES = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.,]+$/;
+
+        function fechaHoyLocal() {
+            var d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        // Elimina al escribir/pegar cualquier caracter no permitido
+        document.getElementById('solicitudResponsable').addEventListener('input', function() {
+            var limpio = this.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.]/g, '');
+            if (limpio !== this.value) this.value = limpio;
+        });
+        document.getElementById('solicitudObservaciones').addEventListener('input', function() {
+            var limpio = this.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.,]/g, '');
+            if (limpio !== this.value) this.value = limpio;
+        });
+
         function submitSolicitud() {
             var btn = document.getElementById('solicitudSubmitBtn');
             var errBox = document.getElementById('solicitudError');
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia'].forEach(function(id) {
+            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             errBox.classList.add('hidden');
@@ -412,6 +434,23 @@
                 document.getElementById('errResponsable').textContent = 'El nombre del responsable es obligatorio.';
                 document.getElementById('errResponsable').classList.remove('hidden');
                 hasError = true;
+            } else if (!SOLO_LETRAS_RESPONSABLE.test(responsable)) {
+                document.getElementById('errResponsable').textContent = 'El nombre solo puede contener letras.';
+                document.getElementById('errResponsable').classList.remove('hidden');
+                hasError = true;
+            } else if (responsable.length > 50) {
+                document.getElementById('errResponsable').textContent = 'El nombre no puede superar 50 caracteres (llevas ' + responsable.length + ').';
+                document.getElementById('errResponsable').classList.remove('hidden');
+                hasError = true;
+            }
+            if (observaciones && !SOLO_LETRAS_OBSERVACIONES.test(observaciones)) {
+                document.getElementById('errObservaciones').textContent = 'Las observaciones solo pueden contener letras.';
+                document.getElementById('errObservaciones').classList.remove('hidden');
+                hasError = true;
+            } else if (observaciones.length > 200) {
+                document.getElementById('errObservaciones').textContent = 'Las observaciones no pueden superar 200 caracteres (llevas ' + observaciones.length + ').';
+                document.getElementById('errObservaciones').classList.remove('hidden');
+                hasError = true;
             }
             if (!modalidad) {
                 document.getElementById('errModalidad').textContent = 'Selecciona el tipo de modalidad.';
@@ -420,6 +459,10 @@
             }
             if (!fechaInicio) {
                 document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es obligatoria.';
+                document.getElementById('errFechaInicio').classList.remove('hidden');
+                hasError = true;
+            } else if (fechaInicio < fechaHoyLocal()) {
+                document.getElementById('errFechaInicio').textContent = 'La fecha de inicio no puede ser anterior a hoy.';
                 document.getElementById('errFechaInicio').classList.remove('hidden');
                 hasError = true;
             }

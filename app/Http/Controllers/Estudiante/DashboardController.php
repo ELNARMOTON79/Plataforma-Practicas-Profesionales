@@ -843,23 +843,26 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
-            'responsable' => ['required', 'string', 'max:255'],
-            'fecha_inicio'=> ['required', 'date'],
+            'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
+            'fecha_inicio'=> ['required', 'date', 'after_or_equal:today'],
             'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
             'modalidad'    => ['required', 'string', Rule::in(array_keys(Solicitud::MODALIDADES))],
-            'observaciones'=> ['nullable', 'string', 'max:1000'],
+            'observaciones'=> ['nullable', 'string', 'max:200', 'regex:/^[\pL\s.,]+$/u'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
             'ur_id.exists'          => 'La empresa seleccionada no existe.',
             'responsable.required'  => 'El nombre del responsable/asesor es obligatorio.',
-            'responsable.max'       => 'El nombre no puede superar 255 caracteres.',
+            'responsable.max'       => 'El nombre no puede superar 50 caracteres.',
+            'responsable.regex'     => 'El nombre del responsable solo puede contener letras.',
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
             'fecha_inicio.date'     => 'La fecha de inicio no es válida.',
+            'fecha_inicio.after_or_equal' => 'La fecha de inicio no puede ser anterior a hoy.',
+            'observaciones.regex'   => 'Las observaciones solo pueden contener letras.',
             'horas_por_dia.required'=> 'Indica cuántas horas al día realizarás tus prácticas.',
             'horas_por_dia.in'      => 'Las horas por día deben ser 6 u 8.',
             'modalidad.required'    => 'Selecciona el tipo de modalidad.',
             'modalidad.in'          => 'La modalidad seleccionada no es válida.',
-            'observaciones.max'     => 'Las observaciones no pueden superar 1000 caracteres.',
+            'observaciones.max'     => 'Las observaciones no pueden superar 200 caracteres.',
         ]);
 
         $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
