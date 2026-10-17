@@ -60,7 +60,7 @@
                         <!-- Nombre Completo -->
                         <div class="md:col-span-2">
                             <label for="alumno-nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-letters" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
+                            <input type="text" id="alumno-nombre" name="nombre" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-letters @error('nombre') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="Ej. María González López" value="{{ old('nombre') }}" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$" title="El nombre completo solo debe contener letras y espacios.">
                             <p id="error-alumno-nombre" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('nombre')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -70,7 +70,7 @@
                         <!-- Correo Electrónico -->
                         <div>
                             <label for="alumno-correo" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
-                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-email" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
+                            <input type="email" id="alumno-correo" name="correo" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-email @error('correo') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="ejemplo@ucol.mx" value="{{ old('correo') }}" required pattern="^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="Por favor ingresa un correo electrónico válido.">
                             <p id="error-alumno-correo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('correo')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -80,7 +80,7 @@
                         <!-- No. de cuenta -->
                         <div>
                             <label for="alumno-matricula" class="block text-sm font-medium text-gray-700 mb-1">No. de cuenta <span class="text-red-500">*</span></label>
-                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all restrict-numbers" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]{8}$" maxlength="8" title="El No. de cuenta debe tener exactamente 8 dígitos.">
+                            <input type="text" id="alumno-matricula" name="matricula" class="block w-full px-4 py-2.5 rounded-xl sm:text-sm transition-all restrict-numbers @error('matricula') bg-red-50 border-2 border-red-500 text-red-900 focus:ring-red-300 focus:border-red-500 @else bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] @enderror" placeholder="Ej. 20182345" value="{{ old('matricula') }}" required pattern="^[0-9]{8}$" maxlength="8" title="El No. de cuenta debe tener exactamente 8 dígitos.">
                             <p id="error-alumno-matricula" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                             @error('matricula')
                                 <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -179,7 +179,16 @@
 @if($errors->any() && !old('id'))
 <script>
     function openRegistrarAlumnoOnError() {
-        document.getElementById('modal-registrar-alumno').classList.remove('hidden');
+        const modal = document.getElementById('modal-registrar-alumno');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                const firstInvalid = modal.querySelector('.server-error, .border-red-500');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
     }
     document.addEventListener('DOMContentLoaded', openRegistrarAlumnoOnError);
     document.addEventListener('htmx:afterSettle', openRegistrarAlumnoOnError);
