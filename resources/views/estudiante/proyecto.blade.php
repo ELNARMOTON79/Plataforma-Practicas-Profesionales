@@ -44,6 +44,18 @@
                 @endif
 
                 <div class="border-t border-gray-150/50 pt-4 space-y-3.5 text-xs text-gray-700 font-medium">
+                    @if($solicitudActiva->unidadReceptora?->unidad_receptora)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Unidad receptora</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $solicitudActiva->unidadReceptora->unidad_receptora }}</span>
+                    </div>
+                    @endif
+                    @if($convenioFolio)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Convenio</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $convenioFolio }}</span>
+                    </div>
+                    @endif
                     @if($solicitudActiva->responsable)
                     <div>
                         <span class="block text-gray-400 font-bold mb-0.5">Responsable / Asesor</span>

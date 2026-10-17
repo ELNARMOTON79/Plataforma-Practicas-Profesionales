@@ -277,6 +277,7 @@ class DashboardController extends Controller
         $horasCompletadas = 0;
         $horasMeta        = $estudiante?->horasMetaPractica() ?? Solicitud::HORAS_META;
         $documentos       = collect();
+        $convenioFolio    = null;
 
         if ($estudiante) {
             $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora', 'documentos'], incluirFinalizada: true);
@@ -284,6 +285,21 @@ class DashboardController extends Controller
             if ($solicitudActiva) {
                 $horasCompletadas = $solicitudActiva->horasCompletadas();
                 $documentos       = $solicitudActiva->documentos;
+
+                // El convenio puede estar ligado a la unidad solicitada o a otra unidad de la misma empresa
+                $ur    = $solicitudActiva->unidadReceptora;
+                $urIds = $ur?->usuario_id
+                    ? UnidadReceptora::where('usuario_id', $ur->usuario_id)->pluck('id')
+                    : collect([$solicitudActiva->ur_id]);
+
+                $convenio = Convenio::whereIn('ur_id', $urIds)
+                    ->orderByRaw('ur_id = ? desc', [$solicitudActiva->ur_id])
+                    ->orderByDesc('fecha_termino')
+                    ->first();
+
+                if ($convenio) {
+                    $convenioFolio = Convenio::folios()[$convenio->codigo_convenio] ?? $convenio->codigo_convenio;
+                }
             }
         }
 
@@ -302,6 +318,7 @@ class DashboardController extends Controller
             'horasRestantes'   => max(0, $horasMeta - (int) $horasCompletadas),
             'porcentajeHoras'  => $porcentajeHoras,
             'documentos'       => $documentos,
+            'convenioFolio'    => $convenioFolio,
         ]);
     }
 
