@@ -88,12 +88,15 @@
             if (!document.getElementById('tabla-proceso')) return;
             if (typeof $ === 'undefined' || !$.fn.DataTable) return;
 
-            // Destruir instancias previas y limpiar paginaciones residuales
+            // Destruir instancias previas de forma segura
             ['#tabla-proceso', '#tabla-concluidos', '#tabla-todos'].forEach(function(selector) {
                 if ($.fn.DataTable.isDataTable(selector)) {
-                    $(selector).DataTable().destroy();
+                    try {
+                        $(selector).DataTable().destroy();
+                    } catch (e) {
+                        console.warn('Advertencia al resetear DataTable seguimiento:', e);
+                    }
                 }
-                $(selector).closest('.overflow-x-auto').find('.dataTables_paginate').remove();
             });
 
             const dtConfig = {
@@ -105,7 +108,6 @@
                 info: false,
                 dom: 'rtp',
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
                     zeroRecords: `
                         <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
                             <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3">
@@ -114,7 +116,13 @@
                             <h3 class="text-sm font-bold text-gray-700">Sin coincidencias</h3>
                             <p class="text-xs text-gray-400 mt-1">Intenta ajustando el término de búsqueda.</p>
                         </div>
-                    `
+                    `,
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    }
                 }
             };
 
@@ -192,18 +200,22 @@
             });
         }
 
+        var _initSeguimientoDebounce = null;
+        function triggerInitSeguimiento() {
+            if (_initSeguimientoDebounce) clearTimeout(_initSeguimientoDebounce);
+            _initSeguimientoDebounce = setTimeout(function() {
+                initSeguimientoPage();
+            }, 60);
+        }
+
         if (!window._seguimientoListenersRegistered) {
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof initSeguimientoPage === 'function') initSeguimientoPage();
-            });
-            document.addEventListener('htmx:afterSettle', function() {
-                if (typeof initSeguimientoPage === 'function') initSeguimientoPage();
-            });
+            document.addEventListener('DOMContentLoaded', triggerInitSeguimiento);
+            document.addEventListener('htmx:afterSettle', triggerInitSeguimiento);
             window._seguimientoListenersRegistered = true;
         }
 
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initSeguimientoPage();
+            triggerInitSeguimiento();
         }
         window.switchTrackingTab = switchTrackingTab;
 

@@ -419,12 +419,15 @@
             if (!document.getElementById('solicitudes-table')) return;
             if (typeof $ === 'undefined' || !$.fn.DataTable) return;
 
-            // Destruir instancias previas y limpiar paginaciones residuales
+            // Destruir instancias previas de forma segura
             ['#solicitudes-table', '#documentos-pendientes-table', '#documentos-validados-table'].forEach(function(selector) {
                 if ($.fn.DataTable.isDataTable(selector)) {
-                    $(selector).DataTable().destroy();
+                    try {
+                        $(selector).DataTable().destroy();
+                    } catch (e) {
+                        console.warn('Advertencia al resetear DataTable:', e);
+                    }
                 }
-                $(selector).closest('.overflow-x-auto').find('.dataTables_paginate').remove();
             });
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -441,6 +444,7 @@
                 </div>
             `;
 
+            // Configuración local en español (sin peticiones externas que puedan fallar sin internet)
             const dtConfig = {
                 destroy: true,
                 searching: true,
@@ -450,7 +454,6 @@
                 info: false,
                 dom: 'rtp',
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
                     emptyTable: emptyStateHTML,
                     zeroRecords: `
                         <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
@@ -460,7 +463,13 @@
                             <h3 class="text-sm font-bold text-gray-700">Sin coincidencias</h3>
                             <p class="text-xs text-gray-400 mt-1">Intenta ajustando el término de búsqueda.</p>
                         </div>
-                    `
+                    `,
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    }
                 }
             };
 
@@ -501,18 +510,23 @@
             switchTab(targetTab);
         }
 
+        // Debounce para evitar ejecuciones concurrentes o múltiples que colisionen en el DOM
+        var _initTramitesDebounce = null;
+        function triggerInitTramites() {
+            if (_initTramitesDebounce) clearTimeout(_initTramitesDebounce);
+            _initTramitesDebounce = setTimeout(function() {
+                initTramitesPage();
+            }, 60);
+        }
+
         if (!window._tramitesListenersRegistered) {
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof initTramitesPage === 'function') initTramitesPage();
-            });
-            document.addEventListener('htmx:afterSettle', function() {
-                if (typeof initTramitesPage === 'function') initTramitesPage();
-            });
+            document.addEventListener('DOMContentLoaded', triggerInitTramites);
+            document.addEventListener('htmx:afterSettle', triggerInitTramites);
             window._tramitesListenersRegistered = true;
         }
 
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initTramitesPage();
+            triggerInitTramites();
         }
         window.switchTab = switchTab;
 
