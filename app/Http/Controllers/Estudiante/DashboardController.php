@@ -268,6 +268,7 @@ class DashboardController extends Controller
             'carreraFilter'      => $carreraFilter,
             'carreras'           => $carreras,
             'horasMeta'          => $horasMeta,
+            'bloqueoSolicitud'   => $estudianteActual ? $this->bloqueoNuevaSolicitud($estudianteActual) : null,
         ]);
     }
 
@@ -870,6 +871,11 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Perfil de estudiante no encontrado.'], 404);
         }
 
+        // Solo se puede volver a solicitar si las solicitudes anteriores fueron rechazadas
+        if ($mensaje = $this->bloqueoNuevaSolicitud($estudiante)) {
+            return response()->json(['error' => $mensaje], 422);
+        }
+
         $validated = $request->validate([
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
             'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
@@ -951,6 +957,25 @@ class DashboardController extends Controller
             'iniciales' => $this->iniciales($estudiante->nombre_completo),
             'solicitudes' => $solicitudes,
         ]);
+    }
+
+    /**
+     * Mensaje que impide enviar una nueva solicitud, o null si el estudiante puede solicitar
+     * (no tiene solicitudes o todas fueron rechazadas).
+     */
+    private function bloqueoNuevaSolicitud(Estudiante $estudiante): ?string
+    {
+        $solicitud = Solicitud::where('estudiante_id', $estudiante->id)
+            ->where('estatus', '!=', 'rechazada')
+            ->orderByDesc('id')
+            ->first();
+
+        return match ($solicitud?->estatus) {
+            null         => null,
+            'pendiente'  => 'Ya enviaste una solicitud de práctica y está pendiente de revisión. Podrás enviar otra solo si es rechazada.',
+            'finalizada' => 'Ya concluiste tu práctica profesional, no puedes enviar otra solicitud.',
+            default      => 'Ya tienes una práctica profesional en proceso, no puedes enviar otra solicitud.',
+        };
     }
 
     /**
