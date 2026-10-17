@@ -197,7 +197,31 @@
 
         <!-- Right Column: Request Details & Quick Links -->
         <div class="flex flex-col gap-6">
-            
+
+            @if($solicitudRechazada)
+                @php
+                    $urRechazada = $solicitudRechazada->unidadReceptora;
+                    $nombreRechazada = $urRechazada?->nombre_empresa ?? 'Solicitud de práctica';
+                    if ($urRechazada?->unidad_receptora) {
+                        $nombreRechazada .= ' — ' . $urRechazada->unidad_receptora;
+                    }
+                @endphp
+                <div class="rounded-3xl p-5 bg-red-50 border border-red-100 fade-in-up delay-100">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-red-100 text-red-600 rounded-xl shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-sm font-bold text-red-700">Solicitud de práctica rechazada</h3>
+                            <p class="text-sm font-semibold text-gray-900 mt-1">{{ $nombreRechazada }}</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-red-600 mt-3">Motivo del coordinador</p>
+                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $solicitudRechazada->observaciones ?: 'El coordinador no dejó un motivo. Puedes buscar otro convenio y enviar una nueva solicitud.' }}</p>
+                            <a href="{{ route('estudiante.convenios') }}" class="inline-block mt-3 text-xs font-bold text-red-700 hover:underline">Buscar convenios →</a>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Quick Actions -->
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Accesos Rápidos</h3>

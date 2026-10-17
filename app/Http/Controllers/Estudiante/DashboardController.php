@@ -50,8 +50,19 @@ class DashboardController extends Controller
         $documentosStatus = [];
         $activeSolicitud = null;
         $hasPracticaActiva = false;
+        $solicitudRechazada = null;
 
         if ($estudiante) {
+            // Solo se avisa si la solicitud más reciente del estudiante fue rechazada
+            $ultimaSolicitud = Solicitud::with('unidadReceptora')
+                ->where('estudiante_id', $estudiante->id)
+                ->orderByDesc('id')
+                ->first();
+
+            if ($ultimaSolicitud?->estatus === 'rechazada') {
+                $solicitudRechazada = $ultimaSolicitud;
+            }
+
             $solicitudesActivas = Solicitud::where('estudiante_id', $estudiante->id)
                 ->whereIn('estatus', ['aprobada', 'en_proceso'])
                 ->count();
@@ -115,6 +126,7 @@ class DashboardController extends Controller
             'documentosStatus' => $documentosStatus,
             'activeSolicitud' => $activeSolicitud,
             'hasPracticaActiva' => $hasPracticaActiva,
+            'solicitudRechazada' => $solicitudRechazada,
             'actividadReciente' => $this->actividadReciente($estudiante),
             'proximosVencimientos' => $this->proximosVencimientos($estudiante),
         ]);
