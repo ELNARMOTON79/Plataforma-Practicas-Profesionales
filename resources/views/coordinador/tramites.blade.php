@@ -419,12 +419,13 @@
             if (!document.getElementById('solicitudes-table')) return;
             if (typeof $ === 'undefined' || !$.fn.DataTable) return;
 
-            // Purge any detached or orphan table instances left over by HTMX page swaps
-            if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.settings) {
-                $.fn.dataTable.settings = $.fn.dataTable.settings.filter(function(s) {
-                    return s && s.nTable && document.body.contains(s.nTable) && s.nTableWrapper && s.nTableWrapper.parentNode;
-                });
-            }
+            // Destruir instancias previas y limpiar paginaciones residuales
+            ['#solicitudes-table', '#documentos-pendientes-table', '#documentos-validados-table'].forEach(function(selector) {
+                if ($.fn.DataTable.isDataTable(selector)) {
+                    $(selector).DataTable().destroy();
+                }
+                $(selector).closest('.overflow-x-auto').find('.dataTables_paginate').remove();
+            });
             
             const urlParams = new URLSearchParams(window.location.search);
             const searchVal = urlParams.get('search') || '';
@@ -441,6 +442,7 @@
             `;
 
             const dtConfig = {
+                destroy: true,
                 searching: true,
                 lengthChange: false,
                 pageLength: 5,
@@ -463,35 +465,22 @@
             };
 
             // Solicitudes
-            if ($.fn.DataTable.isDataTable('#solicitudes-table')) {
-                tablaSolicitudes = $('#solicitudes-table').DataTable();
-            } else {
-                tablaSolicitudes = $('#solicitudes-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [3, 4] }]
-                });
-            }
+            tablaSolicitudes = $('#solicitudes-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [3, 4] }]
+            });
 
             // Documentos Pendientes
-            if ($.fn.DataTable.isDataTable('#documentos-pendientes-table')) {
-                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable();
-            } else {
-                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
-                });
-            }
+            tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
+            });
 
             // Documentos Validados
-            if ($.fn.DataTable.isDataTable('#documentos-validados-table')) {
-                tablaDocsValidados = $('#documentos-validados-table').DataTable();
-            } else {
-                tablaDocsValidados = $('#documentos-validados-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [3, 4] }]
-                });
-            }
-
+            tablaDocsValidados = $('#documentos-validados-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [3, 4] }]
+            });
 
             if (searchVal) {
                 const decodedSearch = decodeURIComponent(searchVal);
@@ -501,19 +490,30 @@
                 tablaDocsValidados.search(decodedSearch).draw();
             }
 
-            $('#search-tramites').on('keyup input', function() {
+            $('#search-tramites').off('keyup input').on('keyup input', function() {
                 const val = this.value;
-                tablaSolicitudes.search(val).draw();
-                tablaDocsPendientes.search(val).draw();
-                tablaDocsValidados.search(val).draw();
+                if (tablaSolicitudes) tablaSolicitudes.search(val).draw();
+                if (tablaDocsPendientes) tablaDocsPendientes.search(val).draw();
+                if (tablaDocsValidados) tablaDocsValidados.search(val).draw();
             });
 
             const targetTab = tabParam || '{{ $activeTab }}' || 'solicitudes';
             switchTab(targetTab);
         }
 
-        document.addEventListener('DOMContentLoaded', initTramitesPage);
-        document.addEventListener('htmx:afterSettle', initTramitesPage);
+        if (!window._tramitesListenersRegistered) {
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof initTramitesPage === 'function') initTramitesPage();
+            });
+            document.addEventListener('htmx:afterSettle', function() {
+                if (typeof initTramitesPage === 'function') initTramitesPage();
+            });
+            window._tramitesListenersRegistered = true;
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initTramitesPage();
+        }
         window.switchTab = switchTab;
 
         function switchTab(tab) {
