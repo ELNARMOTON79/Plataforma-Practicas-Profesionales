@@ -70,114 +70,120 @@
                 </a>
 
                 <!-- 2. Menú Desplegable: Gestión -->
-                <div class="relative group" data-dropdown="gestion">
+                <div class="relative" data-dropdown="gestion">
                     <button type="button" 
+                            id="dropdown-btn-gestion"
                             class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm transition-all cursor-pointer {{ $isGestionActive ? 'text-[#4E7D24] bg-[#6BA53A]/10 font-semibold ring-1 ring-[#4E7D24]/20' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 font-medium' }}"
                             aria-expanded="false"
-                            onclick="toggleNavbarDropdown(event, 'gestion')">
+                            aria-haspopup="true">
                         <span>Gestión</span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="dropdown-arrow w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
 
-                    <!-- Dropdown Panel -->
+                    <!-- Dropdown Panel (with top-full bridge to avoid mouse deadzone) -->
                     <div id="dropdown-menu-gestion"
-                         class="absolute left-1/2 -translate-x-1/2 mt-1.5 w-64 rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
-                        <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Catálogos y Directorio</span>
+                         class="dropdown-panel absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-64 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 pointer-events-none">
+                        <div class="rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2">
+                            <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Catálogos y Directorio</span>
+                            </div>
+                            
+                            <!-- Instituciones -->
+                            <a href="{{ route('coordinador.instituciones') }}" 
+                               class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'instituciones' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                                <div class="p-2 rounded-lg {{ $activeSection === 'instituciones' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 hover:text-[#4E7D24]' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold leading-tight">Instituciones</div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Empresas y Unidades Receptoras</div>
+                                </div>
+                            </a>
+
+                            <!-- Proyectos -->
+                            <a href="{{ route('coordinador.proyectos') }}" 
+                               class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'proyectos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                                <div class="p-2 rounded-lg {{ $activeSection === 'proyectos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 hover:text-[#4E7D24]' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold leading-tight">Proyectos</div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Plazas y ofertas de prácticas</div>
+                                </div>
+                            </a>
+
+                            <!-- Alumnos -->
+                            <a href="{{ route('coordinador.alumnos') }}" 
+                               class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'alumnos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                                <div class="p-2 rounded-lg {{ $activeSection === 'alumnos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 hover:text-[#4E7D24]' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold leading-tight">Alumnos</div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Padrón de estudiantes</div>
+                                </div>
+                            </a>
                         </div>
-                        
-                        <!-- Instituciones -->
-                        <a href="{{ route('coordinador.instituciones') }}" 
-                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'instituciones' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
-                            <div class="p-2 rounded-lg {{ $activeSection === 'instituciones' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold leading-tight">Instituciones</div>
-                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Empresas y Unidades Receptoras</div>
-                            </div>
-                        </a>
-
-                        <!-- Proyectos -->
-                        <a href="{{ route('coordinador.proyectos') }}" 
-                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'proyectos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
-                            <div class="p-2 rounded-lg {{ $activeSection === 'proyectos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold leading-tight">Proyectos</div>
-                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Plazas y ofertas de prácticas</div>
-                            </div>
-                        </a>
-
-                        <!-- Alumnos -->
-                        <a href="{{ route('coordinador.alumnos') }}" 
-                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'alumnos' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
-                            <div class="p-2 rounded-lg {{ $activeSection === 'alumnos' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold leading-tight">Alumnos</div>
-                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Padrón de estudiantes</div>
-                            </div>
-                        </a>
                     </div>
                 </div>
 
                 <!-- 3. Menú Desplegable: Prácticas -->
-                <div class="relative group" data-dropdown="practicas">
+                <div class="relative" data-dropdown="practicas">
                     <button type="button" 
+                            id="dropdown-btn-practicas"
                             class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm transition-all cursor-pointer {{ $isPracticasActive ? 'text-[#4E7D24] bg-[#6BA53A]/10 font-semibold ring-1 ring-[#4E7D24]/20' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 font-medium' }}"
                             aria-expanded="false"
-                            onclick="toggleNavbarDropdown(event, 'practicas')">
+                            aria-haspopup="true">
                         <span>Prácticas</span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="dropdown-arrow w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
 
-                    <!-- Dropdown Panel -->
+                    <!-- Dropdown Panel (with top-full bridge to avoid mouse deadzone) -->
                     <div id="dropdown-menu-practicas"
-                         class="absolute left-1/2 -translate-x-1/2 mt-1.5 w-64 rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
-                        <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Flujo Operativo</span>
+                         class="dropdown-panel absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-64 z-50 transition-all duration-200 opacity-0 invisible translate-y-1 pointer-events-none">
+                        <div class="rounded-2xl bg-white/95 backdrop-blur-xl border border-gray-100/80 shadow-xl p-2">
+                            <div class="px-3 py-1.5 mb-1 border-b border-gray-100/60">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Flujo Operativo</span>
+                            </div>
+
+                            <!-- Trámites -->
+                            <a href="{{ route('coordinador.tramites') }}" 
+                               class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'tramites' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                                <div class="p-2 rounded-lg {{ $activeSection === 'tramites' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 hover:text-[#4E7D24]' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold leading-tight">Trámites</div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Validación de solicitudes y docs</div>
+                                </div>
+                            </a>
+
+                            <!-- Seguimiento -->
+                            <a href="{{ route('coordinador.seguimiento') }}" 
+                               class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'seguimiento' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
+                                <div class="p-2 rounded-lg {{ $activeSection === 'seguimiento' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 hover:text-[#4E7D24]' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold leading-tight">Seguimiento</div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Alumnos activos y horas</div>
+                                </div>
+                            </a>
                         </div>
-
-                        <!-- Trámites -->
-                        <a href="{{ route('coordinador.tramites') }}" 
-                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'tramites' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
-                            <div class="p-2 rounded-lg {{ $activeSection === 'tramites' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold leading-tight">Trámites</div>
-                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Validación de solicitudes y docs</div>
-                            </div>
-                        </a>
-
-                        <!-- Seguimiento -->
-                        <a href="{{ route('coordinador.seguimiento') }}" 
-                           class="flex items-start gap-3 p-2.5 rounded-xl transition-all {{ $activeSection === 'seguimiento' ? 'bg-[#6BA53A]/10 text-[#4E7D24] font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-[#4E7D24]' }}">
-                            <div class="p-2 rounded-lg {{ $activeSection === 'seguimiento' ? 'bg-[#4E7D24] text-white' : 'bg-gray-100 text-gray-500 group-hover:text-[#4E7D24]' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold leading-tight">Seguimiento</div>
-                                <div class="text-[10px] text-gray-400 mt-0.5 font-normal">Alumnos activos y horas</div>
-                            </div>
-                        </a>
                     </div>
                 </div>
 
@@ -236,43 +242,133 @@
 </nav>
 
 <script>
-    // Lightweight script for click-toggle on touch screens and outside-click closing
-    function toggleNavbarDropdown(event, name) {
-        event.stopPropagation();
-        const menu = document.getElementById('dropdown-menu-' + name);
-        if (!menu) return;
+    (function() {
+        let activeDropdown = null;
+        let closeTimeout = null;
 
-        const isCurrentlyOpen = !menu.classList.contains('invisible');
+        function getDropdownElements(name) {
+            const container = document.querySelector(`[data-dropdown="${name}"]`);
+            if (!container) return null;
+            return {
+                container,
+                button: container.querySelector('button'),
+                menu: container.querySelector('.dropdown-panel'),
+                arrow: container.querySelector('.dropdown-arrow')
+            };
+        }
 
-        // Close all dropdowns first
-        document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
-            m.classList.add('invisible', 'opacity-0', 'translate-y-1');
-            m.classList.remove('opacity-100', 'translate-y-0');
+        function openDropdown(name) {
+            if (closeTimeout) {
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            }
+
+            // Always close any other open dropdown first
+            if (activeDropdown && activeDropdown !== name) {
+                closeDropdown(activeDropdown);
+            }
+
+            const els = getDropdownElements(name);
+            if (!els || !els.menu) return;
+
+            activeDropdown = name;
+            els.menu.classList.remove('invisible', 'opacity-0', 'translate-y-1', 'pointer-events-none');
+            els.menu.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            if (els.arrow) els.arrow.classList.add('rotate-180');
+            if (els.button) els.button.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeDropdown(name) {
+            const els = getDropdownElements(name);
+            if (!els || !els.menu) return;
+
+            els.menu.classList.add('invisible', 'opacity-0', 'translate-y-1', 'pointer-events-none');
+            els.menu.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            if (els.arrow) els.arrow.classList.remove('rotate-180');
+            if (els.button) els.button.setAttribute('aria-expanded', 'false');
+
+            if (activeDropdown === name) {
+                activeDropdown = null;
+            }
+        }
+
+        function closeAll() {
+            if (closeTimeout) {
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            }
+            document.querySelectorAll('[data-dropdown]').forEach(container => {
+                const name = container.getAttribute('data-dropdown');
+                if (name) closeDropdown(name);
+            });
+            activeDropdown = null;
+        }
+
+        function scheduleClose() {
+            if (closeTimeout) clearTimeout(closeTimeout);
+            closeTimeout = setTimeout(() => {
+                closeAll();
+            }, 180);
+        }
+
+        function initDropdowns() {
+            document.querySelectorAll('[data-dropdown]').forEach(container => {
+                const name = container.getAttribute('data-dropdown');
+                const button = container.querySelector('button');
+
+                // Hover in: open instantly and cancel close timeout
+                container.addEventListener('mouseenter', () => {
+                    openDropdown(name);
+                });
+
+                // Hover out: schedule close with smooth grace period
+                container.addEventListener('mouseleave', () => {
+                    scheduleClose();
+                });
+
+                // Click / Tap on button
+                if (button) {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (activeDropdown === name) {
+                            closeDropdown(name);
+                        } else {
+                            openDropdown(name);
+                        }
+                    });
+                }
+
+                // Close on link click
+                container.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        closeAll();
+                    });
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDropdowns);
+        } else {
+            initDropdowns();
+        }
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('[data-dropdown]')) {
+                closeAll();
+            }
         });
 
-        // Toggle this one if it wasn't open
-        if (!isCurrentlyOpen) {
-            menu.classList.remove('invisible', 'opacity-0', 'translate-y-1');
-            menu.classList.add('opacity-100', 'translate-y-0');
-        }
-    }
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAll();
+            }
+        });
 
-    // Close on outside click or ESC key
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('[data-dropdown]')) {
-            document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
-                m.classList.add('invisible', 'opacity-0', 'translate-y-1');
-                m.classList.remove('opacity-100', 'translate-y-0');
-            });
-        }
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('[id^="dropdown-menu-"]').forEach(m => {
-                m.classList.add('invisible', 'opacity-0', 'translate-y-1');
-                m.classList.remove('opacity-100', 'translate-y-0');
-            });
-        }
-    });
+        // HTMX compatibility: close dropdowns when navigating or swapping
+        document.addEventListener('htmx:beforeSwap', closeAll);
+        document.addEventListener('htmx:afterSettle', initDropdowns);
+    })();
 </script>

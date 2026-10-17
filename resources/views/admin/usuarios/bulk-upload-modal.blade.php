@@ -1,7 +1,7 @@
 <!-- Modal for Bulk Student Registration from Excel -->
 <div id="bulkUploadModal" class="fixed inset-0 z-[100] hidden overflow-hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <!-- Include SheetJS Library for client-side Excel parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Include SheetJS Library for client-side Excel parsing (Local asset, works offline) -->
+    <script src="{{ asset('js/xlsx.full.min.js') }}"></script>
 
     <div class="flex items-center justify-center min-h-screen p-4 md:p-6 text-center">
         <!-- Background overlay -->
