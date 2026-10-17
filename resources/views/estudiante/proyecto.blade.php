@@ -199,9 +199,14 @@
                                         <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
                                         {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
                                     </span>
-                                    @if($doc && $doc->observaciones && $estatusDoc !== 'pendiente')
-                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 {{ $estatusDoc === 'rechazado' ? 'bg-red-50 border-red-100' : 'bg-[#6BA53A]/5 border-[#6BA53A]/20' }}">
-                                            <p class="text-[10px] font-bold uppercase tracking-wide {{ $estatusDoc === 'rechazado' ? 'text-red-600' : 'text-[#4E7D24]' }}">Comentario del coordinador</p>
+                                    @if($doc && $estatusDoc === 'rechazado')
+                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-red-50 border-red-100">
+                                            <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Documento rechazado por el coordinador</p>
+                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu documento y vuelve a subirlo.' }}</p>
+                                        </div>
+                                    @elseif($doc && $doc->observaciones && $estatusDoc !== 'pendiente')
+                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-[#6BA53A]/5 border-[#6BA53A]/20">
+                                            <p class="text-[10px] font-bold uppercase tracking-wide text-[#4E7D24]">Comentario del coordinador</p>
                                             <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones }}</p>
                                         </div>
                                     @endif
