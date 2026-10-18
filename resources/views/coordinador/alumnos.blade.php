@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    @if($errors->any())
+    @if($errors->any() && !old('nombre') && !old('matricula') && !old('correo'))
         <div id="errorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-2xl shadow-sm flex flex-col gap-2 transition-all duration-300 fade-in-up">
             <div class="flex items-center gap-3 w-full">
                 <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

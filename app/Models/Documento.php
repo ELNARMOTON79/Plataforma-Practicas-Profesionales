@@ -22,7 +22,7 @@ class Documento extends Model
     ];
 
     protected $casts = [
-        'fecha_carga' => 'date',
+        'fecha_carga' => 'datetime',
     ];
 
     public function solicitud(): BelongsTo

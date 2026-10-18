@@ -5,7 +5,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-editar-alumno').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-editar-alumno" action="" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
+        <form id="form-editar-alumno" action="" method="POST" hx-boost="false" onsubmit="event.preventDefault(); validarYConfirmarEditarAlumno();" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             @method('PUT')
             
@@ -155,7 +155,7 @@
                 <button type="button" onclick="document.getElementById('modal-editar-alumno').classList.add('hidden')" class="px-5 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">
                     Cancelar
                 </button>
-                <button type="submit" class="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                <button type="button" onclick="validarYConfirmarEditarAlumno()" class="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Guardar Cambios
                 </button>
@@ -185,11 +185,10 @@
         }
     });
 
-    document.addEventListener('submit', function (e) {
-        const form = e.target.closest('#form-editar-alumno');
+    // Validar y Confirmar Edición de Alumno
+    window.validarYConfirmarEditarAlumno = function() {
+        const form = document.getElementById('form-editar-alumno');
         if (!form) return;
-
-        e.preventDefault();
 
         const getEditFields = () => ({
             nombre:   { el: document.getElementById('edit-alumno-nombre'),    error: document.getElementById('error-edit-alumno-nombre'),    validate: (v) => { if (!v.trim()) return 'El nombre completo es requerido.'; if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u.test(v)) return 'El nombre solo debe contener letras y espacios.'; if (v.trim().length < 5) return 'El nombre completo debe tener al menos 5 caracteres.'; return ''; } },
@@ -236,14 +235,28 @@
             Swal.fire({
                 title: '¿Guardar Cambios?',
                 html: `<p class="text-sm text-gray-600">¿Estás seguro de que deseas actualizar la información del estudiante <strong>${nombreAlumno}</strong>?</p>`,
-                icon: 'question', showCancelButton: true,
-                confirmButtonColor: '#4E7D24', cancelButtonColor: '#9CA3AF',
-                confirmButtonText: 'Sí, guardar cambios', cancelButtonText: 'Cancelar',
-                focusConfirm: false, focusCancel: false,
-                customClass: { popup: 'rounded-3xl p-6 font-sans shadow-2xl', confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]', cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm' }
-            }).then((result) => { if (result.isConfirmed) form.submit(); });
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4E7D24',
+                cancelButtonColor: '#9CA3AF',
+                confirmButtonText: 'Sí, guardar cambios',
+                cancelButtonText: 'Cancelar',
+                focusConfirm: false,
+                focusCancel: false,
+                customClass: {
+                    popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                    confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
+                    cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         } else {
-            if (confirm(`¿Estás seguro de que deseas actualizar la información de ${nombreAlumno}?`)) form.submit();
+            if (confirm(`¿Estás seguro de que deseas actualizar la información de ${nombreAlumno}?`)) {
+                form.submit();
+            }
         }
-    });
+    };
 </script>

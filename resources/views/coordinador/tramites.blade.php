@@ -208,6 +208,14 @@
                                         <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-green-100 text-green-800 border border-green-200 uppercase">
                                             Aprobada
                                         </span>
+                                    @elseif($solicitud->estatus == 'en_proceso')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-blue-100 text-blue-800 border border-blue-200 uppercase">
+                                            En Proceso
+                                        </span>
+                                    @elseif($solicitud->estatus == 'finalizada')
+                                        <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase">
+                                            Finalizada
+                                        </span>
                                     @elseif($solicitud->estatus == 'rechazada')
                                         <span class="px-2.5 py-1 text-[10px] leading-5 font-bold rounded-lg bg-red-100 text-red-800 border border-red-200 uppercase">
                                             Rechazada
@@ -411,12 +419,16 @@
             if (!document.getElementById('solicitudes-table')) return;
             if (typeof $ === 'undefined' || !$.fn.DataTable) return;
 
-            // Purge any detached or orphan table instances left over by HTMX page swaps
-            if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.settings) {
-                $.fn.dataTable.settings = $.fn.dataTable.settings.filter(function(s) {
-                    return s && s.nTable && document.body.contains(s.nTable) && s.nTableWrapper && s.nTableWrapper.parentNode;
-                });
-            }
+            // Destruir instancias previas de forma segura
+            ['#solicitudes-table', '#documentos-pendientes-table', '#documentos-validados-table'].forEach(function(selector) {
+                if ($.fn.DataTable.isDataTable(selector)) {
+                    try {
+                        $(selector).DataTable().destroy();
+                    } catch (e) {
+                        console.warn('Advertencia al resetear DataTable:', e);
+                    }
+                }
+            });
             
             const urlParams = new URLSearchParams(window.location.search);
             const searchVal = urlParams.get('search') || '';
@@ -432,7 +444,9 @@
                 </div>
             `;
 
+            // Configuración local en español (sin peticiones externas que puedan fallar sin internet)
             const dtConfig = {
+                destroy: true,
                 searching: true,
                 lengthChange: false,
                 pageLength: 5,
@@ -440,7 +454,6 @@
                 info: false,
                 dom: 'rtp',
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
                     emptyTable: emptyStateHTML,
                     zeroRecords: `
                         <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
@@ -450,41 +463,33 @@
                             <h3 class="text-sm font-bold text-gray-700">Sin coincidencias</h3>
                             <p class="text-xs text-gray-400 mt-1">Intenta ajustando el término de búsqueda.</p>
                         </div>
-                    `
+                    `,
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    }
                 }
             };
 
             // Solicitudes
-            if ($.fn.DataTable.isDataTable('#solicitudes-table')) {
-                tablaSolicitudes = $('#solicitudes-table').DataTable();
-            } else {
-                tablaSolicitudes = $('#solicitudes-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [3, 4] }]
-                });
-                tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
-            }
+            tablaSolicitudes = $('#solicitudes-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [3, 4] }]
+            });
 
             // Documentos Pendientes
-            if ($.fn.DataTable.isDataTable('#documentos-pendientes-table')) {
-                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable();
-            } else {
-                tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
-                });
-            }
+            tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
+            });
 
             // Documentos Validados
-            if ($.fn.DataTable.isDataTable('#documentos-validados-table')) {
-                tablaDocsValidados = $('#documentos-validados-table').DataTable();
-            } else {
-                tablaDocsValidados = $('#documentos-validados-table').DataTable({
-                    ...dtConfig,
-                    columnDefs: [{ orderable: false, targets: [3, 4] }]
-                });
-            }
-
+            tablaDocsValidados = $('#documentos-validados-table').DataTable({
+                ...dtConfig,
+                columnDefs: [{ orderable: false, targets: [3, 4] }]
+            });
 
             if (searchVal) {
                 const decodedSearch = decodeURIComponent(searchVal);
@@ -494,22 +499,35 @@
                 tablaDocsValidados.search(decodedSearch).draw();
             }
 
-            $('#search-tramites').on('keyup input', function() {
+            $('#search-tramites').off('keyup input').on('keyup input', function() {
                 const val = this.value;
-                tablaSolicitudes.search(val).draw();
-                tablaDocsPendientes.search(val).draw();
-                tablaDocsValidados.search(val).draw();
+                if (tablaSolicitudes) tablaSolicitudes.search(val).draw();
+                if (tablaDocsPendientes) tablaDocsPendientes.search(val).draw();
+                if (tablaDocsValidados) tablaDocsValidados.search(val).draw();
             });
 
-            if (tabParam) {
-                tablaDocsValidados.one('init.dt', function() {
-                    switchTab(tabParam);
-                });
-            }
+            const targetTab = tabParam || '{{ $activeTab }}' || 'solicitudes';
+            switchTab(targetTab);
         }
 
-        document.addEventListener('DOMContentLoaded', initTramitesPage);
-        document.addEventListener('htmx:afterSettle', initTramitesPage);
+        // Debounce para evitar ejecuciones concurrentes o múltiples que colisionen en el DOM
+        var _initTramitesDebounce = null;
+        function triggerInitTramites() {
+            if (_initTramitesDebounce) clearTimeout(_initTramitesDebounce);
+            _initTramitesDebounce = setTimeout(function() {
+                initTramitesPage();
+            }, 60);
+        }
+
+        if (!window._tramitesListenersRegistered) {
+            document.addEventListener('DOMContentLoaded', triggerInitTramites);
+            document.addEventListener('htmx:afterSettle', triggerInitTramites);
+            window._tramitesListenersRegistered = true;
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            triggerInitTramites();
+        }
         window.switchTab = switchTab;
 
         function switchTab(tab) {
@@ -581,7 +599,7 @@
                 sectionSubtitle.textContent = "Historial de las solicitudes que ya fueron aprobadas para inicio de prácticas";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('^aprobada$', true, false).draw();
+                    tablaSolicitudes.column(2).search('aprobada|en_proceso|finalizada', true, false).draw();
                 }
             } else {
                 contentSolicitudes.classList.remove('hidden');
@@ -594,7 +612,7 @@
                 sectionSubtitle.textContent = "Revisión y autorización de inicio de prácticas profesionales pendientes";
 
                 if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('^pendiente$', true, false).draw();
+                    tablaSolicitudes.column(2).search('pendiente', false, false).draw();
                 }
             }
         }

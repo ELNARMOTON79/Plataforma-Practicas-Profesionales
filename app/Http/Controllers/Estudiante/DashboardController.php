@@ -671,7 +671,7 @@ class DashboardController extends Controller
         $documento->solicitud_id = $solicitudActiva->id;
         $documento->ur_id = $solicitudActiva->ur_id;
         $documento->ruta_archivo = $path;
-        $documento->fecha_carga = Carbon::now()->toDateString();
+        $documento->fecha_carga = Carbon::now();
         $documento->estatus = 'pendiente';
         $documento->observaciones = null;
         $documento->save();
