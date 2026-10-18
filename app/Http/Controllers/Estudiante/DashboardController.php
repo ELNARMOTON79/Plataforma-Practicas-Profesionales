@@ -8,6 +8,7 @@ use App\Models\Estudiante;
 use App\Models\Hora;
 use App\Models\Solicitud;
 use App\Models\Convenio;
+use App\Models\Proyecto;
 use App\Models\UnidadReceptora;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -291,6 +292,8 @@ class DashboardController extends Controller
         $horasMeta        = $estudiante?->horasMetaPractica() ?? Solicitud::HORAS_META;
         $documentos       = collect();
         $convenioFolio    = null;
+        // Proyecto que el coordinador le asignó formalmente al estudiante
+        $proyectoAsignado = $estudiante ? Proyecto::where('estudiante_id', $estudiante->id)->first() : null;
 
         if ($estudiante) {
             $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora', 'documentos'], incluirFinalizada: true);
@@ -332,6 +335,7 @@ class DashboardController extends Controller
             'porcentajeHoras'  => $porcentajeHoras,
             'documentos'       => $documentos,
             'convenioFolio'    => $convenioFolio,
+            'proyectoAsignado' => $proyectoAsignado,
         ]);
     }
 

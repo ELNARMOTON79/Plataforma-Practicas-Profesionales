@@ -126,6 +126,34 @@
         {{-- Right column: Documents --}}
         <div class="lg:col-span-2 flex flex-col gap-6">
 
+            {{-- Assigned project details --}}
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    Mi Proyecto de Prácticas
+                </h3>
+
+                @if($proyectoAsignado)
+                    <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
+                    @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
+                        <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
+                    @endif
+
+                    <div class="mt-4 space-y-3 text-sm text-gray-700">
+                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
+                            @if($proyectoAsignado->$campo)
+                                <div>
+                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{{ $etiqueta }}</span>
+                                    <p class="whitespace-pre-line">{{ $proyectoAsignado->$campo }}</p>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500">Aún no tienes un proyecto asignado. Cuando el coordinador te asigne uno, aquí verás su objetivo y actividades.</p>
+                @endif
+            </div>
+
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-150 flex-1 flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
