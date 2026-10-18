@@ -240,13 +240,10 @@
     <div id="convenioToast" class="hidden fixed inset-0 flex items-center justify-center p-4" style="z-index: 9999;">
         <div class="absolute inset-0" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" onclick="hideConvenioToast()"></div>
         <div id="convenioToastCard" class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full p-8 text-center" style="max-width: 26rem; opacity: 0; transform: scale(0.95); transition: opacity .25s ease, transform .25s ease;">
-            <div id="convenioToastIconOk" class="mx-auto flex items-center justify-center rounded-full bg-green-100 text-green-600" style="width: 4rem; height: 4rem;">
+            <div class="mx-auto flex items-center justify-center rounded-full bg-green-100 text-green-600" style="width: 4rem; height: 4rem;">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <div id="convenioToastIconWarn" class="mx-auto items-center justify-center rounded-full bg-amber-100 text-amber-600" style="width: 4rem; height: 4rem; display: none;">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <h4 id="convenioToastTitle" class="text-xl font-bold text-gray-900 mt-4">¡Solicitud enviada!</h4>
+            <h4 class="text-xl font-bold text-gray-900 mt-4">¡Solicitud enviada!</h4>
             <p id="convenioToastMsg" class="text-sm text-gray-600 mt-2"></p>
             <button type="button" onclick="hideConvenioToast()" class="mt-6 w-full bg-[#4E7D24] hover:bg-[#3b6620] text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm">
                 Entendido
@@ -306,13 +303,18 @@
                             ${ubicacion ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(ubicacion)}</p>` : ''}
                             ${u.telefono ? `<p class="text-sm text-gray-500 mt-1">Tel. ${escapeHtml(u.telefono)}</p>` : ''}
                         </div>
+                        ${SOLICITUD_BLOQUEO ? `
+                        <button type="button" disabled
+                            class="self-end text-xs font-bold text-gray-400 bg-gray-100 border border-gray-200 px-4 py-2 rounded-xl cursor-not-allowed">
+                            Solicitar práctica
+                        </button>` : `
                         <button type="button"
                             data-id="${escapeHtml(u.id)}"
                             data-nombre="${escapeHtml(etiquetaSolicitud)}"
                             onclick="solicitarDesdeUnidad(this)"
                             class="self-end text-xs font-bold text-white bg-[#4E7D24] px-4 py-2 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm">
                             Solicitar práctica
-                        </button>
+                        </button>`}
                     </div>`;
             }).join('') : '<p class="text-sm text-gray-500 text-center py-6">Esta empresa no tiene unidades receptoras registradas.</p>';
 
@@ -350,7 +352,6 @@
 
         function openSolicitudModal(urId, nombre) {
             if (SOLICITUD_BLOQUEO) {
-                showConvenioToast(SOLICITUD_BLOQUEO, 'No puedes enviar otra solicitud', true);
                 return;
             }
             document.getElementById('solicitudUrId').value = urId;
@@ -529,13 +530,10 @@
             });
         }
 
-        function showConvenioToast(msg, titulo, esAviso) {
+        function showConvenioToast(msg) {
             var toast = document.getElementById('convenioToast');
             var card  = document.getElementById('convenioToastCard');
             document.getElementById('convenioToastMsg').textContent = msg;
-            document.getElementById('convenioToastTitle').textContent = titulo || '¡Solicitud enviada!';
-            document.getElementById('convenioToastIconOk').style.display = esAviso ? 'none' : 'flex';
-            document.getElementById('convenioToastIconWarn').style.display = esAviso ? 'flex' : 'none';
             toast.classList.remove('hidden');
             void card.offsetWidth;
             card.style.opacity = '1';
