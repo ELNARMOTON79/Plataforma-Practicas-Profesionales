@@ -621,6 +621,18 @@ class DashboardController extends Controller
             'archivo.max' => 'El archivo no puede exceder 5 MB.',
         ]);
 
+        // Los documentos se suben en orden: cada uno requiere que los anteriores estén validados
+        $validados = $solicitudActiva->documentos()
+            ->whereIn('estatus', ['validado', 'aprobado'])
+            ->pluck('nombre_doc')
+            ->map(fn ($nombre) => mb_strtolower(trim($nombre)));
+
+        foreach (array_slice($allowedDocs, 0, array_search($validated['nombre_doc'], $allowedDocs, true)) as $anterior) {
+            if (! $validados->contains(mb_strtolower($anterior))) {
+                return response()->json(['error' => "Primero el coordinador debe validar tu {$anterior}."], 422);
+            }
+        }
+
         $archivo = $request->file('archivo');
         $filename = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $archivo->getClientOriginalExtension();
         $storagePath = 'documentos/estudiante_' . $user->id;
