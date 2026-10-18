@@ -626,5 +626,25 @@
                 }
             }
         }
+
+        // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var docName = params.get('subir');
+            if (!docName) return;
+
+            var boton = Array.prototype.find.call(
+                document.querySelectorAll('[data-doc-name] button[onclick^="openUploadModal"]'),
+                function(b) { return b.getAttribute('data-docname') === docName && !b.disabled; }
+            );
+            if (boton) {
+                boton.closest('[data-doc-name]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                openUploadModal(docName);
+            }
+
+            params.delete('subir');
+            var query = params.toString();
+            history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+        })();
     </script>
 @endsection

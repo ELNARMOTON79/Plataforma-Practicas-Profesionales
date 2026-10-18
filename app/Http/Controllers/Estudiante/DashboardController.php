@@ -87,19 +87,33 @@ class DashboardController extends Controller
                     'Carta de Término',
                 ];
 
-                $documentosStatus = collect($requiredDocuments)->map(function ($required) use ($activeSolicitud) {
+                // Mismo orden que en Mi Proyecto: cada documento se desbloquea al validarse los anteriores
+                $anterioresValidados = true;
+
+                $documentosStatus = collect($requiredDocuments)->map(function ($required) use ($activeSolicitud, &$anterioresValidados) {
                     $document = $activeSolicitud->documentos->first(function ($doc) use ($required) {
                         return mb_strtolower(trim($doc->nombre_doc)) === mb_strtolower(trim($required));
                     });
 
-                    $uploaded = $document !== null;
+                    $uploaded  = $document !== null;
+                    $bloqueado = ! $anterioresValidados;
+                    $validado  = $uploaded && in_array($document->estatus, ['validado', 'aprobado'], true);
+                    $anterioresValidados = $anterioresValidados && $validado;
+
+                    $estado = match (true) {
+                        $validado                                  => 'validado',
+                        $uploaded && $document->estatus === 'rechazado' => 'rechazado',
+                        $uploaded                                  => 'revisando',
+                        $bloqueado                                 => 'bloqueado',
+                        default                                    => 'sin_subir',
+                    };
 
                     return [
-                        'nombre' => $required,
-                        'status' => $uploaded ? 'subido' : 'pendiente',
-                        'label' => $uploaded ? 'Subido' : 'Sin subir',
-                        'color' => $uploaded ? 'green' : 'gray',
-                        'fecha' => $uploaded && $document->fecha_carga ? $document->fecha_carga->format('d M Y') : null,
+                        'nombre'     => $required,
+                        'status'     => $uploaded ? 'subido' : 'pendiente',
+                        'estado'     => $estado,
+                        'puedeSubir' => ! $bloqueado && in_array($estado, ['sin_subir', 'rechazado'], true),
+                        'fecha'      => $uploaded && $document->fecha_carga ? $document->fecha_carga->format('d M Y') : null,
                     ];
                 })->all();
 

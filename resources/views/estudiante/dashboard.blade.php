@@ -160,10 +160,27 @@
                 @if($hasPracticaActiva)
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @foreach($documentosStatus as $documento)
-                        <div class="flex items-center justify-between p-4 bg-white/70 rounded-2xl border border-gray-100">
+                        @php
+                            // Colores en línea para no depender de clases de Tailwind no compiladas
+                            $estilo = match($documento['estado']) {
+                                'validado'  => ['label' => 'Validado',  'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'icon' => 'M5 13l4 4L19 7'],
+                                'revisando' => ['label' => 'Revisando', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                                'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'icon' => 'M6 18L18 6M6 6l12 12'],
+                                'bloqueado' => ['label' => 'Bloqueado', 'bg' => '#f9fafb', 'text' => '#9ca3af', 'border' => '#e5e7eb', 'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'],
+                                default     => ['label' => 'Subir',     'bg' => '#4E7D24', 'text' => '#ffffff', 'border' => '#4E7D24', 'icon' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12'],
+                            };
+                            if ($documento['estado'] === 'rechazado' && $documento['puedeSubir']) {
+                                $estilo['label'] = 'Rechazado · Volver a subir';
+                            }
+                            $iconoBg    = $documento['estado'] === 'sin_subir' ? '#f9fafb' : $estilo['bg'];
+                            $iconoColor = $documento['estado'] === 'sin_subir' ? '#4E7D24' : $estilo['text'];
+                        @endphp
+                        <{{ $documento['puedeSubir'] ? 'a' : 'div' }}
+                            @if($documento['puedeSubir']) href="{{ route('estudiante.proyecto', ['subir' => $documento['nombre']]) }}" @endif
+                            class="flex items-center justify-between gap-3 p-4 bg-white/70 rounded-2xl border border-gray-100 {{ $documento['puedeSubir'] ? 'hover:border-[#6BA53A]/40 hover:shadow-sm transition-all' : '' }}">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-xl {{ $documento['status'] === 'subido' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $documento['status'] === 'subido' ? 'M5 13l4 4L19 7' : 'M12 4.5v15m7.5-7.5h-15' }}"></path></svg>
+                                <div class="p-2 rounded-xl" style="background: {{ $iconoBg }}; color: {{ $iconoColor }};">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $estilo['icon'] }}"></path></svg>
                                 </div>
                                 <div>
                                     <div class="text-sm font-semibold text-gray-750">{{ $documento['nombre'] }}</div>
@@ -172,10 +189,10 @@
                                     @endif
                                 </div>
                             </div>
-                            <span class="text-[10px] font-bold {{ $documento['status'] === 'subido' ? 'text-green-700 bg-green-50 border border-green-150' : 'text-gray-500 bg-gray-50 border border-gray-200' }} px-2 py-0.5 rounded-md">
-                                 {{ $documento['label'] }}
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 text-center" style="background: {{ $estilo['bg'] }}; color: {{ $estilo['text'] }}; border: 1px solid {{ $estilo['border'] }};">
+                                 {{ $estilo['label'] }}
                             </span>
-                        </div>
+                        </{{ $documento['puedeSubir'] ? 'a' : 'div' }}>
                     @endforeach
                 </div>
                 @elseif($solicitudesPendientes > 0)
@@ -236,7 +253,10 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('estudiante.proyecto') }}" class="flex items-center gap-4 p-3.5 bg-gradient-to-r from-blue-50 to-transparent hover:from-blue-100/50 rounded-2xl border border-blue-100 transition-all group">
+                    @php
+                        $siguienteDoc = collect($documentosStatus)->firstWhere('puedeSubir', true);
+                    @endphp
+                    <a href="{{ route('estudiante.proyecto', $siguienteDoc ? ['subir' => $siguienteDoc['nombre']] : []) }}" class="flex items-center gap-4 p-3.5 bg-gradient-to-r from-blue-50 to-transparent hover:from-blue-100/50 rounded-2xl border border-blue-100 transition-all group">
                         <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                         </div>
