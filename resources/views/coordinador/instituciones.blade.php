@@ -143,10 +143,10 @@
                             if ($convenioList && $convenioList->count() > 0) {
                                 $conv = $convenioList->first();
                                 if (!empty($conv->codigo_convenio)) {
-                                    $codigoConvenio = strtoupper($conv->codigo_convenio);
+                                    $codigoConvenio = strtoupper($folios[$conv->codigo_convenio] ?? $conv->codigo_convenio);
                                 }
                             } elseif (!empty($inst->convenio)) {
-                                $codigoConvenio = strtoupper($inst->convenio);
+                                $codigoConvenio = strtoupper($folios[$inst->convenio] ?? $inst->convenio);
                             }
 
                             // List of unidad_receptora names for this empresa

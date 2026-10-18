@@ -119,10 +119,11 @@ class TramiteController extends Controller
         $solicitud = Solicitud::findOrFail($id);
         $solicitud->estatus = 'rechazada';
 
-        if ($request->filled('observaciones')) {
-            $request->validate(['observaciones' => 'string|max:500']);
-            $solicitud->observaciones = strip_tags(trim($request->input('observaciones')));
-        }
+        // Siempre se reemplaza: así el estudiante no ve su propio texto como motivo de rechazo
+        $request->validate(['observaciones' => 'nullable|string|max:500']);
+        $solicitud->observaciones = $request->filled('observaciones')
+            ? strip_tags(trim($request->input('observaciones')))
+            : null;
 
         $solicitud->save();
 

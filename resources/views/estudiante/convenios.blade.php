@@ -3,6 +3,13 @@
 @section('content')
     <x-page-header title="Empresas e instituciones" description="Consulta las empresas vinculadas y solicita tu participación en proyectos de prácticas profesionales."></x-page-header>
 
+    @if($bloqueoSolicitud)
+        <div class="rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3 fade-in-up">
+            <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-sm font-medium text-amber-800">{{ $bloqueoSolicitud }}</p>
+        </div>
+    @endif
+
     {{-- Search & Filters --}}
     <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
         <form method="GET" action="{{ route('estudiante.convenios') }}" id="convenios-form" class="flex flex-col gap-4">
@@ -79,7 +86,7 @@
                     <div class="flex flex-wrap items-start justify-between gap-4 mb-5 pb-5 border-b border-gray-100/70">
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Convenio</p>
-                            <h3 class="text-xl font-bold text-gray-900">{{ $convenio->codigo_convenio }}</h3>
+                            <h3 class="text-xl font-bold text-gray-900">{{ $convenio->folio }}</h3>
                             <p class="text-sm text-gray-500 font-medium mt-1">
                                 Vigencia: {{ $convenio->fecha_inicio->format('d/m/Y') }} - {{ $convenio->fecha_termino->format('d/m/Y') }}
                             </p>
@@ -123,13 +130,6 @@
                                     >
                                         Ver unidades receptoras
                                     </button>
-                                    <button
-                                        type="button"
-                                        onclick="openSolicitudModal({{ $unidad->id }}, '{{ addslashes($unidad->nombre_empresa) }}')"
-                                        class="flex-1 text-xs font-bold text-white bg-[#4E7D24] px-3 py-2 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm"
-                                    >
-                                        Solicitar práctica
-                                    </button>
                                 </div>
                             </div>
                         @endforeach
@@ -146,7 +146,7 @@
     {{-- Modal Solicitar Práctica --}}
     <div id="solicitudModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSolicitudModal()"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden">
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full overflow-hidden" style="max-width: 42rem; max-height: 100%; display: flex; flex-direction: column;">
             <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Solicitar práctica en</p>
@@ -157,13 +157,13 @@
                 </button>
             </div>
 
-            <form id="solicitudForm" class="p-6 space-y-4">
+            <form id="solicitudForm" class="p-6 space-y-4" style="overflow-y: auto; flex: 1 1 auto; min-height: 0;">
                 @csrf
                 <input type="hidden" id="solicitudUrId" name="ur_id">
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Nombre del responsable / asesor <span class="text-red-500">*</span></label>
-                    <input type="text" name="responsable" id="solicitudResponsable"
+                    <input type="text" name="responsable" id="solicitudResponsable" maxlength="50"
                         placeholder="Ej: Ing. María González"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all">
                     <p id="errResponsable" class="hidden text-xs text-red-500 font-medium"></p>
@@ -213,9 +213,10 @@
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Observaciones <span class="text-gray-400 font-normal">(opcional)</span></label>
-                    <textarea name="observaciones" id="solicitudObservaciones" rows="3"
+                    <textarea name="observaciones" id="solicitudObservaciones" rows="3" maxlength="200"
                         placeholder="Describe brevemente el área o proyecto donde realizarás tus prácticas..."
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#6BA53A] transition-all resize-none"></textarea>
+                    <p id="errObservaciones" class="hidden text-xs text-red-500 font-medium"></p>
                 </div>
 
                 <div id="solicitudError" class="hidden rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700 font-medium"></div>
@@ -236,15 +237,17 @@
     </div>
 
     {{-- Toast éxito --}}
-    <div id="convenioToast" class="hidden fixed top-5 right-5 z-[200]">
-        <div id="convenioToastCard" class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-2xl shadow-md max-w-sm flex items-start gap-3 transform transition-all duration-300 opacity-0 translate-y-2">
-            <div class="p-2 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <div id="convenioToast" class="hidden fixed inset-0 flex items-center justify-center p-4" style="z-index: 9999;">
+        <div class="absolute inset-0" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" onclick="hideConvenioToast()"></div>
+        <div id="convenioToastCard" class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full p-8 text-center" style="max-width: 26rem; opacity: 0; transform: scale(0.95); transition: opacity .25s ease, transform .25s ease;">
+            <div class="mx-auto flex items-center justify-center rounded-full bg-green-100 text-green-600" style="width: 4rem; height: 4rem;">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <div class="flex-1">
-                <h4 class="font-bold text-sm">¡Solicitud enviada!</h4>
-                <p id="convenioToastMsg" class="text-xs text-green-900/80 mt-0.5"></p>
-            </div>
+            <h4 class="text-xl font-bold text-gray-900 mt-4">¡Solicitud enviada!</h4>
+            <p id="convenioToastMsg" class="text-sm text-gray-600 mt-2"></p>
+            <button type="button" onclick="hideConvenioToast()" class="mt-6 w-full bg-[#4E7D24] hover:bg-[#3b6620] text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors shadow-sm">
+                Entendido
+            </button>
         </div>
     </div>
 
@@ -300,13 +303,18 @@
                             ${ubicacion ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(ubicacion)}</p>` : ''}
                             ${u.telefono ? `<p class="text-sm text-gray-500 mt-1">Tel. ${escapeHtml(u.telefono)}</p>` : ''}
                         </div>
+                        ${SOLICITUD_BLOQUEO ? `
+                        <button type="button" disabled
+                            class="self-end text-xs font-bold text-gray-400 bg-gray-100 border border-gray-200 px-4 py-2 rounded-xl cursor-not-allowed">
+                            Solicitar práctica
+                        </button>` : `
                         <button type="button"
                             data-id="${escapeHtml(u.id)}"
                             data-nombre="${escapeHtml(etiquetaSolicitud)}"
                             onclick="solicitarDesdeUnidad(this)"
                             class="self-end text-xs font-bold text-white bg-[#4E7D24] px-4 py-2 rounded-xl hover:bg-[#3b6620] transition-all shadow-sm">
                             Solicitar práctica
-                        </button>
+                        </button>`}
                     </div>`;
             }).join('') : '<p class="text-sm text-gray-500 text-center py-6">Esta empresa no tiene unidades receptoras registradas.</p>';
 
@@ -340,7 +348,12 @@
             document.body.appendChild(modal);
         }
 
+        var SOLICITUD_BLOQUEO = @json($bloqueoSolicitud);
+
         function openSolicitudModal(urId, nombre) {
+            if (SOLICITUD_BLOQUEO) {
+                return;
+            }
             document.getElementById('solicitudUrId').value = urId;
             document.getElementById('solicitudEmpresaNombre').textContent = nombre;
             document.getElementById('solicitudResponsable').value = '';
@@ -350,10 +363,18 @@
             document.getElementById('solicitudObservaciones').value = '';
             document.getElementById('solicitudError').classList.add('hidden');
             document.getElementById('solicitudFechaFinTexto').textContent = 'Selecciona la fecha de inicio para calcularla';
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia'].forEach(function(id) {
+            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
-            document.getElementById('solicitudModal').classList.remove('hidden');
+            document.getElementById('solicitudFechaInicio').min = fechaHoyLocal();
+            var modal = document.getElementById('solicitudModal');
+            // Mismo espacio arriba (debajo del navbar) y abajo
+            var nav = document.querySelector('nav');
+            var navBottom = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
+            var gap = 24;
+            modal.style.paddingTop = (navBottom + gap) + 'px';
+            modal.style.paddingBottom = gap + 'px';
+            modal.classList.remove('hidden');
         }
 
         function closeSolicitudModal() {
@@ -392,10 +413,30 @@
         document.getElementById('solicitudFechaInicio').addEventListener('change', actualizarFechaFinEstimada);
         document.getElementById('solicitudHorasPorDia').addEventListener('change', actualizarFechaFinEstimada);
 
+        // Solo letras (con acentos), espacios y punto para títulos como "Ing."
+        var SOLO_LETRAS_RESPONSABLE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.]+$/;
+        // Solo letras, espacios y puntuación básica para redactar
+        var SOLO_LETRAS_OBSERVACIONES = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.,]+$/;
+
+        function fechaHoyLocal() {
+            var d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        // Elimina al escribir/pegar cualquier caracter no permitido
+        document.getElementById('solicitudResponsable').addEventListener('input', function() {
+            var limpio = this.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.]/g, '');
+            if (limpio !== this.value) this.value = limpio;
+        });
+        document.getElementById('solicitudObservaciones').addEventListener('input', function() {
+            var limpio = this.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.,]/g, '');
+            if (limpio !== this.value) this.value = limpio;
+        });
+
         function submitSolicitud() {
             var btn = document.getElementById('solicitudSubmitBtn');
             var errBox = document.getElementById('solicitudError');
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia'].forEach(function(id) {
+            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             errBox.classList.add('hidden');
@@ -412,6 +453,23 @@
                 document.getElementById('errResponsable').textContent = 'El nombre del responsable es obligatorio.';
                 document.getElementById('errResponsable').classList.remove('hidden');
                 hasError = true;
+            } else if (!SOLO_LETRAS_RESPONSABLE.test(responsable)) {
+                document.getElementById('errResponsable').textContent = 'El nombre solo puede contener letras.';
+                document.getElementById('errResponsable').classList.remove('hidden');
+                hasError = true;
+            } else if (responsable.length > 50) {
+                document.getElementById('errResponsable').textContent = 'El nombre no puede superar 50 caracteres (llevas ' + responsable.length + ').';
+                document.getElementById('errResponsable').classList.remove('hidden');
+                hasError = true;
+            }
+            if (observaciones && !SOLO_LETRAS_OBSERVACIONES.test(observaciones)) {
+                document.getElementById('errObservaciones').textContent = 'Las observaciones solo pueden contener letras.';
+                document.getElementById('errObservaciones').classList.remove('hidden');
+                hasError = true;
+            } else if (observaciones.length > 200) {
+                document.getElementById('errObservaciones').textContent = 'Las observaciones no pueden superar 200 caracteres (llevas ' + observaciones.length + ').';
+                document.getElementById('errObservaciones').classList.remove('hidden');
+                hasError = true;
             }
             if (!modalidad) {
                 document.getElementById('errModalidad').textContent = 'Selecciona el tipo de modalidad.';
@@ -420,6 +478,10 @@
             }
             if (!fechaInicio) {
                 document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es obligatoria.';
+                document.getElementById('errFechaInicio').classList.remove('hidden');
+                hasError = true;
+            } else if (fechaInicio < fechaHoyLocal()) {
+                document.getElementById('errFechaInicio').textContent = 'La fecha de inicio no puede ser anterior a hoy.';
                 document.getElementById('errFechaInicio').classList.remove('hidden');
                 hasError = true;
             }
@@ -448,6 +510,7 @@
             })
             .then(function(data) {
                 closeSolicitudModal();
+                SOLICITUD_BLOQUEO = 'Ya enviaste una solicitud de práctica y está pendiente de revisión. Podrás enviar otra solo si es rechazada.';
                 var msg = data.message || 'Solicitud enviada correctamente.';
                 if (data.fecha_fin) { msg += ' Fecha estimada de término: ' + data.fecha_fin + '.'; }
                 showConvenioToast(msg);
@@ -473,13 +536,16 @@
             document.getElementById('convenioToastMsg').textContent = msg;
             toast.classList.remove('hidden');
             void card.offsetWidth;
-            card.classList.remove('opacity-0','translate-y-2');
-            card.classList.add('opacity-100','translate-y-0');
-            setTimeout(function() {
-                card.classList.remove('opacity-100','translate-y-0');
-                card.classList.add('opacity-0','translate-y-2');
-                setTimeout(function() { toast.classList.add('hidden'); }, 300);
-            }, 4500);
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        }
+
+        function hideConvenioToast() {
+            var toast = document.getElementById('convenioToast');
+            var card  = document.getElementById('convenioToastCard');
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(function() { toast.classList.add('hidden'); }, 250);
         }
     </script>
 @endsection
