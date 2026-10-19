@@ -5,7 +5,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="document.getElementById('modal-registrar-institucion').classList.add('hidden')"></div>
 
         <!-- Modal panel -->
-        <form id="form-registrar-institucion" action="{{ route('coordinador.instituciones.store') }}" method="POST" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
+        <form id="form-registrar-institucion" action="{{ route('coordinador.instituciones.store') }}" method="POST" hx-boost="false" class="relative flex flex-col w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
             <!-- Header (Gradient Green Banner) -->
