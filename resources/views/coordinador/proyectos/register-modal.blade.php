@@ -51,7 +51,7 @@
             </style>
 
             <!-- Registration Form with Scrollable Body -->
-            <form id="form-registrar-proyecto" action="{{ route('coordinador.proyectos.store') }}" method="POST" class="px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
+            <form id="form-registrar-proyecto" action="{{ route('coordinador.proyectos.store') }}" method="POST" hx-boost="false" class="px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
                 @csrf
 
                 <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center mb-2">Información del Proyecto</h4>

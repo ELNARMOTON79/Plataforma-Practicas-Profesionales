@@ -5,7 +5,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-950/60 backdrop-blur-md" aria-hidden="true" onclick="cerrarModalAgregarUR()"></div>
 
         <!-- Modal panel -->
-        <form id="form-agregar-ur" action="{{ route('coordinador.instituciones.store-ur') }}" method="POST" class="relative flex flex-col w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
+        <form id="form-agregar-ur" action="{{ route('coordinador.instituciones.store-ur') }}" method="POST" hx-boost="false" class="relative flex flex-col w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all transform max-h-[90vh] z-10">
             @csrf
             
             <input type="hidden" name="nombre_empresa" id="add-ur-empresa-hidden" value="{{ old('nombre_empresa') }}">

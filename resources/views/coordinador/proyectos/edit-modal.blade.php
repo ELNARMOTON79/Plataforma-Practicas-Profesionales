@@ -52,7 +52,7 @@
             </style>
 
             <!-- Registration Form with Scrollable Body -->
-            <form id="form-editar-proyecto" action="{{ (old('_method') === 'PUT' && session('edit_proyecto_id')) ? '/coordinador/proyectos/' . session('edit_proyecto_id') : '' }}" method="POST" class="px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
+            <form id="form-editar-proyecto" action="{{ (old('_method') === 'PUT' && session('edit_proyecto_id')) ? '/coordinador/proyectos/' . session('edit_proyecto_id') : '' }}" method="POST" hx-boost="false" class="px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
                 @csrf
                 @method('PUT')
 
