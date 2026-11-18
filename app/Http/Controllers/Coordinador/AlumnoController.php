@@ -120,7 +120,7 @@ class AlumnoController extends Controller
             'correo'    => ['required', 'email', 'max:255', 'unique:usuarios,correo'],
             'matricula' => ['required', 'digits:8', 'unique:estudiantes,matricula'],
             'carrera'   => ['required', 'string', 'max:150'],
-            'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
+            'semestre'  => ['required', 'integer', 'min:7', 'max:9'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
             'asesor'    => ['nullable', 'string', 'max:255'],
             'coasesor'  => ['nullable', 'string', 'max:255'],
@@ -133,8 +133,8 @@ class AlumnoController extends Controller
             'matricula.required'    => 'La matrícula es requerida.',
             'matricula.unique'      => 'Esta matrícula ya está registrada.',
             'matricula.regex'       => 'La matrícula solo debe contener números.',
-            'semestre.min'          => 'El semestre debe ser entre 1 y 12.',
-            'semestre.max'          => 'El semestre debe ser entre 1 y 12.',
+            'semestre.min'          => 'El semestre debe ser entre 7 y 9.',
+            'semestre.max'          => 'El semestre debe ser entre 7 y 9.',
             'grupo.regex'           => 'El grupo debe ser exactamente una letra.',
         ]);
 
@@ -189,7 +189,7 @@ class AlumnoController extends Controller
             'students.*.matricula' => 'required|string|max:50',
             'students.*.nombre'  => 'required|string|max:255',
             'students.*.carrera' => 'required|string|max:150',
-            'students.*.semestre' => 'required|integer|min:1|max:12',
+            'students.*.semestre' => 'required|integer|min:7|max:9',
             'students.*.grupo'   => 'required|string|max:20',
         ]);
 
@@ -312,7 +312,7 @@ class AlumnoController extends Controller
             'correo'    => ['required', 'email', 'max:255', Rule::unique('usuarios', 'correo')->ignore($user->id)],
             'matricula' => ['required', 'digits:8', Rule::unique('estudiantes', 'matricula')->ignore($alumno->id)],
             'carrera'   => ['required', 'string', 'max:150'],
-            'semestre'  => ['required', 'integer', 'min:1', 'max:12'],
+            'semestre'  => ['required', 'integer', 'min:7', 'max:9'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
             'asesor'    => ['nullable', 'string', 'max:255'],
             'coasesor'  => ['nullable', 'string', 'max:255'],
@@ -325,8 +325,8 @@ class AlumnoController extends Controller
             'matricula.required'    => 'La matrícula es requerida.',
             'matricula.unique'      => 'Esta matrícula ya está registrada por otro alumno.',
             'matricula.regex'       => 'La matrícula solo debe contener números.',
-            'semestre.min'          => 'El semestre debe ser entre 1 y 12.',
-            'semestre.max'          => 'El semestre debe ser entre 1 y 12.',
+            'semestre.min'          => 'El semestre debe ser entre 7 y 9.',
+            'semestre.max'          => 'El semestre debe ser entre 7 y 9.',
             'grupo.regex'           => 'El grupo debe ser exactamente una letra.',
         ]);
 
