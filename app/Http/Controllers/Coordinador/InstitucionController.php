@@ -121,7 +121,9 @@ class InstitucionController extends Controller
             ->get()
             ->groupBy('nombre_empresa');
 
-        return view('coordinador.instituciones', compact('instituciones', 'convenios', 'unidades'));
+        $folios = \App\Models\Convenio::folios();
+
+        return view('coordinador.instituciones', compact('instituciones', 'convenios', 'unidades', 'folios'));
     }
 
     /**

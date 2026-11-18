@@ -8,6 +8,7 @@ use App\Models\Estudiante;
 use App\Models\Hora;
 use App\Models\Solicitud;
 use App\Models\Convenio;
+use App\Models\Proyecto;
 use App\Models\UnidadReceptora;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -50,8 +51,19 @@ class DashboardController extends Controller
         $documentosStatus = [];
         $activeSolicitud = null;
         $hasPracticaActiva = false;
+        $solicitudRechazada = null;
 
         if ($estudiante) {
+            // Solo se avisa si la solicitud más reciente del estudiante fue rechazada
+            $ultimaSolicitud = Solicitud::with('unidadReceptora')
+                ->where('estudiante_id', $estudiante->id)
+                ->orderByDesc('id')
+                ->first();
+
+            if ($ultimaSolicitud?->estatus === 'rechazada') {
+                $solicitudRechazada = $ultimaSolicitud;
+            }
+
             $solicitudesActivas = Solicitud::where('estudiante_id', $estudiante->id)
                 ->whereIn('estatus', ['aprobada', 'en_proceso'])
                 ->count();
@@ -75,19 +87,33 @@ class DashboardController extends Controller
                     'Carta de Término',
                 ];
 
-                $documentosStatus = collect($requiredDocuments)->map(function ($required) use ($activeSolicitud) {
+                // Mismo orden que en Mi Proyecto: cada documento se desbloquea al validarse los anteriores
+                $anterioresValidados = true;
+
+                $documentosStatus = collect($requiredDocuments)->map(function ($required) use ($activeSolicitud, &$anterioresValidados) {
                     $document = $activeSolicitud->documentos->first(function ($doc) use ($required) {
                         return mb_strtolower(trim($doc->nombre_doc)) === mb_strtolower(trim($required));
                     });
 
-                    $uploaded = $document !== null;
+                    $uploaded  = $document !== null;
+                    $bloqueado = ! $anterioresValidados;
+                    $validado  = $uploaded && in_array($document->estatus, ['validado', 'aprobado'], true);
+                    $anterioresValidados = $anterioresValidados && $validado;
+
+                    $estado = match (true) {
+                        $validado                                  => 'validado',
+                        $uploaded && $document->estatus === 'rechazado' => 'rechazado',
+                        $uploaded                                  => 'revisando',
+                        $bloqueado                                 => 'bloqueado',
+                        default                                    => 'sin_subir',
+                    };
 
                     return [
-                        'nombre' => $required,
-                        'status' => $uploaded ? 'subido' : 'pendiente',
-                        'label' => $uploaded ? 'Subido' : 'Sin subir',
-                        'color' => $uploaded ? 'green' : 'gray',
-                        'fecha' => $uploaded && $document->fecha_carga ? $document->fecha_carga->format('d M Y') : null,
+                        'nombre'     => $required,
+                        'status'     => $uploaded ? 'subido' : 'pendiente',
+                        'estado'     => $estado,
+                        'puedeSubir' => ! $bloqueado && in_array($estado, ['sin_subir', 'rechazado'], true),
+                        'fecha'      => $uploaded && $document->fecha_carga ? $document->fecha_carga->format('d M Y') : null,
                     ];
                 })->all();
 
@@ -115,6 +141,7 @@ class DashboardController extends Controller
             'documentosStatus' => $documentosStatus,
             'activeSolicitud' => $activeSolicitud,
             'hasPracticaActiva' => $hasPracticaActiva,
+            'solicitudRechazada' => $solicitudRechazada,
             'actividadReciente' => $this->actividadReciente($estudiante),
             'proximosVencimientos' => $this->proximosVencimientos($estudiante),
         ]);
@@ -212,11 +239,14 @@ class DashboardController extends Controller
 
         $convenios = $query->orderBy('codigo_convenio')->get();
 
+        $folios = Convenio::folios();
+
         $conveniosAgrupados = $convenios
             ->groupBy('codigo_convenio')
-            ->map(function ($grupo, $codigo) {
+            ->map(function ($grupo, $codigo) use ($folios) {
                 return (object) [
                     'codigo_convenio' => $codigo,
+                    'folio'           => $folios[$codigo] ?? $codigo,
                     'fecha_inicio'    => $grupo->min('fecha_inicio'),
                     'fecha_termino'   => $grupo->max('fecha_termino'),
                     'vigente'         => $grupo->contains(fn ($c) => $c->estatus === 'activo' && $c->fecha_termino >= now()->toDateString()),
@@ -253,6 +283,7 @@ class DashboardController extends Controller
             'carreraFilter'      => $carreraFilter,
             'carreras'           => $carreras,
             'horasMeta'          => $horasMeta,
+            'bloqueoSolicitud'   => $estudianteActual ? $this->bloqueoNuevaSolicitud($estudianteActual) : null,
         ]);
     }
 
@@ -274,6 +305,9 @@ class DashboardController extends Controller
         $horasCompletadas = 0;
         $horasMeta        = $estudiante?->horasMetaPractica() ?? Solicitud::HORAS_META;
         $documentos       = collect();
+        $convenioFolio    = null;
+        // Proyecto que el coordinador le asignó formalmente al estudiante
+        $proyectoAsignado = $estudiante ? Proyecto::where('estudiante_id', $estudiante->id)->first() : null;
 
         if ($estudiante) {
             $solicitudActiva = $this->getSolicitudActiva($estudiante, ['unidadReceptora', 'documentos'], incluirFinalizada: true);
@@ -281,6 +315,21 @@ class DashboardController extends Controller
             if ($solicitudActiva) {
                 $horasCompletadas = $solicitudActiva->horasCompletadas();
                 $documentos       = $solicitudActiva->documentos;
+
+                // El convenio puede estar ligado a la unidad solicitada o a otra unidad de la misma empresa
+                $ur    = $solicitudActiva->unidadReceptora;
+                $urIds = $ur?->usuario_id
+                    ? UnidadReceptora::where('usuario_id', $ur->usuario_id)->pluck('id')
+                    : collect([$solicitudActiva->ur_id]);
+
+                $convenio = Convenio::whereIn('ur_id', $urIds)
+                    ->orderByRaw('ur_id = ? desc', [$solicitudActiva->ur_id])
+                    ->orderByDesc('fecha_termino')
+                    ->first();
+
+                if ($convenio) {
+                    $convenioFolio = Convenio::folios()[$convenio->codigo_convenio] ?? $convenio->codigo_convenio;
+                }
             }
         }
 
@@ -299,6 +348,8 @@ class DashboardController extends Controller
             'horasRestantes'   => max(0, $horasMeta - (int) $horasCompletadas),
             'porcentajeHoras'  => $porcentajeHoras,
             'documentos'       => $documentos,
+            'convenioFolio'    => $convenioFolio,
+            'proyectoAsignado' => $proyectoAsignado,
         ]);
     }
 
@@ -588,6 +639,18 @@ class DashboardController extends Controller
             'archivo.max' => 'El archivo no puede exceder 5 MB.',
         ]);
 
+        // Los documentos se suben en orden: cada uno requiere que los anteriores estén validados
+        $validados = $solicitudActiva->documentos()
+            ->whereIn('estatus', ['validado', 'aprobado'])
+            ->pluck('nombre_doc')
+            ->map(fn ($nombre) => mb_strtolower(trim($nombre)));
+
+        foreach (array_slice($allowedDocs, 0, array_search($validated['nombre_doc'], $allowedDocs, true)) as $anterior) {
+            if (! $validados->contains(mb_strtolower($anterior))) {
+                return response()->json(['error' => "Primero el coordinador debe validar tu {$anterior}."], 422);
+            }
+        }
+
         $archivo = $request->file('archivo');
         $filename = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $archivo->getClientOriginalExtension();
         $storagePath = 'documentos/estudiante_' . $user->id;
@@ -838,25 +901,33 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Perfil de estudiante no encontrado.'], 404);
         }
 
+        // Solo se puede volver a solicitar si las solicitudes anteriores fueron rechazadas
+        if ($mensaje = $this->bloqueoNuevaSolicitud($estudiante)) {
+            return response()->json(['error' => $mensaje], 422);
+        }
+
         $validated = $request->validate([
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
-            'responsable' => ['required', 'string', 'max:255'],
-            'fecha_inicio'=> ['required', 'date'],
+            'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
+            'fecha_inicio'=> ['required', 'date', 'after_or_equal:today'],
             'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
             'modalidad'    => ['required', 'string', Rule::in(array_keys(Solicitud::MODALIDADES))],
-            'observaciones'=> ['nullable', 'string', 'max:1000'],
+            'observaciones'=> ['nullable', 'string', 'max:200', 'regex:/^[\pL\s.,]+$/u'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
             'ur_id.exists'          => 'La empresa seleccionada no existe.',
             'responsable.required'  => 'El nombre del responsable/asesor es obligatorio.',
-            'responsable.max'       => 'El nombre no puede superar 255 caracteres.',
+            'responsable.max'       => 'El nombre no puede superar 50 caracteres.',
+            'responsable.regex'     => 'El nombre del responsable solo puede contener letras.',
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
             'fecha_inicio.date'     => 'La fecha de inicio no es válida.',
+            'fecha_inicio.after_or_equal' => 'La fecha de inicio no puede ser anterior a hoy.',
+            'observaciones.regex'   => 'Las observaciones solo pueden contener letras.',
             'horas_por_dia.required'=> 'Indica cuántas horas al día realizarás tus prácticas.',
             'horas_por_dia.in'      => 'Las horas por día deben ser 6 u 8.',
             'modalidad.required'    => 'Selecciona el tipo de modalidad.',
             'modalidad.in'          => 'La modalidad seleccionada no es válida.',
-            'observaciones.max'     => 'Las observaciones no pueden superar 1000 caracteres.',
+            'observaciones.max'     => 'Las observaciones no pueden superar 200 caracteres.',
         ]);
 
         $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
@@ -878,7 +949,7 @@ class DashboardController extends Controller
             'success' => true,
             'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
             'solicitud_id' => $solicitud->id,
-            'fecha_fin' => $fechaFin->translatedFormat('d \d\e F \d\e Y'),
+            'fecha_fin' => $fechaFin->locale('es')->translatedFormat('d \d\e F \d\e Y'),
         ]);
     }
 
@@ -916,6 +987,25 @@ class DashboardController extends Controller
             'iniciales' => $this->iniciales($estudiante->nombre_completo),
             'solicitudes' => $solicitudes,
         ]);
+    }
+
+    /**
+     * Mensaje que impide enviar una nueva solicitud, o null si el estudiante puede solicitar
+     * (no tiene solicitudes o todas fueron rechazadas).
+     */
+    private function bloqueoNuevaSolicitud(Estudiante $estudiante): ?string
+    {
+        $solicitud = Solicitud::where('estudiante_id', $estudiante->id)
+            ->where('estatus', '!=', 'rechazada')
+            ->orderByDesc('id')
+            ->first();
+
+        return match ($solicitud?->estatus) {
+            null         => null,
+            'pendiente'  => 'Ya enviaste una solicitud de práctica y está pendiente de revisión. Podrás enviar otra solo si es rechazada.',
+            'finalizada' => 'Ya concluiste tu práctica profesional, no puedes enviar otra solicitud.',
+            default      => 'Ya tienes una práctica profesional en proceso, no puedes enviar otra solicitud.',
+        };
     }
 
     /**

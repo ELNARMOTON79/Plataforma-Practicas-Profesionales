@@ -39,11 +39,20 @@
                 <h3 class="text-xl font-bold text-gray-900 mb-1">
                     {{ $solicitudActiva->unidadReceptora?->nombre_empresa ?? 'Sin empresa' }}
                 </h3>
-                @if($solicitudActiva->observaciones)
-                    <p class="text-sm text-gray-500 mb-4">{{ $solicitudActiva->observaciones }}</p>
-                @endif
 
                 <div class="border-t border-gray-150/50 pt-4 space-y-3.5 text-xs text-gray-700 font-medium">
+                    @if($solicitudActiva->unidadReceptora?->unidad_receptora)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Unidad receptora</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $solicitudActiva->unidadReceptora->unidad_receptora }}</span>
+                    </div>
+                    @endif
+                    @if($convenioFolio)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Convenio</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $convenioFolio }}</span>
+                    </div>
+                    @endif
                     @if($solicitudActiva->responsable)
                     <div>
                         <span class="block text-gray-400 font-bold mb-0.5">Responsable / Asesor</span>
@@ -104,7 +113,6 @@
                         <span>{{ $horasRestantes }} horas</span>
                     </div>
                     @if(! $solicitudActiva->documentosInicialesValidados())
-                        <p class="text-[11px] text-gray-400 italic pt-1">Tus horas comenzarán a contabilizarse cuando el coordinador valide tu Carta de Presentación, Carta de Aceptación y Plan de Trabajo.</p>
                     @elseif($solicitudActiva->estatus === 'finalizada')
                         <p class="text-[11px] text-gray-400 italic pt-1">Meta de horas alcanzada.</p>
                     @else
@@ -117,6 +125,34 @@
 
         {{-- Right column: Documents --}}
         <div class="lg:col-span-2 flex flex-col gap-6">
+
+            {{-- Assigned project details --}}
+            <div class="glass-card rounded-3xl p-6 fade-in-up delay-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#4E7D24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    Mi Proyecto de Prácticas
+                </h3>
+
+                @if($proyectoAsignado)
+                    <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
+                    @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
+                        <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
+                    @endif
+
+                    <div class="mt-4 space-y-3 text-sm text-gray-700">
+                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
+                            @if($proyectoAsignado->$campo)
+                                <div>
+                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{{ $etiqueta }}</span>
+                                    <p class="whitespace-pre-line">{{ $proyectoAsignado->$campo }}</p>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500">Aún no tienes un proyecto asignado. Cuando el coordinador te asigne uno, aquí verás su objetivo y actividades.</p>
+                @endif
+            </div>
 
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-150 flex-1 flex flex-col">
                 <div class="flex justify-between items-center mb-6">
@@ -149,29 +185,30 @@
                     ];
                 @endphp
 
+                @php
+                    // Cada documento se desbloquea cuando el coordinador valida todos los anteriores
+                    $anterioresValidados = true;
+                @endphp
                 <div class="space-y-4">
                     @foreach($tiposDoc as $i => $tipo)
                         @php
                             $doc = $docsSubidos[$tipo['nombre']] ?? null;
                             $estatusDoc = $doc?->estatus ?? 'pendiente';
+                            $bloqueado = ! $anterioresValidados;
+                            $anterioresValidados = $anterioresValidados && $doc && in_array($estatusDoc, ['aprobado', 'validado']);
+                            // Colores en línea para que no dependan de clases de Tailwind no compiladas
                             $badge = match(true) {
-                                !$doc => ['label' => 'Sin Subir', 'classes' => 'bg-gray-50 text-gray-500 border-gray-200', 'dot' => 'bg-gray-400'],
-                                in_array($estatusDoc, ['aprobado', 'validado']) => ['label' => 'Validado', 'classes' => 'bg-green-50 text-green-700 border-green-150', 'dot' => 'bg-green-600'],
-                                $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'classes' => 'bg-red-50 text-red-700 border-red-150', 'dot' => 'bg-red-600'],
-                                default => ['label' => 'En proceso de validación', 'classes' => 'bg-amber-50 text-amber-700 border-amber-150', 'dot' => 'bg-amber-500'],
-                            };
-                            $iconClasses = match(true) {
-                                !$doc => 'bg-gray-50 text-gray-400',
-                                in_array($estatusDoc, ['aprobado', 'validado']) => 'bg-green-50 text-green-600',
-                                $estatusDoc === 'rechazado' => 'bg-red-50 text-red-600',
-                                default => 'bg-amber-50 text-amber-600',
+                                !$doc => ['label' => 'Sin Subir', 'bg' => '#f9fafb', 'text' => '#6b7280', 'border' => '#e5e7eb', 'dot' => '#9ca3af', 'iconBg' => '#f9fafb', 'icon' => '#9ca3af'],
+                                in_array($estatusDoc, ['aprobado', 'validado']) => ['label' => 'Validado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a', 'iconBg' => '#f0fdf4', 'icon' => '#16a34a'],
+                                $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626', 'iconBg' => '#fef2f2', 'icon' => '#dc2626'],
+                                default => ['label' => 'En proceso de validación', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b', 'iconBg' => '#fffbeb', 'icon' => '#d97706'],
                             };
                             $pdfRouteName = $pdfGenerables[$tipo['nombre']] ?? null;
                             $wordRouteName = $wordGenerables[$tipo['nombre']] ?? null;
                         @endphp
                         <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl {{ $iconClasses }}" data-doc-icon>
+                                <div class="p-3 rounded-xl" style="background: {{ $badge['iconBg'] }}; color: {{ $badge['icon'] }};" data-doc-icon>
                                     @if($doc && $estatusDoc !== 'rechazado')
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     @elseif($doc && $estatusDoc === 'rechazado')
@@ -186,27 +223,48 @@
                                     @if(!empty($tipo['nota']))
                                         <p class="text-[11px] text-gray-400 italic mt-0.5">{{ $tipo['nota'] }}</p>
                                     @endif
-                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold {{ $badge['classes'] }} mt-1" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot'] }}"></span>
+                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mt-1" style="background: {{ $badge['bg'] }}; color: {{ $badge['text'] }}; border: 1px solid {{ $badge['border'] }};" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
+                                        <span class="rounded-full" style="width: 6px; height: 6px; background: {{ $badge['dot'] }};"></span>
                                         {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
                                     </span>
+                                    @if($doc && $estatusDoc === 'rechazado')
+                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-red-50 border-red-100">
+                                            <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Documento rechazado por el coordinador</p>
+                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu documento y vuelve a subirlo.' }}</p>
+                                        </div>
+                                    @elseif($doc && $doc->observaciones && $estatusDoc !== 'pendiente')
+                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-[#6BA53A]/5 border-[#6BA53A]/20">
+                                            <p class="text-[10px] font-bold uppercase tracking-wide text-[#4E7D24]">Comentario del coordinador</p>
+                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones }}</p>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="shrink-0 flex items-center gap-2">
-                                @if($pdfRouteName)
+                                @if($bloqueado && ($pdfRouteName || $wordRouteName))
+                                    <button type="button" disabled class="bg-gray-100 border border-gray-200 text-gray-400 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        {{ $pdfRouteName ? 'Generar PDF' : 'Generar Word' }}
+                                    </button>
+                                @elseif($pdfRouteName)
                                     <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         Generar PDF
                                     </a>
                                 @endif
-                                @if($wordRouteName)
+                                @if($wordRouteName && ! $bloqueado)
                                     <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         Generar Word
                                     </a>
                                 @endif
                                 <div data-doc-action-area class="flex items-center gap-2">
-                                @if(!$doc)
+                                @if($bloqueado && !$doc)
+                                    <button type="button" disabled class="bg-gray-100 text-gray-400 border border-gray-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1 cursor-not-allowed" data-doc-action>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        Bloqueado
+                                    </button>
+                                @elseif(!$doc)
                                     <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1" data-doc-action>
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                         Subir
@@ -516,8 +574,9 @@
             if (card) {
                 var statusBadge = card.querySelector('[data-doc-status]');
                 if (statusBadge) {
-                    statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Sin Subir';
-                    statusBadge.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 mt-1';
+                    statusBadge.innerHTML = '<span class="rounded-full" style="width:6px;height:6px;background:#9ca3af;"></span> Sin Subir';
+                    statusBadge.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mt-1';
+                    statusBadge.style.cssText = 'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb;';
                 }
                 var actionArea = card.querySelector('[data-doc-action-area]');
                 if (actionArea) {
@@ -535,13 +594,22 @@
             var statusEl = card.querySelector('[data-doc-status]');
             var wasPreviouslyUploaded = statusEl && !statusEl.textContent.includes('Sin Subir');
             if (statusEl) {
-                statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-150 mt-1';
-                statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En proceso de validación — ' + documento.fecha_carga;
+                statusEl.className = 'inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mt-1';
+                statusEl.style.cssText = 'background:#fffbeb;color:#b45309;border:1px solid #fde68a;';
+                statusEl.innerHTML = '<span class="rounded-full" style="width:6px;height:6px;background:#f59e0b;"></span> En proceso de validación — ' + documento.fecha_carga;
+                statusEl.removeAttribute('title');
+            }
+
+            // Al volver a subir, el comentario anterior del coordinador ya no aplica
+            var commentEl = card.querySelector('[data-doc-comment]');
+            if (commentEl) {
+                commentEl.remove();
             }
 
             var iconEl = card.querySelector('[data-doc-icon]');
             if (iconEl) {
-                iconEl.className = 'p-3 rounded-xl bg-amber-50 text-amber-600';
+                iconEl.className = 'p-3 rounded-xl';
+                iconEl.style.cssText = 'background:#fffbeb;color:#d97706;';
                 iconEl.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
             }
 
@@ -558,5 +626,25 @@
                 }
             }
         }
+
+        // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var docName = params.get('subir');
+            if (!docName) return;
+
+            var boton = Array.prototype.find.call(
+                document.querySelectorAll('[data-doc-name] button[onclick^="openUploadModal"]'),
+                function(b) { return b.getAttribute('data-docname') === docName && !b.disabled; }
+            );
+            if (boton) {
+                boton.closest('[data-doc-name]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                openUploadModal(docName);
+            }
+
+            params.delete('subir');
+            var query = params.toString();
+            history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+        })();
     </script>
 @endsection
