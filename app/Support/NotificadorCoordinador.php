@@ -29,6 +29,7 @@ class NotificadorCoordinador
 
         try {
             Mail::to($coordinador->correo)->send($mail);
+            Log::info("Correo de trámite pendiente ({$mail->tipo}) enviado al coordinador {$coordinador->correo}");
         } catch (\Exception $e) {
             Log::error("Error al enviar correo de trámite pendiente al coordinador {$coordinador->correo}: " . $e->getMessage());
         }
