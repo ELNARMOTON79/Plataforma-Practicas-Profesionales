@@ -22,7 +22,7 @@ class Solicitud extends Model
     ];
 
     public const MODALIDADES = [
-        'practica_integrativa' => 'Práctica integrativa',
+        'practica_integrativa' => 'Práctica profesional',
         'estancia_profesional' => 'Estancia profesional',
     ];
 
