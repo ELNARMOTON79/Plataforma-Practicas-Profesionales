@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 
 class SeguimientoController extends Controller
 {
-    private function getInitialData()
-    {
-        return [];
-    }
-
     private function getSessionData()
     {
         $data = [];
@@ -164,7 +159,7 @@ class SeguimientoController extends Controller
                             default => !empty($doc->ruta_archivo) ? 'Pendiente' : 'Sin Subir',
                         };
 
-                        $fileUrl = !empty($doc->ruta_archivo) ? asset('storage/' . ltrim($doc->ruta_archivo, '/')) : null;
+                        $fileUrl = !empty($doc->ruta_archivo) ? \App\Models\Documento::urlArchivo((int) $doc->id) : null;
                         $fechaFormat = !empty($doc->fecha_carga) ? \Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : null;
 
                         $docsList[$keyMap] = [

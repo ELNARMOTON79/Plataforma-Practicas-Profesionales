@@ -182,8 +182,8 @@
             <p style="color:#9ca3af; font-size:13px; margin:0;">Tu perfil ha sido actualizado.</p>
         </div>
     </div>
-@endpush
 
+{{-- El script va dentro del push para que se ejecute después de que existan los modales --}}
 <script>
     var _modalTimer = null;
 
@@ -330,3 +330,5 @@
     }
 
 </script>
+
+@endpush

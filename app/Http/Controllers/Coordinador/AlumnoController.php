@@ -141,37 +141,51 @@ class AlumnoController extends Controller
         // Generate a random secure password
         $randomPassword = Str::random(10);
 
-        // Create the user account
-        $user = new User();
-        $user->correo     = $request->input('correo');
-        $user->contraseña = Hash::make($randomPassword);
-        $user->rol_id     = 3; // Alumno
-        $user->activo     = true;
-        $user->save();
+        // Cuenta y perfil se crean juntos: si falla el perfil no queda un usuario huérfano
+        $user = DB::transaction(function () use ($request, $randomPassword) {
+            $user = new User();
+            $user->correo     = $request->input('correo');
+            $user->contraseña = Hash::make($randomPassword);
+            $user->rol_id     = 3; // Alumno
+            $user->activo     = true;
+            $user->save();
 
-        // Create the alumno profile
-        $alumno = new Alumno();
-        $alumno->usuario_id      = $user->id;
-        $alumno->nombre_completo = $request->input('nombre');
-        $alumno->matricula       = $request->input('matricula');
-        $alumno->carrera         = $request->input('carrera');
-        $alumno->semestre        = $request->input('semestre');
-        $alumno->grupo           = strtoupper($request->input('grupo'));
-        $alumno->activo_practica = 0;
-        $alumno->asesor          = $request->input('asesor');
-        $alumno->coasesor        = $request->input('coasesor');
-        $alumno->save();
-        // Send credentials email
-        try {
-            Mail::to($user->correo)->send(
-                new CredentialsNotification($user, $randomPassword, $request->input('nombre'))
-            );
-        } catch (\Exception $e) {
-            \Log::error("Error al enviar correo de credenciales al alumno {$user->correo}: " . $e->getMessage());
-        }
+            $alumno = new Alumno();
+            $alumno->usuario_id      = $user->id;
+            $alumno->nombre_completo = $request->input('nombre');
+            $alumno->matricula       = $request->input('matricula');
+            $alumno->carrera         = $request->input('carrera');
+            $alumno->semestre        = $request->input('semestre');
+            $alumno->grupo           = strtoupper($request->input('grupo'));
+            $alumno->activo_practica = 0;
+            $alumno->asesor          = $request->input('asesor');
+            $alumno->coasesor        = $request->input('coasesor');
+            $alumno->save();
+
+            return $user;
+        });
+
+        // Send credentials email (respeta la opción "Envío de correos" del administrador)
+        $correos = new \App\Helpers\CorreosPendientes();
+        $correos->agregar($user->correo, new CredentialsNotification($user, $randomPassword, $request->input('nombre')));
+        $fallidos = $correos->enviar();
 
         return redirect()->back()
-            ->with('success', "Alumno \"{$request->input('nombre')}\" registrado correctamente. Se enviaron las credenciales a {$request->input('correo')}.");
+            ->with('success', "Alumno \"{$request->input('nombre')}\" registrado correctamente. " . $this->mensajeCorreos($fallidos));
+    }
+
+    /**
+     * Texto honesto sobre el envío de credenciales según la configuración y los fallos.
+     */
+    private function mensajeCorreos(int $fallidos): string
+    {
+        if (! \App\Helpers\CorreosPendientes::enviosHabilitados()) {
+            return 'El envío de correos está desactivado; las credenciales no se enviaron.';
+        }
+
+        return $fallidos > 0
+            ? "Atención: {$fallidos} correo(s) de credenciales no se pudieron enviar."
+            : 'Se enviaron las credenciales por correo.';
     }
 
     /**
@@ -229,7 +243,8 @@ class AlumnoController extends Controller
             return response()->json(['success' => false, 'errors' => $errors], 422);
         }
 
-        // Insert inside a transaction
+        // Insert inside a transaction (los correos se envían después del commit)
+        $correos = new \App\Helpers\CorreosPendientes();
         DB::beginTransaction();
         try {
             $createdCount = 0;
@@ -253,18 +268,14 @@ class AlumnoController extends Controller
                 $alumno->activo_practica = 0;
                 $alumno->save();
 
-                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-                    try {
-                        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
-                    } catch (\Exception $e) {
-                        \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
-                    }
-                }
+                $correos->agregar($user->correo, new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
 
                 $createdCount++;
             }
 
             DB::commit();
+
+            $correosFallidos = $correos->enviar();
 
             \App\Helpers\ActivityLogger::log(
                 'Alumnos',
@@ -274,7 +285,7 @@ class AlumnoController extends Controller
                 ['custom_payload' => ['cantidad_importada' => $createdCount]]
             );
 
-            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente y se enviaron sus accesos por correo.");
+            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente. " . $this->mensajeCorreos($correosFallidos));
 
             return response()->json([
                 'success' => true,
@@ -286,7 +297,7 @@ class AlumnoController extends Controller
             \Log::error("Error al procesar importación masiva de estudiantes (coordinador): " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+                'errors'  => ['Ocurrió un error inesperado en el servidor al guardar los registros. No se guardó ningún alumno.']
             ], 500);
         }
     }

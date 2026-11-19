@@ -4,14 +4,21 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "vendor": "node scripts/copiar-vendor.mjs"
     },
     "devDependencies": {
+        "@fontsource/inter": "5.2.8",
+        "@fontsource/outfit": "5.2.8",
         "@tailwindcss/vite": "^4.0.0",
         "autoprefixer": "^10.5.0",
         "concurrently": "^9.0.1",
+        "datatables.net": "1.13.7",
+        "htmx.org": "1.9.11",
+        "jquery": "3.7.1",
         "laravel-vite-plugin": "^3.1",
         "postcss": "^8.5.14",
+        "sweetalert2": "11.26.3",
         "tailwindcss": "^4.3.0",
         "vite": "^8.0.0"
     }

@@ -185,7 +185,7 @@
                             <td class="px-3 py-4 text-center whitespace-nowrap">
                                 <button
                                     type="button"
-                                    onclick="abrirModalAgregarUR('{{ addslashes($inst->nombre_empresa) }}')"
+                                    onclick="abrirModalAgregarUR(@js($inst->nombre_empresa))"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4E7D24] text-white hover:bg-[#2E5417] rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all whitespace-nowrap"
                                     title="Agregar nueva Unidad Receptora a {{ $inst->nombre_empresa }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>

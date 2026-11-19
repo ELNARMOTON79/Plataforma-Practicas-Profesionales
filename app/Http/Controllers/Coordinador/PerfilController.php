@@ -55,6 +55,9 @@ class PerfilController extends Controller
         $user->contraseña = Hash::make($request->input('password'));
         $user->save();
 
+        // Lo que promete el diálogo de confirmación: cerrar la sesión en otros dispositivos
+        \App\Support\Sesiones::cerrarOtras($user);
+
         \App\Helpers\ActivityLogger::log(
             'Configuración',
             'Contraseña Cambiada',

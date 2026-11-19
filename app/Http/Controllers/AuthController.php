@@ -217,6 +217,9 @@ class AuthController extends Controller
         $user->contraseña = \Illuminate\Support\Facades\Hash::make($request->contraseña);
         $user->save();
 
+        // Quien olvidó su contraseña pudo haberla perdido: se cierran todas sus sesiones
+        \App\Support\Sesiones::cerrarTodas($user);
+
         // Eliminar token usado
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->correo)->delete();
 

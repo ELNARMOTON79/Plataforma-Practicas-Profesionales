@@ -25,6 +25,8 @@ class Estudiante extends Model
         'telefono',
         'asesor',
         'coasesor',
+        // Sin esto, TramiteController::aprobarSolicitud no podía marcar al alumno como activo
+        'activo_practica',
     ];
 
     public function usuario(): BelongsTo
@@ -37,12 +39,19 @@ class Estudiante extends Model
         return $this->hasMany(Solicitud::class, 'estudiante_id');
     }
 
+    /** Horas de práctica que exige Ingeniería de Software. */
+    public const HORAS_META_SOFTWARE = 640;
+
+    /** Horas de práctica que exigen las demás ingenierías de la facultad. */
+    public const HORAS_META_GENERAL = 480;
+
     /**
-     * Required practice hours by program: Ingeniería de Software requires 600,
-     * every other engineering program at the school requires 480.
+     * Horas de práctica requeridas según la carrera del alumno.
      */
     public function horasMetaPractica(): int
     {
-        return str_contains(mb_strtolower($this->carrera ?? ''), 'software') ? 600 : 480;
+        return str_contains(mb_strtolower($this->carrera ?? ''), 'software')
+            ? self::HORAS_META_SOFTWARE
+            : self::HORAS_META_GENERAL;
     }
 }

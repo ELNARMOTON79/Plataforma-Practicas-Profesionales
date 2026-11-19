@@ -89,19 +89,23 @@ class InformeController extends Controller
             $i++;
         }
 
+        // El alumno no guarda ciclo escolar: se toma del proyecto que tiene asignado
+        $cicloPorAlumno = $proyectos->whereNotNull('estudiante_id')->pluck('ciclo_escolar', 'estudiante_id');
+
         foreach ($alumnos as $alumno) {
 
-            $ciclo = $alumno->ciclo_escolar ?? 'N/A';
+            $ciclo = $cicloPorAlumno[$alumno->id] ?? 'N/A';
             if ($ciclo !== 'N/A' && !in_array($ciclo, $ciclosEscolares)) {
                 $ciclosEscolares[] = $ciclo;
             }
             
+            // Las celdas se envían como texto plano; la vista las escapa al construir la tabla
             $databaseData['estudiantes']['rows'][] = [
-                $alumno->nombre_completo . '<br><span class="text-[9px] text-gray-400 font-semibold">' . $alumno->numero_cuenta . '</span>',
+                ['texto' => $alumno->nombre_completo, 'subtexto' => $alumno->matricula],
                 $alumno->carrera ?? 'Sin asignar',
                 $alumno->sexo == 'FEMENINO' ? 'Femenino' : 'Masculino',
                 $ciclo,
-                '<span class="px-2 py-0.5 rounded text-[9px] font-bold ' . $alumno->estatus_class . '">' . $alumno->estatus . '</span>'
+                ['badge' => $alumno->estatus, 'clase' => $alumno->estatus_class],
             ];
         }
 
@@ -118,10 +122,10 @@ class InformeController extends Controller
             
             $databaseData['instituciones']['rows'][] = [
                 $inst->nombre_empresa ?? $inst->unidad_receptora,
-                ($inst->titular ?? 'Sin titular') . '<br><span class="text-[9px] text-gray-400 font-semibold">' . ($inst->cargo ?? 'Sin cargo') . '</span>',
+                ['texto' => $inst->titular ?? 'Sin titular', 'subtexto' => $inst->cargo ?? 'Sin cargo'],
                 $sector,
                 ($inst->municipio ?? 'Colima') . ', ' . ($inst->estado ?? 'Col.'),
-                '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-green-50 text-green-700 border border-green-100">VIGENTE</span>' // Mocking convenio status for now
+                ['badge' => 'VIGENTE', 'clase' => 'bg-green-50 text-green-700 border border-green-100'], // Mocking convenio status for now
             ];
         }
 
@@ -156,7 +160,7 @@ class InformeController extends Controller
             ];
         }
 
-        $dbDataJson = json_encode($databaseData);
+        $dbDataJson = json_encode($databaseData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         return view('coordinador.informes', compact(
             'carreras',

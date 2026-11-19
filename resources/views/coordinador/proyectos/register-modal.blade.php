@@ -185,10 +185,10 @@
                     <!-- Actividades -->
                     <div>
                         <label for="reg-actividades" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Actividades del Alumno <span class="text-red-500">*</span></label>
-                        <textarea id="reg-actividades" name="actividades" rows="3" required maxlength="1500" placeholder="Listado de tareas o funciones a realizar..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('actividades') border-red-400 bg-red-50 @enderror">{{ old('actividades') }}</textarea>
+                        <textarea id="reg-actividades" name="actividades" rows="3" required maxlength="1000" placeholder="Listado de tareas o funciones a realizar..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('actividades') border-red-400 bg-red-50 @enderror">{{ old('actividades') }}</textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p id="error-reg-actividades" class="text-red-500 text-[11px] font-semibold hidden"></p>
-                            <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-actividades">0</span> / 1500 carac.</div>
+                            <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-actividades">0</span> / 1000 carac.</div>
                         </div>
                         @error('actividades')
                             <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>

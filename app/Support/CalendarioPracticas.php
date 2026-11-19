@@ -43,6 +43,21 @@ class CalendarioPracticas
     }
 
     /**
+     * Días hábiles entre dos fechas, ambas inclusive.
+     */
+    public static function diasLaborablesEntre(CarbonImmutable $desde, CarbonImmutable $hasta): int
+    {
+        $dias = 0;
+        for ($fecha = $desde; $fecha->lte($hasta); $fecha = $fecha->addDay()) {
+            if (self::esDiaLaborable($fecha)) {
+                $dias++;
+            }
+        }
+
+        return $dias;
+    }
+
+    /**
      * Counts elapsed working days from fecha_inicio up to $hasta (inclusive) and returns
      * the resulting hours, capped at $metaHoras.
      */

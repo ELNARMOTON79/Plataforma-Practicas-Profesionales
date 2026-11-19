@@ -23,10 +23,6 @@ use PhpOffice\PhpWord\PhpWord;
 
 class DashboardController extends Controller
 {
-    public const HORAS_META = Solicitud::HORAS_META;
-
-    private const DOCS_REQUERIDOS = 6;
-
     public function index()
     {
         if (Auth::user()?->rol_id != 3) {
@@ -144,72 +140,6 @@ class DashboardController extends Controller
             'solicitudRechazada' => $solicitudRechazada,
             'actividadReciente' => $this->actividadReciente($estudiante),
             'proximosVencimientos' => $this->proximosVencimientos($estudiante),
-        ]);
-    }
-
-    public function createSolicitud()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        return view('estudiante.nueva_solicitud', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-        ]);
-    }
-
-    public function detallesSolicitud()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        return view('estudiante.nueva_solicitud_detalles', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
-        ]);
-    }
-
-    public function documentacionSolicitud()
-    {
-        if (Auth::user()?->rol_id != 3) {
-            return redirect('/');
-        }
-
-        $user = Auth::user();
-        $estudiante = Estudiante::where('usuario_id', $user->id)->first();
-
-        $nombre = $estudiante?->nombre_completo ?? Str::before($user->correo, '@');
-        $matricula = $estudiante?->matricula ?? '—';
-        $carrera = $estudiante?->carrera ?? '—';
-        $iniciales = $this->iniciales($nombre);
-
-        return view('estudiante.documentacion', [
-            'nombre' => $nombre,
-            'matricula' => $matricula,
-            'carrera' => $carrera,
-            'iniciales' => $iniciales,
         ]);
     }
 
@@ -651,21 +581,26 @@ class DashboardController extends Controller
             }
         }
 
+        $documento = $solicitudActiva->documentos()->firstOrNew([
+            'nombre_doc' => $validated['nombre_doc'],
+        ]);
+
+        // Un documento ya validado no se puede reemplazar: haría que las horas y el estatus retrocedan
+        if ($documento->exists && $documento->estaValidado()) {
+            return response()->json(['error' => "El documento «{$validated['nombre_doc']}» ya fue validado por el coordinador y no se puede reemplazar."], 422);
+        }
+
         $archivo = $request->file('archivo');
-        $filename = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $archivo->getClientOriginalExtension();
+        $filename = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $archivo->extension();
         $storagePath = 'documentos/estudiante_' . $user->id;
-        $path = $archivo->storeAs($storagePath, $filename, 'public');
+        $path = $archivo->storeAs($storagePath, $filename, Documento::DISCO);
 
         if (! $path) {
             return response()->json(['error' => 'No se pudo guardar el archivo en el servidor.'], 500);
         }
 
-        $documento = $solicitudActiva->documentos()->firstOrNew([
-            'nombre_doc' => $validated['nombre_doc'],
-        ]);
-
-        if ($documento->exists && $documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
-            Storage::disk('public')->delete($documento->ruta_archivo);
+        if ($documento->exists && $documento->ruta_archivo !== $path) {
+            Documento::eliminarArchivo($documento->ruta_archivo);
         }
 
         $documento->solicitud_id = $solicitudActiva->id;
@@ -682,7 +617,7 @@ class DashboardController extends Controller
             'documento' => [
                 'id' => $documento->id,
                 'nombre_doc' => $documento->nombre_doc,
-                'ruta_archivo' => asset('storage/' . $path),
+                'ruta_archivo' => Documento::urlArchivo($documento->id),
                 'fecha_carga' => Carbon::parse($documento->fecha_carga)->format('d/m/Y'),
                 'estatus' => $documento->estatus,
             ],
@@ -711,14 +646,15 @@ class DashboardController extends Controller
         // Verify that the document belongs to the student's active request
         $solicitudActiva = $this->getSolicitudActiva($estudiante, [], incluirFinalizada: true);
 
-        if (! $solicitudActiva || $documento->solicitud_id !== $solicitudActiva->id) {
+        if (! $solicitudActiva || (int) $documento->solicitud_id !== (int) $solicitudActiva->id) {
             return response()->json(['error' => 'No tienes permiso para eliminar este documento.'], 403);
         }
 
-        // Delete the file from storage
-        if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
-            Storage::disk('public')->delete($documento->ruta_archivo);
+        if ($documento->estaValidado()) {
+            return response()->json(['error' => 'Este documento ya fue validado por el coordinador y no se puede eliminar.'], 422);
         }
+
+        Documento::eliminarArchivo($documento->ruta_archivo);
 
         // Delete the document record
         $documento->delete();
@@ -853,6 +789,8 @@ class DashboardController extends Controller
 
         $user->contraseña = $request->new_password;
         $user->save();
+
+        \App\Support\Sesiones::cerrarOtras($user);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true]);

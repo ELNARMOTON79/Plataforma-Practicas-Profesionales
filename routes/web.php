@@ -34,20 +34,13 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected dashboard routes
-Route::middleware(['auth', 'prevent-back-history'])->group(function () {
+Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(function () {
+    // Archivos de documentos: se sirven desde disco privado verificando permisos
+    Route::get('/documentos/{id}/archivo', [App\Http\Controllers\DocumentoController::class, 'archivo'])
+        ->whereNumber('id')
+        ->name('documentos.archivo');
+
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-    Route::get('/admin/config', function () {
-        if (Auth::user()->rol_id != 1) return redirect('/');
-        return view('admin.config');
-    })->name('admin.config');
-
-    Route::get('/admin/usuarios', function () {
-        if (Auth::user()->rol_id != 1) return redirect('/');
-        return view('admin.usuarios');
-    })->name('admin.usuarios');
-
-    Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::get('/admin/config', [App\Http\Controllers\AdminController::class, 'config'])->name('admin.config');
     Route::post('/admin/config/profile', [App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.config.profile');
@@ -119,32 +112,20 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
     Route::get('/estudiante/solicitudes/fecha-fin', [DashboardController::class, 'calcularFechaFinSolicitud'])->name('estudiante.calcularFechaFinSolicitud');
 
-    Route::get('/empresa/dashboard', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.dashboard');
-    })->name('empresa.dashboard');
+    // Unidad receptora (empresa): solo consulta su información y registra horas
+    Route::get('/empresa/dashboard', [App\Http\Controllers\Empresa\EmpresaController::class, 'dashboard'])->name('empresa.dashboard');
 
-    Route::get('/empresa/proyectos', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.proyectos');
-    })->name('empresa.proyectos');
+    // Practicantes de la empresa y registro semanal de horas
+    Route::get('/empresa/practicantes', [App\Http\Controllers\Empresa\PracticanteController::class, 'index'])->name('empresa.practicantes');
+    Route::get('/empresa/practicantes/{id}', [App\Http\Controllers\Empresa\PracticanteController::class, 'show'])->whereNumber('id')->name('empresa.practicantes.show');
+    Route::post('/empresa/practicantes/{id}/horas', [App\Http\Controllers\Empresa\PracticanteController::class, 'registrarHoras'])->whereNumber('id')->name('empresa.practicantes.horas');
 
-    Route::get('/empresa/solicitudes', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.solicitudes');
-    })->name('empresa.solicitudes');
+    Route::get('/empresa/proyectos', [App\Http\Controllers\Empresa\EmpresaController::class, 'proyectos'])->name('empresa.proyectos');
+    Route::get('/empresa/reportes', [App\Http\Controllers\Empresa\EmpresaController::class, 'reportes'])->name('empresa.reportes');
+    Route::get('/empresa/convenios', [App\Http\Controllers\Empresa\EmpresaController::class, 'convenio'])->name('empresa.convenios');
+    Route::get('/empresa/perfil', [App\Http\Controllers\Empresa\EmpresaController::class, 'perfil'])->name('empresa.perfil');
+    Route::post('/empresa/perfil/password', [App\Http\Controllers\Empresa\EmpresaController::class, 'actualizarContrasena'])->name('empresa.perfil.password');
 
-    Route::get('/empresa/reportes', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.reportes');
-    })->name('empresa.reportes');
-
-    Route::get('/empresa/convenios', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.convenios');
-    })->name('empresa.convenios');
-
-    // Perfil de la empresa: datos de sus unidades receptoras y cambio de contraseña
-    Route::get('/empresa/perfil', [App\Http\Controllers\Empresa\PerfilController::class, 'perfil'])->name('empresa.perfil');
-    Route::post('/empresa/perfil/password', [App\Http\Controllers\Empresa\PerfilController::class, 'actualizarContrasena'])->name('empresa.perfil.password');
+    // La empresa no acepta ni rechaza solicitudes (lo hace el coordinador); la ruta antigua lleva a Practicantes
+    Route::redirect('/empresa/solicitudes', '/empresa/practicantes')->name('empresa.solicitudes');
 });

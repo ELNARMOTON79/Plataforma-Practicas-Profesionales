@@ -1,3 +1,14 @@
+/* Fuentes servidas desde el proyecto (antes venían de Google Fonts y requerían internet) */
+@import '@fontsource/inter/latin-300.css';
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/outfit/latin-300.css';
+@import '@fontsource/outfit/latin-400.css';
+@import '@fontsource/outfit/latin-500.css';
+@import '@fontsource/outfit/latin-600.css';
+@import '@fontsource/outfit/latin-700.css';
+@import '@fontsource/outfit/latin-800.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -8,6 +19,12 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-outfit: 'Outfit', sans-serif;
+    --font-inter: 'Inter', sans-serif;
+    --color-udec-primary: #4E7D24;
+    --color-udec-secondary: #6BA53A;
+    --color-udec-dark: #1C310D;
+    --color-udec-light: #F4F9EE;
 }
 
 @layer base {

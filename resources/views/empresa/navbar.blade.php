@@ -4,15 +4,15 @@
         <div class="flex justify-between h-20">
             <div class="flex items-center">
                 <img src="{{ asset('images/logo_verde.png') }}" alt="Logo UdeC" class="h-12 w-auto object-contain transition-transform hover:scale-105 duration-300">
-                <div class="ml-4 hidden sm:flex flex-col justify-center">
+                <div class="ml-4 hidden sm:flex lg:hidden xl:flex flex-col justify-center">
                     <span class="text-xl font-extrabold text-gray-900 leading-tight">Control de Prácticas</span>
                 </div>
             </div>
             
             <div class="hidden lg:flex items-center space-x-1">
                 <a href="{{ route('empresa.dashboard') }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Dashboard</a>
+                <a href="{{ route('empresa.practicantes') }}" class="{{ (isset($active) && $active === 'practicantes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Practicantes</a>
                 <a href="{{ route('empresa.proyectos') }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Proyectos</a>
-                <a href="{{ route('empresa.solicitudes') }}" class="{{ (isset($active) && $active === 'solicitudes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Solicitudes</a>
                 <a href="{{ route('empresa.convenios') }}" class="{{ (isset($active) && $active === 'convenios') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Convenio</a>
                 <a href="{{ route('empresa.reportes') }}" class="{{ (isset($active) && $active === 'reportes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Reportes</a>
             </div>
@@ -38,6 +38,21 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    {{-- Menú para pantallas medianas y pequeñas (el de arriba solo se ve desde lg) --}}
+    <div class="lg:hidden border-t border-gray-100 overflow-x-auto">
+        <div class="flex gap-1 px-4 py-2 min-w-max">
+            @foreach([
+                'dashboard' => ['empresa.dashboard', 'Dashboard'],
+                'practicantes' => ['empresa.practicantes', 'Practicantes'],
+                'proyectos' => ['empresa.proyectos', 'Proyectos'],
+                'convenios' => ['empresa.convenios', 'Convenio'],
+                'reportes' => ['empresa.reportes', 'Reportes'],
+            ] as $clave => [$ruta, $etiqueta])
+                <a href="{{ route($ruta) }}" class="{{ (isset($active) && $active === $clave) ? 'text-[#4E7D24] bg-[#6BA53A]/10 font-semibold' : 'text-gray-600 hover:text-[#4E7D24] font-medium' }} px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors">{{ $etiqueta }}</a>
+            @endforeach
         </div>
     </div>
 </nav>
