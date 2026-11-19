@@ -124,7 +124,7 @@
                         </div>
                         <div class="text-left leading-tight">
                             <h3 class="font-extrabold text-sm uppercase tracking-wide">Exportar a Excel</h3>
-                            <p class="text-green-100 text-[10px] font-semibold mt-0.5">Hoja de cálculo procesable (.xlsx)</p>
+                            <p class="text-green-100 text-[10px] font-semibold mt-0.5">Archivo CSV que se abre en Excel</p>
                         </div>
                     </button>
                 </div>
@@ -193,7 +193,7 @@
                         <div>
                             <div class="flex justify-between items-center text-xs font-bold text-gray-700 mb-1">
                                 <span>{{ $carrera }}</span>
-                                <span class="{{ $textColor }}">{{ $count }} alumnos ({{ $percentage }}%)</span>
+                                <span class="{{ $textColor }}">{{ $count }} {{ $count === 1 ? 'alumno' : 'alumnos' }} ({{ $percentage }}%)</span>
                             </div>
                             <div class="w-full bg-gray-100 rounded-full h-3">
                                 <div class="{{ $barColor }} h-3 rounded-full transition-all duration-500" style="width: {{ $percentage }}%"></div>
@@ -271,13 +271,16 @@
                         <div>
                             <div class="flex justify-between items-center text-xs font-bold text-gray-700 mb-1">
                                 <span class="capitalize">{{ $modalidad }}</span>
-                                <span class="text-gray-800">{{ $count }} proyectos ({{ $percentage }}%)</span>
+                                <span class="text-gray-800">{{ $count }} {{ $count === 1 ? 'proyecto' : 'proyectos' }} ({{ $percentage }}%)</span>
                             </div>
                             <div class="w-full bg-gray-100 rounded-full h-3">
                                 <div class="bg-gradient-to-r {{ $gradient }} h-3 rounded-full transition-all duration-500" style="width: {{ $percentage }}%"></div>
                             </div>
                         </div>
                     @endforeach
+                    @if(empty($modalidadesStats))
+                        <p class="text-xs text-gray-400 font-semibold">Aún no hay proyectos registrados.</p>
+                    @endif
                 </div>
             </div>
             <span class="text-[10px] text-gray-400 font-semibold mt-4">Modalidades del catálogo activo.</span>
@@ -291,7 +294,7 @@
                 <div class="bg-[#6BA53A]/10 p-2 rounded-xl text-[#4E7D24]">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 </div>
-                Vista Previa de Datos (Muestra de 5 filas)
+                Vista Previa de Datos
             </h2>
             <span id="preview-badge" class="px-2.5 py-0.5 text-[9px] font-bold rounded-lg bg-gray-100 text-gray-600">Filtros Activos</span>
         </div>
@@ -310,6 +313,59 @@
 
     <script>
         const mockDatabase = {!! $dbDataJson !!};
+
+        // Todo dato que viene de la BD se escapa antes de insertarlo con innerHTML (evita XSS)
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderCell(cell) {
+            if (cell && typeof cell === 'object') {
+                if ('badge' in cell) {
+                    return `<span class="px-2 py-0.5 rounded text-[9px] font-bold border ${escapeHtml(cell.clase)}">${escapeHtml(cell.badge)}</span>`;
+                }
+                return `${escapeHtml(cell.texto)}<br><span class="text-[9px] text-gray-400 font-semibold">${escapeHtml(cell.subtexto)}</span>`;
+            }
+            return escapeHtml(cell);
+        }
+
+        // Filas del reporte actual con los filtros aplicados (lo usan la vista previa y las exportaciones)
+        function filasFiltradas() {
+            const reportType = document.getElementById('tipo-reporte').value;
+            const carrera = document.getElementById('filtro-carrera').value;
+            const genero = document.getElementById('filtro-genero').value;
+            const ciclo = document.getElementById('filtro-ciclo').value;
+            const modalidad = document.getElementById('filtro-modalidad').value;
+
+            return mockDatabase[reportType].rows.filter(row => {
+                if (reportType === 'estudiantes') {
+                    if (carrera && row[1] !== carrera) return false;
+                    if (genero === 'femenino' && row[2] !== 'Femenino') return false;
+                    if (genero === 'masculino' && row[2] !== 'Masculino') return false;
+                    if (ciclo && row[3] !== ciclo) return false;
+                }
+                if (reportType === 'proyectos') {
+                    if (modalidad === 'presencial' && row[2] !== 'Presencial') return false;
+                    if (modalidad === 'virtual' && row[2] !== 'Virtual') return false;
+                    if (modalidad === 'hibrido' && row[2] !== 'Híbrido') return false;
+                    if (ciclo && row[4] !== ciclo) return false;
+                }
+                return true;
+            });
+        }
+
+        // Texto plano de una celda (para CSV/PDF)
+        function textoCelda(cell) {
+            if (cell && typeof cell === 'object') {
+                return 'badge' in cell ? String(cell.badge ?? '') : `${cell.texto ?? ''}${cell.subtexto ? ' (' + cell.subtexto + ')' : ''}`;
+            }
+            return String(cell ?? '');
+        }
 
         function updateReportPreview() {
             const reportType = document.getElementById('tipo-reporte').value;
@@ -333,31 +389,18 @@
             let tbodyHtml = '';
             let count = 0;
 
-            db.rows.forEach(row => {
-                if (reportType === 'estudiantes') {
-                    if (carrera && row[1] !== carrera) return;
-                    if (genero === 'femenino' && row[2] !== 'Femenino') return;
-                    if (genero === 'masculino' && row[2] !== 'Masculino') return;
-                    if (row[3] !== ciclo) return;
-                }
-                if (reportType === 'proyectos') {
-                    if (modalidad === 'presencial' && row[2] !== 'Presencial') return;
-                    if (modalidad === 'virtual' && row[2] !== 'Virtual') return;
-                    if (modalidad === 'hibrido' && row[2] !== 'Híbrido') return;
-                    if (row[4] !== ciclo) return;
-                }
-
+            filasFiltradas().forEach(row => {
                 tbodyHtml += `<tr class="hover:bg-[#6BA53A]/5 transition-colors">`;
                 row.forEach((cell, idx) => {
                     const textAlignment = idx === 3 && reportType === 'proyectos' ? 'text-center' : 'text-left';
-                    tbodyHtml += `<td class="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-gray-800 ${textAlignment}">${cell}</td>`;
+                    tbodyHtml += `<td class="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-gray-800 ${textAlignment}">${renderCell(cell)}</td>`;
                 });
                 tbodyHtml += '</tr>';
                 count++;
             });
 
             if (count === 0) {
-                tbodyHtml = `<tr><td colspan="${db.headers.length}" class="px-6 py-8 text-center text-xs text-gray-400 font-bold">No se encontraron registros de muestra con los filtros aplicados.</td></tr>`;
+                tbodyHtml = `<tr><td colspan="${db.headers.length}" class="px-6 py-8 text-center text-xs text-gray-400 font-bold">No se encontraron registros con los filtros aplicados.</td></tr>`;
             }
 
             document.getElementById('preview-tbody').innerHTML = tbodyHtml;
@@ -367,7 +410,7 @@
                 statsHtml += `
                     <div>
                         <div class="flex justify-between text-[10px] font-bold text-gray-600 mb-1">
-                            <span>${stat.label}</span>
+                            <span>${escapeHtml(stat.label)}</span>
                             <span>${stat.percentage}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
@@ -379,7 +422,7 @@
             document.getElementById('stats-bars-container').innerHTML = statsHtml;
 
  
-            document.getElementById('preview-badge').innerText = `${count} de muestra`;
+            document.getElementById('preview-badge').innerText = `${count} ${count === 1 ? 'registro' : 'registros'}`;
         }
 
         function triggerExport(format) {
@@ -397,27 +440,58 @@
                 icon = document.getElementById('excel-icon');
             }
 
+            const db = mockDatabase[document.getElementById('tipo-reporte').value];
+            const filas = filasFiltradas().map(row => row.map(textoCelda));
+            const fecha = new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD en hora local
+            const archivo = reportName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + '_' + fecha;
+
             btn.style.pointerEvents = 'none';
             icon.classList.add('hidden');
             spinner.classList.remove('hidden');
 
-            setTimeout(() => {
+            let mensaje;
+            if (format === 'PDF') {
+                // Documento imprimible: el navegador permite "Guardar como PDF"
+                const tabla = `<table><thead><tr>${db.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>`
+                    + `<tbody>${filas.map(f => `<tr>${f.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${db.headers.length}">Sin registros con los filtros aplicados.</td></tr>`}</tbody></table>`;
+                const frame = document.createElement('iframe');
+                frame.style.cssText = 'position:fixed;width:0;height:0;border:0;';
+                document.body.appendChild(frame);
+                frame.contentDocument.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(archivo)}</title><style>
+                    body{font-family:Arial,sans-serif;font-size:11px;color:#111;margin:24px}
+                    h1{font-size:16px;margin:0 0 4px} p{margin:0 0 14px;color:#555}
+                    table{width:100%;border-collapse:collapse} th,td{border:1px solid #ccc;padding:5px 7px;text-align:left}
+                    th{background:#eef5e8}</style></head><body>
+                    <h1>${escapeHtml(reportName)}</h1><p>Universidad de Colima · Prácticas Profesionales · ${new Date().toLocaleDateString('es-MX')} · ${filas.length} ${filas.length === 1 ? 'registro' : 'registros'}</p>
+                    ${tabla}</body></html>`);
+                frame.contentDocument.close();
+                frame.contentWindow.focus();
+                frame.contentWindow.print();
+                setTimeout(() => frame.remove(), 1000);
+                mensaje = `Se abrió el diálogo de impresión del "${reportName}". Elige "Guardar como PDF".`;
+            } else {
+                // CSV con BOM para que Excel respete acentos
+                const csvCelda = v => /[",;\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+                const csv = [db.headers, ...filas].map(f => f.map(c => csvCelda(String(c))).join(',')).join('\r\n');
+                const enlace = document.createElement('a');
+                enlace.href = URL.createObjectURL(new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8'}));
+                enlace.download = archivo + '.csv';
+                document.body.appendChild(enlace);
+                enlace.click();
+                setTimeout(() => { URL.revokeObjectURL(enlace.href); enlace.remove(); }, 1000);
+                mensaje = `El "${reportName}" se descargó (${filas.length} ${filas.length === 1 ? 'registro' : 'registros'}) y se puede abrir en Excel.`;
+            }
 
+            setTimeout(() => {
                 btn.style.pointerEvents = '';
                 spinner.classList.add('hidden');
                 icon.classList.remove('hidden');
 
-
                 const toast = document.getElementById('export-toast');
-                document.getElementById('toast-message').innerText = `El "${reportName}" en formato ${format} se ha generado y descargado correctamente.`;
+                document.getElementById('toast-message').innerText = mensaje;
                 toast.classList.remove('translate-x-[150%]');
-
-
-                setTimeout(() => {
-                    toast.classList.add('translate-x-[150%]');
-                }, 4500);
-
-            }, 1500);
+                setTimeout(() => toast.classList.add('translate-x-[150%]'), 4500);
+            }, 300);
         }
 
 

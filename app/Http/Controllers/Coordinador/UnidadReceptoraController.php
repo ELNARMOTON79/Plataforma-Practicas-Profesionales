@@ -89,21 +89,18 @@ class UnidadReceptoraController extends Controller
             $ur->convenio = $baseUr->convenio ?: 'Con Convenio';
             $ur->save();
 
-            // Send notification email to company user if enabled
-            $user = User::find($baseUr->usuario_id);
-            if ($user && SystemSettings::get('send_emails', true)) {
-                try {
-                    $unitsAdded = [[
-                        'nombre_empresa' => $ur->nombre_empresa,
-                        'unidad_receptora' => $ur->unidad_receptora ?: 'General'
-                    ]];
-                    Mail::to($user->correo)->send(new NewAssociationNotification($user, $ur->titular, $unitsAdded));
-                } catch (\Exception $e) {
-                    \Log::error("Error al enviar correo en registro directo de UR: " . $e->getMessage());
-                }
-            }
-
             DB::commit();
+
+            // Aviso a la cuenta de la empresa, enviado ya fuera de la transacción
+            $user = User::find($baseUr->usuario_id);
+            if ($user) {
+                $correos = new \App\Helpers\CorreosPendientes();
+                $correos->agregar($user->correo, new NewAssociationNotification($user, $ur->titular, [[
+                    'nombre_empresa' => $ur->nombre_empresa,
+                    'unidad_receptora' => $ur->unidad_receptora ?: 'General',
+                ]]));
+                $correos->enviar();
+            }
 
             ActivityLogger::log(
                 'Instituciones',
@@ -118,7 +115,7 @@ class UnidadReceptoraController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error("Error al registrar nueva UR directamente: " . $e->getMessage());
-            return back()->withErrors(['error' => 'Ocurrió un error al agregar la Unidad Receptora: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Ocurrió un error al agregar la Unidad Receptora. Intenta de nuevo o revisa el log del sistema.'])->withInput();
         }
     }
 }

@@ -548,7 +548,8 @@ CREATE TABLE `usuarios` (
   `correo` varchar(255) NOT NULL,
   `contraseña` varchar(255) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `rol_id` int(10) UNSIGNED NOT NULL
+  `rol_id` int(10) UNSIGNED NOT NULL,
+  `remember_token` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

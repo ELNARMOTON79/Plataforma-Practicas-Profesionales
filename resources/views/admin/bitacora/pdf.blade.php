@@ -4,32 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Bitácora - Administrador UdeC</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        outfit: ['Outfit', 'sans-serif'],
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        udec: {
-                            primary: '#4E7D24',
-                            secondary: '#6BA53A',
-                            dark: '#1C310D',
-                            light: '#F4F9EE',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    {{-- Estilos compilados del proyecto (los colores udec-* y las fuentes están en resources/css/app.css) --}}
+    @vite(['resources/css/app.css'])
     <style>
         body {
             font-family: 'Inter', sans-serif;

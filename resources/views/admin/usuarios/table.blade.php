@@ -106,7 +106,7 @@
                             @endif
                             @if($usuario->rol_id != 1)
                                 @if($usuario->activo)
-                                    <button type="button" onclick="confirmDeactivate('{{ $usuario->id }}', '{{ addslashes($nombre) }}')" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Deshabilitar">
+                                    <button type="button" onclick="confirmDeactivate(@js((string) $usuario->id), @js($nombre))" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all" title="Deshabilitar">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                     </button>
                                 @else

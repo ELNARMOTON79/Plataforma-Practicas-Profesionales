@@ -36,7 +36,7 @@
     <div class="rounded-[32px] bg-white border border-gray-200 shadow-sm p-6">
         <x-page-header title="Mis Solicitudes" description="Consulta el estado de tus solicitudes de prácticas profesionales.">
             <x-slot:actions>
-                <a href="{{ route('estudiante.nuevaSolicitud') }}" class="inline-flex items-center rounded-full bg-[#4E7D24] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3b6620]">
+                <a href="{{ route('estudiante.convenios') }}" class="inline-flex items-center rounded-full bg-[#4E7D24] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3b6620]">
                     Nueva solicitud
                 </a>
             </x-slot:actions>

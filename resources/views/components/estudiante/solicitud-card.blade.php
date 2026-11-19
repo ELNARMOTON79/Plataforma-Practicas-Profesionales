@@ -11,9 +11,10 @@
 
     $status = $statusMap[$solicitud->estatus] ?? $statusMap['pendiente'];
     $company = $solicitud->unidadReceptora?->nombre_empresa ?? $solicitud->responsable ?? 'Empresa';
-    $comment = $solicitud->observaciones ?: match ($solicitud->estatus) {
+    // Mientras está pendiente, "observaciones" contiene el comentario del propio alumno, no del coordinador
+    $comment = ($solicitud->estatus !== 'pendiente' ? $solicitud->observaciones : null) ?: match ($solicitud->estatus) {
         'aprobada' => 'Solicitud aprobada. Puede iniciar sus prácticas en la fecha indicada.',
-        'rechazada' => 'La empresa no cuenta con convenio activo. Por favor, revisa la documentación y vuelve a intentarlo.',
+        'rechazada' => 'Tu solicitud fue rechazada. Puedes enviar una nueva solicitud desde Convenios.',
         'en_proceso' => 'Documentación en proceso de revisión por el coordinador.',
         'pendiente' => 'Solicitud pendiente de revisión.',
         'finalizada' => 'Prácticas finalizadas. Gracias por tu participación.',
@@ -34,16 +35,16 @@
 
     <div class="mt-6 grid gap-4 sm:grid-cols-3">
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
-            <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Fecha de Solicitud</p>
-            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_inicio->format('d M Y') }}</p>
+            <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Fecha de Inicio</p>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_inicio?->format('d/m/Y') }}</p>
         </div>
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
-            <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Fecha de Inicio</p>
-            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_inicio->format('d M Y') }}</p>
+            <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Término estimado</p>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_fin?->format('d/m/Y') ?? '—' }}</p>
         </div>
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
             <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Horas Previstas</p>
-            <p class="mt-2 text-sm font-semibold text-gray-900">480 horas</p>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->horasMeta() }} horas · {{ $solicitud->horasPorDia() }} h/día</p>
         </div>
     </div>
 
@@ -52,9 +53,11 @@
         <p class="mt-3 text-sm leading-6 text-gray-600">{{ $comment }}</p>
     </div>
 
-    <div class="mt-6 flex justify-end">
-        <a href="#" class="inline-flex items-center gap-2 rounded-full border border-[#4E7D24] bg-white px-4 py-2 text-sm font-semibold text-[#4E7D24] transition hover:bg-[#f3fbf1]">
-            Ver Detalles
-        </a>
-    </div>
+    @if(in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'], true))
+        <div class="mt-6 flex justify-end">
+            <a href="{{ route('estudiante.proyecto') }}" class="inline-flex items-center gap-2 rounded-full border border-[#4E7D24] bg-white px-4 py-2 text-sm font-semibold text-[#4E7D24] transition hover:bg-[#f3fbf1]">
+                Ver mi proyecto
+            </a>
+        </div>
+    @endif
 </div>

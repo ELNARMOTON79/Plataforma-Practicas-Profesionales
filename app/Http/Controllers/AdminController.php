@@ -153,43 +153,47 @@ class AdminController extends Controller
         // Generate random secure password (10 characters)
         $randomPassword = Str::random(10);
 
-        // Create the user
-        $user = new User();
-        $user->correo = $request->input('email');
-        $user->contraseña = Hash::make($randomPassword);
-        $user->rol_id = $request->input('role');
-        $user->activo = true;
-        $user->save();
+        // Usuario y perfil en una sola transacción: si falla el perfil no queda una cuenta huérfana
+        $user = \DB::transaction(function () use ($request, $randomPassword) {
+            $user = new User();
+            $user->correo = $request->input('email');
+            $user->contraseña = Hash::make($randomPassword);
+            $user->rol_id = $request->input('role');
+            $user->activo = true;
+            $user->save();
 
-        // Create the associated profile model
-        if ($user->rol_id == 1 || $user->rol_id == 2) { // Admin / Coordinador
-            $coordinador = new \App\Models\Coordinador();
-            $coordinador->usuario_id = $user->id;
-            $coordinador->nombre_completo = $request->input('name');
-            $coordinador->save();
-        } elseif ($user->rol_id == 3) { // Alumno
-            $alumno = new \App\Models\Alumno();
-            $alumno->usuario_id = $user->id;
-            $alumno->nombre_completo = $request->input('name');
-            $alumno->matricula = $request->input('matricula');
-            $alumno->carrera = $request->input('carrera');
-            $alumno->semestre = $request->input('semestre');
-            $alumno->grupo = $request->input('grupo');
-            $alumno->activo_practica = 0;
-            $alumno->save();
-        } elseif ($user->rol_id == 4) { // Empresa
-            $empresa = new \App\Models\Empresa();
-            $empresa->usuario_id = $user->id;
-            $empresa->nombre_empresa = $request->input('nombre_empresa');
-            $empresa->direccion = $request->input('direccion');
-            $empresa->tipo_persona = $request->input('tipo_persona');
-            $empresa->save();
-        }
+            // Create the associated profile model
+            if ($user->rol_id == 1 || $user->rol_id == 2) { // Admin / Coordinador
+                $coordinador = new \App\Models\Coordinador();
+                $coordinador->usuario_id = $user->id;
+                $coordinador->nombre_completo = $request->input('name');
+                $coordinador->save();
+            } elseif ($user->rol_id == 3) { // Alumno
+                $alumno = new \App\Models\Alumno();
+                $alumno->usuario_id = $user->id;
+                $alumno->nombre_completo = $request->input('name');
+                $alumno->matricula = $request->input('matricula');
+                $alumno->carrera = $request->input('carrera');
+                $alumno->semestre = $request->input('semestre');
+                $alumno->grupo = $request->input('grupo');
+                $alumno->activo_practica = 0;
+                $alumno->save();
+            } elseif ($user->rol_id == 4) { // Empresa
+                $empresa = new \App\Models\Empresa();
+                $empresa->usuario_id = $user->id;
+                $empresa->nombre_empresa = $request->input('nombre_empresa');
+                $empresa->direccion = $request->input('direccion');
+                $empresa->tipo_persona = $request->input('tipo_persona');
+                $empresa->save();
+            }
 
-        // Send credentials email
-        if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-            Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $request->input('name')));
-        }
+            return $user;
+        });
+
+        // Send credentials email (un fallo de SMTP ya no provoca error 500 con el usuario creado)
+        $correos = new \App\Helpers\CorreosPendientes();
+        $correos->agregar($user->correo, new CredentialsNotification($user, $randomPassword, $request->input('name')));
+        $correosFallidos = $correos->enviar();
 
         // Log user creation
         $roleNames = [1 => 'Administrador', 2 => 'Coordinador', 3 => 'Alumno', 4 => 'Empresa'];
@@ -206,7 +210,7 @@ class AdminController extends Controller
             ]
         );
 
-        return redirect()->route('admin.usuarios')->with('success', 'Usuario registrado correctamente. Se han enviado las credenciales por correo electrónico.');
+        return redirect()->route('admin.usuarios')->with('success', 'Usuario registrado correctamente. ' . $this->mensajeCorreos($correosFallidos));
     }
 
     /**
@@ -270,7 +274,8 @@ class AdminController extends Controller
             ], 422);
         }
 
-        // 2. Proceso de inserción en transacción
+        // 2. Proceso de inserción en transacción (los correos se envían después del commit)
+        $correos = new \App\Helpers\CorreosPendientes();
         \DB::beginTransaction();
         try {
             $createdCount = 0;
@@ -296,19 +301,14 @@ class AdminController extends Controller
                 $alumno->activo_practica = 0;
                 $alumno->save();
 
-                // Enviar Correo
-                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-                    try {
-                        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
-                    } catch (\Exception $e) {
-                        \Log::error("Error al enviar correo de credenciales a {$user->correo} en carga masiva: " . $e->getMessage());
-                    }
-                }
+                $correos->agregar($user->correo, new CredentialsNotification($user, $randomPassword, trim($student['nombre'])));
 
                 $createdCount++;
             }
 
             \DB::commit();
+
+            $correosFallidos = $correos->enviar();
 
             // Registrar en la bitácora
             \App\Helpers\ActivityLogger::log(
@@ -320,7 +320,7 @@ class AdminController extends Controller
             );
 
             // Guardar mensaje en sesión para mostrar la alerta bonita de redirección
-            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente y se enviaron sus accesos por correo.");
+            session()->flash('success', "Se han registrado {$createdCount} estudiantes correctamente. " . $this->mensajeCorreos($correosFallidos));
 
             return response()->json([
                 'success' => true,
@@ -332,9 +332,23 @@ class AdminController extends Controller
             \Log::error("Error al procesar importación masiva de estudiantes: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros. No se guardó ningún estudiante.']
             ], 500);
         }
+    }
+
+    /**
+     * Texto honesto sobre el envío de credenciales según la configuración y los fallos.
+     */
+    private function mensajeCorreos(int $fallidos): string
+    {
+        if (! \App\Helpers\CorreosPendientes::enviosHabilitados()) {
+            return 'El envío de correos está desactivado; las credenciales no se enviaron.';
+        }
+
+        return $fallidos > 0
+            ? "Atención: {$fallidos} correo(s) de credenciales no se pudieron enviar."
+            : 'Se enviaron las credenciales por correo.';
     }
 
     /**
@@ -480,6 +494,11 @@ class AdminController extends Controller
         $user->activo = !$user->activo;
         $user->save();
 
+        // Una cuenta deshabilitada no debe conservar sesiones abiertas
+        if (! $user->activo) {
+            \App\Support\Sesiones::cerrarTodas($user);
+        }
+
         // Log user status toggle
         $estadoLog = $user->activo ? 'Habilitado' : 'Deshabilitado';
         \App\Helpers\ActivityLogger::log(
@@ -519,6 +538,9 @@ class AdminController extends Controller
         // Update password
         $user->contraseña = Hash::make($randomPassword);
         $user->save();
+
+        // Con la contraseña nueva, las sesiones abiertas con la anterior se cierran
+        \App\Support\Sesiones::cerrarTodas($user);
 
         // Get user's name
         $name = 'Usuario';
@@ -891,6 +913,8 @@ class AdminController extends Controller
         // Save new password
         $user->contraseña = Hash::make($request->input('password'));
         $user->save();
+
+        \App\Support\Sesiones::cerrarOtras($user);
 
         \App\Helpers\ActivityLogger::log(
             'Configuración',

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Mail\CredentialsNotification;
 use App\Mail\NewAssociationNotification;
+use App\Helpers\CorreosPendientes;
 
 class InstitucionController extends Controller
 {
@@ -193,9 +194,14 @@ class InstitucionController extends Controller
             return back()->withErrors(['institucion' => 'Esta Unidad Receptora ya se encuentra registrada para la institución.'])->withInput();
         }
 
+        // El correo solo puede reutilizarse si pertenece a una cuenta de empresa
+        $user = User::where('correo', $correo)->first();
+        if ($user && (int) $user->rol_id !== 4) {
+            return back()->withErrors(['correo' => 'Este correo ya pertenece a una cuenta que no es de empresa (alumno, coordinador o administrador). Usa otro correo.'])->withInput();
+        }
+
         DB::beginTransaction();
         try {
-            $user = User::where('correo', $correo)->first();
             $isNewUser = false;
             $randomPassword = null;
 
@@ -234,20 +240,14 @@ class InstitucionController extends Controller
                 'unidad_receptora' => $ur->unidad_receptora ?: 'General'
             ]];
 
-            // Send Credentials or Association Notification Email
-            if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-                try {
-                    if ($isNewUser) {
-                        Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $ur->titular, $unitsAdded));
-                    } else {
-                        Mail::to($user->correo)->send(new NewAssociationNotification($user, $ur->titular, $unitsAdded));
-                    }
-                } catch (\Exception $e) {
-                    \Log::error("Error al enviar correo de notificación en registro manual de institución: " . $e->getMessage());
-                }
-            }
-
             DB::commit();
+
+            // El correo se envía después del commit para no notificar registros que terminen en rollback
+            $correos = new CorreosPendientes();
+            $correos->agregar($user->correo, $isNewUser
+                ? new CredentialsNotification($user, $randomPassword, $ur->titular, $unitsAdded)
+                : new NewAssociationNotification($user, $ur->titular, $unitsAdded));
+            $correos->enviar();
 
             // Log activity
             \App\Helpers\ActivityLogger::log(
@@ -263,7 +263,7 @@ class InstitucionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error("Error al guardar registro manual de institución: " . $e->getMessage());
-            return back()->withErrors(['error' => 'Ocurrió un error inesperado al registrar la institución: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Ocurrió un error inesperado al registrar la institución. Intenta de nuevo o revisa el log del sistema.'])->withInput();
         }
     }
 
@@ -318,7 +318,20 @@ class InstitucionController extends Controller
             $grouped[$correo][] = $inst;
         }
 
-        // Database transaction
+        // Los correos existentes solo pueden reutilizarse si son cuentas de empresa
+        $correosNoEmpresa = User::whereIn('correo', array_keys($grouped))
+            ->where('rol_id', '!=', 4)
+            ->pluck('correo');
+
+        if ($correosNoEmpresa->isNotEmpty()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $correosNoEmpresa->map(fn ($c) => "El correo '{$c}' ya pertenece a una cuenta que no es de empresa (alumno, coordinador o administrador).")->values()->all(),
+            ], 422);
+        }
+
+        // Database transaction (los correos se acumulan y se envían tras el commit)
+        $correos = new CorreosPendientes();
         DB::beginTransaction();
         try {
             $createdCount = 0;
@@ -416,23 +429,15 @@ class InstitucionController extends Controller
                 // Use the titular name of the first entry in this email group
                 $titularName = trim($validRowsToRegister[0]['titular']);
 
-                // Send Credentials or Association Notification Email
-                if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-                    try {
-                        if ($isNewUser) {
-                            // Send access credentials and list of units
-                            Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $titularName, $unitsAdded));
-                        } else {
-                            // Send new association notification to existing user
-                            Mail::to($user->correo)->send(new NewAssociationNotification($user, $titularName, $unitsAdded));
-                        }
-                    } catch (\Exception $e) {
-                        \Log::error("Error al enviar correo de notificación a {$user->correo} en carga masiva de instituciones: " . $e->getMessage());
-                    }
-                }
+                // Credenciales para cuentas nuevas o aviso de asociación para cuentas existentes
+                $correos->agregar($user->correo, $isNewUser
+                    ? new CredentialsNotification($user, $randomPassword, $titularName, $unitsAdded)
+                    : new NewAssociationNotification($user, $titularName, $unitsAdded));
             }
 
             DB::commit();
+
+            $correosFallidos = $correos->enviar();
 
             // Log activity
             \App\Helpers\ActivityLogger::log(
@@ -447,6 +452,9 @@ class InstitucionController extends Controller
                 $msg = "Se han registrado {$createdCount} instituciones correctamente.";
                 if ($skippedCount > 0) {
                     $msg .= " ({$skippedCount} fueron omitidas por estar registradas previamente).";
+                }
+                if ($correosFallidos > 0) {
+                    $msg .= " Atención: {$correosFallidos} correo(s) de notificación no se pudieron enviar.";
                 }
                 session()->flash('success', $msg);
             } else {
@@ -463,7 +471,7 @@ class InstitucionController extends Controller
             \Log::error("Error al procesar importación masiva de instituciones: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros: ' . $e->getMessage()]
+                'errors' => ['Ocurrió un error inesperado en el servidor al guardar los registros. No se guardó ningún registro.']
             ], 500);
         }
     }

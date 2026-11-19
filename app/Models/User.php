@@ -2,11 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -15,8 +12,7 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['contraseña'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     // 1. Apuntar a tu tabla real
     protected $table = 'usuarios';
@@ -41,6 +37,8 @@ class User extends Authenticatable
             // Laravel necesita saber que tu campo contraseña está encriptado con un Hash
             'contraseña' => 'hashed',
             'activo' => 'boolean',
+            // Las comparaciones estrictas (rol_id !== 1) dependen de que sea entero
+            'rol_id' => 'integer',
         ];
     }
 

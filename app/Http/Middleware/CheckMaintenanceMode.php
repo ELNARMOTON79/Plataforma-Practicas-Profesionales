@@ -16,7 +16,16 @@ class CheckMaintenanceMode
     {
         if (Auth::check()) {
             $user = Auth::user();
-            
+
+            // Cuenta deshabilitada por el administrador: no puede seguir usando una sesión abierta
+            if (! $user->activo) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->withErrors(['correo' => 'Esta cuenta se encuentra inactiva.']);
+            }
+
             // Admins are exempt from maintenance mode restrictions
             if ($user->rol_id !== 1) {
                 if (SystemSettings::get('maintenance_mode', false)) {

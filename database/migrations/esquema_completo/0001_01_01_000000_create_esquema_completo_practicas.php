@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('contraseña', 255);
             $table->boolean('activo')->default(true);
             $table->unsignedInteger('rol_id');
+            $table->rememberToken();
 
             $table->foreign('rol_id', 'fk_usuarios_rol')
                   ->references('id')->on('roles')
