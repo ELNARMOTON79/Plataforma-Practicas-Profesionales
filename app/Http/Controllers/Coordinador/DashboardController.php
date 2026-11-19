@@ -32,8 +32,9 @@ class DashboardController extends Controller
         $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
         $proyectosActivos = DB::table('proyectos')->where('activo', 1)->count();
 
-        // Fetch recent documents uploaded by students
+        // Fetch recent documents uploaded by students pending review
         $ultimosDocumentos = \App\Models\Documento::with(['solicitud.estudiante', 'solicitud.unidadReceptora'])
+            ->where('estatus', 'pendiente')
             ->orderBy('id', 'desc')
             ->take(6)
             ->get();

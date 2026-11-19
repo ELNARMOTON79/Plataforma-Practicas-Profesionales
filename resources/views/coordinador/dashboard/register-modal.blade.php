@@ -108,7 +108,7 @@
                             <label for="alumno-semestre" class="block text-sm font-medium text-gray-700 mb-1">Semestre <span class="text-red-500">*</span></label>
                             <select id="alumno-semestre" name="semestre" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#6BA53A]/30 focus:border-[#4E7D24] sm:text-sm transition-all text-gray-700" required>
                                 <option value="">Seleccionar Semestre</option>
-                                @for($i = 1; $i <= 12; $i++)
+                                @for($i = 7; $i <= 9; $i++)
                                     <option value="{{ $i }}" {{ old('semestre') == $i ? 'selected' : '' }}>
                                         {{ $i }}° Semestre
                                     </option>
@@ -244,7 +244,7 @@
             correo:   { el: document.getElementById('alumno-correo'),    error: document.getElementById('error-alumno-correo'),    validate: (v) => { if (!v.trim()) return 'El correo electrónico es requerido.'; if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return 'El formato del correo es inválido.'; return ''; } },
             matricula:{ el: document.getElementById('alumno-matricula'), error: document.getElementById('error-alumno-matricula'), validate: (v) => { if (!v.trim()) return 'El No. de cuenta es requerido.'; if (!/^[0-9]{8}$/.test(v)) return 'El No. de cuenta debe tener exactamente 8 dígitos numéricos.'; return ''; } },
             carrera:  { el: document.getElementById('alumno-carrera'),   error: document.getElementById('error-alumno-carrera'),   validate: (v) => { if (!v) return 'La carrera es requerida.'; return ''; } },
-            semestre: { el: document.getElementById('alumno-semestre'),  error: document.getElementById('error-alumno-semestre'),  validate: (v) => { if (!v) return 'Debes seleccionar un semestre.'; const s = parseInt(v); if (isNaN(s) || s < 1 || s > 12) return 'El semestre debe ser entre 1 y 12.'; return ''; } },
+            semestre: { el: document.getElementById('alumno-semestre'),  error: document.getElementById('error-alumno-semestre'),  validate: (v) => { if (!v) return 'Debes seleccionar un semestre.'; const s = parseInt(v); if (isNaN(s) || s < 7 || s > 9) return 'El semestre debe ser entre 7° y 9°.'; return ''; } },
             grupo:    { el: document.getElementById('alumno-grupo'),     error: document.getElementById('error-alumno-grupo'),     validate: (v) => { if (!v.trim()) return 'El grupo es requerido.'; if (!/^[a-zA-Z]$/.test(v)) return 'El grupo debe ser exactamente una letra.'; return ''; } },
             asesor:   { el: document.getElementById('alumno-asesor'),    error: document.getElementById('error-alumno-asesor'),    validate: (v) => { if (v.trim() && v.trim().length < 5) return 'El nombre del asesor debe tener al menos 5 caracteres.'; return ''; } },
             coasesor: { el: document.getElementById('alumno-coasesor'),  error: document.getElementById('error-alumno-coasesor'),  validate: (v) => { if (v.trim() && v.trim().length < 5) return 'El nombre del coasesor debe tener al menos 5 caracteres.'; return ''; } }
