@@ -144,8 +144,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('empresa.convenios');
     })->name('empresa.convenios');
 
-    Route::get('/empresa/perfil', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.perfil');
-    })->name('empresa.perfil');
+    // Perfil de la empresa: datos de sus unidades receptoras y cambio de contraseña
+    Route::get('/empresa/perfil', [App\Http\Controllers\Empresa\PerfilController::class, 'perfil'])->name('empresa.perfil');
+    Route::post('/empresa/perfil/password', [App\Http\Controllers\Empresa\PerfilController::class, 'actualizarContrasena'])->name('empresa.perfil.password');
 });
