@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
         // =============================================
         $usuarios = [
             ['id' => 1,  'correo' => 'admin@ucol.mx',          'contraseña' => '$2y$12$uQZVFfo0wAWgFcIK5gDusu0W1GBNq.lb6jyw//ygqNFoGZzTtGUoe', 'activo' => 1, 'rol_id' => 1],
-            ['id' => 2,  'correo' => 'coordinador@ucol.mx',    'contraseña' => '$2y$12$nD/o.O4bptqTBby1KCqCyOorkqXz8aQ5WuqlALMk5.AAoaD2moY7S', 'activo' => 1, 'rol_id' => 2],
+            ['id' => 2,  'correo' => 'coordinadorpracticas.pruebas@gmail.com', 'contraseña' => '$2y$12$nD/o.O4bptqTBby1KCqCyOorkqXz8aQ5WuqlALMk5.AAoaD2moY7S', 'activo' => 1, 'rol_id' => 2],
             ['id' => 3,  'correo' => 'alumno@ucol.mx',         'contraseña' => '$2y$12$cm5JoZ341msAnEIhlv5Ul.WUo0YtE0k9UqJfJWKrnZ8QcMHxNq.ni', 'activo' => 1, 'rol_id' => 3],
             ['id' => 5,  'correo' => 'empresa@tech.com',       'contraseña' => '$2y$12$hkvQRP.AXOiWektGtN426.cnXOZxpodLvBYGuEJnOVD2uKNC5TRLe', 'activo' => 1, 'rol_id' => 4],
             ['id' => 48, 'correo' => 'estudiante@test.com',    'contraseña' => '$2y$12$syG9iXSPkHLoZb6IhrpYrudgOWFUzSHKdyHIBlIbm.c3Sz2jCEB.q',  'activo' => 1, 'rol_id' => 3],

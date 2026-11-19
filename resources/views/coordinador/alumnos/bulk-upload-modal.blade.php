@@ -328,8 +328,8 @@
             const semesterInt = parseInt(semestreRaw, 10);
             if (!semestreRaw) {
                 student.errors.push('Semestre requerido');
-            } else if (isNaN(semesterInt) || semesterInt < 1 || semesterInt > 12) {
-                student.errors.push('Semestre debe ser 1-12');
+            } else if (isNaN(semesterInt) || semesterInt < 7 || semesterInt > 9) {
+                student.errors.push('Semestre debe ser entre 7° y 9°');
             } else {
                 student.semestre = semesterInt;
             }
@@ -407,7 +407,7 @@
     function downloadBulkTemplate() {
         const headers = ['Correo', 'Matricula', 'Nombre Completo', 'Carrera', 'Semestre', 'Grupo'];
         const rows = [
-            ['estudiante1@ucol.mx', '20214820', 'Carlos Alberto Gomez Vazquez', 'Ingeniería de Software', '6', 'E'],
+            ['estudiante1@ucol.mx', '20214820', 'Carlos Alberto Gomez Vazquez', 'Ingeniería de Software', '7', 'E'],
             ['estudiante2@ucol.mx', '20215904', 'Maria Fernanda Lopez Perez', 'Ingeniería en Mecatrónica', '8', 'A']
         ];
         

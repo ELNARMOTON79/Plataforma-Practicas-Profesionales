@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trámite Pendiente de Validación</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f6f9fc;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .wrapper {
+            width: 100%;
+            background-color: #f6f9fc;
+            padding: 40px 0;
+        }
+        .container {
+            max-width: 580px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background-color: #ffffff;
+            padding: 40px 30px 20px 30px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .header-logo {
+            max-height: 55px;
+            width: auto;
+            display: inline-block;
+        }
+        .header p {
+            color: #4E7D24;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 15px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content {
+            padding: 40px 35px;
+        }
+        .content h2 {
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .content p {
+            color: #525f7f;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .credentials-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 25px 0;
+        }
+        .credential-row {
+            margin-bottom: 12px;
+        }
+        .credential-row:last-child {
+            margin-bottom: 0;
+        }
+        .credential-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .credential-value {
+            font-size: 16px;
+            color: #0f172a;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .button-container {
+            text-align: center;
+            margin: 35px 0 15px;
+        }
+        .btn-primary {
+            display: inline-block;
+            background-color: #4E7D24;
+            color: #ffffff !important;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(78, 125, 36, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2E5417;
+            box-shadow: 0 6px 15px rgba(46, 84, 23, 0.35);
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 25px 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+        .warning-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 20px !important;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <img src="{{ $message->embed(public_path('images/logo_verde.png')) }}" alt="Universidad de Colima" class="header-logo" style="max-height: 55px; width: auto; display: inline-block;">
+                <p>Plataforma de Prácticas Profesionales</p>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <h2>Nuevo trámite pendiente de validación</h2>
+                <p>El estudiante <strong>{{ $estudiante }}</strong>@if($matricula) (matrícula {{ $matricula }})@endif ha enviado un trámite que requiere tu revisión.</p>
+
+                <!-- Details -->
+                <div class="credentials-card">
+                    <div class="credential-row">
+                        <div class="credential-label">Tipo de trámite</div>
+                        <div class="credential-value" style="color: #4E7D24;">{{ $tipo }}</div>
+                    </div>
+                    @foreach($detalles as $label => $value)
+                        <div class="credential-row" style="margin-top: 15px;">
+                            <div class="credential-label">{{ $label }}</div>
+                            <div class="credential-value">{{ $value }}</div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Button -->
+                <div class="button-container">
+                    <a href="{{ route('coordinador.tramites') }}" class="btn-primary" target="_blank">Revisar trámite</a>
+                </div>
+
+                <p class="warning-text">Este es un mensaje automático, por favor no respondas a este correo.</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© {{ date('Y') }} Universidad de Colima. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
