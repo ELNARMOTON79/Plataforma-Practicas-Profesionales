@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Coordinador;
 
 use App\Http\Controllers\Controller;
 use App\Models\Documento;
+use App\Models\Proyecto;
 use App\Models\Solicitud;
 use Illuminate\Http\Request;
 
@@ -62,8 +63,15 @@ class TramiteController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
+        // Proyectos Pendientes de Revisión (propuestas de estudiantes)
+        $proyectosPendientes = Proyecto::with(['estudiante', 'empresa'])
+            ->where('estatus', 'pendiente')
+            ->orderBy('id', 'desc')
+            ->get();
+
         // Calculate counts
         $solicitudesPendientesCount = Solicitud::where('estatus', 'pendiente')->count();
+        $proyectosPendientesCount   = $proyectosPendientes->count();
         $documentosPendientesCount  = Documento::where('estatus', 'pendiente')->count();
         $documentosValidadosCount   = Documento::whereIn('estatus', ['validado', 'aprobado'])->count();
         $solicitudesAprobadasCount  = Solicitud::whereIn('estatus', ['aprobada', 'en_proceso', 'finalizada'])->count();
@@ -71,6 +79,8 @@ class TramiteController extends Controller
         return view('coordinador.tramites', compact(
             'solicitudesPendientes',
             'solicitudes',
+            'proyectosPendientes',
+            'proyectosPendientesCount',
             'documentosPendientes',
             'documentosValidados',
             'solicitudesPendientesCount',
@@ -78,6 +88,55 @@ class TramiteController extends Controller
             'documentosValidadosCount',
             'solicitudesAprobadasCount'
         ));
+    }
+
+    /**
+     * Approve a student's project proposal.
+     */
+    public function aprobarProyecto(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $proyecto = Proyecto::findOrFail($id);
+        $proyecto->estatus = 'aprobado';
+
+        if ($request->filled('observaciones')) {
+            $request->validate(['observaciones' => 'nullable|string|max:500']);
+            $proyecto->observaciones = strip_tags(trim($request->input('observaciones')));
+        } else {
+            $proyecto->observaciones = null;
+        }
+
+        $proyecto->save();
+
+        return redirect()->back()->with('success', "Proyecto \"{$proyecto->titulo}\" aprobado correctamente e incorporado al catálogo.");
+    }
+
+    /**
+     * Reject a student's project proposal.
+     */
+    public function rechazarProyecto(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $proyecto = Proyecto::findOrFail($id);
+        $proyecto->estatus = 'rechazado';
+
+        $request->validate([
+            'observaciones' => 'required|string|max:500'
+        ], [
+            'observaciones.required' => 'Indica el motivo del rechazo para que el alumno pueda corregir su proyecto.',
+            'observaciones.max'      => 'El motivo no debe superar los 500 caracteres.'
+        ]);
+
+        $proyecto->observaciones = strip_tags(trim($request->input('observaciones')));
+        $proyecto->save();
+
+        return redirect()->back()->with('success', "Proyecto \"{$proyecto->titulo}\" rechazado. El alumno podrá corregirlo y reenviarlo.");
     }
 
     /**

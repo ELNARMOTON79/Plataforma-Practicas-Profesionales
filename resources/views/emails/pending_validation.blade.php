@@ -157,7 +157,7 @@
 
                 <!-- Button -->
                 <div class="button-container">
-                    <a href="{{ route('coordinador.tramites') }}" class="btn-primary" target="_blank">Revisar trámite</a>
+                    <a href="{{ $urlAccion ?? route('coordinador.tramites') }}" class="btn-primary" target="_blank">Revisar trámite</a>
                 </div>
 
                 <p class="warning-text">Este es un mensaje automático, por favor no respondas a este correo.</p>
