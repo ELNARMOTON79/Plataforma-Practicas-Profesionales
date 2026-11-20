@@ -283,6 +283,7 @@ class DashboardController extends Controller
             'carreraFilter'      => $carreraFilter,
             'carreras'           => $carreras,
             'horasMeta'          => $horasMeta,
+            'modalidadEstudiante' => $estudianteActual?->modalidadPractica() ?? 'practica_integrativa',
             'bloqueoSolicitud'   => $estudianteActual ? $this->bloqueoNuevaSolicitud($estudianteActual) : null,
         ]);
     }
@@ -911,7 +912,6 @@ class DashboardController extends Controller
             'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
             'fecha_inicio'=> ['required', 'date', 'after_or_equal:today'],
             'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
-            'modalidad'    => ['required', 'string', Rule::in(array_keys(Solicitud::MODALIDADES))],
             'observaciones'=> ['nullable', 'string', 'max:200', 'regex:/^[\pL\s.,]+$/u'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
@@ -925,8 +925,6 @@ class DashboardController extends Controller
             'observaciones.regex'   => 'Las observaciones solo pueden contener letras.',
             'horas_por_dia.required'=> 'Indica cuántas horas al día realizarás tus prácticas.',
             'horas_por_dia.in'      => 'Las horas por día deben ser 6 u 8.',
-            'modalidad.required'    => 'Selecciona el tipo de modalidad.',
-            'modalidad.in'          => 'La modalidad seleccionada no es válida.',
             'observaciones.max'     => 'Las observaciones no pueden superar 200 caracteres.',
         ]);
 
@@ -940,7 +938,7 @@ class DashboardController extends Controller
             'fecha_inicio'  => $validated['fecha_inicio'],
             'fecha_fin'     => $fechaFin->toDateString(),
             'horas_por_dia' => $validated['horas_por_dia'],
-            'modalidad'     => $validated['modalidad'],
+            'modalidad'     => $estudiante->modalidadPractica(),
             'estatus'       => 'pendiente',
             'observaciones' => $validated['observaciones'] ?? null,
         ]);

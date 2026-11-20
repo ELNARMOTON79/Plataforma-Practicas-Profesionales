@@ -170,16 +170,11 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-sm font-semibold text-gray-700">Tipo de modalidad <span class="text-red-500">*</span></label>
-                    <div class="grid grid-cols-2 gap-3">
-                        @foreach (\App\Models\Solicitud::MODALIDADES as $valor => $etiqueta)
-                            <label class="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 cursor-pointer transition-all hover:border-[#6BA53A]/50 has-[:checked]:border-[#6BA53A] has-[:checked]:bg-[#6BA53A]/5 has-[:checked]:font-semibold">
-                                <input type="radio" name="modalidad" value="{{ $valor }}" class="solicitud-modalidad accent-[#4E7D24]">
-                                {{ $etiqueta }}
-                            </label>
-                        @endforeach
+                    <label class="text-sm font-semibold text-gray-700">Tipo de modalidad</label>
+                    <div class="w-full rounded-xl border border-[#6BA53A] bg-[#6BA53A]/5 py-3 px-4 text-sm font-semibold text-gray-800">
+                        {{ \App\Models\Solicitud::MODALIDADES[$modalidadEstudiante] }}
                     </div>
-                    <p id="errModalidad" class="hidden text-xs text-red-500 font-medium"></p>
+                    <p class="text-xs text-gray-400">Asignada automáticamente según tu carrera.</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -359,11 +354,10 @@
             document.getElementById('solicitudResponsable').value = '';
             document.getElementById('solicitudFechaInicio').value = '';
             document.getElementById('solicitudHorasPorDia').value = '8';
-            document.querySelectorAll('.solicitud-modalidad').forEach(function(r) { r.checked = false; });
             document.getElementById('solicitudObservaciones').value = '';
             document.getElementById('solicitudError').classList.add('hidden');
             document.getElementById('solicitudFechaFinTexto').textContent = 'Selecciona la fecha de inicio para calcularla';
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
+            ['errResponsable','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById('solicitudFechaInicio').min = fechaHoyLocal();
@@ -436,7 +430,7 @@
         function submitSolicitud() {
             var btn = document.getElementById('solicitudSubmitBtn');
             var errBox = document.getElementById('solicitudError');
-            ['errResponsable','errModalidad','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
+            ['errResponsable','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
             errBox.classList.add('hidden');
@@ -445,7 +439,6 @@
             var responsable= document.getElementById('solicitudResponsable').value.trim();
             var fechaInicio= document.getElementById('solicitudFechaInicio').value;
             var horasPorDia= document.getElementById('solicitudHorasPorDia').value;
-            var modalidad  = document.querySelector('.solicitud-modalidad:checked')?.value || '';
             var observaciones = document.getElementById('solicitudObservaciones').value.trim();
 
             var hasError = false;
@@ -471,11 +464,6 @@
                 document.getElementById('errObservaciones').classList.remove('hidden');
                 hasError = true;
             }
-            if (!modalidad) {
-                document.getElementById('errModalidad').textContent = 'Selecciona el tipo de modalidad.';
-                document.getElementById('errModalidad').classList.remove('hidden');
-                hasError = true;
-            }
             if (!fechaInicio) {
                 document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es obligatoria.';
                 document.getElementById('errFechaInicio').classList.remove('hidden');
@@ -497,7 +485,6 @@
             formData.append('responsable', responsable);
             formData.append('fecha_inicio', fechaInicio);
             formData.append('horas_por_dia', horasPorDia);
-            formData.append('modalidad', modalidad);
             if (observaciones) formData.append('observaciones', observaciones);
 
             fetch('{{ route("estudiante.storeSolicitud") }}', {
