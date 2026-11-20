@@ -150,7 +150,19 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-gray-500">Aún no tienes un proyecto asignado. Cuando el coordinador te asigne uno, aquí verás su objetivo y actividades.</p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p class="text-sm text-gray-500">Aún no tienes un proyecto registrado. Registra el proyecto que realizarás en tu empresa y aquí verás su objetivo y actividades.</p>
+                        <button type="button" onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Registrar Proyecto
+                        </button>
+                    </div>
+                    @push('modals')
+                        @include('estudiante.partials.registrar-proyecto-modal')
+                    @endpush
+                @endif
+                @if(session('error'))
+                    <p class="mt-3 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{{ session('error') }}</p>
                 @endif
             </div>
 
@@ -644,6 +656,10 @@
                 }
             }
         }
+
+        @if(session('success'))
+            showToast('¡Proyecto registrado!', @json(session('success')));
+        @endif
 
         // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
         (function() {

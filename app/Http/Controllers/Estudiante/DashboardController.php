@@ -354,6 +354,74 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * El estudiante registra el proyecto que realizará en la empresa de su solicitud activa.
+     */
+    public function registrarProyecto(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $estudiante = Estudiante::where('usuario_id', Auth::id())->first();
+        $solicitudActiva = $estudiante ? $this->getSolicitudActiva($estudiante, [], incluirFinalizada: true) : null;
+
+        if (! $solicitudActiva) {
+            return redirect()->route('estudiante.proyecto')
+                ->with('error', 'Necesitas una solicitud de prácticas aprobada para registrar tu proyecto.');
+        }
+
+        if (Proyecto::where('estudiante_id', $estudiante->id)->exists()) {
+            return redirect()->route('estudiante.proyecto')
+                ->with('error', 'Ya tienes un proyecto registrado.');
+        }
+
+        $validated = $request->validate([
+            'titulo'         => ['required', 'string', 'min:10', 'max:150', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\.\,\-\:\/]+$/u'],
+            'objetivo'       => ['required', 'string', 'min:20', 'max:1000'],
+            'justificacion'  => ['required', 'string', 'min:20', 'max:1000'],
+            'actividades'    => ['required', 'string', 'min:20', 'max:1000'],
+            'impacto_social' => ['required', 'string', 'min:20', 'max:1000'],
+            'tipo_proyecto'  => ['required', 'string', Rule::in(['Desarrollo Tecnológico', 'Investigación', 'Asistencia Social', 'Administrativo', 'Infraestructura'])],
+            'tipo_modalidad' => ['required', 'string', Rule::in(['Presencial', 'Híbrido', 'Virtual'])],
+        ], [
+            'titulo.required'         => 'El título del proyecto es requerido.',
+            'titulo.min'              => 'El título debe tener al menos 10 caracteres.',
+            'titulo.max'              => 'El título no debe superar los 150 caracteres.',
+            'titulo.regex'            => 'El título contiene caracteres no permitidos.',
+            'objetivo.required'       => 'El objetivo es requerido.',
+            'objetivo.min'            => 'El objetivo debe tener al menos 20 caracteres.',
+            'objetivo.max'            => 'El objetivo no debe superar los 1000 caracteres.',
+            'justificacion.required'  => 'La justificación es requerida.',
+            'justificacion.min'       => 'La justificación debe tener al menos 20 caracteres.',
+            'justificacion.max'       => 'La justificación no debe superar los 1000 caracteres.',
+            'actividades.required'    => 'Las actividades son requeridas.',
+            'actividades.min'         => 'Las actividades deben tener al menos 20 caracteres.',
+            'actividades.max'         => 'Las actividades no deben superar los 1000 caracteres.',
+            'impacto_social.required' => 'El impacto social es requerido.',
+            'impacto_social.min'      => 'El impacto social debe tener al menos 20 caracteres.',
+            'impacto_social.max'      => 'El impacto social no debe superar los 1000 caracteres.',
+            'tipo_proyecto.required'  => 'El tipo de proyecto es requerido.',
+            'tipo_proyecto.in'        => 'El tipo de proyecto seleccionado no es válido.',
+            'tipo_modalidad.required' => 'El tipo de modalidad es requerido.',
+            'tipo_modalidad.in'       => 'La modalidad seleccionada no es válida.',
+        ]);
+
+        $proyecto = Proyecto::create($validated + [
+            'unidad_receptora_id' => $solicitudActiva->ur_id,
+            'estudiante_id'       => $estudiante->id,
+            'cupos_totales'       => 1,
+            'cupos_ocupados'      => 1,
+            'publico_internet'    => 'SI',
+            'plan'                => 'E906',
+            'ciclo_escolar'       => 'AGO-2026/ENE-2027',
+            'activo'              => true,
+        ]);
+
+        return redirect()->route('estudiante.proyecto')
+            ->with('success', "Proyecto \"{$proyecto->titulo}\" registrado correctamente.");
+    }
+
     public function generarCartaPresentacion()
     {
         if (Auth::user()?->rol_id != 3) {
