@@ -82,7 +82,8 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::get('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'proyectos'])->name('coordinador.proyectos');
     Route::post('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
     Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\Coordinador\ProyectoController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
-    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
+    Route::patch('/coordinador/proyectos/{id}/revisar', [App\Http\Controllers\Coordinador\ProyectoController::class, 'revisarProyecto'])->name('coordinador.proyectos.revisar');
+    Route::patch('/coordinador/proyectos/{id}/toggle-status',[App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
     Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
     Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');

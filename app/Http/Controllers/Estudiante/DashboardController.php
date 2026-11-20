@@ -371,7 +371,9 @@ class DashboardController extends Controller
                 ->with('error', 'Necesitas una solicitud de prácticas aprobada para registrar tu proyecto.');
         }
 
-        if (Proyecto::where('estudiante_id', $estudiante->id)->exists()) {
+        // Solo se puede volver a enviar un proyecto que el coordinador rechazó
+        $proyectoExistente = Proyecto::where('estudiante_id', $estudiante->id)->first();
+        if ($proyectoExistente && $proyectoExistente->estatus !== 'rechazado') {
             return redirect()->route('estudiante.proyecto')
                 ->with('error', 'Ya tienes un proyecto registrado.');
         }
@@ -407,7 +409,7 @@ class DashboardController extends Controller
             'tipo_modalidad.in'       => 'La modalidad seleccionada no es válida.',
         ]);
 
-        $proyecto = Proyecto::create($validated + [
+        $datos = $validated + [
             'unidad_receptora_id' => $solicitudActiva->ur_id,
             'estudiante_id'       => $estudiante->id,
             'cupos_totales'       => 1,
@@ -416,10 +418,19 @@ class DashboardController extends Controller
             'plan'                => 'E906',
             'ciclo_escolar'       => 'AGO-2026/ENE-2027',
             'activo'              => true,
-        ]);
+            'estatus'             => 'pendiente',
+            'observaciones'       => null,
+        ];
+
+        if ($proyectoExistente) {
+            $proyectoExistente->update($datos);
+            $proyecto = $proyectoExistente;
+        } else {
+            $proyecto = Proyecto::create($datos);
+        }
 
         return redirect()->route('estudiante.proyecto')
-            ->with('success', "Proyecto \"{$proyecto->titulo}\" registrado correctamente.");
+            ->with('success', "Proyecto \"{$proyecto->titulo}\" enviado. Queda pendiente de revisión por el coordinador.");
     }
 
     public function generarCartaPresentacion()

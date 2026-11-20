@@ -24,6 +24,8 @@ class Proyecto extends Model
         'cupos_ocupados',
         'publico_internet',
         'activo',
+        'estatus',
+        'observaciones',
     ];
 
     protected $casts = [

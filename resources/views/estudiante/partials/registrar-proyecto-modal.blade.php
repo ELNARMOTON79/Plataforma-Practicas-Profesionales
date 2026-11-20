@@ -24,7 +24,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">Registrar Nuevo Proyecto</h2>
+                    <h2 id="modal-title" class="text-xl font-bold text-white leading-tight">{{ isset($proyectoPrevio) ? 'Corregir Proyecto' : 'Registrar Nuevo Proyecto' }}</h2>
                 </div>
                 <p class="text-green-100 text-xs">Completa los campos del proyecto que realizarás en tu empresa</p>
             </div>
@@ -88,7 +88,7 @@
                 <!-- 2. Título -->
                 <div>
                     <label for="reg-titulo" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Título del Proyecto <span class="text-red-500">*</span></label>
-                    <input type="text" id="reg-titulo" name="titulo" required value="{{ old('titulo') }}" placeholder="Ej. PLATAFORMA WEB PARA ADMINISTRACIÓN DE PRÁCTICAS..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all @error('titulo') border-red-400 bg-red-50 @enderror">
+                    <input type="text" id="reg-titulo" name="titulo" required value="{{ old('titulo', ($proyectoPrevio ?? null)?->titulo) }}" placeholder="Ej. PLATAFORMA WEB PARA ADMINISTRACIÓN DE PRÁCTICAS..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all @error('titulo') border-red-400 bg-red-50 @enderror">
                     <p id="error-reg-titulo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
                     @error('titulo')
                         <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
@@ -103,11 +103,11 @@
                         <div class="relative">
                             <select id="reg-tipo-proyecto" name="tipo_proyecto" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('tipo_proyecto') border-red-400 bg-red-50 @enderror">
                                 <option value="">Selecciona el tipo...</option>
-                                <option value="Desarrollo Tecnológico" {{ old('tipo_proyecto') == 'Desarrollo Tecnológico' ? 'selected' : '' }}>Desarrollo Tecnológico</option>
-                                <option value="Investigación" {{ old('tipo_proyecto') == 'Investigación' ? 'selected' : '' }}>Investigación Académica</option>
-                                <option value="Asistencia Social" {{ old('tipo_proyecto') == 'Asistencia Social' ? 'selected' : '' }}>Asistencia Social / Comunitaria</option>
-                                <option value="Administrativo" {{ old('tipo_proyecto') == 'Administrativo' ? 'selected' : '' }}>Administrativo / Oficina</option>
-                                <option value="Infraestructura" {{ old('tipo_proyecto') == 'Infraestructura' ? 'selected' : '' }}>Infraestructura y Redes</option>
+                                <option value="Desarrollo Tecnológico" {{ old('tipo_proyecto', ($proyectoPrevio ?? null)?->tipo_proyecto) == 'Desarrollo Tecnológico' ? 'selected' : '' }}>Desarrollo Tecnológico</option>
+                                <option value="Investigación" {{ old('tipo_proyecto', ($proyectoPrevio ?? null)?->tipo_proyecto) == 'Investigación' ? 'selected' : '' }}>Investigación Académica</option>
+                                <option value="Asistencia Social" {{ old('tipo_proyecto', ($proyectoPrevio ?? null)?->tipo_proyecto) == 'Asistencia Social' ? 'selected' : '' }}>Asistencia Social / Comunitaria</option>
+                                <option value="Administrativo" {{ old('tipo_proyecto', ($proyectoPrevio ?? null)?->tipo_proyecto) == 'Administrativo' ? 'selected' : '' }}>Administrativo / Oficina</option>
+                                <option value="Infraestructura" {{ old('tipo_proyecto', ($proyectoPrevio ?? null)?->tipo_proyecto) == 'Infraestructura' ? 'selected' : '' }}>Infraestructura y Redes</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -125,9 +125,9 @@
                         <div class="relative">
                             <select id="reg-tipo-modalidad" name="tipo_modalidad" required class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 shadow-sm transition-all appearance-none cursor-pointer @error('tipo_modalidad') border-red-400 bg-red-50 @enderror">
                                 <option value="">Selecciona la modalidad...</option>
-                                <option value="Presencial" {{ old('tipo_modalidad') == 'Presencial' ? 'selected' : '' }}>Presencial</option>
-                                <option value="Híbrido" {{ old('tipo_modalidad') == 'Híbrido' ? 'selected' : '' }}>Híbrido</option>
-                                <option value="Virtual" {{ old('tipo_modalidad') == 'Virtual' ? 'selected' : '' }}>Virtual / Remoto</option>
+                                <option value="Presencial" {{ old('tipo_modalidad', ($proyectoPrevio ?? null)?->tipo_modalidad) == 'Presencial' ? 'selected' : '' }}>Presencial</option>
+                                <option value="Híbrido" {{ old('tipo_modalidad', ($proyectoPrevio ?? null)?->tipo_modalidad) == 'Híbrido' ? 'selected' : '' }}>Híbrido</option>
+                                <option value="Virtual" {{ old('tipo_modalidad', ($proyectoPrevio ?? null)?->tipo_modalidad) == 'Virtual' ? 'selected' : '' }}>Virtual / Remoto</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -145,7 +145,7 @@
                     <!-- Objetivo -->
                     <div>
                         <label for="reg-objetivo" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Objetivo del Proyecto <span class="text-red-500">*</span></label>
-                        <textarea id="reg-objetivo" name="objetivo" rows="3" required maxlength="1000" placeholder="Describe brevemente la meta principal del proyecto..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('objetivo') border-red-400 bg-red-50 @enderror">{{ old('objetivo') }}</textarea>
+                        <textarea id="reg-objetivo" name="objetivo" rows="3" required maxlength="1000" placeholder="Describe brevemente la meta principal del proyecto..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('objetivo') border-red-400 bg-red-50 @enderror">{{ old('objetivo', ($proyectoPrevio ?? null)?->objetivo) }}</textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p id="error-reg-objetivo" class="text-red-500 text-[11px] font-semibold hidden"></p>
                             <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-objetivo">0</span> / 1000 carac.</div>
@@ -158,7 +158,7 @@
                     <!-- Justificación -->
                     <div>
                         <label for="reg-justificacion" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Justificación <span class="text-red-500">*</span></label>
-                        <textarea id="reg-justificacion" name="justificacion" rows="3" required maxlength="1000" placeholder="¿Por qué es necesario y qué problema resuelve?..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('justificacion') border-red-400 bg-red-50 @enderror">{{ old('justificacion') }}</textarea>
+                        <textarea id="reg-justificacion" name="justificacion" rows="3" required maxlength="1000" placeholder="¿Por qué es necesario y qué problema resuelve?..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('justificacion') border-red-400 bg-red-50 @enderror">{{ old('justificacion', ($proyectoPrevio ?? null)?->justificacion) }}</textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p id="error-reg-justificacion" class="text-red-500 text-[11px] font-semibold hidden"></p>
                             <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-justificacion">0</span> / 1000 carac.</div>
@@ -171,7 +171,7 @@
                     <!-- Actividades -->
                     <div>
                         <label for="reg-actividades" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Actividades del Alumno <span class="text-red-500">*</span></label>
-                        <textarea id="reg-actividades" name="actividades" rows="3" required maxlength="1000" placeholder="Listado de tareas o funciones a realizar..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('actividades') border-red-400 bg-red-50 @enderror">{{ old('actividades') }}</textarea>
+                        <textarea id="reg-actividades" name="actividades" rows="3" required maxlength="1000" placeholder="Listado de tareas o funciones a realizar..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('actividades') border-red-400 bg-red-50 @enderror">{{ old('actividades', ($proyectoPrevio ?? null)?->actividades) }}</textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p id="error-reg-actividades" class="text-red-500 text-[11px] font-semibold hidden"></p>
                             <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-actividades">0</span> / 1000 carac.</div>
@@ -184,7 +184,7 @@
                     <!-- Impacto Social -->
                     <div>
                         <label for="reg-impacto" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Impacto Social <span class="text-red-500">*</span></label>
-                        <textarea id="reg-impacto" name="impacto_social" rows="3" required maxlength="1000" placeholder="Beneficio que aporta a la comunidad o sector social..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('impacto_social') border-red-400 bg-red-50 @enderror">{{ old('impacto_social') }}</textarea>
+                        <textarea id="reg-impacto" name="impacto_social" rows="3" required maxlength="1000" placeholder="Beneficio que aporta a la comunidad o sector social..." class="block w-full px-4 py-3 bg-gray-50/50 border border-gray-200 focus:border-[#6BA53A] focus:ring-1 focus:ring-[#6BA53A] rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 shadow-sm transition-all resize-none @error('impacto_social') border-red-400 bg-red-50 @enderror">{{ old('impacto_social', ($proyectoPrevio ?? null)?->impacto_social) }}</textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p id="error-reg-impacto" class="text-red-500 text-[11px] font-semibold hidden"></p>
                             <div class="text-right text-[10px] text-gray-400 ml-auto"><span id="counter-reg-impacto">0</span> / 1000 carac.</div>
@@ -204,7 +204,7 @@
                     </button>
                     <button type="submit" 
                             class="px-6 py-2.5 rounded-xl bg-[#4E7D24] text-white hover:bg-[#2E5417] text-sm font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 cursor-pointer">
-                        Registrar Proyecto
+                        {{ isset($proyectoPrevio) ? 'Reenviar Proyecto' : 'Registrar Proyecto' }}
                     </button>
                 </div>
             </form>

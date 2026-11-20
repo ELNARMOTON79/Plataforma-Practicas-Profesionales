@@ -134,6 +134,35 @@
                 </h3>
 
                 @if($proyectoAsignado)
+                    @php
+                        // Colores en línea para que no dependan de clases de Tailwind no compiladas
+                        $estatusProyecto = match($proyectoAsignado->estatus) {
+                            'pendiente' => ['label' => 'En revisión por el coordinador', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b'],
+                            'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626'],
+                            default     => ['label' => 'Aprobado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a'],
+                        };
+                    @endphp
+                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mb-2" style="background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
+                        <span class="rounded-full" style="width: 6px; height: 6px; background: {{ $estatusProyecto['dot'] }};"></span>
+                        {{ $estatusProyecto['label'] }}
+                    </span>
+
+                    @if($proyectoAsignado->estatus === 'rechazado')
+                        <div class="mb-3 rounded-xl border px-3 py-2 bg-red-50 border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Proyecto rechazado por el coordinador</p>
+                                <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $proyectoAsignado->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu proyecto y vuelve a enviarlo.' }}</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Corregir y reenviar
+                            </button>
+                        </div>
+                        @push('modals')
+                            @include('estudiante.partials.registrar-proyecto-modal', ['proyectoPrevio' => $proyectoAsignado])
+                        @endpush
+                    @endif
+
                     <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
                     @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
                         <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>

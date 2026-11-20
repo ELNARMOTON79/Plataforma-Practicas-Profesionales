@@ -129,6 +129,15 @@
                                 @if($proyecto->estudiante)
                                     <div class="text-[10px] text-[#4E7D24] font-bold uppercase mt-0.5">Alumno: {{ $proyecto->estudiante->nombre_completo }}</div>
                                 @endif
+                                @if($proyecto->estatus === 'pendiente')
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pendiente de revisión
+                                    </span>
+                                @elseif($proyecto->estatus === 'rechazado')
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-red-700 border border-red-200" title="{{ $proyecto->observaciones }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Rechazado
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
                                 <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
@@ -149,6 +158,14 @@
                                     <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="px-4 py-1.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
                                         VER
                                     </button>
+                                    @if($proyecto->estatus === 'pendiente')
+                                        <button type="button" onclick="revisarProyecto('{{ $proyecto->id }}', 'aprobar')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Aprobar proyecto {{ $proyecto->id }}">
+                                            APROBAR
+                                        </button>
+                                        <button type="button" onclick="revisarProyecto('{{ $proyecto->id }}', 'rechazar')" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Rechazar proyecto {{ $proyecto->id }}">
+                                            RECHAZAR
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -257,7 +274,74 @@
 
             document.getElementById('modal-editar-proyecto').classList.remove('hidden');
         };
+
+        window.revisarProyecto = function(id, accion) {
+            const project = (window.projectDetails || {})[id];
+            if (!project) return;
+
+            const enviar = function(observaciones) {
+                const form = document.getElementById('form-revisar-proyecto');
+                form.action = `/coordinador/proyectos/${project.id}/revisar`;
+                form.querySelector('[name="accion"]').value = accion;
+                form.querySelector('[name="observaciones"]').value = observaciones || '';
+                form.submit();
+            };
+
+            if (typeof Swal === 'undefined') {
+                if (accion === 'aprobar') {
+                    if (confirm(`¿Aprobar el proyecto ${project.titulo}?`)) enviar('');
+                } else {
+                    const motivo = prompt('Motivo del rechazo:');
+                    if (motivo && motivo.trim()) enviar(motivo.trim());
+                }
+                return;
+            }
+
+            const customClass = {
+                popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md',
+                cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+            };
+
+            if (accion === 'aprobar') {
+                Swal.fire({
+                    title: '¿Aprobar proyecto?',
+                    html: `<p class="text-sm text-gray-600">Se aprobará el proyecto <strong></strong>.</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#059669',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, aprobar',
+                    cancelButtonText: 'Cancelar',
+                    customClass: customClass,
+                    didOpen: (popup) => { popup.querySelector('strong').textContent = project.titulo; }
+                }).then((result) => { if (result.isConfirmed) enviar(''); });
+            } else {
+                Swal.fire({
+                    title: 'Rechazar proyecto',
+                    input: 'textarea',
+                    inputLabel: 'Motivo del rechazo (el alumno lo verá para corregir su proyecto)',
+                    inputPlaceholder: 'Ej. El objetivo no corresponde a las actividades descritas...',
+                    inputAttributes: { maxlength: 500 },
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Rechazar proyecto',
+                    cancelButtonText: 'Cancelar',
+                    customClass: customClass,
+                    inputValidator: (value) => !value || !value.trim() ? 'Escribe el motivo del rechazo.' : undefined
+                }).then((result) => { if (result.isConfirmed) enviar(result.value.trim()); });
+            }
+        };
     </script>
+
+    <form id="form-revisar-proyecto" method="POST" class="hidden" hx-boost="false">
+        @csrf
+        @method('PATCH')
+        <input type="hidden" name="accion">
+        <input type="hidden" name="observaciones">
+    </form>
 @endsection
 
 @push('modals')
