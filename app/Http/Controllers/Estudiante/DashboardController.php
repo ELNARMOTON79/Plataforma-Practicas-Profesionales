@@ -386,7 +386,7 @@ class DashboardController extends Controller
             'empresaDireccion' => implode(', ', $direccionPartes),
             'destinatarioNombre' => $ur?->titular ?: 'A quien corresponda',
             'destinatarioCargo'  => $ur?->cargo ?? '',
-            'lugar'            => $ur?->municipio ?: 'Colima, Col.',
+            'lugar'            => implode(', ', array_filter([$ur?->municipio, $ur?->estado])) ?: 'Colima, Colima',
             'fecha'            => Carbon::now()->translatedFormat('d \d\e F \d\e Y'),
         ])->setPaper('letter');
 

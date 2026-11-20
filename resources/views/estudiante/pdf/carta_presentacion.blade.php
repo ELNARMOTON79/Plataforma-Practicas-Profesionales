@@ -124,7 +124,7 @@
 
     <div class="firma">
         <div class="linea"></div>
-        Coordinador(a) de Prácticas Profesionales
+        M en Ing. Director del plantel
     </div>
 
     <div class="aviso">
