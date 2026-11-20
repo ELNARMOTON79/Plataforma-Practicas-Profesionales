@@ -249,13 +249,13 @@
                                 @elseif($pdfRouteName)
                                     <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar PDF
+                                        <span data-generar-pdf-label>{{ $doc ? 'Generar de nuevo PDF' : 'Generar PDF' }}</span>
                                     </a>
                                 @endif
                                 @if($wordRouteName && ! $bloqueado)
                                     <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar Word
+                                        <span data-generar-word-label>{{ $doc ? 'Generar de nuevo Word' : 'Generar Word' }}</span>
                                     </a>
                                 @endif
                                 <div data-doc-action-area class="flex items-center gap-2">
@@ -582,6 +582,14 @@
                 if (actionArea) {
                     actionArea.innerHTML = buildUploadButtonHTML(nombreDoc);
                 }
+                var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+                if (pdfLabel) {
+                    pdfLabel.textContent = 'Generar PDF';
+                }
+                var wordLabel = card.querySelector('[data-generar-word-label]');
+                if (wordLabel) {
+                    wordLabel.textContent = 'Generar Word';
+                }
             }
         }
 
@@ -616,6 +624,16 @@
             var actionArea = card.querySelector('[data-doc-action-area]');
             if (actionArea) {
                 actionArea.innerHTML = buildDocumentActionsHTML(nombreDoc, documento.ruta_archivo, documento.id);
+            }
+
+            var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+            if (pdfLabel) {
+                pdfLabel.textContent = 'Generar de nuevo PDF';
+            }
+
+            var wordLabel = card.querySelector('[data-generar-word-label]');
+            if (wordLabel) {
+                wordLabel.textContent = 'Generar de nuevo Word';
             }
 
             var countEl = document.getElementById('uploadedCountBadge');
