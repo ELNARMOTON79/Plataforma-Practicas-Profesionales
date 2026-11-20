@@ -150,7 +150,19 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-gray-500">Aún no tienes un proyecto asignado. Cuando el coordinador te asigne uno, aquí verás su objetivo y actividades.</p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p class="text-sm text-gray-500">Aún no tienes un proyecto registrado. Registra el proyecto que realizarás en tu empresa y aquí verás su objetivo y actividades.</p>
+                        <button type="button" onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Registrar Proyecto
+                        </button>
+                    </div>
+                    @push('modals')
+                        @include('estudiante.partials.registrar-proyecto-modal')
+                    @endpush
+                @endif
+                @if(session('error'))
+                    <p class="mt-3 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{{ session('error') }}</p>
                 @endif
             </div>
 
@@ -249,13 +261,13 @@
                                 @elseif($pdfRouteName)
                                     <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar PDF
+                                        <span data-generar-pdf-label>{{ $doc ? 'Generar de nuevo PDF' : 'Generar PDF' }}</span>
                                     </a>
                                 @endif
                                 @if($wordRouteName && ! $bloqueado)
                                     <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar Word
+                                        <span data-generar-word-label>{{ $doc ? 'Generar de nuevo Word' : 'Generar Word' }}</span>
                                     </a>
                                 @endif
                                 <div data-doc-action-area class="flex items-center gap-2">
@@ -582,6 +594,14 @@
                 if (actionArea) {
                     actionArea.innerHTML = buildUploadButtonHTML(nombreDoc);
                 }
+                var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+                if (pdfLabel) {
+                    pdfLabel.textContent = 'Generar PDF';
+                }
+                var wordLabel = card.querySelector('[data-generar-word-label]');
+                if (wordLabel) {
+                    wordLabel.textContent = 'Generar Word';
+                }
             }
         }
 
@@ -618,6 +638,16 @@
                 actionArea.innerHTML = buildDocumentActionsHTML(nombreDoc, documento.ruta_archivo, documento.id);
             }
 
+            var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+            if (pdfLabel) {
+                pdfLabel.textContent = 'Generar de nuevo PDF';
+            }
+
+            var wordLabel = card.querySelector('[data-generar-word-label]');
+            if (wordLabel) {
+                wordLabel.textContent = 'Generar de nuevo Word';
+            }
+
             var countEl = document.getElementById('uploadedCountBadge');
             if (countEl && !wasPreviouslyUploaded) {
                 var currentCount = parseInt(countEl.textContent || '0', 10);
@@ -626,6 +656,10 @@
                 }
             }
         }
+
+        @if(session('success'))
+            showToast('¡Proyecto registrado!', @json(session('success')));
+        @endif
 
         // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
         (function() {
