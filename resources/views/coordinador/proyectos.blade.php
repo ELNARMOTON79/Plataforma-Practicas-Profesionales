@@ -76,6 +76,14 @@
                     <option value="lleno" {{ request('cupo') == 'lleno' ? 'selected' : '' }}>CUPO LLENO</option>
                 </select>
 
+                <!-- Estatus Select -->
+                <select name="estatus" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                    <option value="">Todos los Estatus</option>
+                    <option value="pendiente" {{ request('estatus') == 'pendiente' ? 'selected' : '' }}>PENDIENTES DE REVISIÓN</option>
+                    <option value="aprobado" {{ request('estatus') == 'aprobado' ? 'selected' : '' }}>APROBADOS</option>
+                    <option value="rechazado" {{ request('estatus') == 'rechazado' ? 'selected' : '' }}>RECHAZADOS</option>
+                </select>
+
             </div>
 
             <!-- Right side: Show entries -->
@@ -159,12 +167,10 @@
                                         VER
                                     </button>
                                     @if($proyecto->estatus === 'pendiente')
-                                        <button type="button" onclick="revisarProyecto('{{ $proyecto->id }}', 'aprobar')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Aprobar proyecto {{ $proyecto->id }}">
-                                            APROBAR
-                                        </button>
-                                        <button type="button" onclick="revisarProyecto('{{ $proyecto->id }}', 'rechazar')" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Rechazar proyecto {{ $proyecto->id }}">
-                                            RECHAZAR
-                                        </button>
+                                        <a href="{{ route('coordinador.tramites', ['tab' => 'proyectos-pendientes']) }}" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 transition-all flex items-center gap-1" title="Revisar trámite de propuesta">
+                                            <span>Revisar en Trámites</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
                                     @endif
                                 </div>
                             </td>

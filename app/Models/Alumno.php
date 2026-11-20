@@ -15,6 +15,11 @@ class Alumno extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
     /**
      * Get dynamic status of the student.
      */
