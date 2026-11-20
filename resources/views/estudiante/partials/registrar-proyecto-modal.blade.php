@@ -392,20 +392,30 @@
 
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: '¿Confirmar Registro de Proyecto?',
-                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de registrar el proyecto <strong>${tituloProyecto}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">El proyecto quedará registrado a tu nombre en la empresa de tu solicitud.</p>`,
+                    title: '¿Confirmar registro de proyecto?',
+                    // Estilos en línea: la vista del alumno no tiene compiladas todas las clases de Tailwind
+                    html: '<p style="font-size:14px;color:#4b5563;margin:0 0 10px;">¿Estás seguro de registrar el proyecto <strong style="color:#111827;"></strong>?</p>' +
+                          '<p style="font-size:12px;color:#4E7D24;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 12px;margin:0;">El proyecto se enviará al coordinador para su revisión.</p>',
                     icon: 'question',
+                    iconColor: '#6BA53A',
                     showCancelButton: true,
+                    reverseButtons: true,
                     confirmButtonColor: '#4E7D24',
                     cancelButtonColor: '#9CA3AF',
                     confirmButtonText: 'Sí, registrar proyecto',
                     cancelButtonText: 'Revisar datos',
                     focusConfirm: false,
                     focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    didOpen: (popup) => {
+                        popup.style.borderRadius = '24px';
+                        popup.style.fontFamily = "'Outfit', sans-serif";
+                        popup.querySelector('.swal2-html-container strong').textContent = tituloProyecto;
+                        popup.querySelectorAll('.swal2-actions button').forEach((b) => {
+                            b.style.borderRadius = '12px';
+                            b.style.fontWeight = '700';
+                            b.style.fontSize = '14px';
+                            b.style.padding = '10px 20px';
+                        });
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
