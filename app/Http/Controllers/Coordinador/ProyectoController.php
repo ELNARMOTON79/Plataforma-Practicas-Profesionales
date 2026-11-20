@@ -26,6 +26,7 @@ class ProyectoController extends Controller
         $plan = $request->input('plan');
         $cupo = $request->input('cupo');
         $acceso = $request->input('acceso');
+        $estatus = $request->input('estatus');
         if ($request->has('per_page') && in_array((int)$request->input('per_page'), [5, 10, 25, 50, 100])) {
             $perPage = (int)$request->input('per_page');
             session(['per_page' => $perPage]);
@@ -33,7 +34,7 @@ class ProyectoController extends Controller
             $perPage = session('per_page', 5);
         }
 
-        $query = Proyecto::with('empresa');
+        $query = Proyecto::with(['empresa', 'estudiante']);
 
         // Apply Search
         if ($search) {
@@ -42,6 +43,10 @@ class ProyectoController extends Controller
                   ->orWhere('id', 'like', "%{$search}%")
                   ->orWhereHas('empresa', function($qe) use ($search) {
                       $qe->where('nombre_empresa', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('estudiante', function($qest) use ($search) {
+                      $qest->where('nombre_completo', 'like', "%{$search}%")
+                           ->orWhere('matricula', 'like', "%{$search}%");
                   });
             });
         }
@@ -62,6 +67,15 @@ class ProyectoController extends Controller
         if ($acceso) {
             $query->where('activo', $acceso === 'activo');
         }
+
+        // Apply Estatus Filter
+        if ($estatus && in_array($estatus, ['pendiente', 'aprobado', 'rechazado'])) {
+            $query->where('estatus', $estatus);
+        }
+
+        // Show pending projects first, then by newest
+        $query->orderByRaw("CASE WHEN estatus = 'pendiente' THEN 0 ELSE 1 END")
+              ->orderBy('id', 'desc');
 
         $proyectos = $query->paginate($perPage);
 
