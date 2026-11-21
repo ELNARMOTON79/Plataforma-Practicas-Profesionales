@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // En una instalación nueva la tabla ya la crea el esquema completo (database/migrations/esquema_completo)
+        if (Schema::hasTable('proyectos')) {
+            return;
+        }
+
         Schema::create('proyectos', function (Blueprint $table) {
             $table->increments('id'); // unsigned integer auto_increment primary key
             $table->integer('unidad_receptora_id')->unsigned();

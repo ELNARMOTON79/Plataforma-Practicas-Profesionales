@@ -19,8 +19,9 @@ class SeguimientoController extends Controller
             ->when($alumnoId !== null, fn ($q) => $q->where('id', $alumnoId))
             ->get();
 
-        // Primer proyecto asignado a cada alumno
+        // Primer proyecto aprobado de cada alumno (los pendientes o rechazados aún no entran a seguimiento)
         $proyectosPorAlumno = \App\Models\Proyecto::whereIn('estudiante_id', $dbAlumnos->pluck('id'))
+            ->where('estatus', 'aprobado')
             ->orderBy('id')
             ->get()
             ->unique('estudiante_id')
@@ -245,20 +246,6 @@ class SeguimientoController extends Controller
         $student = $data[$id];
 
         return view('coordinador.seguimiento.show', compact('student'));
-    }
-
-    public function saveNotes(Request $request, $id)
-    {
-        if (auth()->user()->rol_id != 2) return redirect('/');
-
-        $solicitud = \DB::table('solicitudes')->where('estudiante_id', $id)->orderBy('id', 'desc')->first();
-        if ($solicitud) {
-            \DB::table('solicitudes')->where('id', $solicitud->id)->update([
-                'observaciones' => $request->input('notes', '')
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Observaciones guardadas correctamente.');
     }
 
     public function saveResponsable(Request $request, $id)

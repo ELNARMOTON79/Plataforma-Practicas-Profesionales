@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // En una instalación nueva la tabla ya la crea el esquema completo (database/migrations/esquema_completo)
+        if (Schema::hasTable('bitacora')) {
+            return;
+        }
+
         Schema::create('bitacora', function (Blueprint $table) {
             $table->id();
             $table->timestamp('timestamp')->useCurrent();

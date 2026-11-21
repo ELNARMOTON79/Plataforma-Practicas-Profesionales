@@ -20,18 +20,21 @@ class NotificadorCoordinador
             return;
         }
 
-        $coordinador = User::where('rol_id', 2)->where('activo', true)->first();
+        // Todos los coordinadores activos reciben el aviso (cada uno por separado, sin ver a los demás)
+        $correos = User::where('rol_id', 2)->where('activo', true)->whereNotNull('correo')->pluck('correo')->unique();
 
-        if (! $coordinador || ! $coordinador->correo) {
+        if ($correos->isEmpty()) {
             Log::warning('No se encontró un coordinador activo para notificar el trámite: ' . $mail->tipo);
             return;
         }
 
-        try {
-            Mail::to($coordinador->correo)->send($mail);
-            Log::info("Correo de trámite pendiente ({$mail->tipo}) enviado al coordinador {$coordinador->correo}");
-        } catch (\Exception $e) {
-            Log::error("Error al enviar correo de trámite pendiente al coordinador {$coordinador->correo}: " . $e->getMessage());
+        foreach ($correos as $correo) {
+            try {
+                Mail::to($correo)->send(clone $mail);
+                Log::info("Correo de trámite pendiente ({$mail->tipo}) enviado al coordinador {$correo}");
+            } catch (\Throwable $e) {
+                Log::error("Error al enviar correo de trámite pendiente al coordinador {$correo}: " . $e->getMessage());
+            }
         }
     }
 }

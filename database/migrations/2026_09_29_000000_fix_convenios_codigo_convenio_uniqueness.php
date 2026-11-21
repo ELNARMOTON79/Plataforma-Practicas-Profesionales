@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // En una instalación nueva el esquema completo puede no tener el índice viejo o ya traer el nuevo
         Schema::table('convenios', function (Blueprint $table) {
-            $table->dropUnique('codigo_convenio');
-            $table->unique(['codigo_convenio', 'ur_id'], 'convenios_codigo_ur_unique');
+            if (Schema::hasIndex('convenios', 'codigo_convenio')) {
+                $table->dropUnique('codigo_convenio');
+            }
+            if (! Schema::hasIndex('convenios', 'convenios_codigo_ur_unique')) {
+                $table->unique(['codigo_convenio', 'ur_id'], 'convenios_codigo_ur_unique');
+            }
         });
     }
 
