@@ -54,4 +54,17 @@ class Estudiante extends Model
             ? self::HORAS_META_SOFTWARE
             : self::HORAS_META_GENERAL;
     }
+
+    /**
+     * Practice modality by program: Ingeniería de Software and Ingeniería Mecánico
+     * Electricista do an "estancia profesional", every other program a "práctica profesional".
+     */
+    public function modalidadPractica(): string
+    {
+        $carrera = mb_strtolower($this->carrera ?? '');
+
+        return str_contains($carrera, 'software') || str_contains($carrera, 'electricista')
+            ? 'estancia_profesional'
+            : 'practica_integrativa';
+    }
 }

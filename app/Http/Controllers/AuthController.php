@@ -126,8 +126,17 @@ class AuthController extends Controller
             ]
         );
 
-        // Enviar el correo
-        \Illuminate\Support\Facades\Mail::to($correo)->send(new \App\Mail\RecuperarContrasenaMail($token, $correo));
+        // Enviar el correo (si el servidor de correo falla se avisa al usuario en lugar de mostrar un error 500)
+        try {
+            \Illuminate\Support\Facades\Mail::to($correo)->send(new \App\Mail\RecuperarContrasenaMail($token, $correo));
+        } catch (\Throwable $e) {
+            \Log::error("Error al enviar el correo de recuperación a {$correo}: " . $e->getMessage());
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $correo)->delete();
+
+            return back()->withErrors([
+                'correo' => 'No pudimos enviar el correo de recuperación en este momento. Intenta de nuevo más tarde o contacta al administrador.',
+            ])->onlyInput('correo');
+        }
 
         // Registrar en la bitácora
         \App\Helpers\ActivityLogger::log(

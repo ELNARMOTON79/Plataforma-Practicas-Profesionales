@@ -15,6 +15,11 @@ class Alumno extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
     /**
      * Solicitud más reciente del alumno (mayor id). Cárgala con with('ultimaSolicitud')
      * en los listados para no hacer una consulta por alumno.

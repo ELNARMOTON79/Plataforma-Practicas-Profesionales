@@ -61,7 +61,7 @@
             <div class="glass-card rounded-3xl p-6 fade-in-up delay-200">
                 <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Convenio</h3>
                 @if($convenio)
-                    <span class="inline-flex px-2.5 py-1 rounded-lg border text-xs font-bold text-green-700 bg-green-50 border-green-200">Vigente</span>
+                    <span class="inline-flex px-2.5 py-1 rounded-lg border text-xs font-bold text-green-700 bg-green-50 border-green-200">Aprobado</span>
                     <p class="text-lg font-extrabold text-gray-900 mt-3">{{ $folio }}</p>
                     <a href="{{ route('empresa.convenios') }}" class="text-xs font-bold text-[#4E7D24] hover:underline">Ver convenio</a>
                 @else

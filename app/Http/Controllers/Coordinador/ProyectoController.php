@@ -26,6 +26,7 @@ class ProyectoController extends Controller
         $plan = $request->input('plan');
         $cupo = $request->input('cupo');
         $acceso = $request->input('acceso');
+        $estatus = $request->input('estatus');
         if ($request->has('per_page') && in_array((int)$request->input('per_page'), [5, 10, 25, 50, 100])) {
             $perPage = (int)$request->input('per_page');
             session(['per_page' => $perPage]);
@@ -42,6 +43,10 @@ class ProyectoController extends Controller
                   ->orWhere('id', 'like', "%{$search}%")
                   ->orWhereHas('empresa', function($qe) use ($search) {
                       $qe->where('nombre_empresa', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('estudiante', function($qest) use ($search) {
+                      $qest->where('nombre_completo', 'like', "%{$search}%")
+                           ->orWhere('matricula', 'like', "%{$search}%");
                   });
             });
         }
@@ -62,6 +67,15 @@ class ProyectoController extends Controller
         if ($acceso) {
             $query->where('activo', $acceso === 'activo');
         }
+
+        // Apply Estatus Filter
+        if ($estatus && in_array($estatus, ['pendiente', 'aprobado', 'rechazado'])) {
+            $query->where('estatus', $estatus);
+        }
+
+        // Show pending projects first, then by newest
+        $query->orderByRaw("CASE WHEN estatus = 'pendiente' THEN 0 ELSE 1 END")
+              ->orderBy('id', 'desc');
 
         $proyectos = $query->paginate($perPage);
 
@@ -226,6 +240,43 @@ class ProyectoController extends Controller
 
         return redirect()->back()
             ->with('success', "Proyecto \"{$proyecto->titulo}\" actualizado correctamente para la unidad receptora \"{$urName}\".");
+    }
+
+    /**
+     * Approves or rejects a project registered by a student.
+     */
+    public function revisarProyecto(Request $request, $id)
+    {
+        if (auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $proyecto = Proyecto::findOrFail($id);
+
+        $request->validate([
+            'accion'        => ['required', 'in:aprobar,rechazar'],
+            'observaciones' => ['nullable', 'required_if:accion,rechazar', 'string', 'max:500'],
+        ], [
+            'observaciones.required_if' => 'Indica el motivo del rechazo para que el alumno pueda corregir su proyecto.',
+            'observaciones.max'         => 'El motivo no debe superar los 500 caracteres.',
+        ]);
+
+        $aprobar = $request->input('accion') === 'aprobar';
+
+        $proyecto->update([
+            'estatus'       => $aprobar ? 'aprobado' : 'rechazado',
+            'observaciones' => $aprobar ? null : trim($request->input('observaciones')),
+        ]);
+
+        // Solo los proyectos propuestos por un alumno generan aviso (el notificador ignora los del catálogo)
+        if ($proyecto->wasChanged('estatus')) {
+            \App\Support\NotificadorAlumno::proyecto($proyecto);
+        }
+
+        return redirect()->back()
+            ->with('success', $aprobar
+                ? "Proyecto \"{$proyecto->titulo}\" aprobado correctamente."
+                : "Proyecto \"{$proyecto->titulo}\" rechazado. El alumno podrá corregirlo y reenviarlo.");
     }
 
     /**

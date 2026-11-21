@@ -33,13 +33,11 @@ class AdminController extends Controller
         $conveniosActivos = \DB::table('convenios')->where('estatus', 'activo')->count();
         $solicitudesPendientes = \DB::table('solicitudes')->where('estatus', 'pendiente')->count();
         
-        // System alerts (Convenios expiring in the next 30 days)
-        $alertasSistema = \DB::table('convenios')
-            ->where('estatus', 'activo')
-            ->whereBetween('fecha_termino', [
-                \Carbon\Carbon::now()->toDateString(), 
-                \Carbon\Carbon::now()->addDays(30)->toDateString()
-            ])
+        // Alertas del sistema: errores registrados en la bitácora en los últimos 7 días
+        // (los convenios ya no vencen, así que no hay alertas de vigencia)
+        $alertasSistema = \DB::table('bitacora')
+            ->where('level', 'danger')
+            ->where('timestamp', '>=', \Carbon\Carbon::now()->subDays(7))
             ->count();
 
         return view('admin.dashboard', compact(
@@ -532,15 +530,13 @@ class AdminController extends Controller
             return redirect()->route('admin.usuarios')->with('error', 'No puedes restablecer tu propia contraseña desde esta sección.');
         }
 
+        // Sin correo no hay forma de entregar la contraseña nueva: no se cambia para no dejar al usuario sin acceso
+        if (! \App\Helpers\CorreosPendientes::enviosHabilitados()) {
+            return redirect()->route('admin.usuarios')->with('error', 'El envío de correos está desactivado. Actívalo en Configuración > Mantenimiento y Preferencias para reenviar credenciales; la contraseña no se cambió.');
+        }
+
         // Generate random secure password (10 characters)
         $randomPassword = Str::random(10);
-
-        // Update password
-        $user->contraseña = Hash::make($randomPassword);
-        $user->save();
-
-        // Con la contraseña nueva, las sesiones abiertas con la anterior se cierran
-        \App\Support\Sesiones::cerrarTodas($user);
 
         // Get user's name
         $name = 'Usuario';
@@ -552,15 +548,19 @@ class AdminController extends Controller
             $name = $user->empresa->nombre_empresa ?? 'Empresa';
         }
 
-        // Send credentials email
-        if (\App\Helpers\SystemSettings::get('send_emails', true)) {
-            try {
-                Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $name));
-            } catch (\Exception $e) {
-                \Log::error("Error al reenviar correo de credenciales a {$user->correo}: " . $e->getMessage());
-                return redirect()->route('admin.usuarios')->with('error', 'No se pudo enviar el correo electrónico, pero la contraseña se actualizó correctamente.');
-            }
+        // Primero se envía el correo; la contraseña solo cambia si el usuario la recibió
+        try {
+            Mail::to($user->correo)->send(new CredentialsNotification($user, $randomPassword, $name));
+        } catch (\Throwable $e) {
+            \Log::error("Error al reenviar correo de credenciales a {$user->correo}: " . $e->getMessage());
+            return redirect()->route('admin.usuarios')->with('error', 'No se pudo enviar el correo electrónico. La contraseña no se cambió; intenta de nuevo más tarde.');
         }
+
+        $user->contraseña = Hash::make($randomPassword);
+        $user->save();
+
+        // Con la contraseña nueva, las sesiones abiertas con la anterior se cierran
+        \App\Support\Sesiones::cerrarTodas($user);
 
         // Log user password reset
         $roleNames = [1 => 'Administrador', 2 => 'Coordinador', 3 => 'Alumno', 4 => 'Empresa'];
@@ -834,8 +834,9 @@ class AdminController extends Controller
         $user = auth()->user();
         $adminName = $user->coordinador->nombre_completo ?? '';
         $settings = \App\Helpers\SystemSettings::all();
+        $director = \App\Helpers\SystemSettings::director();
 
-        return view('admin.config', compact('user', 'adminName', 'settings'));
+        return view('admin.config', compact('user', 'adminName', 'settings', 'director'));
     }
 
     /**
@@ -950,11 +951,12 @@ class AdminController extends Controller
 
         $oldSettings = \App\Helpers\SystemSettings::all();
 
-        \App\Helpers\SystemSettings::save([
+        // Se combinan con los ajustes existentes para no borrar otros (p. ej. el director del plantel)
+        \App\Helpers\SystemSettings::save(array_merge($oldSettings, [
             'maintenance_mode' => $maintenanceMode,
             'send_emails' => $sendEmails,
             'clean_logs_days' => $cleanLogsDays,
-        ]);
+        ]));
 
         // Log settings changes if any
         $changes = [];
@@ -978,6 +980,46 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin.config', ['tab' => 'system'])->with('success', 'Configuración de mantenimiento y preferencias guardada correctamente.');
+    }
+
+    /**
+     * Guarda el director del plantel que aparece en los documentos oficiales generados.
+     */
+    public function updateDirector(Request $request)
+    {
+        if (auth()->user()->rol_id != 1) {
+            return redirect('/');
+        }
+
+        $validated = $request->validate([
+            'director_nombre' => ['required', 'string', 'max:150', 'regex:/^[\pL\s\.\-]+$/u'],
+            'director_cargo' => ['required', 'in:Director,Directora'],
+        ], [
+            'director_nombre.required' => 'El nombre del director es obligatorio.',
+            'director_nombre.max' => 'El nombre del director no puede tener más de 150 caracteres.',
+            'director_nombre.regex' => 'El nombre del director solo puede contener letras, espacios y puntos.',
+            'director_cargo.required' => 'Selecciona el cargo.',
+            'director_cargo.in' => 'El cargo seleccionado no es válido.',
+        ]);
+
+        $nombre = preg_replace('/\s+/u', ' ', trim($validated['director_nombre']));
+        $anterior = \App\Helpers\SystemSettings::director();
+
+        \App\Helpers\SystemSettings::save(array_merge(\App\Helpers\SystemSettings::all(), [
+            'director_nombre' => $nombre,
+            'director_cargo' => $validated['director_cargo'],
+        ]));
+
+        if ($anterior['nombre'] !== $nombre || $anterior['cargo'] !== $validated['director_cargo']) {
+            \App\Helpers\ActivityLogger::log(
+                'Configuración',
+                'Director del Plantel Actualizado',
+                "El administrador cambió el director del plantel de '{$anterior['nombre']}' ({$anterior['cargo']}) a '{$nombre}' ({$validated['director_cargo']}).",
+                'warning'
+            );
+        }
+
+        return redirect()->route('admin.config', ['tab' => 'documents'])->with('success', 'Director del plantel guardado. Los documentos nuevos se generarán a su nombre.');
     }
 
     /**

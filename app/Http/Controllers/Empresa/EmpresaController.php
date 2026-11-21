@@ -214,10 +214,10 @@ class EmpresaController extends Controller
         return $solicitudes;
     }
 
-    /** Convenio más reciente de la empresa (el que se muestra como vigente). */
+    /** Convenio aprobado de la empresa (los convenios no tienen vigencia). */
     private function convenioVigente(Collection $unidades): ?Convenio
     {
-        return Convenio::whereIn('ur_id', $unidades->pluck('id'))->orderByDesc('fecha_termino')->first();
+        return Convenio::whereIn('ur_id', $unidades->pluck('id'))->where('estatus', 'activo')->orderBy('id')->first();
     }
 
     /** Periodo escolar según la fecha de inicio: AGO–ENE o FEB–JUL. */

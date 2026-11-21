@@ -68,6 +68,11 @@
                             {{ \Carbon\Carbon::parse($solicitudActiva->fecha_fin)->format('d/m/Y') }}
                         </span>
                     </div>
+                    @elseif($solicitudActiva->ya_labora)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Periodo</span>
+                        <span>Por definir por la empresa</span>
+                    </div>
                     @endif
                     <div>
                         <span class="block text-gray-400 font-bold mb-0.5">Estatus</span>
@@ -106,7 +111,7 @@
                 <div class="border-t border-gray-100 pt-4 space-y-2.5 text-xs text-gray-700 font-medium">
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas por día</span>
-                        <span>{{ $solicitudActiva->horas_por_dia }} horas</span>
+                        <span>{{ $solicitudActiva->ya_labora && ! $solicitudActiva->fecha_inicio ? 'Por definir (empresa)' : $solicitudActiva->horas_por_dia . ' horas' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas restantes</span>
@@ -134,23 +139,107 @@
                 </h3>
 
                 @if($proyectoAsignado)
-                    <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
-                    @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
-                        <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
+                    @php
+                        // Colores en línea para que no dependan de clases de Tailwind no compiladas
+                        $estatusProyecto = match($proyectoAsignado->estatus) {
+                            'pendiente' => ['label' => 'En revisión por el coordinador', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b'],
+                            'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626'],
+                            default     => ['label' => 'Aprobado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a'],
+                        };
+                    @endphp
+                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mb-2" style="background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
+                        <span class="rounded-full" style="width: 6px; height: 6px; background: {{ $estatusProyecto['dot'] }};"></span>
+                        {{ $estatusProyecto['label'] }}
+                    </span>
+
+                    @if($proyectoAsignado->estatus === 'rechazado')
+                        <div class="mb-3 rounded-xl border px-3 py-2 bg-red-50 border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Proyecto rechazado por el coordinador</p>
+                                <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $proyectoAsignado->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu proyecto y vuelve a enviarlo.' }}</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Corregir y reenviar
+                            </button>
+                        </div>
+                        @push('modals')
+                            @include('estudiante.partials.registrar-proyecto-modal', ['proyectoPrevio' => $proyectoAsignado])
+                        @endpush
                     @endif
 
-                    <div class="mt-4 space-y-3 text-sm text-gray-700">
-                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
-                            @if($proyectoAsignado->$campo)
-                                <div>
-                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{{ $etiqueta }}</span>
-                                    <p class="whitespace-pre-line">{{ $proyectoAsignado->$campo }}</p>
-                                </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
+                            @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
+                                <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
                             @endif
-                        @endforeach
+                        </div>
+                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.remove('hidden')" class="shrink-0 bg-white border border-gray-200 text-[#4E7D24] hover:bg-[#6BA53A]/10 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1">
+                            Ver más
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
                     </div>
+
+                    @push('modals')
+                        {{-- Detalle del proyecto; estilos en línea porque no todas las clases de Tailwind están compiladas --}}
+                        <div id="modal-ver-mi-proyecto" class="hidden" style="position: fixed; inset: 0; z-index: 50;" role="dialog" aria-modal="true" aria-labelledby="ver-mi-proyecto-titulo">
+                            <div onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" style="position: fixed; inset: 0; background: rgba(3, 7, 18, 0.6); backdrop-filter: blur(6px);"></div>
+                            <div style="position: relative; display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1.5rem; pointer-events: none;">
+                                <div style="pointer-events: auto; width: 100%; max-width: 680px; max-height: 88vh; display: flex; flex-direction: column; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);">
+                                    <div style="background: linear-gradient(to right, #4E7D24, #6BA53A); padding: 1.25rem 3.5rem 1.25rem 2rem; position: relative;">
+                                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" aria-label="Cerrar" style="position: absolute; top: 1rem; right: 1rem; color: rgba(255,255,255,0.8); padding: 0.375rem; border-radius: 0.5rem;">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                        <p style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #dcfce7;">Mi Proyecto de Prácticas</p>
+                                        <h2 id="ver-mi-proyecto-titulo" style="font-size: 1.15rem; font-weight: 700; color: #fff; line-height: 1.3; margin-top: 0.25rem;">{{ $proyectoAsignado->titulo }}</h2>
+                                    </div>
+                                    <div style="padding: 1.5rem 2rem; overflow-y: auto; flex: 1 1 auto; min-height: 0;">
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+                                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
+                                                <span style="width: 6px; height: 6px; border-radius: 9999px; background: {{ $estatusProyecto['dot'] }};"></span>
+                                                {{ $estatusProyecto['label'] }}
+                                            </span>
+                                            @foreach(array_filter([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad]) as $etiquetaProyecto)
+                                                <span style="padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f9fafb; color: #4b5563; border: 1px solid #e5e7eb;">{{ $etiquetaProyecto }}</span>
+                                            @endforeach
+                                        </div>
+                                        @if($solicitudActiva->unidadReceptora)
+                                            <div style="margin-bottom: 1rem;">
+                                                <span style="display: block; font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Unidad receptora</span>
+                                                <p style="font-size: 14px; color: #374151;">{{ $solicitudActiva->unidadReceptora->nombre_empresa }}{{ $solicitudActiva->unidadReceptora->unidad_receptora ? ' — ' . $solicitudActiva->unidadReceptora->unidad_receptora : '' }}</p>
+                                            </div>
+                                        @endif
+                                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
+                                            @if($proyectoAsignado->$campo)
+                                                <div style="margin-bottom: 1rem; padding: 0.875rem 1rem; background: #f9fafb; border: 1px solid #f3f4f6; border-radius: 14px;">
+                                                    <span style="display: block; font-size: 11px; font-weight: 700; color: #4E7D24; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">{{ $etiqueta }}</span>
+                                                    <p style="font-size: 14px; color: #374151; white-space: pre-line; line-height: 1.55;">{{ $proyectoAsignado->$campo }}</p>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    <div style="padding: 1rem 2rem; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end;">
+                                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" style="padding: 0.6rem 1.4rem; border-radius: 12px; background: #4E7D24; color: #fff; font-size: 14px; font-weight: 700;">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endpush
                 @else
-                    <p class="text-sm text-gray-500">Aún no tienes un proyecto asignado. Cuando el coordinador te asigne uno, aquí verás su objetivo y actividades.</p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p class="text-sm text-gray-500">Aún no tienes un proyecto registrado. Registra el proyecto que realizarás en tu empresa y aquí verás su objetivo y actividades.</p>
+                        <button type="button" onclick="document.getElementById('modal-registrar-proyecto').classList.remove('hidden')" class="shrink-0 bg-[#4E7D24] text-white hover:bg-[#2E5417] px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Registrar Proyecto
+                        </button>
+                    </div>
+                    @push('modals')
+                        @include('estudiante.partials.registrar-proyecto-modal')
+                    @endpush
+                @endif
+                @if(session('error'))
+                    <p class="mt-3 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{{ session('error') }}</p>
                 @endif
             </div>
 
@@ -249,13 +338,13 @@
                                 @elseif($pdfRouteName)
                                     <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar PDF
+                                        <span data-generar-pdf-label>{{ $doc ? 'Generar de nuevo PDF' : 'Generar PDF' }}</span>
                                     </a>
                                 @endif
                                 @if($wordRouteName && ! $bloqueado)
                                     <a href="{{ route($wordRouteName) }}" hx-boost="false" download class="bg-white border border-gray-200 text-[#2B579A] hover:bg-blue-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Generar Word
+                                        <span data-generar-word-label>{{ $doc ? 'Generar de nuevo Word' : 'Generar Word' }}</span>
                                     </a>
                                 @endif
                                 <div data-doc-action-area class="flex items-center gap-2">
@@ -584,6 +673,14 @@
                 if (actionArea) {
                     actionArea.innerHTML = buildUploadButtonHTML(nombreDoc);
                 }
+                var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+                if (pdfLabel) {
+                    pdfLabel.textContent = 'Generar PDF';
+                }
+                var wordLabel = card.querySelector('[data-generar-word-label]');
+                if (wordLabel) {
+                    wordLabel.textContent = 'Generar Word';
+                }
             }
         }
 
@@ -620,6 +717,16 @@
                 actionArea.innerHTML = buildDocumentActionsHTML(nombreDoc, documento.ruta_archivo, documento.id);
             }
 
+            var pdfLabel = card.querySelector('[data-generar-pdf-label]');
+            if (pdfLabel) {
+                pdfLabel.textContent = 'Generar de nuevo PDF';
+            }
+
+            var wordLabel = card.querySelector('[data-generar-word-label]');
+            if (wordLabel) {
+                wordLabel.textContent = 'Generar de nuevo Word';
+            }
+
             var countEl = document.getElementById('uploadedCountBadge');
             if (countEl && !wasPreviouslyUploaded) {
                 var currentCount = parseInt(countEl.textContent || '0', 10);
@@ -628,6 +735,10 @@
                 }
             }
         }
+
+        @if(session('success'))
+            showToast('¡Proyecto registrado!', @json(session('success')));
+        @endif
 
         // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
         (function() {

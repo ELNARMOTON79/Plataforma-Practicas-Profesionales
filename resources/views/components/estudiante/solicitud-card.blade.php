@@ -36,11 +36,11 @@
     <div class="mt-6 grid gap-4 sm:grid-cols-3">
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
             <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Fecha de Inicio</p>
-            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_inicio?->format('d/m/Y') }}</p>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_inicio?->format('d/m/Y') ?? 'Por definir' }}</p>
         </div>
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
             <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Término estimado</p>
-            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_fin?->format('d/m/Y') ?? '—' }}</p>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ $solicitud->fecha_fin?->format('d/m/Y') ?? 'Por definir' }}</p>
         </div>
         <div class="rounded-3xl border border-gray-100 bg-gray-50 p-4">
             <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400">Horas Previstas</p>

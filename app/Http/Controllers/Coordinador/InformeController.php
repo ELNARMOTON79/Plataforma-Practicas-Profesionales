@@ -126,7 +126,7 @@ class InformeController extends Controller
                 ['texto' => $inst->titular ?? 'Sin titular', 'subtexto' => $inst->cargo ?? 'Sin cargo'],
                 $sector,
                 ($inst->municipio ?? 'Colima') . ', ' . ($inst->estado ?? 'Col.'),
-                ['badge' => 'VIGENTE', 'clase' => 'bg-green-50 text-green-700 border border-green-100'], // Mocking convenio status for now
+                ['badge' => 'APROBADO', 'clase' => 'bg-green-50 text-green-700 border border-green-100'], // Registrada por el coordinador = convenio aprobado
             ];
         }
 

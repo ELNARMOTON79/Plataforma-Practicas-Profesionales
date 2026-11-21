@@ -89,17 +89,20 @@ class UnidadReceptoraController extends Controller
             $ur->convenio = $baseUr->convenio ?: 'Con Convenio';
             $ur->save();
 
+            \App\Models\Convenio::asegurarParaEmpresa($ur);
+
             DB::commit();
 
             // Aviso a la cuenta de la empresa, enviado ya fuera de la transacción
             $user = User::find($baseUr->usuario_id);
+            $correosFallidos = 0;
             if ($user) {
                 $correos = new \App\Helpers\CorreosPendientes();
                 $correos->agregar($user->correo, new NewAssociationNotification($user, $ur->titular, [[
                     'nombre_empresa' => $ur->nombre_empresa,
                     'unidad_receptora' => $ur->unidad_receptora ?: 'General',
                 ]]));
-                $correos->enviar();
+                $correosFallidos = $correos->enviar();
             }
 
             ActivityLogger::log(
@@ -110,7 +113,7 @@ class UnidadReceptoraController extends Controller
             );
 
             return redirect()->route('coordinador.instituciones')
-                ->with('success', "Unidad Receptora \"" . ($ur->unidad_receptora ?: 'General') . "\" agregada correctamente a {$ur->nombre_empresa}.");
+                ->with('success', "Unidad Receptora \"" . ($ur->unidad_receptora ?: 'General') . "\" agregada correctamente a {$ur->nombre_empresa}. " . \App\Helpers\CorreosPendientes::resumen($correosFallidos));
 
         } catch (\Exception $e) {
             DB::rollBack();

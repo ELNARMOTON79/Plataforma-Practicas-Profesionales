@@ -9,6 +9,7 @@
     {{-- Sin copias de páginas en el navegador: tras cerrar sesión, "Atrás" no debe mostrar datos --}}
     <meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
     <script src="{{ asset('vendor/htmx.min.js') }}"></script>
+    <script src="{{ asset('vendor/sweetalert2.all.min.js') }}"></script>
     <style>
         :root {
             --udc-primary: #4E7D24;

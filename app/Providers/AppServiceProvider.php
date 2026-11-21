@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Documento;
+use App\Models\Proyecto;
 use App\Models\Solicitud;
 use App\Observers\DocumentoObserver;
+use App\Observers\ProyectoObserver;
 use App\Observers\SolicitudObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Solicitud::observe(SolicitudObserver::class);
         Documento::observe(DocumentoObserver::class);
+        Proyecto::observe(ProyectoObserver::class);
     }
 }

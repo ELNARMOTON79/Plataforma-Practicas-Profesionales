@@ -45,7 +45,7 @@
                         <div class="flex items-end gap-3 mb-2">
                             <span class="text-4xl font-extrabold text-red-600">{{ number_format($alertasSistema) }}</span>
                         </div>
-                        <span class="text-xs text-red-400 font-medium">Convenios por vencer en 30 días</span>
+                        <span class="text-xs text-red-400 font-medium">Errores en la bitácora (últimos 7 días)</span>
                     </div>
 
                 </div>

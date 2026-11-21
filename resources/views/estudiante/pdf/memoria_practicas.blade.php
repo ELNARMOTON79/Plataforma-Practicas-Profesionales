@@ -190,7 +190,7 @@
             <td>
                 <div class="firma-linea"></div>
                 <div class="firma-nombre">{{ $director ?: '—' }}</div>
-                <div class="firma-rol">{{ $facultad ?: 'Facultad' }}<br>Director</div>
+                <div class="firma-rol">{{ $facultad ?: 'Facultad' }}<br>{{ $directorCargo ?? 'Director' }}</div>
             </td>
         </tr>
     </table>

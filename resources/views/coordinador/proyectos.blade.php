@@ -76,6 +76,14 @@
                     <option value="lleno" {{ request('cupo') == 'lleno' ? 'selected' : '' }}>CUPO LLENO</option>
                 </select>
 
+                <!-- Estatus Select -->
+                <select name="estatus" onchange="this.form.submit()" class="h-10 block w-full sm:w-auto pl-3 pr-10 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-[#6BA53A] font-medium rounded-xl bg-white text-gray-700 shadow-sm cursor-pointer transition-all">
+                    <option value="">Todos los Estatus</option>
+                    <option value="pendiente" {{ request('estatus') == 'pendiente' ? 'selected' : '' }}>PENDIENTES DE REVISIÓN</option>
+                    <option value="aprobado" {{ request('estatus') == 'aprobado' ? 'selected' : '' }}>APROBADOS</option>
+                    <option value="rechazado" {{ request('estatus') == 'rechazado' ? 'selected' : '' }}>RECHAZADOS</option>
+                </select>
+
             </div>
 
             <!-- Right side: Show entries -->
@@ -129,6 +137,18 @@
                                 @if($proyecto->estudiante)
                                     <div class="text-[10px] text-[#4E7D24] font-bold uppercase mt-0.5">Alumno: {{ $proyecto->estudiante->nombre_completo }}</div>
                                 @endif
+                                @if($proyecto->estatus === 'pendiente')
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pendiente de revisión
+                                    </span>
+                                @elseif($proyecto->estatus === 'rechazado')
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-red-700 border border-red-200" title="{{ $proyecto->observaciones }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Rechazado
+                                    </span>
+                                @endif
+                                @if($proyecto->documento_ruta)
+                                    <a href="{{ asset('storage/' . $proyecto->documento_ruta) }}" target="_blank" hx-boost="false" class="inline-block text-[10px] font-bold text-sky-700 underline mt-0.5">Ver documento del proyecto</a>
+                                @endif
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
                                 <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>
@@ -149,6 +169,12 @@
                                     <button type="button" onclick="abrirVerProyecto('{{ $proyecto->id }}')" class="px-4 py-1.5 bg-[#4E7D24] hover:bg-[#2E5417] text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer" title="Ver detalles del proyecto {{ $proyecto->id }}" aria-label="Ver detalles del proyecto {{ $proyecto->id }}">
                                         VER
                                     </button>
+                                    @if($proyecto->estatus === 'pendiente')
+                                        <a href="{{ route('coordinador.tramites', ['tab' => 'proyectos-pendientes']) }}" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 transition-all flex items-center gap-1" title="Revisar trámite de propuesta">
+                                            <span>Revisar en Trámites</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -168,29 +194,38 @@
         </div>
     </div>
 
+    @php
+        $projectDetails = [];
+        foreach ($proyectos as $proyecto) {
+            $empresa = $proyecto->empresa;
+            $projectDetails[$proyecto->id] = [
+                'id' => (string) $proyecto->id,
+                'titulo' => $proyecto->titulo,
+                'unidad' => $empresa?->nombre_empresa
+                    ? strtoupper($empresa->nombre_empresa) . ($empresa->unidad_receptora ? ' — ' . $empresa->unidad_receptora : '')
+                    : 'Sin Unidad',
+                'unidadId' => (string) $proyecto->unidad_receptora_id,
+                'estudianteId' => (string) ($proyecto->estudiante_id ?? ''),
+                'tipoProyecto' => (string) $proyecto->tipo_proyecto,
+                'tipoModalidad' => (string) $proyecto->tipo_modalidad,
+                'objetivo' => $proyecto->objetivo,
+                'justificacion' => $proyecto->justificacion,
+                'actividades' => $proyecto->actividades,
+                'impactoSocial' => $proyecto->impacto_social,
+                'plan' => (string) $proyecto->plan,
+                'ciclo' => (string) $proyecto->ciclo_escolar,
+                'cupo' => $proyecto->cupos_ocupados . ' / ' . $proyecto->cupos_totales,
+                'cuposTotales' => (string) $proyecto->cupos_totales,
+            ];
+        }
+    @endphp
+    {{-- Datos en un bloque JSON aparte para que el editor no marque la sintaxis Blade como errores de JS --}}
+    <script type="application/json" id="project-details-data">{!! json_encode((object) $projectDetails, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
+
     <script>
         function initProyectosPage() {
-            window.projectDetails = {
-                @foreach($proyectos as $proyecto)
-                    "{{ $proyecto->id }}": {
-                        id: "{{ $proyecto->id }}",
-                        titulo: @json($proyecto->titulo),
-                        unidad: @json(optional($proyecto->empresa)->nombre_empresa ? (strtoupper(optional($proyecto->empresa)->nombre_empresa) . (optional($proyecto->empresa)->unidad_receptora ? ' — ' . optional($proyecto->empresa)->unidad_receptora : '')) : 'Sin Unidad'),
-                        unidadId: "{{ $proyecto->unidad_receptora_id }}",
-                        estudianteId: "{{ $proyecto->estudiante_id ?? '' }}",
-                        tipoProyecto: "{{ $proyecto->tipo_proyecto }}",
-                        tipoModalidad: "{{ $proyecto->tipo_modalidad }}",
-                        objetivo: @json($proyecto->objetivo),
-                        justificacion: @json($proyecto->justificacion),
-                        actividades: @json($proyecto->actividades),
-                        impactoSocial: @json($proyecto->impacto_social),
-                        plan: "{{ $proyecto->plan }}",
-                        ciclo: "{{ $proyecto->ciclo_escolar }}",
-                        cupo: "{{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}",
-                        cuposTotales: "{{ $proyecto->cupos_totales }}"
-                    },
-                @endforeach
-            };
+            const projectDetailsData = document.getElementById('project-details-data');
+            window.projectDetails = projectDetailsData ? JSON.parse(projectDetailsData.textContent) : {};
 
             const successAlert = document.getElementById('successAlert');
             if (successAlert) {
@@ -257,7 +292,74 @@
 
             document.getElementById('modal-editar-proyecto').classList.remove('hidden');
         };
+
+        window.revisarProyecto = function(id, accion) {
+            const project = (window.projectDetails || {})[id];
+            if (!project) return;
+
+            const enviar = function(observaciones) {
+                const form = document.getElementById('form-revisar-proyecto');
+                form.action = `/coordinador/proyectos/${project.id}/revisar`;
+                form.querySelector('[name="accion"]').value = accion;
+                form.querySelector('[name="observaciones"]').value = observaciones || '';
+                form.submit();
+            };
+
+            if (typeof Swal === 'undefined') {
+                if (accion === 'aprobar') {
+                    if (confirm(`¿Aprobar el proyecto ${project.titulo}?`)) enviar('');
+                } else {
+                    const motivo = prompt('Motivo del rechazo:');
+                    if (motivo && motivo.trim()) enviar(motivo.trim());
+                }
+                return;
+            }
+
+            const customClass = {
+                popup: 'rounded-3xl p-6 font-sans shadow-2xl',
+                confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md',
+                cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+            };
+
+            if (accion === 'aprobar') {
+                Swal.fire({
+                    title: '¿Aprobar proyecto?',
+                    html: `<p class="text-sm text-gray-600">Se aprobará el proyecto <strong></strong>.</p>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#059669',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, aprobar',
+                    cancelButtonText: 'Cancelar',
+                    customClass: customClass,
+                    didOpen: (popup) => { popup.querySelector('strong').textContent = project.titulo; }
+                }).then((result) => { if (result.isConfirmed) enviar(''); });
+            } else {
+                Swal.fire({
+                    title: 'Rechazar proyecto',
+                    input: 'textarea',
+                    inputLabel: 'Motivo del rechazo (el alumno lo verá para corregir su proyecto)',
+                    inputPlaceholder: 'Ej. El objetivo no corresponde a las actividades descritas...',
+                    inputAttributes: { maxlength: 500 },
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Rechazar proyecto',
+                    cancelButtonText: 'Cancelar',
+                    customClass: customClass,
+                    inputValidator: (value) => !value || !value.trim() ? 'Escribe el motivo del rechazo.' : undefined
+                }).then((result) => { if (result.isConfirmed) enviar(result.value.trim()); });
+            }
+        };
     </script>
+
+    <form id="form-revisar-proyecto" method="POST" class="hidden" hx-boost="false">
+        @csrf
+        @method('PATCH')
+        <input type="hidden" name="accion">
+        <input type="hidden" name="observaciones">
+    </form>
 @endsection
 
 @push('modals')
@@ -267,10 +369,14 @@
 
     {{-- Re-open correct modal on validation errors --}}
     @if($errors->any())
+        <div id="reopen-modal-data" hidden
+             data-method="{{ old('_method') }}"
+             data-edit-id="{{ session('edit_proyecto_id') }}"></div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if(old('_method') === 'PUT')
-                    const editProjId = "{{ session('edit_proyecto_id') }}";
+                const reopenData = document.getElementById('reopen-modal-data');
+                if (reopenData && reopenData.dataset.method === 'PUT') {
+                    const editProjId = reopenData.dataset.editId;
                     if (editProjId) {
                         const form = document.getElementById('form-editar-proyecto');
                         if (form) form.action = `/coordinador/proyectos/${editProjId}`;
@@ -281,10 +387,10 @@
                         const editModal = document.getElementById('modal-editar-proyecto');
                         if (editModal) editModal.classList.remove('hidden');
                     }
-                @else
+                } else {
                     const regModal = document.getElementById('modal-registrar-proyecto');
                     if (regModal) regModal.classList.remove('hidden');
-                @endif
+                }
             });
         </script>
     @endif

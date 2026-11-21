@@ -12,6 +12,7 @@
             <div class="hidden lg:flex items-center space-x-1">
                 <a href="{{ route('empresa.dashboard') }}" class="{{ (isset($active) && $active === 'dashboard') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Dashboard</a>
                 <a href="{{ route('empresa.practicantes') }}" class="{{ (isset($active) && $active === 'practicantes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Practicantes</a>
+                <a href="{{ route('empresa.solicitudes') }}" class="{{ (isset($active) && $active === 'solicitudes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }} whitespace-nowrap">Ya laboran</a>
                 <a href="{{ route('empresa.proyectos') }}" class="{{ (isset($active) && $active === 'proyectos') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Proyectos</a>
                 <a href="{{ route('empresa.convenios') }}" class="{{ (isset($active) && $active === 'convenios') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Convenio</a>
                 <a href="{{ route('empresa.reportes') }}" class="{{ (isset($active) && $active === 'reportes') ? 'text-[#4E7D24] bg-[#6BA53A]/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all' : 'text-gray-600 hover:text-[#4E7D24] hover:bg-[#6BA53A]/5 px-4 py-2 rounded-xl text-sm font-medium transition-all' }}">Reportes</a>
@@ -47,6 +48,7 @@
             @foreach([
                 'dashboard' => ['empresa.dashboard', 'Dashboard'],
                 'practicantes' => ['empresa.practicantes', 'Practicantes'],
+                'solicitudes' => ['empresa.solicitudes', 'Ya laboran'],
                 'proyectos' => ['empresa.proyectos', 'Proyectos'],
                 'convenios' => ['empresa.convenios', 'Convenio'],
                 'reportes' => ['empresa.reportes', 'Reportes'],

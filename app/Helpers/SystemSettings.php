@@ -10,6 +10,9 @@ class SystemSettings
         'maintenance_mode' => false,
         'send_emails' => true,
         'clean_logs_days' => 180,
+        // Director del plantel: firma y destinatario de los documentos oficiales que se generan
+        'director_nombre' => 'M. en I. Eduardo Hernández Barón',
+        'director_cargo' => 'Director',
     ];
 
     /**
@@ -47,6 +50,20 @@ class SystemSettings
     {
         $settings = self::all();
         return $settings[$key] ?? $default;
+    }
+
+    /**
+     * Nombre (con grado académico) y cargo del director del plantel para los documentos generados.
+     * Si alguno quedó vacío se usa el valor por defecto.
+     */
+    public static function director(): array
+    {
+        $settings = self::all();
+
+        return [
+            'nombre' => trim((string) ($settings['director_nombre'] ?? '')) ?: self::$defaults['director_nombre'],
+            'cargo' => trim((string) ($settings['director_cargo'] ?? '')) ?: self::$defaults['director_cargo'],
+        ];
     }
 
     /**

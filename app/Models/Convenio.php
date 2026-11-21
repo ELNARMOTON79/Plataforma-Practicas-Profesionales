@@ -30,6 +30,27 @@ class Convenio extends Model
     }
 
     /**
+     * Si el coordinador registró la institución, su convenio está aprobado (sin vigencia).
+     * Crea el convenio de la empresa dueña de la unidad receptora si todavía no tiene uno.
+     * Las demás unidades de la misma empresa quedan cubiertas por ese convenio.
+     */
+    public static function asegurarParaEmpresa(UnidadReceptora $ur): self
+    {
+        $unidadesDeLaEmpresa = UnidadReceptora::where('usuario_id', $ur->usuario_id)->pluck('id');
+
+        $existente = static::whereIn('ur_id', $unidadesDeLaEmpresa)->orderBy('id')->first();
+        if ($existente) {
+            return $existente;
+        }
+
+        return static::create([
+            'ur_id' => $ur->id,
+            'codigo_convenio' => 'CONV-' . now()->year . '-' . $ur->id,
+            'estatus' => 'activo',
+        ]);
+    }
+
+    /**
      * Folio a mostrar de cada convenio, indexado por codigo_convenio: se reemplaza el número final
      * del código por un consecutivo según el orden en que se registró (CONV-2024-118 → CONV-2024-01).
      */

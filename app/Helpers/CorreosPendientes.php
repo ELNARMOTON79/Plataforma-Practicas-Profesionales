@@ -49,6 +49,20 @@ class CorreosPendientes
         return $fallidos;
     }
 
+    /**
+     * Texto para el mensaje de éxito según si los correos se enviaron, fallaron o están desactivados.
+     */
+    public static function resumen(int $fallidos): string
+    {
+        if (! self::enviosHabilitados()) {
+            return 'El envío de correos está desactivado; no se notificó por correo.';
+        }
+
+        return $fallidos > 0
+            ? "Atención: {$fallidos} correo(s) no se pudieron enviar."
+            : 'Se envió la notificación por correo.';
+    }
+
     public static function enviosHabilitados(): bool
     {
         return (bool) SystemSettings::get('send_emails', true);

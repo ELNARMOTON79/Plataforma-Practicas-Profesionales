@@ -46,6 +46,7 @@ Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(
     Route::post('/admin/config/profile', [App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.config.profile');
     Route::post('/admin/config/password', [App\Http\Controllers\AdminController::class, 'updatePassword'])->name('admin.config.password');
     Route::post('/admin/config/settings', [App\Http\Controllers\AdminController::class, 'updateSettings'])->name('admin.config.settings');
+    Route::post('/admin/config/director', [App\Http\Controllers\AdminController::class, 'updateDirector'])->name('admin.config.director');
     Route::post('/admin/config/clean-logs', [App\Http\Controllers\AdminController::class, 'cleanLogsNow'])->name('admin.config.clean-logs');
 
     Route::get('/admin/usuarios', [App\Http\Controllers\AdminController::class, 'usuarios'])->name('admin.usuarios');
@@ -75,11 +76,14 @@ Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(
     Route::get('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'proyectos'])->name('coordinador.proyectos');
     Route::post('/coordinador/proyectos', [App\Http\Controllers\Coordinador\ProyectoController::class, 'storeProyecto'])->name('coordinador.proyectos.store');
     Route::put('/coordinador/proyectos/{id}', [App\Http\Controllers\Coordinador\ProyectoController::class, 'updateProyecto'])->name('coordinador.proyectos.update');
-    Route::patch('/coordinador/proyectos/{id}/toggle-status', [App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
+    Route::patch('/coordinador/proyectos/{id}/revisar', [App\Http\Controllers\Coordinador\ProyectoController::class, 'revisarProyecto'])->name('coordinador.proyectos.revisar');
+    Route::patch('/coordinador/proyectos/{id}/toggle-status',[App\Http\Controllers\Coordinador\ProyectoController::class, 'toggleProyectoStatus'])->name('coordinador.proyectos.toggle-status');
 
     Route::get('/coordinador/tramites', [App\Http\Controllers\Coordinador\TramiteController::class, 'tramites'])->name('coordinador.tramites');
     Route::patch('/coordinador/tramites/solicitud/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarSolicitud'])->name('coordinador.tramites.solicitud.aprobar');
     Route::patch('/coordinador/tramites/solicitud/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarSolicitud'])->name('coordinador.tramites.solicitud.rechazar');
+    Route::patch('/coordinador/tramites/proyecto/{id}/aprobar', [App\Http\Controllers\Coordinador\TramiteController::class, 'aprobarProyecto'])->name('coordinador.tramites.proyecto.aprobar');
+    Route::patch('/coordinador/tramites/proyecto/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarProyecto'])->name('coordinador.tramites.proyecto.rechazar');
     Route::patch('/coordinador/tramites/documento/{id}/validar', [App\Http\Controllers\Coordinador\TramiteController::class, 'validarDocumento'])->name('coordinador.tramites.documento.validar');
     Route::patch('/coordinador/tramites/documento/{id}/rechazar', [App\Http\Controllers\Coordinador\TramiteController::class, 'rechazarDocumento'])->name('coordinador.tramites.documento.rechazar');
 
@@ -106,7 +110,8 @@ Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(
     Route::get('/estudiante/proyecto/plan-trabajo', [DashboardController::class, 'generarPlanTrabajo'])->name('estudiante.planTrabajoPdf');
     Route::get('/estudiante/proyecto/memoria-practicas', [DashboardController::class, 'generarMemoriaPracticas'])->name('estudiante.memoriaPracticasPdf');
     Route::get('/estudiante/proyecto/carta-termino', [DashboardController::class, 'generarCartaTermino'])->name('estudiante.cartaTerminoWord');
-    Route::post('/estudiante/proyecto/documento', [DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
+    Route::post('/estudiante/proyecto/registrar', [DashboardController::class, 'registrarProyecto'])->name('estudiante.registrarProyecto');
+    Route::post('/estudiante/proyecto/documento',[DashboardController::class, 'subirDocumento'])->name('estudiante.subirDocumento');
     Route::delete('/estudiante/documento/{id}', [DashboardController::class, 'eliminarDocumento'])->name('estudiante.eliminarDocumento');
     Route::get('/estudiante/mis-solicitudes', [DashboardController::class, 'misSolicitudes'])->name('estudiante.misSolicitudes');
     Route::post('/estudiante/solicitudes', [DashboardController::class, 'storeSolicitud'])->name('estudiante.storeSolicitud');
@@ -126,6 +131,8 @@ Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(
     Route::get('/empresa/perfil', [App\Http\Controllers\Empresa\EmpresaController::class, 'perfil'])->name('empresa.perfil');
     Route::post('/empresa/perfil/password', [App\Http\Controllers\Empresa\EmpresaController::class, 'actualizarContrasena'])->name('empresa.perfil.password');
 
-    // La empresa no acepta ni rechaza solicitudes (lo hace el coordinador); la ruta antigua lleva a Practicantes
-    Route::redirect('/empresa/solicitudes', '/empresa/practicantes')->name('empresa.solicitudes');
+    // La empresa no acepta ni rechaza solicitudes (lo hace el coordinador). Aquí solo define fechas
+    // y horario de los alumnos que ya laboran en ella.
+    Route::get('/empresa/solicitudes', [App\Http\Controllers\Empresa\SolicitudController::class, 'index'])->name('empresa.solicitudes');
+    Route::post('/empresa/solicitudes/{id}/periodo', [App\Http\Controllers\Empresa\SolicitudController::class, 'definirPeriodo'])->whereNumber('id')->name('empresa.solicitudes.periodo');
 });

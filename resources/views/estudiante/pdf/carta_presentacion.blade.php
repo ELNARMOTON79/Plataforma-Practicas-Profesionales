@@ -124,7 +124,7 @@
 
     <div class="firma">
         <div class="linea"></div>
-        Coordinador(a) de Prácticas Profesionales
+        {{ $director['nombre'] }}<br>{{ $director['cargo'] }} del plantel
     </div>
 
     <div class="aviso">

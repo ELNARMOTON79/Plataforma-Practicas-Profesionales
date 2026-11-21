@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Estudiante;
 
+use App\Helpers\SystemSettings;
 use App\Http\Controllers\Controller;
 use App\Models\Documento;
 use App\Models\Estudiante;
@@ -152,7 +153,7 @@ class DashboardController extends Controller
         $search        = trim(request('q', ''));
         $carreraFilter = trim(request('carrera', ''));
 
-        $query = Convenio::with('unidadReceptora')->whereHas('unidadReceptora');
+        $query = Convenio::with('unidadReceptora')->where('estatus', 'activo')->whereHas('unidadReceptora');
 
         if (strlen($search) >= 2) {
             $query->whereHas('unidadReceptora', function ($q) use ($search) {
@@ -177,9 +178,6 @@ class DashboardController extends Controller
                 return (object) [
                     'codigo_convenio' => $codigo,
                     'folio'           => $folios[$codigo] ?? $codigo,
-                    'fecha_inicio'    => $grupo->min('fecha_inicio'),
-                    'fecha_termino'   => $grupo->max('fecha_termino'),
-                    'vigente'         => $grupo->contains(fn ($c) => $c->estatus === 'activo' && $c->fecha_termino >= now()->toDateString()),
                     'empresas'        => $grupo->pluck('unidadReceptora')->filter()->unique('id')->values(),
                 ];
             })
@@ -213,6 +211,7 @@ class DashboardController extends Controller
             'carreraFilter'      => $carreraFilter,
             'carreras'           => $carreras,
             'horasMeta'          => $horasMeta,
+            'modalidadEstudiante' => $estudianteActual?->modalidadPractica() ?? 'practica_integrativa',
             'bloqueoSolicitud'   => $estudianteActual ? $this->bloqueoNuevaSolicitud($estudianteActual) : null,
         ]);
     }
@@ -254,7 +253,7 @@ class DashboardController extends Controller
 
                 $convenio = Convenio::whereIn('ur_id', $urIds)
                     ->orderByRaw('ur_id = ? desc', [$solicitudActiva->ur_id])
-                    ->orderByDesc('fecha_termino')
+                    ->orderBy('id')
                     ->first();
 
                 if ($convenio) {
@@ -281,6 +280,95 @@ class DashboardController extends Controller
             'convenioFolio'    => $convenioFolio,
             'proyectoAsignado' => $proyectoAsignado,
         ]);
+    }
+
+    /**
+     * El estudiante registra el proyecto que realizará en la empresa de su solicitud activa.
+     */
+    public function registrarProyecto(Request $request)
+    {
+        if (Auth::user()?->rol_id != 3) {
+            return redirect('/');
+        }
+
+        $estudiante = Estudiante::where('usuario_id', Auth::id())->first();
+        $solicitudActiva = $estudiante ? $this->getSolicitudActiva($estudiante, [], incluirFinalizada: true) : null;
+
+        if (! $solicitudActiva) {
+            return redirect()->route('estudiante.proyecto')
+                ->with('error', 'Necesitas una solicitud de prácticas aprobada para registrar tu proyecto.');
+        }
+
+        // Solo se puede volver a enviar un proyecto que el coordinador rechazó
+        $proyectoExistente = Proyecto::where('estudiante_id', $estudiante->id)->first();
+        if ($proyectoExistente && $proyectoExistente->estatus !== 'rechazado') {
+            return redirect()->route('estudiante.proyecto')
+                ->with('error', 'Ya tienes un proyecto registrado.');
+        }
+
+        $validated = $request->validate([
+            'titulo'         => ['required', 'string', 'min:10', 'max:150', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\.\,\-\:\/]+$/u'],
+            'objetivo'       => ['required', 'string', 'min:20', 'max:1000'],
+            'justificacion'  => ['required', 'string', 'min:20', 'max:1000'],
+            'actividades'    => ['required', 'string', 'min:20', 'max:1000'],
+            'impacto_social' => ['required', 'string', 'min:20', 'max:1000'],
+            'tipo_proyecto'  => ['required', 'string', Rule::in(['Desarrollo Tecnológico', 'Investigación', 'Asistencia Social', 'Administrativo', 'Infraestructura'])],
+            'tipo_modalidad' => ['required', 'string', Rule::in(['Presencial', 'Híbrido', 'Virtual'])],
+            // Quien ya trabaja en la empresa entrega el documento del proyecto con sus fechas y horario
+            'documento_proyecto' => [$solicitudActiva->ya_labora && ! $proyectoExistente?->documento_ruta ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:10240'],
+        ], [
+            'documento_proyecto.required' => 'Sube el documento del proyecto que te entregó la empresa.',
+            'documento_proyecto.mimes'    => 'El documento del proyecto debe ser un archivo PDF.',
+            'documento_proyecto.max'      => 'El documento del proyecto no debe superar los 10 MB.',
+            'titulo.required'         => 'El título del proyecto es requerido.',
+            'titulo.min'              => 'El título debe tener al menos 10 caracteres.',
+            'titulo.max'              => 'El título no debe superar los 150 caracteres.',
+            'titulo.regex'            => 'El título contiene caracteres no permitidos.',
+            'objetivo.required'       => 'El objetivo es requerido.',
+            'objetivo.min'            => 'El objetivo debe tener al menos 20 caracteres.',
+            'objetivo.max'            => 'El objetivo no debe superar los 1000 caracteres.',
+            'justificacion.required'  => 'La justificación es requerida.',
+            'justificacion.min'       => 'La justificación debe tener al menos 20 caracteres.',
+            'justificacion.max'       => 'La justificación no debe superar los 1000 caracteres.',
+            'actividades.required'    => 'Las actividades son requeridas.',
+            'actividades.min'         => 'Las actividades deben tener al menos 20 caracteres.',
+            'actividades.max'         => 'Las actividades no deben superar los 1000 caracteres.',
+            'impacto_social.required' => 'El impacto social es requerido.',
+            'impacto_social.min'      => 'El impacto social debe tener al menos 20 caracteres.',
+            'impacto_social.max'      => 'El impacto social no debe superar los 1000 caracteres.',
+            'tipo_proyecto.required'  => 'El tipo de proyecto es requerido.',
+            'tipo_proyecto.in'        => 'El tipo de proyecto seleccionado no es válido.',
+            'tipo_modalidad.required' => 'El tipo de modalidad es requerido.',
+            'tipo_modalidad.in'       => 'La modalidad seleccionada no es válida.',
+        ]);
+
+        unset($validated['documento_proyecto']);
+        if ($request->hasFile('documento_proyecto')) {
+            $validated['documento_ruta'] = $request->file('documento_proyecto')->store('proyectos', 'public');
+        }
+
+        $datos = $validated + [
+            'unidad_receptora_id' => $solicitudActiva->ur_id,
+            'estudiante_id'       => $estudiante->id,
+            'cupos_totales'       => 1,
+            'cupos_ocupados'      => 1,
+            'publico_internet'    => 'SI',
+            'plan'                => 'E906',
+            'ciclo_escolar'       => 'AGO-2026/ENE-2027',
+            'activo'              => true,
+            'estatus'             => 'pendiente',
+            'observaciones'       => null,
+        ];
+
+        if ($proyectoExistente) {
+            $proyectoExistente->update($datos);
+            $proyecto = $proyectoExistente;
+        } else {
+            $proyecto = Proyecto::create($datos);
+        }
+
+        return redirect()->route('estudiante.proyecto')
+            ->with('success', "Proyecto \"{$proyecto->titulo}\" enviado. Queda pendiente de revisión por el coordinador.");
     }
 
     public function generarCartaPresentacion()
@@ -316,8 +404,9 @@ class DashboardController extends Controller
             'empresaDireccion' => implode(', ', $direccionPartes),
             'destinatarioNombre' => $ur?->titular ?: 'A quien corresponda',
             'destinatarioCargo'  => $ur?->cargo ?? '',
-            'lugar'            => $ur?->municipio ?: 'Colima, Col.',
+            'lugar'            => implode(', ', array_filter([$ur?->municipio, $ur?->estado])) ?: 'Colima, Colima',
             'fecha'            => Carbon::now()->translatedFormat('d \d\e F \d\e Y'),
+            'director'         => SystemSettings::director(),
         ])->setPaper('letter');
 
         $filename = 'carta_presentacion_' . Str::slug($estudiante->nombre_completo) . '.pdf';
@@ -395,12 +484,14 @@ class DashboardController extends Controller
         }
 
         $ur = $solicitudActiva->unidadReceptora;
+        $director = SystemSettings::director();
 
         $pdf = Pdf::loadView('estudiante.pdf.memoria_practicas', [
             'nombreEstudiante' => $estudiante->nombre_completo,
             'matricula'        => $estudiante->matricula,
             'facultad'         => 'Facultad de Ingeniería Electromecánica',
-            'director'         => 'M. en I. Eduardo Hernández Barón',
+            'director'         => $director['nombre'],
+            'directorCargo'    => $director['cargo'],
             'empresaNombre'    => $ur?->nombre_empresa ?? 'Empresa no especificada',
             'asesorEmpresa'    => $solicitudActiva->responsable,
             'lugar'            => $ur?->municipio ?: 'Colima, Col.',
@@ -467,9 +558,10 @@ class DashboardController extends Controller
         $section->addText('Asunto: Carta de Término de Práctica Profesional', [], $right);
         $section->addTextBreak(2);
 
-        $section->addText('M. en I. Eduardo Hernández Barón');
+        $director = SystemSettings::director();
+        $section->addText($director['nombre']);
         $section->addText('Facultad de Ingeniería Electromecánica');
-        $section->addText('Director');
+        $section->addText($director['cargo']);
         $section->addTextBreak(1);
         $section->addText('P r e s e n t e .');
         $section->addTextBreak(2);
@@ -847,9 +939,10 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
             'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
-            'fecha_inicio'=> ['required', 'date', 'after_or_equal:today'],
-            'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
-            'modalidad'    => ['required', 'string', Rule::in(array_keys(Solicitud::MODALIDADES))],
+            'ya_labora'   => ['nullable', 'boolean'],
+            // Si ya trabaja en la empresa, las fechas y horas las define la empresa después
+            'fecha_inicio'=> ['exclude_if:ya_labora,1', 'required', 'date', 'after_or_equal:today'],
+            'horas_por_dia'=> ['exclude_if:ya_labora,1', 'required', 'integer', Rule::in([6, 8])],
             'observaciones'=> ['nullable', 'string', 'max:200', 'regex:/^[\pL\s.,]+$/u'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
@@ -863,31 +956,34 @@ class DashboardController extends Controller
             'observaciones.regex'   => 'Las observaciones solo pueden contener letras.',
             'horas_por_dia.required'=> 'Indica cuántas horas al día realizarás tus prácticas.',
             'horas_por_dia.in'      => 'Las horas por día deben ser 6 u 8.',
-            'modalidad.required'    => 'Selecciona el tipo de modalidad.',
-            'modalidad.in'          => 'La modalidad seleccionada no es válida.',
             'observaciones.max'     => 'Las observaciones no pueden superar 200 caracteres.',
         ]);
 
-        $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
-        $fechaFin = Solicitud::calcularFechaFin($fechaInicio, (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
+        $yaLabora = $request->boolean('ya_labora');
+        $fechaFin = $yaLabora
+            ? null
+            : Solicitud::calcularFechaFin(\Carbon\CarbonImmutable::parse($validated['fecha_inicio']), (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
 
         $solicitud = Solicitud::create([
             'estudiante_id' => $estudiante->id,
             'ur_id'         => $validated['ur_id'],
             'responsable'   => $validated['responsable'],
-            'fecha_inicio'  => $validated['fecha_inicio'],
-            'fecha_fin'     => $fechaFin->toDateString(),
-            'horas_por_dia' => $validated['horas_por_dia'],
-            'modalidad'     => $validated['modalidad'],
+            'fecha_inicio'  => $yaLabora ? null : $validated['fecha_inicio'],
+            'fecha_fin'     => $fechaFin?->toDateString(),
+            'horas_por_dia' => $yaLabora ? 8 : $validated['horas_por_dia'],
+            'modalidad'     => $estudiante->modalidadPractica(),
+            'ya_labora'     => $yaLabora,
             'estatus'       => 'pendiente',
             'observaciones' => $validated['observaciones'] ?? null,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
+            'message' => $yaLabora
+                ? 'Solicitud enviada correctamente. Está pendiente de revisión; la empresa definirá tus fechas y horario.'
+                : 'Solicitud enviada correctamente. Está pendiente de revisión.',
             'solicitud_id' => $solicitud->id,
-            'fecha_fin' => $fechaFin->locale('es')->translatedFormat('d \d\e F \d\e Y'),
+            'fecha_fin' => $fechaFin?->locale('es')->translatedFormat('d \d\e F \d\e Y'),
         ]);
     }
 

@@ -110,6 +110,9 @@ class PracticanteController extends Controller
 
         $solicitud->sincronizarEstatus();
 
+        // El alumno recibe por correo las horas que le registró la empresa
+        \App\Support\NotificadorAlumno::horas($solicitud, $semana, (float) $data['horas']);
+
         $alumno = $solicitud->estudiante?->nombre_completo ?? 'alumno';
         $rango = $semana['inicio']->format('d/m/Y') . ' - ' . $semana['fin']->format('d/m/Y');
 

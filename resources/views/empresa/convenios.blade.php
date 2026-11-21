@@ -12,20 +12,9 @@
                     <p class="text-sm text-gray-500 mt-1">{{ $empresa }}</p>
                 </div>
                 <span class="self-start sm:self-center inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-sm font-bold text-green-700 bg-green-50 border-green-200">
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span> Vigente
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span> Aprobado
                 </span>
             </div>
-
-            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                <div class="rounded-2xl bg-white/60 border border-gray-100 px-4 py-3">
-                    <dt class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Inicio de vigencia</dt>
-                    <dd class="text-sm font-bold text-gray-900">{{ $convenio->fecha_inicio?->format('d/m/Y') ?? '—' }}</dd>
-                </div>
-                <div class="rounded-2xl bg-white/60 border border-gray-100 px-4 py-3">
-                    <dt class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Término de vigencia</dt>
-                    <dd class="text-sm font-bold text-gray-900">{{ $convenio->fecha_termino?->format('d/m/Y') ?? '—' }}</dd>
-                </div>
-            </dl>
 
             <div class="mt-6">
                 <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Unidades receptoras incluidas</h3>

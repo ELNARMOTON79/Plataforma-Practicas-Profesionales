@@ -111,13 +111,10 @@ class InstitucionController extends Controller
             ->get()
             ->groupBy('nombre_empresa');
 
-        // Fetch all fields of each unidad_receptora per empresa for the modal, including latest convenio expiration date
+        // Fetch all fields of each unidad_receptora per empresa for the modal
         $unidades = DB::table('unidades_receptoras')
             ->whereIn('nombre_empresa', $nombres)
-            ->select([
-                'unidades_receptoras.*',
-                DB::raw('(SELECT fecha_termino FROM convenios WHERE convenios.ur_id = unidades_receptoras.id ORDER BY convenios.id DESC LIMIT 1) as fecha_vencimiento')
-            ])
+            ->select('unidades_receptoras.*')
             ->orderBy('unidad_receptora')
             ->get()
             ->groupBy('nombre_empresa');
@@ -235,6 +232,9 @@ class InstitucionController extends Controller
             $ur->convenio = 'Con Convenio';
             $ur->save();
 
+            // Registrada por el coordinador = convenio aprobado; así la ven los alumnos
+            \App\Models\Convenio::asegurarParaEmpresa($ur);
+
             $unitsAdded = [[
                 'nombre_empresa' => $ur->nombre_empresa,
                 'unidad_receptora' => $ur->unidad_receptora ?: 'General'
@@ -247,7 +247,7 @@ class InstitucionController extends Controller
             $correos->agregar($user->correo, $isNewUser
                 ? new CredentialsNotification($user, $randomPassword, $ur->titular, $unitsAdded)
                 : new NewAssociationNotification($user, $ur->titular, $unitsAdded));
-            $correos->enviar();
+            $correosFallidos = $correos->enviar();
 
             // Log activity
             \App\Helpers\ActivityLogger::log(
@@ -258,7 +258,7 @@ class InstitucionController extends Controller
             );
 
             return redirect()->route('coordinador.instituciones')
-                ->with('success', "Institución \"{$ur->nombre_empresa}\" (" . ($ur->unidad_receptora ?: 'General') . ") registrada correctamente.");
+                ->with('success', "Institución \"{$ur->nombre_empresa}\" (" . ($ur->unidad_receptora ?: 'General') . ") registrada correctamente. " . CorreosPendientes::resumen($correosFallidos));
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -417,6 +417,8 @@ class InstitucionController extends Controller
                     $ur->telefono = trim($inst['telefono'] ?? '');
                     $ur->convenio = 'Con Convenio';
                     $ur->save();
+
+                    \App\Models\Convenio::asegurarParaEmpresa($ur);
 
                     $unitsAdded[] = [
                         'nombre_empresa' => $ur->nombre_empresa,

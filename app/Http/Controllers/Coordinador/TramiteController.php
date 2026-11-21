@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Coordinador;
 
 use App\Http\Controllers\Controller;
 use App\Models\Documento;
+use App\Models\Proyecto;
 use App\Models\Solicitud;
+use App\Support\NotificadorAlumno;
 use Illuminate\Http\Request;
 
 class TramiteController extends Controller
@@ -19,12 +21,13 @@ class TramiteController extends Controller
         }
 
         // Solo se consulta y pinta la pestaña activa, paginada en el servidor
-        $tabsValidas = ['solicitudes', 'solicitudes-todas', 'doc-pendientes', 'doc-validados'];
+        $tabsValidas = ['solicitudes', 'solicitudes-todas', 'proyectos-pendientes', 'doc-pendientes', 'doc-validados'];
         $activeTab = in_array($request->input('tab'), $tabsValidas, true) ? $request->input('tab') : 'solicitudes';
         $search = trim((string) ($request->input('search') ?? $request->input('search_solicitudes') ?? $request->input('search_documentos') ?? ''));
         $porPagina = 10;
 
         $solicitudes = collect();
+        $proyectosPendientes = collect();
         $documentosPendientes = collect();
         $documentosValidados = collect();
 
@@ -48,6 +51,26 @@ class TramiteController extends Controller
             }
 
             $solicitudes = $solicitudesQuery->paginate($porPagina)->withQueryString();
+        } elseif ($activeTab === 'proyectos-pendientes') {
+            // Propuestas de proyecto de estudiantes pendientes de revisión
+            $proyectosQuery = Proyecto::with(['estudiante', 'empresa'])
+                ->where('estatus', 'pendiente')
+                ->orderBy('id', 'desc');
+
+            if ($search !== '') {
+                $proyectosQuery->where(function ($q) use ($search) {
+                    $q->where('titulo', 'like', "%{$search}%")
+                      ->orWhereHas('estudiante', function ($qEst) use ($search) {
+                          $qEst->where('nombre_completo', 'like', "%{$search}%")
+                               ->orWhere('matricula', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('empresa', function ($qEmp) use ($search) {
+                          $qEmp->where('nombre_empresa', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            $proyectosPendientes = $proyectosQuery->paginate($porPagina)->withQueryString();
         } else {
             $documentosQuery = Documento::with(['solicitud.estudiante'])
                 ->when($activeTab === 'doc-pendientes',
@@ -75,6 +98,7 @@ class TramiteController extends Controller
 
         // Calculate counts
         $solicitudesPendientesCount = Solicitud::where('estatus', 'pendiente')->count();
+        $proyectosPendientesCount   = Proyecto::where('estatus', 'pendiente')->count();
         $documentosPendientesCount  = Documento::where('estatus', 'pendiente')->count();
         $documentosValidadosCount   = Documento::whereIn('estatus', ['validado', 'aprobado'])->count();
         $solicitudesAprobadasCount  = Solicitud::whereIn('estatus', ['aprobada', 'en_proceso', 'finalizada'])->count();
@@ -83,6 +107,8 @@ class TramiteController extends Controller
             'activeTab',
             'search',
             'solicitudes',
+            'proyectosPendientes',
+            'proyectosPendientesCount',
             'documentosPendientes',
             'documentosValidados',
             'solicitudesPendientesCount',
@@ -90,6 +116,63 @@ class TramiteController extends Controller
             'documentosValidadosCount',
             'solicitudesAprobadasCount'
         ));
+    }
+
+    /**
+     * Approve a student's project proposal.
+     */
+    public function aprobarProyecto(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $proyecto = Proyecto::findOrFail($id);
+        $proyecto->estatus = 'aprobado';
+
+        if ($request->filled('observaciones')) {
+            $request->validate(['observaciones' => 'nullable|string|max:500']);
+            $proyecto->observaciones = strip_tags(trim($request->input('observaciones')));
+        } else {
+            $proyecto->observaciones = null;
+        }
+
+        $proyecto->save();
+
+        if ($proyecto->wasChanged('estatus')) {
+            NotificadorAlumno::proyecto($proyecto);
+        }
+
+        return redirect()->back()->with('success', "Proyecto \"{$proyecto->titulo}\" aprobado correctamente e incorporado al catálogo.");
+    }
+
+    /**
+     * Reject a student's project proposal.
+     */
+    public function rechazarProyecto(Request $request, $id)
+    {
+        if (auth()->check() && auth()->user()->rol_id != 2) {
+            return redirect('/');
+        }
+
+        $proyecto = Proyecto::findOrFail($id);
+        $proyecto->estatus = 'rechazado';
+
+        $request->validate([
+            'observaciones' => 'required|string|max:500'
+        ], [
+            'observaciones.required' => 'Indica el motivo del rechazo para que el alumno pueda corregir su proyecto.',
+            'observaciones.max'      => 'El motivo no debe superar los 500 caracteres.'
+        ]);
+
+        $proyecto->observaciones = strip_tags(trim($request->input('observaciones')));
+        $proyecto->save();
+
+        if ($proyecto->wasChanged('estatus')) {
+            NotificadorAlumno::proyecto($proyecto);
+        }
+
+        return redirect()->back()->with('success', "Proyecto \"{$proyecto->titulo}\" rechazado. El alumno podrá corregirlo y reenviarlo.");
     }
 
     /**
@@ -116,6 +199,10 @@ class TramiteController extends Controller
             $solicitud->estudiante->update(['activo_practica' => 1]);
         }
 
+        if ($solicitud->wasChanged('estatus')) {
+            NotificadorAlumno::solicitud($solicitud);
+        }
+
         return redirect()->back()->with('success', 'Solicitud aprobada correctamente.');
     }
 
@@ -139,6 +226,10 @@ class TramiteController extends Controller
 
         $solicitud->save();
 
+        if ($solicitud->wasChanged('estatus')) {
+            NotificadorAlumno::solicitud($solicitud);
+        }
+
         return redirect()->back()->with('success', 'Solicitud rechazada correctamente.');
     }
 
@@ -161,6 +252,10 @@ class TramiteController extends Controller
 
         $documento->save();
 
+        if ($documento->wasChanged('estatus')) {
+            NotificadorAlumno::documento($documento);
+        }
+
         return redirect()->back()->with('success', 'Documento validado correctamente.');
     }
 
@@ -182,6 +277,10 @@ class TramiteController extends Controller
         }
 
         $documento->save();
+
+        if ($documento->wasChanged('estatus')) {
+            NotificadorAlumno::documento($documento);
+        }
 
         return redirect()->back()->with('success', 'Documento rechazado.');
     }
