@@ -26,6 +26,7 @@ class Proyecto extends Model
         'activo',
         'estatus',
         'observaciones',
+        'documento_ruta',
     ];
 
     protected $casts = [

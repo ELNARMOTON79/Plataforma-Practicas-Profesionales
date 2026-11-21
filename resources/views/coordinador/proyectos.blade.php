@@ -146,6 +146,9 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Rechazado
                                     </span>
                                 @endif
+                                @if($proyecto->documento_ruta)
+                                    <a href="{{ asset('storage/' . $proyecto->documento_ruta) }}" target="_blank" hx-boost="false" class="inline-block text-[10px] font-bold text-sky-700 underline mt-0.5">Ver documento del proyecto</a>
+                                @endif
                             </td>
                             <td class="px-3 py-4 text-center max-w-[180px] whitespace-normal">
                                 <div class="text-xs text-gray-600 font-bold leading-tight break-words uppercase">FACULTAD DE INGENIERÍA ELECTROMECÁNICA / {{ $proyecto->plan }}</div>

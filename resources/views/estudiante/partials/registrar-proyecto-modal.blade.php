@@ -71,7 +71,7 @@
             </style>
 
             <!-- Registration Form with Scrollable Body -->
-            <form id="form-registrar-proyecto" action="{{ route('estudiante.registrarProyecto') }}" method="POST" hx-boost="false" class="rp-body px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
+            <form id="form-registrar-proyecto" action="{{ route('estudiante.registrarProyecto') }}" method="POST" enctype="multipart/form-data" hx-boost="false" class="rp-body px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
                 @csrf
 
                 <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center mb-2">Información del Proyecto</h4>
@@ -84,6 +84,19 @@
                     </div>
                     <p class="text-[11px] text-gray-400 mt-1">Tomada de tu solicitud de prácticas. El proyecto quedará asignado a ti.</p>
                 </div>
+
+                @if($solicitudActiva->ya_labora)
+                    <!-- Documento del proyecto (solo para quien ya trabaja en la empresa) -->
+                    <div>
+                        <label for="reg-documento" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Documento del Proyecto (PDF) <span class="text-red-500">*</span></label>
+                        <input type="file" id="reg-documento" name="documento_proyecto" accept="application/pdf,.pdf" {{ ($proyectoPrevio ?? null)?->documento_ruta ? '' : 'required' }} style="display: block; width: 100%; padding: 0.6rem 1rem; border: 1px dashed #d1d5db; border-radius: 0.75rem; background: #f9fafb; font-size: 13px; color: #374151;">
+                        <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Como ya trabajas en la empresa, sube el documento del proyecto que te entregó. En él deben venir tus fechas de inicio y fin y tu horario; la empresa los registrará en la plataforma.</p>
+                        <p id="error-reg-documento" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                        @error('documento_proyecto')
+                            <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
 
                 <!-- 2. Título -->
                 <div>
@@ -224,6 +237,17 @@
         });
 
         const fields = {
+            @if($solicitudActiva->ya_labora)
+            documento: {
+                el: document.getElementById('reg-documento'),
+                error: document.getElementById('error-reg-documento'),
+                validate: (val) => {
+                    if (!val) return @json(($proyectoPrevio ?? null)?->documento_ruta) ? '' : 'Sube el documento del proyecto que te entregó la empresa.';
+                    if (!/\.pdf$/i.test(val)) return 'El documento del proyecto debe ser un archivo PDF.';
+                    return '';
+                }
+            },
+            @endif
             titulo: {
                 el: document.getElementById('reg-titulo'),
                 error: document.getElementById('error-reg-titulo'),

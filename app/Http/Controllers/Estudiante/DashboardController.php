@@ -386,7 +386,12 @@ class DashboardController extends Controller
             'impacto_social' => ['required', 'string', 'min:20', 'max:1000'],
             'tipo_proyecto'  => ['required', 'string', Rule::in(['Desarrollo Tecnológico', 'Investigación', 'Asistencia Social', 'Administrativo', 'Infraestructura'])],
             'tipo_modalidad' => ['required', 'string', Rule::in(['Presencial', 'Híbrido', 'Virtual'])],
+            // Quien ya trabaja en la empresa entrega el documento del proyecto con sus fechas y horario
+            'documento_proyecto' => [$solicitudActiva->ya_labora && ! $proyectoExistente?->documento_ruta ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:10240'],
         ], [
+            'documento_proyecto.required' => 'Sube el documento del proyecto que te entregó la empresa.',
+            'documento_proyecto.mimes'    => 'El documento del proyecto debe ser un archivo PDF.',
+            'documento_proyecto.max'      => 'El documento del proyecto no debe superar los 10 MB.',
             'titulo.required'         => 'El título del proyecto es requerido.',
             'titulo.min'              => 'El título debe tener al menos 10 caracteres.',
             'titulo.max'              => 'El título no debe superar los 150 caracteres.',
@@ -408,6 +413,11 @@ class DashboardController extends Controller
             'tipo_modalidad.required' => 'El tipo de modalidad es requerido.',
             'tipo_modalidad.in'       => 'La modalidad seleccionada no es válida.',
         ]);
+
+        unset($validated['documento_proyecto']);
+        if ($request->hasFile('documento_proyecto')) {
+            $validated['documento_ruta'] = $request->file('documento_proyecto')->store('proyectos', 'public');
+        }
 
         $datos = $validated + [
             'unidad_receptora_id' => $solicitudActiva->ur_id,
@@ -989,8 +999,10 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'ur_id'       => ['required', 'integer', 'exists:unidades_receptoras,id'],
             'responsable' => ['required', 'string', 'max:50', 'regex:/^[\pL\s.]+$/u'],
-            'fecha_inicio'=> ['required', 'date', 'after_or_equal:today'],
-            'horas_por_dia'=> ['required', 'integer', Rule::in([6, 8])],
+            'ya_labora'   => ['nullable', 'boolean'],
+            // Si ya trabaja en la empresa, las fechas y horas las define la empresa después
+            'fecha_inicio'=> ['exclude_if:ya_labora,1', 'required', 'date', 'after_or_equal:today'],
+            'horas_por_dia'=> ['exclude_if:ya_labora,1', 'required', 'integer', Rule::in([6, 8])],
             'observaciones'=> ['nullable', 'string', 'max:200', 'regex:/^[\pL\s.,]+$/u'],
         ], [
             'ur_id.required'        => 'Debes seleccionar una empresa.',
@@ -1007,26 +1019,31 @@ class DashboardController extends Controller
             'observaciones.max'     => 'Las observaciones no pueden superar 200 caracteres.',
         ]);
 
-        $fechaInicio = \Carbon\CarbonImmutable::parse($validated['fecha_inicio']);
-        $fechaFin = Solicitud::calcularFechaFin($fechaInicio, (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
+        $yaLabora = $request->boolean('ya_labora');
+        $fechaFin = $yaLabora
+            ? null
+            : Solicitud::calcularFechaFin(\Carbon\CarbonImmutable::parse($validated['fecha_inicio']), (int) $validated['horas_por_dia'], $estudiante->horasMetaPractica());
 
         $solicitud = Solicitud::create([
             'estudiante_id' => $estudiante->id,
             'ur_id'         => $validated['ur_id'],
             'responsable'   => $validated['responsable'],
-            'fecha_inicio'  => $validated['fecha_inicio'],
-            'fecha_fin'     => $fechaFin->toDateString(),
-            'horas_por_dia' => $validated['horas_por_dia'],
+            'fecha_inicio'  => $yaLabora ? null : $validated['fecha_inicio'],
+            'fecha_fin'     => $fechaFin?->toDateString(),
+            'horas_por_dia' => $yaLabora ? 8 : $validated['horas_por_dia'],
             'modalidad'     => $estudiante->modalidadPractica(),
+            'ya_labora'     => $yaLabora,
             'estatus'       => 'pendiente',
             'observaciones' => $validated['observaciones'] ?? null,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Solicitud enviada correctamente. Está pendiente de revisión.',
+            'message' => $yaLabora
+                ? 'Solicitud enviada correctamente. Está pendiente de revisión; la empresa definirá tus fechas y horario.'
+                : 'Solicitud enviada correctamente. Está pendiente de revisión.',
             'solicitud_id' => $solicitud->id,
-            'fecha_fin' => $fechaFin->locale('es')->translatedFormat('d \d\e F \d\e Y'),
+            'fecha_fin' => $fechaFin?->locale('es')->translatedFormat('d \d\e F \d\e Y'),
         ]);
     }
 

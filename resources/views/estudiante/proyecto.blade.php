@@ -68,6 +68,11 @@
                             {{ \Carbon\Carbon::parse($solicitudActiva->fecha_fin)->format('d/m/Y') }}
                         </span>
                     </div>
+                    @elseif($solicitudActiva->ya_labora)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Periodo</span>
+                        <span>Por definir por la empresa</span>
+                    </div>
                     @endif
                     <div>
                         <span class="block text-gray-400 font-bold mb-0.5">Estatus</span>
@@ -106,7 +111,7 @@
                 <div class="border-t border-gray-100 pt-4 space-y-2.5 text-xs text-gray-700 font-medium">
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas por día</span>
-                        <span>{{ $solicitudActiva->horas_por_dia }} horas</span>
+                        <span>{{ $solicitudActiva->ya_labora && ! $solicitudActiva->fecha_inicio ? 'Por definir (empresa)' : $solicitudActiva->horas_por_dia . ' horas' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas restantes</span>
@@ -163,21 +168,64 @@
                         @endpush
                     @endif
 
-                    <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
-                    @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
-                        <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
-                    @endif
-
-                    <div class="mt-4 space-y-3 text-sm text-gray-700">
-                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
-                            @if($proyectoAsignado->$campo)
-                                <div>
-                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{{ $etiqueta }}</span>
-                                    <p class="whitespace-pre-line">{{ $proyectoAsignado->$campo }}</p>
-                                </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h4 class="text-base font-bold text-gray-900">{{ $proyectoAsignado->titulo }}</h4>
+                            @if($proyectoAsignado->tipo_proyecto || $proyectoAsignado->tipo_modalidad)
+                                <p class="text-xs text-gray-500 font-medium mt-1">{{ collect([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad])->filter()->implode(' · ') }}</p>
                             @endif
-                        @endforeach
+                        </div>
+                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.remove('hidden')" class="shrink-0 bg-white border border-gray-200 text-[#4E7D24] hover:bg-[#6BA53A]/10 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1">
+                            Ver más
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
                     </div>
+
+                    @push('modals')
+                        {{-- Detalle del proyecto; estilos en línea porque no todas las clases de Tailwind están compiladas --}}
+                        <div id="modal-ver-mi-proyecto" class="hidden" style="position: fixed; inset: 0; z-index: 50;" role="dialog" aria-modal="true" aria-labelledby="ver-mi-proyecto-titulo">
+                            <div onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" style="position: fixed; inset: 0; background: rgba(3, 7, 18, 0.6); backdrop-filter: blur(6px);"></div>
+                            <div style="position: relative; display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1.5rem; pointer-events: none;">
+                                <div style="pointer-events: auto; width: 100%; max-width: 680px; max-height: 88vh; display: flex; flex-direction: column; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);">
+                                    <div style="background: linear-gradient(to right, #4E7D24, #6BA53A); padding: 1.25rem 3.5rem 1.25rem 2rem; position: relative;">
+                                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" aria-label="Cerrar" style="position: absolute; top: 1rem; right: 1rem; color: rgba(255,255,255,0.8); padding: 0.375rem; border-radius: 0.5rem;">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                        <p style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #dcfce7;">Mi Proyecto de Prácticas</p>
+                                        <h2 id="ver-mi-proyecto-titulo" style="font-size: 1.15rem; font-weight: 700; color: #fff; line-height: 1.3; margin-top: 0.25rem;">{{ $proyectoAsignado->titulo }}</h2>
+                                    </div>
+                                    <div style="padding: 1.5rem 2rem; overflow-y: auto; flex: 1 1 auto; min-height: 0;">
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+                                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
+                                                <span style="width: 6px; height: 6px; border-radius: 9999px; background: {{ $estatusProyecto['dot'] }};"></span>
+                                                {{ $estatusProyecto['label'] }}
+                                            </span>
+                                            @foreach(array_filter([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad]) as $etiquetaProyecto)
+                                                <span style="padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f9fafb; color: #4b5563; border: 1px solid #e5e7eb;">{{ $etiquetaProyecto }}</span>
+                                            @endforeach
+                                        </div>
+                                        @if($solicitudActiva->unidadReceptora)
+                                            <div style="margin-bottom: 1rem;">
+                                                <span style="display: block; font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Unidad receptora</span>
+                                                <p style="font-size: 14px; color: #374151;">{{ $solicitudActiva->unidadReceptora->nombre_empresa }}{{ $solicitudActiva->unidadReceptora->unidad_receptora ? ' — ' . $solicitudActiva->unidadReceptora->unidad_receptora : '' }}</p>
+                                            </div>
+                                        @endif
+                                        @foreach(['objetivo' => 'Objetivo', 'justificacion' => 'Justificación', 'actividades' => 'Actividades', 'impacto_social' => 'Impacto social'] as $campo => $etiqueta)
+                                            @if($proyectoAsignado->$campo)
+                                                <div style="margin-bottom: 1rem; padding: 0.875rem 1rem; background: #f9fafb; border: 1px solid #f3f4f6; border-radius: 14px;">
+                                                    <span style="display: block; font-size: 11px; font-weight: 700; color: #4E7D24; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">{{ $etiqueta }}</span>
+                                                    <p style="font-size: 14px; color: #374151; white-space: pre-line; line-height: 1.55;">{{ $proyectoAsignado->$campo }}</p>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    <div style="padding: 1rem 2rem; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end;">
+                                        <button type="button" onclick="document.getElementById('modal-ver-mi-proyecto').classList.add('hidden')" style="padding: 0.6rem 1.4rem; border-radius: 12px; background: #4E7D24; color: #fff; font-size: 14px; font-weight: 700;">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endpush
                 @else
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <p class="text-sm text-gray-500">Aún no tienes un proyecto registrado. Registra el proyecto que realizarás en tu empresa y aquí verás su objetivo y actividades.</p>
