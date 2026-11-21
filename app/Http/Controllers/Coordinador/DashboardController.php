@@ -29,7 +29,9 @@ class DashboardController extends Controller
         $porcentajeActivos = $estudiantesActivos > 0 ? round(($estudiantesConPractica / $estudiantesActivos) * 100) : 0;
 
         $instituciones = DB::table('unidades_receptoras')->count();
-        $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count();
+        $tramitesPendientes = DB::table('solicitudes')->where('estatus', 'pendiente')->count()
+            + DB::table('documentos')->where('estatus', 'pendiente')->count()
+            + DB::table('proyectos')->where('estatus', 'pendiente')->count();
         $proyectosActivos = DB::table('proyectos')->where('activo', 1)->count();
 
         // Fetch recent documents uploaded by students pending review
@@ -48,6 +50,13 @@ class DashboardController extends Controller
 
         // Fetch pending documents (documentos)
         $pendingDocumentos = \App\Models\Documento::with(['solicitud.estudiante'])
+            ->where('estatus', 'pendiente')
+            ->orderBy('id', 'desc')
+            ->take(5)
+            ->get();
+
+        // Fetch pending projects (proyectos)
+        $pendingProyectos = \App\Models\Proyecto::with(['estudiante', 'empresa'])
             ->where('estatus', 'pendiente')
             ->orderBy('id', 'desc')
             ->take(5)
@@ -81,6 +90,20 @@ class DashboardController extends Controller
                 'link' => route('coordinador.tramites', ['tab' => 'doc-pendientes']),
                 'accion_label' => 'Revisar',
                 'fecha' => $documento->fecha_carga
+            ]);
+        }
+
+        foreach ($pendingProyectos as $proyecto) {
+            $pendientes->push((object)[
+                'id' => 'proy-' . $proyecto->id,
+                'estudiante' => $proyecto->estudiante,
+                'tipo' => 'proyecto',
+                'detalle' => $proyecto->titulo,
+                'badge_text' => 'Propuesta Proyecto',
+                'badge_class' => 'bg-purple-50 text-purple-700 border-purple-200',
+                'link' => route('coordinador.tramites', ['tab' => 'proyectos-pendientes']),
+                'accion_label' => 'Revisar',
+                'fecha' => $proyecto->created_at,
             ]);
         }
 
