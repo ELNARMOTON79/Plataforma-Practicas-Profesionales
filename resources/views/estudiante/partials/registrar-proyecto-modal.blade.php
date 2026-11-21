@@ -71,7 +71,7 @@
             </style>
 
             <!-- Registration Form with Scrollable Body -->
-            <form id="form-registrar-proyecto" action="{{ route('estudiante.registrarProyecto') }}" method="POST" hx-boost="false" class="rp-body px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
+            <form id="form-registrar-proyecto" action="{{ route('estudiante.registrarProyecto') }}" method="POST" enctype="multipart/form-data" hx-boost="false" class="rp-body px-8 py-6 space-y-5 overflow-y-auto scrollbar-thin flex-1">
                 @csrf
 
                 <h4 class="text-md font-bold text-[#4E7D24] border-b border-gray-100 pb-2 text-center mb-2">Información del Proyecto</h4>
@@ -84,6 +84,19 @@
                     </div>
                     <p class="text-[11px] text-gray-400 mt-1">Tomada de tu solicitud de prácticas. El proyecto quedará asignado a ti.</p>
                 </div>
+
+                @if($solicitudActiva->ya_labora)
+                    <!-- Documento del proyecto (solo para quien ya trabaja en la empresa) -->
+                    <div>
+                        <label for="reg-documento" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Documento del Proyecto (PDF) <span class="text-red-500">*</span></label>
+                        <input type="file" id="reg-documento" name="documento_proyecto" accept="application/pdf,.pdf" required style="display: block; width: 100%; padding: 0.6rem 1rem; border: 1px dashed #d1d5db; border-radius: 0.75rem; background: #f9fafb; font-size: 13px; color: #374151;">
+                        <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Como ya trabajas en la empresa, sube el documento del proyecto que te entregó. En él deben venir tus fechas de inicio y fin y tu horario; la empresa los registrará en la plataforma.</p>
+                        <p id="error-reg-documento" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                        @error('documento_proyecto')
+                            <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
 
                 <!-- 2. Título -->
                 <div>
@@ -224,6 +237,17 @@
         });
 
         const fields = {
+            @if($solicitudActiva->ya_labora)
+            documento: {
+                el: document.getElementById('reg-documento'),
+                error: document.getElementById('error-reg-documento'),
+                validate: (val) => {
+                    if (!val) return 'Sube el documento del proyecto que te entregó la empresa.';
+                    if (!/\.pdf$/i.test(val)) return 'El documento del proyecto debe ser un archivo PDF.';
+                    return '';
+                }
+            },
+            @endif
             titulo: {
                 el: document.getElementById('reg-titulo'),
                 error: document.getElementById('error-reg-titulo'),
@@ -392,20 +416,30 @@
 
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: '¿Confirmar Registro de Proyecto?',
-                    html: `<p class="text-sm text-gray-600 mb-2">¿Estás seguro de registrar el proyecto <strong>${tituloProyecto}</strong>?</p><p class="text-xs text-gray-500 bg-green-50 p-2.5 rounded-xl border border-green-100 mt-2">El proyecto quedará registrado a tu nombre en la empresa de tu solicitud.</p>`,
+                    title: '¿Confirmar registro de proyecto?',
+                    // Estilos en línea: la vista del alumno no tiene compiladas todas las clases de Tailwind
+                    html: '<p style="font-size:14px;color:#4b5563;margin:0 0 10px;">¿Estás seguro de registrar el proyecto <strong style="color:#111827;"></strong>?</p>' +
+                          '<p style="font-size:12px;color:#4E7D24;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 12px;margin:0;">El proyecto quedará registrado a tu nombre en la empresa de tu solicitud.</p>',
                     icon: 'question',
+                    iconColor: '#6BA53A',
                     showCancelButton: true,
+                    reverseButtons: true,
                     confirmButtonColor: '#4E7D24',
                     cancelButtonColor: '#9CA3AF',
                     confirmButtonText: 'Sí, registrar proyecto',
                     cancelButtonText: 'Revisar datos',
                     focusConfirm: false,
                     focusCancel: false,
-                    customClass: {
-                        popup: 'rounded-3xl p-6 font-sans shadow-2xl',
-                        confirmButton: 'px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-[#2E5417]',
-                        cancelButton: 'px-5 py-2.5 rounded-xl font-bold text-sm'
+                    didOpen: (popup) => {
+                        popup.style.borderRadius = '24px';
+                        popup.style.fontFamily = "'Outfit', sans-serif";
+                        popup.querySelector('.swal2-html-container strong').textContent = tituloProyecto;
+                        popup.querySelectorAll('.swal2-actions button').forEach((b) => {
+                            b.style.borderRadius = '12px';
+                            b.style.fontWeight = '700';
+                            b.style.fontSize = '14px';
+                            b.style.padding = '10px 20px';
+                        });
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {

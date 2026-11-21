@@ -68,6 +68,11 @@
                             {{ \Carbon\Carbon::parse($solicitudActiva->fecha_fin)->format('d/m/Y') }}
                         </span>
                     </div>
+                    @elseif($solicitudActiva->ya_labora)
+                    <div>
+                        <span class="block text-gray-400 font-bold mb-0.5">Periodo</span>
+                        <span>Por definir por la empresa</span>
+                    </div>
                     @endif
                     <div>
                         <span class="block text-gray-400 font-bold mb-0.5">Estatus</span>
@@ -106,7 +111,7 @@
                 <div class="border-t border-gray-100 pt-4 space-y-2.5 text-xs text-gray-700 font-medium">
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas por día</span>
-                        <span>{{ $solicitudActiva->horas_por_dia }} horas</span>
+                        <span>{{ $solicitudActiva->ya_labora && ! $solicitudActiva->fecha_inicio ? 'Por definir (empresa)' : $solicitudActiva->horas_por_dia . ' horas' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400 font-bold">Horas restantes</span>

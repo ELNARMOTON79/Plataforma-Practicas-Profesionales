@@ -38,6 +38,7 @@ class Solicitud extends Model
         'fecha_fin',
         'horas_por_dia',
         'modalidad',
+        'ya_labora',
         'estatus',
         'observaciones',
     ];
@@ -45,6 +46,7 @@ class Solicitud extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
+        'ya_labora' => 'boolean',
     ];
 
     public function estudiante(): BelongsTo

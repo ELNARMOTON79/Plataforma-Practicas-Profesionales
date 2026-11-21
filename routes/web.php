@@ -112,10 +112,8 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         return view('empresa.proyectos');
     })->name('empresa.proyectos');
 
-    Route::get('/empresa/solicitudes', function () {
-        if (Auth::user()->rol_id != 4) return redirect('/');
-        return view('empresa.solicitudes');
-    })->name('empresa.solicitudes');
+    Route::get('/empresa/solicitudes', [App\Http\Controllers\Empresa\SolicitudController::class, 'index'])->name('empresa.solicitudes');
+    Route::post('/empresa/solicitudes/{id}/periodo', [App\Http\Controllers\Empresa\SolicitudController::class, 'definirPeriodo'])->name('empresa.solicitudes.periodo');
 
     Route::get('/empresa/reportes', function () {
         if (Auth::user()->rol_id != 4) return redirect('/');

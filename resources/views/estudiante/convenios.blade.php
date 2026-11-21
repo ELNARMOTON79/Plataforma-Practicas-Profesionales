@@ -177,6 +177,26 @@
                     <p class="text-xs text-gray-400">Asignada automáticamente según tu carrera.</p>
                 </div>
 
+                <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-gray-700">¿Ya trabajas en esta empresa? <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 cursor-pointer transition-all hover:border-[#6BA53A]/50 has-[:checked]:border-[#6BA53A] has-[:checked]:bg-[#6BA53A]/5 has-[:checked]:font-semibold">
+                            <input type="radio" name="ya_labora" value="0" class="solicitud-ya-labora accent-[#4E7D24]" checked>
+                            No, soy nuevo
+                        </label>
+                        <label class="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 cursor-pointer transition-all hover:border-[#6BA53A]/50 has-[:checked]:border-[#6BA53A] has-[:checked]:bg-[#6BA53A]/5 has-[:checked]:font-semibold">
+                            <input type="radio" name="ya_labora" value="1" class="solicitud-ya-labora accent-[#4E7D24]">
+                            Sí, ya trabajo ahí
+                        </label>
+                    </div>
+                </div>
+
+                <div id="solicitudYaLaboraAviso" class="hidden rounded-xl border border-[#6BA53A]/20 bg-[#6BA53A]/5 px-4 py-3">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Fechas y horario</p>
+                    <p class="text-sm text-gray-700">La empresa definirá tus fechas de inicio y fin y tus horas por día. Después, en <strong>Mi Proyecto</strong>, deberás subir el documento del proyecto donde vienen anotadas.</p>
+                </div>
+
+                <div id="solicitudPeriodoBox" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
                         <label class="text-sm font-semibold text-gray-700">Fecha de inicio <span class="text-red-500">*</span></label>
@@ -205,6 +225,7 @@
                 <p class="text-xs text-gray-400 -mt-2">
                     Se calcula automáticamente para completar {{ $horasMeta ?? 480 }} horas, contando solo días hábiles (sin fines de semana ni días festivos).
                 </p>
+                </div>
 
                 <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-gray-700">Observaciones <span class="text-gray-400 font-normal">(opcional)</span></label>
@@ -357,6 +378,8 @@
             document.getElementById('solicitudObservaciones').value = '';
             document.getElementById('solicitudError').classList.add('hidden');
             document.getElementById('solicitudFechaFinTexto').textContent = 'Selecciona la fecha de inicio para calcularla';
+            document.querySelector('.solicitud-ya-labora[value="0"]').checked = true;
+            actualizarYaLabora();
             ['errResponsable','errFechaInicio','errHorasPorDia','errObservaciones'].forEach(function(id) {
                 document.getElementById(id).classList.add('hidden');
             });
@@ -370,6 +393,22 @@
             modal.style.paddingBottom = gap + 'px';
             modal.classList.remove('hidden');
         }
+
+        function solicitudYaLabora() {
+            var marcado = document.querySelector('.solicitud-ya-labora:checked');
+            return marcado ? marcado.value === '1' : false;
+        }
+
+        // Si ya trabaja en la empresa, las fechas y horas las define la empresa
+        function actualizarYaLabora() {
+            var yaLabora = solicitudYaLabora();
+            document.getElementById('solicitudPeriodoBox').classList.toggle('hidden', yaLabora);
+            document.getElementById('solicitudYaLaboraAviso').classList.toggle('hidden', !yaLabora);
+        }
+
+        document.querySelectorAll('.solicitud-ya-labora').forEach(function(r) {
+            r.addEventListener('change', actualizarYaLabora);
+        });
 
         function closeSolicitudModal() {
             document.getElementById('solicitudModal').classList.add('hidden');
@@ -464,7 +503,10 @@
                 document.getElementById('errObservaciones').classList.remove('hidden');
                 hasError = true;
             }
-            if (!fechaInicio) {
+            var yaLabora = solicitudYaLabora();
+            if (yaLabora) {
+                // Las fechas las define la empresa
+            } else if (!fechaInicio) {
                 document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es obligatoria.';
                 document.getElementById('errFechaInicio').classList.remove('hidden');
                 hasError = true;
@@ -483,8 +525,11 @@
             formData.append('_token', token);
             formData.append('ur_id', urId);
             formData.append('responsable', responsable);
-            formData.append('fecha_inicio', fechaInicio);
-            formData.append('horas_por_dia', horasPorDia);
+            formData.append('ya_labora', yaLabora ? '1' : '0');
+            if (!yaLabora) {
+                formData.append('fecha_inicio', fechaInicio);
+                formData.append('horas_por_dia', horasPorDia);
+            }
             if (observaciones) formData.append('observaciones', observaciones);
 
             fetch('{{ route("estudiante.storeSolicitud") }}', {

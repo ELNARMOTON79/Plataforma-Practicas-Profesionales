@@ -24,6 +24,7 @@ class Proyecto extends Model
         'cupos_ocupados',
         'publico_internet',
         'activo',
+        'documento_ruta',
     ];
 
     protected $casts = [
