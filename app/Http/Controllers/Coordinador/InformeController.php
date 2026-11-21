@@ -13,8 +13,9 @@ class InformeController extends Controller
     {
         if (auth()->user()->rol_id != 2) return redirect('/');
 
-        $alumnos = Alumno::all();
-        $proyectos = Proyecto::all();
+        // user y ultimaSolicitud se cargan por adelantado: el estatus de cada alumno los usa
+        $alumnos = Alumno::with(['user', 'ultimaSolicitud'])->get();
+        $proyectos = Proyecto::with('empresa')->get();
 
         // Distribución por Carrera 
         $carrerasStats = [];

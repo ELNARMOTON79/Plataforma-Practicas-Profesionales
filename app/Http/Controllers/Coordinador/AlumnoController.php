@@ -38,7 +38,7 @@ class AlumnoController extends Controller
             $perPage = session('per_page', 5);
         }
 
-        $query = Alumno::with('user');
+        $query = Alumno::with(['user', 'ultimaSolicitud']);
 
         // Search filter
         if ($search) {

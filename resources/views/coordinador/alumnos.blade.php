@@ -172,10 +172,7 @@
                             <!-- Sem. Inscripción -->
                             <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-bold text-gray-700">
                                 @php
-                                    $solicitud = \DB::table('solicitudes')
-                                        ->where('estudiante_id', $alumno->id)
-                                        ->orderBy('id', 'desc')
-                                        ->first();
+                                    $solicitud = $alumno->ultimaSolicitud;
                                 @endphp
                                 @if($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada']))
                                     <span class="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-lg font-bold">{{ $alumno->semestre }}° Semestre</span>

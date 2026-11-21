@@ -7,17 +7,40 @@ use Illuminate\Http\Request;
 
 class SeguimientoController extends Controller
 {
-    private function getSessionData()
+    /**
+     * Arma los datos de seguimiento. Con $alumnoId solo procesa a ese alumno (vista de detalle).
+     * Todo se carga en lote (unas pocas consultas en total) en lugar de varias por alumno.
+     */
+    private function getSessionData(?int $alumnoId = null)
     {
         $data = [];
 
-        $dbAlumnos = \App\Models\Alumno::with(['user'])->get();
+        $dbAlumnos = \App\Models\Alumno::with(['user', 'ultimaSolicitud'])
+            ->when($alumnoId !== null, fn ($q) => $q->where('id', $alumnoId))
+            ->get();
+
+        // Primer proyecto asignado a cada alumno
+        $proyectosPorAlumno = \App\Models\Proyecto::whereIn('estudiante_id', $dbAlumnos->pluck('id'))
+            ->orderBy('id')
+            ->get()
+            ->unique('estudiante_id')
+            ->keyBy('estudiante_id');
+
+        // Unidades receptoras (del proyecto o, si no tiene, de la solicitud) y sus usuarios
+        $urIds = $proyectosPorAlumno->pluck('unidad_receptora_id')
+            ->merge($dbAlumnos->pluck('ultimaSolicitud.ur_id'))
+            ->filter()->unique();
+        $unidades = \App\Models\UnidadReceptora::whereIn('id', $urIds)->get()->keyBy('id');
+        $correosUr = \App\Models\User::whereIn('id', $unidades->pluck('usuario_id')->filter()->unique())->pluck('correo', 'id');
+
+        $documentosPorSolicitud = \DB::table('documentos')
+            ->whereIn('solicitud_id', $dbAlumnos->pluck('ultimaSolicitud.id')->filter())
+            ->orderBy('id')
+            ->get()
+            ->groupBy('solicitud_id');
 
         foreach ($dbAlumnos as $alumno) {
-            $solicitud = \DB::table('solicitudes')
-                ->where('estudiante_id', $alumno->id)
-                ->orderBy('id', 'desc')
-                ->first();
+            $solicitud = $alumno->ultimaSolicitud;
 
             // 1. Debe tener práctica aceptada / activa
             $isAceptado = ($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada', 'acreditado'])) || $alumno->activo_practica == 1;
@@ -27,7 +50,7 @@ class SeguimientoController extends Controller
             }
 
             // 2. El estudiante DEBE tener un proyecto registrado y formalmente asignado a su nombre
-            $proyectoReal = \App\Models\Proyecto::where('estudiante_id', $alumno->id)->first();
+            $proyectoReal = $proyectosPorAlumno->get($alumno->id);
 
             if (!$proyectoReal) {
                 // Si aún no se le ha registrado su proyecto en la unidad receptora, no entra a seguimiento todavía
@@ -64,9 +87,9 @@ class SeguimientoController extends Controller
             // Unidad Receptora asociada al proyecto o a la solicitud
             $urModel = null;
             if (!empty($proyectoReal->unidad_receptora_id)) {
-                $urModel = \App\Models\UnidadReceptora::find($proyectoReal->unidad_receptora_id);
+                $urModel = $unidades->get($proyectoReal->unidad_receptora_id);
             } elseif ($solicitud && !empty($solicitud->ur_id)) {
-                $urModel = \App\Models\UnidadReceptora::find($solicitud->ur_id);
+                $urModel = $unidades->get($solicitud->ur_id);
             }
 
             if ($urModel) {
@@ -76,11 +99,8 @@ class SeguimientoController extends Controller
                 if (!empty($urModel->cargo)) {
                     $cargo = $urModel->cargo;
                 }
-                if (!empty($urModel->usuario_id)) {
-                    $urUser = \App\Models\User::find($urModel->usuario_id);
-                    if ($urUser) {
-                        $correoDestino = $urUser->correo;
-                    }
+                if (!empty($urModel->usuario_id) && $correosUr->has($urModel->usuario_id)) {
+                    $correoDestino = $correosUr->get($urModel->usuario_id);
                 }
             }
 
@@ -140,7 +160,7 @@ class SeguimientoController extends Controller
             ];
 
             if ($solicitud) {
-                $docsInDb = \DB::table('documentos')->where('solicitud_id', $solicitud->id)->get();
+                $docsInDb = $documentosPorSolicitud->get($solicitud->id, collect());
                 foreach ($docsInDb as $doc) {
                     $nameLower = strtolower($doc->nombre_doc ?? '');
                     $keyMap = null;
@@ -216,7 +236,7 @@ class SeguimientoController extends Controller
     {
         if (auth()->user()->rol_id != 2) return redirect('/');
 
-        $data = $this->getSessionData();
+        $data = ctype_digit((string) $id) ? $this->getSessionData((int) $id) : [];
 
         if (!isset($data[$id])) {
             return redirect()->route('coordinador.seguimiento')->with('error', 'El estudiante aún no tiene un proyecto asignado en la unidad receptora.');

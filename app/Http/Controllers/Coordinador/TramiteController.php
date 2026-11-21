@@ -18,49 +18,60 @@ class TramiteController extends Controller
             return redirect('/');
         }
 
-        $searchSolicitudes = $request->input('search_solicitudes');
-        $searchDocumentos  = $request->input('search_documentos');
+        // Solo se consulta y pinta la pestaña activa, paginada en el servidor
+        $tabsValidas = ['solicitudes', 'solicitudes-todas', 'doc-pendientes', 'doc-validados'];
+        $activeTab = in_array($request->input('tab'), $tabsValidas, true) ? $request->input('tab') : 'solicitudes';
+        $search = trim((string) ($request->input('search') ?? $request->input('search_solicitudes') ?? $request->input('search_documentos') ?? ''));
+        $porPagina = 10;
 
-        // Solicitudes Query
-        $solicitudesQuery = Solicitud::with(['estudiante.usuario', 'unidadReceptora'])
-            ->orderBy('id', 'desc');
+        $solicitudes = collect();
+        $documentosPendientes = collect();
+        $documentosValidados = collect();
 
-        if ($searchSolicitudes) {
-            $solicitudesQuery->where(function($q) use ($searchSolicitudes) {
-                $q->whereHas('estudiante', function($qEst) use ($searchSolicitudes) {
-                    $qEst->where('nombre_completo', 'like', "%{$searchSolicitudes}%")
-                         ->orWhere('matricula', 'like', "%{$searchSolicitudes}%");
-                })
-                ->orWhereHas('unidadReceptora', function($qUr) use ($searchSolicitudes) {
-                    $qUr->where('nombre_empresa', 'like', "%{$searchSolicitudes}%");
+        if (in_array($activeTab, ['solicitudes', 'solicitudes-todas'], true)) {
+            $solicitudesQuery = Solicitud::with(['estudiante', 'unidadReceptora'])
+                ->when($activeTab === 'solicitudes',
+                    fn ($q) => $q->where('estatus', 'pendiente'),
+                    fn ($q) => $q->whereIn('estatus', ['aprobada', 'en_proceso', 'finalizada']))
+                ->orderBy('id', 'desc');
+
+            if ($search !== '') {
+                $solicitudesQuery->where(function ($q) use ($search) {
+                    $q->whereHas('estudiante', function ($qEst) use ($search) {
+                        $qEst->where('nombre_completo', 'like', "%{$search}%")
+                             ->orWhere('matricula', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('unidadReceptora', function ($qUr) use ($search) {
+                        $qUr->where('nombre_empresa', 'like', "%{$search}%");
+                    });
                 });
-            });
+            }
+
+            $solicitudes = $solicitudesQuery->paginate($porPagina)->withQueryString();
+        } else {
+            $documentosQuery = Documento::with(['solicitud.estudiante'])
+                ->when($activeTab === 'doc-pendientes',
+                    fn ($q) => $q->where('estatus', 'pendiente'),
+                    fn ($q) => $q->whereIn('estatus', ['validado', 'aprobado']))
+                ->orderBy('id', 'desc');
+
+            if ($search !== '') {
+                $documentosQuery->where(function ($q) use ($search) {
+                    $q->where('nombre_doc', 'like', "%{$search}%")
+                      ->orWhereHas('solicitud.estudiante', function ($qEst) use ($search) {
+                          $qEst->where('nombre_completo', 'like', "%{$search}%")
+                               ->orWhere('matricula', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            $paginados = $documentosQuery->paginate($porPagina)->withQueryString();
+            if ($activeTab === 'doc-pendientes') {
+                $documentosPendientes = $paginados;
+            } else {
+                $documentosValidados = $paginados;
+            }
         }
-
-        $solicitudesPendientes = (clone $solicitudesQuery)->where('estatus', 'pendiente')->get();
-        $solicitudes = $solicitudesQuery->get();
-
-        // Documentos Query
-        $documentosPendientesQuery = Documento::with(['solicitud.estudiante.usuario'])
-            ->where('estatus', 'pendiente')
-            ->orderBy('id', 'desc');
-
-        if ($searchDocumentos) {
-            $documentosPendientesQuery->where(function($q) use ($searchDocumentos) {
-                $q->where('nombre_doc', 'like', "%{$searchDocumentos}%")
-                  ->orWhereHas('solicitud.estudiante', function($qEst) use ($searchDocumentos) {
-                      $qEst->where('nombre_completo', 'like', "%{$searchDocumentos}%")
-                           ->orWhere('matricula', 'like', "%{$searchDocumentos}%");
-                  });
-            });
-        }
-
-        $documentosPendientes = $documentosPendientesQuery->get();
-
-        $documentosValidados = Documento::with(['solicitud.estudiante.usuario'])
-            ->whereIn('estatus', ['validado', 'aprobado'])
-            ->orderBy('id', 'desc')
-            ->get();
 
         // Calculate counts
         $solicitudesPendientesCount = Solicitud::where('estatus', 'pendiente')->count();
@@ -69,7 +80,8 @@ class TramiteController extends Controller
         $solicitudesAprobadasCount  = Solicitud::whereIn('estatus', ['aprobada', 'en_proceso', 'finalizada'])->count();
 
         return view('coordinador.tramites', compact(
-            'solicitudesPendientes',
+            'activeTab',
+            'search',
             'solicitudes',
             'documentosPendientes',
             'documentosValidados',

@@ -723,9 +723,13 @@ class AdminController extends Controller
             }
         }
 
-        $logs = $query->orderBy('timestamp', 'desc')->get();
+        // id como desempate: la lectura por bloques necesita un orden estable
+        $query->orderBy('timestamp', 'desc')->orderBy('id', 'desc');
 
         if ($format === 'CSV') {
+            // Se escribe por bloques de 1000 para no cargar toda la bitácora en memoria
+            $logs = $query->lazy(1000);
+
             $headers = [
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="bitacora_' . date('Y-m-d_H-i-s') . '.csv"',
@@ -774,6 +778,7 @@ class AdminController extends Controller
         }
 
         if ($format === 'PDF') {
+            $logs = $query->get();
             $user = auth()->user();
             $userName = 'Sistema';
             if ($user) {

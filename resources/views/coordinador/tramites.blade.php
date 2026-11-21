@@ -2,7 +2,8 @@
 
 @section('content')
 @php
-    $activeTab = request('tab', 'solicitudes');
+    $activeTab = $activeTab ?? 'solicitudes';
+    $search = $search ?? '';
     // Clases CSS para card activa vs inactiva
     $cardActive   = 'glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 bg-white shadow-md transition-all duration-300 cursor-pointer';
     $cardInactive = 'glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-gray-300';
@@ -10,39 +11,6 @@
     <!-- Header Section -->
     <x-page-header title="Trámites y Expedientes" description="Gestiona las solicitudes de inicio de prácticas y la validación de documentos oficiales." />
 
-    <!-- Style overrides for premium DataTables integration -->
-    <style>
-        .dataTables_paginate {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.25rem;
-        }
-        .dataTables_paginate .paginate_button {
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #E5E7EB;
-            background: white;
-            color: #4B5563 !important;
-        }
-        .dataTables_paginate .paginate_button.current {
-            background: #4E7D24 !important;
-            color: white !important;
-            border-color: #4E7D24;
-        }
-        .dataTables_paginate .paginate_button:hover:not(.current) {
-            background: #F3F4F6 !important;
-            color: #1F2937 !important;
-        }
-        .dataTables_paginate .paginate_button.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-    </style>
 
     @if(session('success'))
         <div class="mb-6 p-4 rounded-2xl bg-green-50 border border-green-200 text-green-800 text-sm font-semibold flex items-center gap-2">
@@ -154,7 +122,10 @@
                     <svg class="h-4 w-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <label for="search-tramites" class="sr-only">Buscar trámites</label>
-                <input type="text" id="search-tramites" value="{{ request('search') ?? request('search_solicitudes') }}" aria-label="Buscar trámites" class="block w-full pl-10 pr-4 py-2 border border-gray-200/90 rounded-xl bg-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-xs font-semibold transition-all shadow-xs" placeholder="Buscar por estudiante, empresa o matrícula...">
+                <form method="GET" action="{{ route('coordinador.tramites') }}">
+                    <input type="hidden" name="tab" value="{{ $activeTab }}">
+                    <input type="search" name="search" id="search-tramites" value="{{ $search }}" aria-label="Buscar trámites" class="block w-full pl-10 pr-4 py-2 border border-gray-200/90 rounded-xl bg-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6BA53A] focus:border-transparent text-xs font-semibold transition-all shadow-xs" placeholder="Buscar por estudiante, empresa o matrícula y presiona Enter">
+                </form>
             </div>
         </div>
 
@@ -263,6 +234,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                @include('coordinador.tramites.paginacion', ['items' => $solicitudes])
             </div>
         </div>
 
@@ -342,6 +314,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                @include('coordinador.tramites.paginacion', ['items' => $documentosPendientes])
             </div>
         </div>
 
@@ -406,216 +379,28 @@
                         @endforeach
                     </tbody>
                 </table>
+                @include('coordinador.tramites.paginacion', ['items' => $documentosValidados])
             </div>
         </div>
     </div>
 
     <script>
-        var tablaSolicitudes = null;
-        var tablaDocsPendientes = null;
-        var tablaDocsValidados = null;
-
-        function initTramitesPage() {
-            if (!document.getElementById('solicitudes-table')) return;
-            if (typeof $ === 'undefined' || !$.fn.DataTable) return;
-
-            // Destruir instancias previas de forma segura
-            ['#solicitudes-table', '#documentos-pendientes-table', '#documentos-validados-table'].forEach(function(selector) {
-                if ($.fn.DataTable.isDataTable(selector)) {
-                    try {
-                        $(selector).DataTable().destroy();
-                    } catch (e) {
-                        console.warn('Advertencia al resetear DataTable:', e);
-                    }
-                }
-            });
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchVal = urlParams.get('search') || '';
-            const tabParam = urlParams.get('tab') || '';
-
-            const emptyStateHTML = `
-                <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3 shadow-inner border border-gray-200/50">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-700">Sin datos disponibles</h3>
-                    <p class="text-xs text-gray-400 mt-1 max-w-xs">No existen registros pendientes en esta categoría actualmente.</p>
-                </div>
-            `;
-
-            // Configuración local en español (sin peticiones externas que puedan fallar sin internet)
-            const dtConfig = {
-                destroy: true,
-                searching: true,
-                lengthChange: false,
-                pageLength: 5,
-                ordering: true,
-                info: false,
-                dom: 'rtp',
-                language: {
-                    emptyTable: emptyStateHTML,
-                    zeroRecords: `
-                        <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                            <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            </div>
-                            <h3 class="text-sm font-bold text-gray-700">Sin coincidencias</h3>
-                            <p class="text-xs text-gray-400 mt-1">Intenta ajustando el término de búsqueda.</p>
-                        </div>
-                    `,
-                    paginate: {
-                        first: "Primero",
-                        previous: "Anterior",
-                        next: "Siguiente",
-                        last: "Último"
-                    }
-                }
-            };
-
-            // Solicitudes
-            tablaSolicitudes = $('#solicitudes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [3, 4] }]
-            });
-
-            // Documentos Pendientes
-            tablaDocsPendientes = $('#documentos-pendientes-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [2, 3, 4] }]
-            });
-
-            // Documentos Validados
-            tablaDocsValidados = $('#documentos-validados-table').DataTable({
-                ...dtConfig,
-                columnDefs: [{ orderable: false, targets: [3, 4] }]
-            });
-
-            if (searchVal) {
-                const decodedSearch = decodeURIComponent(searchVal);
-                $('#search-tramites').val(decodedSearch);
-                tablaSolicitudes.search(decodedSearch).draw();
-                tablaDocsPendientes.search(decodedSearch).draw();
-                tablaDocsValidados.search(decodedSearch).draw();
-            }
-
-            $('#search-tramites').off('keyup input').on('keyup input', function() {
-                const val = this.value;
-                if (tablaSolicitudes) tablaSolicitudes.search(val).draw();
-                if (tablaDocsPendientes) tablaDocsPendientes.search(val).draw();
-                if (tablaDocsValidados) tablaDocsValidados.search(val).draw();
-            });
-
-            const targetTab = tabParam || '{{ $activeTab }}' || 'solicitudes';
-            switchTab(targetTab);
-        }
-
-        // Debounce para evitar ejecuciones concurrentes o múltiples que colisionen en el DOM
-        var _initTramitesDebounce = null;
-        function triggerInitTramites() {
-            if (_initTramitesDebounce) clearTimeout(_initTramitesDebounce);
-            _initTramitesDebounce = setTimeout(function() {
-                initTramitesPage();
-            }, 60);
-        }
-
-        if (!window._tramitesListenersRegistered) {
-            document.addEventListener('DOMContentLoaded', triggerInitTramites);
-            document.addEventListener('htmx:afterSettle', triggerInitTramites);
-            window._tramitesListenersRegistered = true;
-        }
-
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            triggerInitTramites();
+        // Cada pestaña se carga desde el servidor (paginada); se conserva la búsqueda actual
+        function switchTab(tab) {
+            const params = new URLSearchParams();
+            if (tab && tab !== 'solicitudes') params.set('tab', tab);
+            const search = (document.getElementById('search-tramites')?.value || '').trim();
+            if (search) params.set('search', search);
+            const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            // Un enlace dentro del <body hx-boost> navega igual que el resto del sistema (con historial)
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.hidden = true;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
         }
         window.switchTab = switchTab;
-
-        function switchTab(tab) {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (tab && tab !== 'solicitudes') {
-                urlParams.set('tab', tab);
-            } else {
-                urlParams.delete('tab');
-            }
-            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
-            history.replaceState(null, '', newUrl);
-
-            const contentSolicitudes = document.getElementById('content-solicitudes');
-            const contentDocPendientes = document.getElementById('content-doc-pendientes');
-            const contentDocValidados = document.getElementById('content-doc-validados');
-
-            const mSolicitudes = document.getElementById('metric-solicitudes');
-            const mDocPendientes = document.getElementById('metric-doc-pendientes');
-            const mDocValidados = document.getElementById('metric-doc-validados');
-            const mTotal = document.getElementById('metric-total');
-
-            const sectionIcon = document.getElementById('section-icon');
-            const sectionTitle = document.getElementById('section-title');
-            const sectionSubtitle = document.getElementById('section-subtitle');
-
-            contentSolicitudes.classList.add('hidden');
-            contentDocPendientes.classList.add('hidden');
-            contentDocValidados.classList.add('hidden');
-
-            const resetMetricCard = (el, titleColor) => {
-                el.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-transparent transition-all duration-300 cursor-pointer hover:border-gray-300";
-                const spanTitle = el.querySelector('span');
-                if (spanTitle) {
-                    spanTitle.className = "text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:" + titleColor + " transition-colors";
-                }
-            };
-
-            resetMetricCard(mSolicitudes, "text-[#4E7D24]");
-            resetMetricCard(mDocPendientes, "text-amber-700");
-            resetMetricCard(mDocValidados, "text-green-700");
-            resetMetricCard(mTotal, "text-[#4E7D24]");
-
-            if (tab === 'doc-pendientes') {
-                contentDocPendientes.classList.remove('hidden');
-                mDocPendientes.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-amber-400 bg-white ring-4 ring-amber-400/10 shadow-md transition-all duration-300 cursor-pointer";
-                mDocPendientes.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-amber-700";
-
-                sectionIcon.className = "p-2.5 rounded-2xl bg-amber-50 text-amber-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
-                sectionTitle.textContent = "Documentos Pendientes de Validar";
-                sectionSubtitle.textContent = "Expedientes y documentos oficiales subidos por alumnos pendientes de revisión";
-            } else if (tab === 'doc-validados') {
-                contentDocValidados.classList.remove('hidden');
-                mDocValidados.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-green-500 bg-white ring-4 ring-green-500/10 shadow-md transition-all duration-300 cursor-pointer";
-                mDocValidados.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-green-700";
-
-                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-green-600 transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path></svg>`;
-                sectionTitle.textContent = "Historial de Documentos Validados";
-                sectionSubtitle.textContent = "Registro histórico completo de los expedientes validados y autorizados";
-            } else if (tab === 'solicitudes-todas') {
-                contentSolicitudes.classList.remove('hidden');
-                mTotal.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
-                mTotal.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
-
-                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>`;
-                sectionTitle.textContent = "Solicitudes de Prácticas Aprobadas";
-                sectionSubtitle.textContent = "Historial de las solicitudes que ya fueron aprobadas para inicio de prácticas";
-
-                if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('aprobada|en_proceso|finalizada', true, false).draw();
-                }
-            } else {
-                contentSolicitudes.classList.remove('hidden');
-                mSolicitudes.className = "glass-card rounded-3xl p-5 flex flex-col relative overflow-hidden group text-left border-2 border-[#4E7D24] bg-white ring-4 ring-[#4E7D24]/10 shadow-md transition-all duration-300 cursor-pointer";
-                mSolicitudes.querySelector('span').className = "text-xs font-bold uppercase tracking-wider text-[#4E7D24]";
-
-                sectionIcon.className = "p-2.5 rounded-2xl bg-green-50 text-[#4E7D24] transition-all";
-                sectionIcon.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`;
-                sectionTitle.textContent = "Solicitudes Pendientes de Prácticas";
-                sectionSubtitle.textContent = "Revisión y autorización de inicio de prácticas profesionales pendientes";
-
-                if (tablaSolicitudes) {
-                    tablaSolicitudes.column(2).search('pendiente', false, false).draw();
-                }
-            }
-        }
     </script>
 
     @include('coordinador.tramites.preview-modal')

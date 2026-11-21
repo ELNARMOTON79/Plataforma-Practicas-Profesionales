@@ -33,7 +33,7 @@ class ProyectoController extends Controller
             $perPage = session('per_page', 5);
         }
 
-        $query = Proyecto::with('empresa');
+        $query = Proyecto::with(['empresa', 'estudiante']);
 
         // Apply Search
         if ($search) {

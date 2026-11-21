@@ -16,6 +16,15 @@ class Alumno extends Model
     }
 
     /**
+     * Solicitud más reciente del alumno (mayor id). Cárgala con with('ultimaSolicitud')
+     * en los listados para no hacer una consulta por alumno.
+     */
+    public function ultimaSolicitud()
+    {
+        return $this->hasOne(Solicitud::class, 'estudiante_id')->latestOfMany('id');
+    }
+
+    /**
      * Get dynamic status of the student.
      */
     public function getEstatusAttribute()
@@ -30,10 +39,7 @@ class Alumno extends Model
             return 'ACTIVO';
         }
 
-        $solicitud = \DB::table('solicitudes')
-            ->where('estudiante_id', $this->id)
-            ->orderBy('id', 'desc')
-            ->first();
+        $solicitud = $this->ultimaSolicitud;
 
         // Tiene solicitud aprobada/en proceso → también ACTIVO
         if ($solicitud && in_array($solicitud->estatus, ['aprobada', 'en_proceso', 'finalizada'])) {
