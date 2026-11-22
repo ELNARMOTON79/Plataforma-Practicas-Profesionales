@@ -255,6 +255,7 @@
                         carrera: "{{ addslashes($alumno->carrera) }}",
                         semestre: "{{ $alumno->semestre }}",
                         grupo: "{{ addslashes($alumno->grupo) }}",
+                        sexo: "{{ addslashes($alumno->attributes['sexo'] ?? '') }}",
                         asesor: "{{ addslashes($alumno->asesor ?? '') }}",
                         coasesor: "{{ addslashes($alumno->coasesor ?? '') }}"
                     },
@@ -291,6 +292,7 @@
             document.getElementById('edit-alumno-correo').value = alumno.correo;
             document.getElementById('edit-alumno-matricula').value = alumno.matricula;
             document.getElementById('edit-alumno-carrera').value = alumno.carrera;
+            document.getElementById('edit-alumno-sexo').value = alumno.sexo;
             document.getElementById('edit-alumno-semestre').value = alumno.semestre;
             document.getElementById('edit-alumno-grupo').value = alumno.grupo;
             document.getElementById('edit-alumno-asesor').value = alumno.asesor;
