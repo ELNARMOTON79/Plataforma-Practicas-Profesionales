@@ -92,6 +92,22 @@
                             @enderror
                         </div>
 
+                        <!-- Sexo -->
+                        <div>
+                            <label for="edit-alumno-sexo" class="block text-sm font-medium text-gray-700 mb-1">Sexo <span class="text-red-500">*</span></label>
+                            <select id="edit-alumno-sexo" name="sexo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700" required>
+                                <option value="">Seleccionar Sexo</option>
+                                <option value="Masculino" {{ old('sexo') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                                <option value="Femenino"  {{ old('sexo') == 'Femenino'  ? 'selected' : '' }}>Femenino</option>
+                            </select>
+                            <p id="error-edit-alumno-sexo" class="text-red-500 text-xs mt-1 font-semibold hidden"></p>
+                            @error('sexo')
+                                @if(old('id'))
+                                    <p class="text-red-500 text-xs mt-1 font-semibold server-error">{{ $message }}</p>
+                                @endif
+                            @enderror
+                        </div>
+
                         <!-- Semestre -->
                         <div>
                             <label for="edit-alumno-semestre" class="block text-sm font-medium text-gray-700 mb-1">Semestre <span class="text-red-500">*</span></label>
@@ -195,6 +211,7 @@
             correo:   { el: document.getElementById('edit-alumno-correo'),    error: document.getElementById('error-edit-alumno-correo'),    validate: (v) => { if (!v.trim()) return 'El correo electrónico es requerido.'; if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return 'El formato del correo es inválido.'; return ''; } },
             matricula:{ el: document.getElementById('edit-alumno-matricula'), error: document.getElementById('error-edit-alumno-matricula'), validate: (v) => { if (!v.trim()) return 'El No. de Cuenta es requerido.'; if (!/^[0-9]{8}$/.test(v)) return 'El No. de Cuenta debe tener exactamente 8 dígitos numéricos.'; return ''; } },
             carrera:  { el: document.getElementById('edit-alumno-carrera'),   error: document.getElementById('error-edit-alumno-carrera'),   validate: (v) => { if (!v) return 'La carrera es requerida.'; return ''; } },
+            sexo:     { el: document.getElementById('edit-alumno-sexo'),      error: document.getElementById('error-edit-alumno-sexo'),      validate: (v) => { if (!v) return 'El sexo es requerido.'; return ''; } },
             semestre: { el: document.getElementById('edit-alumno-semestre'),  error: document.getElementById('error-edit-alumno-semestre'),  validate: (v) => { if (!v) return 'Debes seleccionar un semestre.'; const s = parseInt(v); if (isNaN(s) || s < 7 || s > 9) return 'El semestre debe ser entre 7° y 9°.'; return ''; } },
             grupo:    { el: document.getElementById('edit-alumno-grupo'),     error: document.getElementById('error-edit-alumno-grupo'),     validate: (v) => { if (!v.trim()) return 'El grupo es requerido.'; if (!/^[a-zA-Z]$/.test(v)) return 'El grupo debe ser exactamente una letra.'; return ''; } },
             asesor:   { el: document.getElementById('edit-alumno-asesor'),    error: document.getElementById('error-edit-alumno-asesor'),    validate: (v) => { if (v.trim() && v.trim().length < 3) return 'El nombre del asesor debe tener al menos 3 caracteres.'; return ''; } },

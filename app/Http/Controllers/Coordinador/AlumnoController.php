@@ -122,6 +122,7 @@ class AlumnoController extends Controller
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:7', 'max:9'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
+            'sexo'      => ['required', 'in:Masculino,Femenino'],
             'asesor'    => ['nullable', 'string', 'max:255'],
             'coasesor'  => ['nullable', 'string', 'max:255'],
         ], [
@@ -136,6 +137,8 @@ class AlumnoController extends Controller
             'semestre.min'          => 'El semestre debe ser entre 7 y 9.',
             'semestre.max'          => 'El semestre debe ser entre 7 y 9.',
             'grupo.regex'           => 'El grupo debe ser exactamente una letra.',
+            'sexo.required'         => 'El sexo es requerido.',
+            'sexo.in'               => 'El sexo debe ser Masculino o Femenino.',
         ]);
 
         // Generate a random secure password
@@ -153,6 +156,7 @@ class AlumnoController extends Controller
             $alumno = new Alumno();
             $alumno->usuario_id      = $user->id;
             $alumno->nombre_completo = $request->input('nombre');
+            $alumno->sexo            = $request->input('sexo');
             $alumno->matricula       = $request->input('matricula');
             $alumno->carrera         = $request->input('carrera');
             $alumno->semestre        = $request->input('semestre');
@@ -325,6 +329,7 @@ class AlumnoController extends Controller
             'carrera'   => ['required', 'string', 'max:150'],
             'semestre'  => ['required', 'integer', 'min:7', 'max:9'],
             'grupo'     => ['required', 'string', 'max:20', 'regex:/^[a-zA-Z]$/'],
+            'sexo'      => ['required', 'in:Masculino,Femenino'],
             'asesor'    => ['nullable', 'string', 'max:255'],
             'coasesor'  => ['nullable', 'string', 'max:255'],
         ], [
@@ -339,6 +344,8 @@ class AlumnoController extends Controller
             'semestre.min'          => 'El semestre debe ser entre 7 y 9.',
             'semestre.max'          => 'El semestre debe ser entre 7 y 9.',
             'grupo.regex'           => 'El grupo debe ser exactamente una letra.',
+            'sexo.required'         => 'El sexo es requerido.',
+            'sexo.in'               => 'El sexo debe ser Masculino o Femenino.',
         ]);
 
         // Update user account
@@ -347,6 +354,7 @@ class AlumnoController extends Controller
 
         // Update student profile
         $alumno->nombre_completo = $request->input('nombre');
+        $alumno->sexo            = $request->input('sexo');
         $alumno->matricula       = $request->input('matricula');
         $alumno->carrera         = $request->input('carrera');
         $alumno->semestre        = $request->input('semestre');

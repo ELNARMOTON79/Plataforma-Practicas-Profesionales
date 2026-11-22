@@ -92,6 +92,8 @@ Route::middleware(['auth', 'check-maintenance', 'prevent-back-history'])->group(
     Route::post('/coordinador/seguimiento/{id}/save-responsable', [App\Http\Controllers\Coordinador\SeguimientoController::class, 'saveResponsable'])->name('coordinador.seguimiento.save-responsable');
 
     Route::get('/coordinador/informes', [App\Http\Controllers\Coordinador\InformeController::class, 'informes'])->name('coordinador.informes');
+    Route::get('/coordinador/informes/exportar/pdf',   [App\Http\Controllers\Coordinador\InformeController::class, 'exportarPDF'])->name('coordinador.informes.pdf');
+    Route::get('/coordinador/informes/exportar/excel', [App\Http\Controllers\Coordinador\InformeController::class, 'exportarExcel'])->name('coordinador.informes.excel');
 
 
     Route::get('/coordinador/perfil', [App\Http\Controllers\Coordinador\PerfilController::class, 'perfil'])->name('coordinador.perfil');

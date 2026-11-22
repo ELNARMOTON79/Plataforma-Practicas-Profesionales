@@ -313,6 +313,8 @@
 
     <script>
         const mockDatabase = {!! $dbDataJson !!};
+        const urlPDF   = @json(route('coordinador.informes.pdf'));
+        const urlExcel = @json(route('coordinador.informes.excel'));
 
         // Todo dato que viene de la BD se escapa antes de insertarlo con innerHTML (evita XSS)
         function escapeHtml(value) {
@@ -357,14 +359,6 @@
                 }
                 return true;
             });
-        }
-
-        // Texto plano de una celda (para CSV/PDF)
-        function textoCelda(cell) {
-            if (cell && typeof cell === 'object') {
-                return 'badge' in cell ? String(cell.badge ?? '') : `${cell.texto ?? ''}${cell.subtexto ? ' (' + cell.subtexto + ')' : ''}`;
-            }
-            return String(cell ?? '');
         }
 
         function updateReportPreview() {
@@ -425,10 +419,18 @@
             document.getElementById('preview-badge').innerText = `${count} ${count === 1 ? 'registro' : 'registros'}`;
         }
 
+        // Exportación real: el servidor genera el PDF (DomPDF) o el CSV con los mismos filtros de la vista previa
         function triggerExport(format) {
             const reportSelect = document.getElementById('tipo-reporte');
             const reportName = reportSelect.options[reportSelect.selectedIndex].text;
-            
+            const qs = new URLSearchParams({
+                tipo:      reportSelect.value,
+                carrera:   document.getElementById('filtro-carrera').value,
+                genero:    document.getElementById('filtro-genero').value,
+                ciclo:     document.getElementById('filtro-ciclo').value,
+                modalidad: document.getElementById('filtro-modalidad').value,
+            }).toString();
+
             let btn, spinner, icon;
             if (format === 'PDF') {
                 btn = document.getElementById('btn-pdf');
@@ -440,47 +442,16 @@
                 icon = document.getElementById('excel-icon');
             }
 
-            const db = mockDatabase[document.getElementById('tipo-reporte').value];
-            const filas = filasFiltradas().map(row => row.map(textoCelda));
-            const fecha = new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD en hora local
-            const archivo = reportName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + '_' + fecha;
-
             btn.style.pointerEvents = 'none';
             icon.classList.add('hidden');
             spinner.classList.remove('hidden');
 
-            let mensaje;
-            if (format === 'PDF') {
-                // Documento imprimible: el navegador permite "Guardar como PDF"
-                const tabla = `<table><thead><tr>${db.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>`
-                    + `<tbody>${filas.map(f => `<tr>${f.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${db.headers.length}">Sin registros con los filtros aplicados.</td></tr>`}</tbody></table>`;
-                const frame = document.createElement('iframe');
-                frame.style.cssText = 'position:fixed;width:0;height:0;border:0;';
-                document.body.appendChild(frame);
-                frame.contentDocument.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(archivo)}</title><style>
-                    body{font-family:Arial,sans-serif;font-size:11px;color:#111;margin:24px}
-                    h1{font-size:16px;margin:0 0 4px} p{margin:0 0 14px;color:#555}
-                    table{width:100%;border-collapse:collapse} th,td{border:1px solid #ccc;padding:5px 7px;text-align:left}
-                    th{background:#eef5e8}</style></head><body>
-                    <h1>${escapeHtml(reportName)}</h1><p>Universidad de Colima · Prácticas Profesionales · ${new Date().toLocaleDateString('es-MX')} · ${filas.length} ${filas.length === 1 ? 'registro' : 'registros'}</p>
-                    ${tabla}</body></html>`);
-                frame.contentDocument.close();
-                frame.contentWindow.focus();
-                frame.contentWindow.print();
-                setTimeout(() => frame.remove(), 1000);
-                mensaje = `Se abrió el diálogo de impresión del "${reportName}". Elige "Guardar como PDF".`;
-            } else {
-                // CSV con BOM para que Excel respete acentos
-                const csvCelda = v => /[",;\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
-                const csv = [db.headers, ...filas].map(f => f.map(c => csvCelda(String(c))).join(',')).join('\r\n');
-                const enlace = document.createElement('a');
-                enlace.href = URL.createObjectURL(new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8'}));
-                enlace.download = archivo + '.csv';
-                document.body.appendChild(enlace);
-                enlace.click();
-                setTimeout(() => { URL.revokeObjectURL(enlace.href); enlace.remove(); }, 1000);
-                mensaje = `El "${reportName}" se descargó (${filas.length} ${filas.length === 1 ? 'registro' : 'registros'}) y se puede abrir en Excel.`;
-            }
+            const enlace = document.createElement('a');
+            enlace.href = `${format === 'PDF' ? urlPDF : urlExcel}?${qs}`;
+            enlace.download = '';
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
 
             setTimeout(() => {
                 btn.style.pointerEvents = '';
@@ -488,10 +459,12 @@
                 icon.classList.remove('hidden');
 
                 const toast = document.getElementById('export-toast');
-                document.getElementById('toast-message').innerText = mensaje;
+                document.getElementById('toast-message').innerText = format === 'PDF'
+                    ? `El "${reportName}" se está descargando en PDF.`
+                    : `El "${reportName}" se está descargando como CSV y se puede abrir en Excel.`;
                 toast.classList.remove('translate-x-[150%]');
                 setTimeout(() => toast.classList.add('translate-x-[150%]'), 4500);
-            }, 300);
+            }, 1500);
         }
 
 
