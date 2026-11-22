@@ -124,7 +124,7 @@
                         </div>
                         <div class="text-left leading-tight">
                             <h3 class="font-extrabold text-sm uppercase tracking-wide">Exportar a Excel</h3>
-                            <p class="text-green-100 text-[10px] font-semibold mt-0.5">Hoja de cálculo procesable (.xlsx)</p>
+                            <p class="text-green-100 text-[10px] font-semibold mt-0.5">Archivo CSV compatible con Excel (.csv)</p>
                         </div>
                     </button>
                 </div>
@@ -284,84 +284,30 @@
         </div>
     </div>
 
-    <!-- Panel previo -->
-    <div class="glass-card rounded-3xl p-6 md:p-8 text-left fade-in-up delay-300">
-        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-            <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                <div class="bg-[#6BA53A]/10 p-2 rounded-xl text-[#4E7D24]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                </div>
-                Vista Previa de Datos (Muestra de 5 filas)
-            </h2>
-            <span id="preview-badge" class="px-2.5 py-0.5 text-[9px] font-bold rounded-lg bg-gray-100 text-gray-600">Filtros Activos</span>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-100">
-                <thead class="bg-gray-50/50" id="preview-thead">
-                   
-                </thead>
-                <tbody class="bg-transparent divide-y divide-gray-100" id="preview-tbody">
-                    
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <script>
         const mockDatabase = {!! $dbDataJson !!};
+        const urlPDF   = "{{ route('coordinador.informes.pdf') }}";
+        const urlExcel = "{{ route('coordinador.informes.excel') }}";
 
+        // ── Build query string from current filters ──
+        function getFilterParams() {
+            return {
+                tipo:      document.getElementById('tipo-reporte').value,
+                carrera:   document.getElementById('filtro-carrera').value,
+                genero:    document.getElementById('filtro-genero').value,
+                ciclo:     document.getElementById('filtro-ciclo').value,
+                modalidad: document.getElementById('filtro-modalidad').value,
+            };
+        }
+
+        // ── Update stats bars based on current filters ──
         function updateReportPreview() {
-            const reportType = document.getElementById('tipo-reporte').value;
-            const db = mockDatabase[reportType];
-            
-            let theadHtml = '<tr>';
-            db.headers.forEach((header, index) => {
-                let borderClass = '';
-                if (index === 0) borderClass = 'rounded-tl-xl';
-                if (index === db.headers.length - 1) borderClass = 'rounded-tr-xl';
-                theadHtml += `<th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider ${borderClass}">${header}</th>`;
-            });
-            theadHtml += '</tr>';
-            document.getElementById('preview-thead').innerHTML = theadHtml;
+            const params     = getFilterParams();
+            const reportType = params.tipo;
+            const db         = mockDatabase[reportType];
 
-            const carrera = document.getElementById('filtro-carrera').value;
-            const genero = document.getElementById('filtro-genero').value;
-            const ciclo = document.getElementById('filtro-ciclo').value;
-            const modalidad = document.getElementById('filtro-modalidad').value;
-
-            let tbodyHtml = '';
-            let count = 0;
-
-            db.rows.forEach(row => {
-                if (reportType === 'estudiantes') {
-                    if (carrera && row[1] !== carrera) return;
-                    if (genero === 'femenino' && row[2] !== 'Femenino') return;
-                    if (genero === 'masculino' && row[2] !== 'Masculino') return;
-                    if (row[3] !== ciclo) return;
-                }
-                if (reportType === 'proyectos') {
-                    if (modalidad === 'presencial' && row[2] !== 'Presencial') return;
-                    if (modalidad === 'virtual' && row[2] !== 'Virtual') return;
-                    if (modalidad === 'hibrido' && row[2] !== 'Híbrido') return;
-                    if (row[4] !== ciclo) return;
-                }
-
-                tbodyHtml += `<tr class="hover:bg-[#6BA53A]/5 transition-colors">`;
-                row.forEach((cell, idx) => {
-                    const textAlignment = idx === 3 && reportType === 'proyectos' ? 'text-center' : 'text-left';
-                    tbodyHtml += `<td class="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-gray-800 ${textAlignment}">${cell}</td>`;
-                });
-                tbodyHtml += '</tr>';
-                count++;
-            });
-
-            if (count === 0) {
-                tbodyHtml = `<tr><td colspan="${db.headers.length}" class="px-6 py-8 text-center text-xs text-gray-400 font-bold">No se encontraron registros de muestra con los filtros aplicados.</td></tr>`;
-            }
-
-            document.getElementById('preview-tbody').innerHTML = tbodyHtml;
-
+            // Update stats bars
             let statsHtml = '';
             db.stats.forEach(stat => {
                 statsHtml += `
@@ -373,57 +319,62 @@
                         <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
                             <div class="${stat.colorClass} h-full rounded-full transition-all duration-500" style="width: ${stat.percentage}%"></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
+            if (!statsHtml) statsHtml = '<p class="text-[10px] text-gray-400 font-semibold">Sin datos de distribución.</p>';
             document.getElementById('stats-bars-container').innerHTML = statsHtml;
-
- 
-            document.getElementById('preview-badge').innerText = `${count} de muestra`;
         }
 
+        // ── Real export: opens the backend URL in a new tab / triggers download ──
         function triggerExport(format) {
-            const reportSelect = document.getElementById('tipo-reporte');
-            const reportName = reportSelect.options[reportSelect.selectedIndex].text;
-            
+            const params = getFilterParams();
+            const qs = new URLSearchParams({
+                tipo:      params.tipo,
+                carrera:   params.carrera,
+                genero:    params.genero,
+                ciclo:     params.ciclo,
+                modalidad: params.modalidad,
+            }).toString();
+
+            const url = format === 'PDF' ? `${urlPDF}?${qs}` : `${urlExcel}?${qs}`;
+
             let btn, spinner, icon;
             if (format === 'PDF') {
-                btn = document.getElementById('btn-pdf');
+                btn     = document.getElementById('btn-pdf');
                 spinner = document.getElementById('pdf-spinner');
-                icon = document.getElementById('pdf-icon');
+                icon    = document.getElementById('pdf-icon');
             } else {
-                btn = document.getElementById('btn-excel');
+                btn     = document.getElementById('btn-excel');
                 spinner = document.getElementById('excel-spinner');
-                icon = document.getElementById('excel-icon');
+                icon    = document.getElementById('excel-icon');
             }
 
             btn.style.pointerEvents = 'none';
             icon.classList.add('hidden');
             spinner.classList.remove('hidden');
 
-            setTimeout(() => {
+            // Trigger real download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
+            setTimeout(() => {
                 btn.style.pointerEvents = '';
                 spinner.classList.add('hidden');
                 icon.classList.remove('hidden');
 
-
                 const toast = document.getElementById('export-toast');
-                document.getElementById('toast-message').innerText = `El "${reportName}" en formato ${format} se ha generado y descargado correctamente.`;
+                const reportName = document.getElementById('tipo-reporte').options[document.getElementById('tipo-reporte').selectedIndex].text;
+                document.getElementById('toast-message').innerText = `"${reportName}" en formato ${format} generado y descargado.`;
                 toast.classList.remove('translate-x-[150%]');
-
-
-                setTimeout(() => {
-                    toast.classList.add('translate-x-[150%]');
-                }, 4500);
-
-            }, 1500);
+                setTimeout(() => toast.classList.add('translate-x-[150%]'), 4500);
+            }, 1800);
         }
 
-
-        document.addEventListener('DOMContentLoaded', function() {
-            updateReportPreview();
-        });
+        document.addEventListener('DOMContentLoaded', updateReportPreview);
     </script>
 
     <style>
