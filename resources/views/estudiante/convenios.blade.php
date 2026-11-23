@@ -3,10 +3,60 @@
 @section('content')
     <x-page-header title="Empresas e instituciones" description="Consulta las empresas vinculadas y solicita tu participación en proyectos de prácticas profesionales."></x-page-header>
 
+    {{-- Estilos de esta vista; no dependen de clases de Tailwind no compiladas --}}
+    <style>
+        .cv-alert { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 18px; background: linear-gradient(90deg, #fffbeb, #fff7ed); border: 1px solid #fde68a; }
+        .cv-alert-icon { width: 38px; height: 38px; border-radius: 12px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cv-alert-title { font-size: 13px; font-weight: 700; color: #92400e; margin: 0; }
+        .cv-alert-text { font-size: 12.5px; color: #b45309; margin: 2px 0 0; }
+        .cv-alert-link { margin-left: auto; flex-shrink: 0; font-size: 12px; font-weight: 700; color: #92400e; background: #fff; border: 1px solid #fde68a; padding: 7px 14px; border-radius: 10px; text-decoration: none; white-space: nowrap; transition: background .15s; }
+        .cv-alert-link:hover { background: #fef3c7; }
+
+        .cv-card { background: #fff; border: 1px solid #eef0f3; border-radius: 24px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(17, 24, 39, .04); }
+        .cv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #f1f2f4; }
+        .cv-head-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .cv-head-icon { width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, #6BA53A, #4E7D24); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 6px 14px rgba(78, 125, 36, .25); }
+        .cv-label { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; margin: 0; }
+        .cv-folio { font-size: 19px; font-weight: 800; color: #111827; margin: 1px 0 0; line-height: 1.2; }
+        .cv-vigencia { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: #6b7280; margin-top: 4px; }
+        .cv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; flex-shrink: 0; }
+        .cv-status-dot { width: 7px; height: 7px; border-radius: 999px; }
+        .cv-status.is-vigente { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .cv-status.is-vigente .cv-status-dot { background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
+        .cv-status.is-vencido { color: #6b7280; background: #f3f4f6; border: 1px solid #e5e7eb; }
+        .cv-status.is-vencido .cv-status-dot { background: #9ca3af; }
+
+        .cv-section { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .cv-count { font-size: 11px; font-weight: 700; color: #4E7D24; background: #f0f7e9; border-radius: 999px; padding: 2px 9px; }
+        .cv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
+        @media (max-width: 420px) { .cv-grid { grid-template-columns: 1fr; } }
+
+        .cv-empresa { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 14px 16px; border-radius: 18px; background: #fafbfa; border: 1px solid #edf0ea; transition: border-color .2s, box-shadow .2s, transform .2s; }
+        .cv-empresa:hover { border-color: #cfe3bd; box-shadow: 0 8px 22px rgba(78, 125, 36, .08); transform: translateY(-2px); }
+        .cv-empresa-top { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 220px; min-width: 0; }
+        .cv-avatar { width: 42px; height: 42px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb; color: #4E7D24; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cv-tipo { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+        .cv-tipo.is-moral { color: #1d4ed8; background: #eff6ff; border: 1px solid #dbeafe; }
+        .cv-tipo.is-fisica { color: #c2410c; background: #fff7ed; border: 1px solid #fed7aa; }
+        .cv-empresa-name { font-size: 15px; font-weight: 700; color: #111827; margin: 5px 0 0; line-height: 1.3; }
+        .cv-dir { display: flex; align-items: flex-start; gap: 5px; font-size: 12.5px; color: #6b7280; margin: 4px 0 0; }
+        .cv-btn { display: flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; margin-left: auto; white-space: nowrap; font-size: 12.5px; font-weight: 700; color: #4E7D24; background: #fff; border: 1px solid #cfe3bd; padding: 9px 16px; border-radius: 12px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+        .cv-btn:hover { background: #4E7D24; border-color: #4E7D24; color: #fff; }
+        .cv-btn svg { transition: transform .2s; }
+        .cv-btn:hover svg { transform: translateX(3px); }
+        .cv-total { text-align: center; font-size: 13px; color: #9ca3af; }
+    </style>
+
     @if($bloqueoSolicitud)
-        <div class="rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3 fade-in-up">
-            <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="text-sm font-medium text-amber-800">{{ $bloqueoSolicitud }}</p>
+        <div class="cv-alert fade-in-up">
+            <div class="cv-alert-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div style="min-width: 0;">
+                <p class="cv-alert-title">No puedes enviar una nueva solicitud</p>
+                <p class="cv-alert-text">{{ $bloqueoSolicitud }}</p>
+            </div>
+            <a href="{{ route('estudiante.proyecto') }}" class="cv-alert-link">Ver Mi Proyecto</a>
         </div>
     @endif
 
@@ -82,52 +132,67 @@
     @else
         <div class="space-y-6 fade-in-up delay-200">
             @foreach($conveniosAgrupados as $convenio)
-                <div class="glass-card rounded-3xl p-6">
-                    <div class="flex flex-wrap items-start justify-between gap-4 mb-5 pb-5 border-b border-gray-100/70">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Convenio</p>
-                            <h3 class="text-xl font-bold text-gray-900">{{ $convenio->folio }}</h3>
+                <div class="cv-card">
+                    <div class="cv-head">
+                        <div class="cv-head-main">
+                            <div class="cv-head-icon">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div style="min-width: 0;">
+                                <p class="cv-label">Convenio</p>
+                                <h3 class="cv-folio">{{ $convenio->folio }}</h3>
+                                @if(isset($convenio->fecha_inicio, $convenio->fecha_termino))
+                                <span class="cv-vigencia">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Vigencia: {{ $convenio->fecha_inicio->format('d/m/Y') }} — {{ $convenio->fecha_termino->format('d/m/Y') }}
+                                </span>
+                                @endif
+                            </div>
                         </div>
-                        <span class="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-50 border border-green-100 px-2.5 py-1 rounded-full shrink-0">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                            Aprobado
+                        <span class="cv-status {{ ($convenio->vigente ?? true) ? 'is-vigente' : 'is-vencido' }}">
+                            <span class="cv-status-dot"></span>
+                            {{ isset($convenio->vigente) ? ($convenio->vigente ? 'Vigente' : 'Vencido') : 'Aprobado' }}
                         </span>
                     </div>
 
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                        Empresas en este convenio ({{ $convenio->empresas->count() }})
-                    </p>
+                    <div class="cv-section">
+                        <p class="cv-label">Empresas en este convenio</p>
+                        <span class="cv-count">{{ $convenio->empresas->count() }}</span>
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="cv-grid">
                         @foreach($convenio->empresas as $unidad)
                             @php
                                 $esMoral   = strtolower($unidad->tipo_persona ?? '') === 'moral';
                                 $tipoLabel = $esMoral ? 'Persona Moral' : 'Persona Física';
-                                $tipoColor = $esMoral ? 'blue' : 'orange';
+                                $inicialesEmpresa = collect(preg_split('/\s+/', trim($unidad->nombre_empresa ?? '')))
+                                    ->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->implode('');
                             @endphp
-                            <div class="border border-gray-150 rounded-2xl p-4 bg-gray-50/60 flex flex-col justify-between hover:bg-gray-50 transition-colors">
-                                <div>
-                                    <span class="inline-block text-[10px] font-bold text-{{ $tipoColor }}-600 bg-{{ $tipoColor }}-50 border border-{{ $tipoColor }}-100 px-2 py-0.5 rounded-md mb-2">{{ $tipoLabel }}</span>
-                                    <h4 class="font-bold text-gray-900">{{ $unidad->nombre_empresa }}</h4>
-                                    @if($unidad->direccion)
-                                        <p class="text-sm text-gray-500 mt-1 flex items-start gap-1.5">
-                                            <svg class="w-4 h-4 mt-0.5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                            {{ $unidad->direccion }}
-                                        </p>
-                                    @endif
+                            <div class="cv-empresa">
+                                <div class="cv-empresa-top">
+                                    <div class="cv-avatar">{{ $inicialesEmpresa ?: '—' }}</div>
+                                    <div style="min-width: 0;">
+                                        <span class="cv-tipo {{ $esMoral ? 'is-moral' : 'is-fisica' }}">{{ $tipoLabel }}</span>
+                                        <h4 class="cv-empresa-name">{{ $unidad->nombre_empresa }}</h4>
+                                        @if($unidad->direccion)
+                                            <p class="cv-dir">
+                                                <svg width="14" height="14" style="margin-top: 2px; flex-shrink: 0; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                {{ $unidad->direccion }}
+                                            </p>
+                                        @endif
+                                    </div>
                                 </div>
 
-                                <div class="pt-3 mt-3 border-t border-gray-100/70 flex gap-2">
-                                    <button
-                                        type="button"
-                                        data-empresa="{{ $unidad->nombre_empresa }}"
-                                        data-unidades='{{ json_encode($unidad->unidades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
-                                        onclick="showUnidadesModal(this)"
-                                        class="flex-1 text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 px-3 py-2 rounded-xl hover:bg-[#4E7D24] hover:text-white transition-all shadow-sm"
-                                    >
-                                        Ver unidades receptoras
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    data-empresa="{{ $unidad->nombre_empresa }}"
+                                    data-unidades='{{ json_encode($unidad->unidades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                    onclick="showUnidadesModal(this)"
+                                    class="cv-btn"
+                                >
+                                    Ver unidades receptoras
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                </button>
                             </div>
                         @endforeach
                     </div>
@@ -135,7 +200,7 @@
             @endforeach
         </div>
 
-        <p class="text-center text-sm text-gray-400 fade-in-up delay-300">
+        <p class="cv-total fade-in-up delay-300">
             {{ $conveniosAgrupados->count() }} convenio{{ $conveniosAgrupados->count() !== 1 ? 's' : '' }} encontrado{{ $conveniosAgrupados->count() !== 1 ? 's' : '' }}
         </p>
     @endif
@@ -264,6 +329,7 @@
         </div>
     </div>
 
+    <div id="solicitud-bloqueo-data" hidden data-mensaje="{{ $bloqueoSolicitud }}"></div>
     <script>
         function validateSearch() {
             var val = document.getElementById('search-input').value.trim();
@@ -361,7 +427,9 @@
             document.body.appendChild(modal);
         }
 
-        var SOLICITUD_BLOQUEO = @json($bloqueoSolicitud);
+        // El mensaje viene en un atributo data-* para no escribir Blade dentro del script
+        var bloqueoData = document.getElementById('solicitud-bloqueo-data');
+        var SOLICITUD_BLOQUEO = (bloqueoData && bloqueoData.dataset.mensaje) || null;
 
         function openSolicitudModal(urId, nombre) {
             if (SOLICITUD_BLOQUEO) {

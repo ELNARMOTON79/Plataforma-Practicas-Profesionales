@@ -1,6 +1,54 @@
 @extends('layouts.estudiante', ['title' => 'Mi Proyecto de Prácticas - Prácticas Profesionales UdeC', 'active' => 'proyecto'])
 
 @section('content')
+    {{-- Estilos del comentario del coordinador; no dependen de clases de Tailwind no compiladas --}}
+    <style>
+        .doc-comment-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 4px 10px; border: 1px solid; border-radius: 8px;
+            font-size: 11px; font-weight: 700; cursor: pointer; transition: filter .15s; }
+        .doc-comment-btn:hover { filter: brightness(.96); }
+        .doc-comment-btn.is-rechazado { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .doc-comment-btn.is-comentario { background: #f4f9ef; border-color: #d3e6c2; color: #4E7D24; }
+
+        /* Colores de estatus (proyecto y documentos) como clases, para no escribir Blade dentro de style="" */
+        .tono-badge.tono-gris  { background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb; }
+        .tono-badge.tono-verde { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .tono-badge.tono-rojo  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .tono-badge.tono-ambar { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .tono-dot.tono-gris  { background: #9ca3af; }
+        .tono-dot.tono-verde { background: #16a34a; }
+        .tono-dot.tono-rojo  { background: #dc2626; }
+        .tono-dot.tono-ambar { background: #f59e0b; }
+        .tono-icon.tono-gris  { background: #f9fafb; color: #9ca3af; }
+        .tono-icon.tono-verde { background: #f0fdf4; color: #16a34a; }
+        .tono-icon.tono-rojo  { background: #fef2f2; color: #dc2626; }
+        .tono-icon.tono-ambar { background: #fffbeb; color: #d97706; }
+    </style>
+    <script>
+        function verComentarioCoordinador(btn) {
+            var titulo = btn.dataset.titulo;
+            var texto = btn.dataset.texto;
+            var color = btn.dataset.color;
+            if (typeof Swal === 'undefined') { alert(titulo + '\n\n' + texto); return; }
+            Swal.fire({
+                title: titulo,
+                text: texto,
+                icon: color === '#dc2626' ? 'error' : 'info',
+                confirmButtonText: 'Entendido',
+                buttonsStyling: false,
+                customClass: { popup: 'doc-comment-popup' },
+                didOpen: function (popup) {
+                    popup.style.borderRadius = '20px';
+                    var t = popup.querySelector('.swal2-title');
+                    if (t) { t.style.fontSize = '18px'; t.style.color = '#111827'; }
+                    var c = popup.querySelector('.swal2-html-container');
+                    if (c) { c.style.fontSize = '14px'; c.style.color = '#374151'; c.style.textAlign = 'justify'; c.style.whiteSpace = 'pre-line'; c.style.lineHeight = '1.55'; }
+                    var b = popup.querySelector('.swal2-confirm');
+                    if (b) { b.style.cssText = 'background:#4E7D24;color:#fff;border:0;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;'; }
+                }
+            });
+        }
+    </script>
+
     <x-page-header title="Seguimiento de Proyecto" description="Monitorea tus horas acumuladas y gestiona la documentación de tus prácticas profesionales."></x-page-header>
 
     @if($solicitudActiva)
@@ -142,13 +190,13 @@
                     @php
                         // Colores en línea para que no dependan de clases de Tailwind no compiladas
                         $estatusProyecto = match($proyectoAsignado->estatus) {
-                            'pendiente' => ['label' => 'En revisión por el coordinador', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b'],
-                            'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626'],
-                            default     => ['label' => 'Aprobado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a'],
+                            'pendiente' => ['tono' => 'ambar', 'label' => 'En revisión por el coordinador', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b'],
+                            'rechazado' => ['tono' => 'rojo', 'label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626'],
+                            default     => ['tono' => 'verde', 'label' => 'Aprobado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a'],
                         };
                     @endphp
-                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mb-2" style="background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
-                        <span class="rounded-full" style="width: 6px; height: 6px; background: {{ $estatusProyecto['dot'] }};"></span>
+                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mb-2 tono-badge tono-{{ $estatusProyecto['tono'] }}">
+                        <span class="rounded-full tono-dot tono-{{ $estatusProyecto['tono'] }}" style="width: 6px; height: 6px;"></span>
                         {{ $estatusProyecto['label'] }}
                     </span>
 
@@ -196,8 +244,8 @@
                                     </div>
                                     <div style="padding: 1.5rem 2rem; overflow-y: auto; flex: 1 1 auto; min-height: 0;">
                                         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
-                                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ $estatusProyecto['bg'] }}; color: {{ $estatusProyecto['text'] }}; border: 1px solid {{ $estatusProyecto['border'] }};">
-                                                <span style="width: 6px; height: 6px; border-radius: 9999px; background: {{ $estatusProyecto['dot'] }};"></span>
+                                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;" class="tono-badge tono-{{ $estatusProyecto['tono'] }}">
+                                                <span class="tono-dot tono-{{ $estatusProyecto['tono'] }}" style="width: 6px; height: 6px; border-radius: 9999px;"></span>
                                                 {{ $estatusProyecto['label'] }}
                                             </span>
                                             @foreach(array_filter([$proyectoAsignado->tipo_proyecto, $proyectoAsignado->tipo_modalidad]) as $etiquetaProyecto)
@@ -287,17 +335,17 @@
                             $anterioresValidados = $anterioresValidados && $doc && in_array($estatusDoc, ['aprobado', 'validado']);
                             // Colores en línea para que no dependan de clases de Tailwind no compiladas
                             $badge = match(true) {
-                                !$doc => ['label' => 'Sin Subir', 'bg' => '#f9fafb', 'text' => '#6b7280', 'border' => '#e5e7eb', 'dot' => '#9ca3af', 'iconBg' => '#f9fafb', 'icon' => '#9ca3af'],
-                                in_array($estatusDoc, ['aprobado', 'validado']) => ['label' => 'Validado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a', 'iconBg' => '#f0fdf4', 'icon' => '#16a34a'],
-                                $estatusDoc === 'rechazado' => ['label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626', 'iconBg' => '#fef2f2', 'icon' => '#dc2626'],
-                                default => ['label' => 'En proceso de validación', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b', 'iconBg' => '#fffbeb', 'icon' => '#d97706'],
+                                !$doc => ['tono' => 'gris', 'label' => 'Sin Subir', 'bg' => '#f9fafb', 'text' => '#6b7280', 'border' => '#e5e7eb', 'dot' => '#9ca3af', 'iconBg' => '#f9fafb', 'icon' => '#9ca3af'],
+                                in_array($estatusDoc, ['aprobado', 'validado']) => ['tono' => 'verde', 'label' => 'Validado', 'bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0', 'dot' => '#16a34a', 'iconBg' => '#f0fdf4', 'icon' => '#16a34a'],
+                                $estatusDoc === 'rechazado' => ['tono' => 'rojo', 'label' => 'Rechazado', 'bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'dot' => '#dc2626', 'iconBg' => '#fef2f2', 'icon' => '#dc2626'],
+                                default => ['tono' => 'ambar', 'label' => 'En proceso de validación', 'bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'dot' => '#f59e0b', 'iconBg' => '#fffbeb', 'icon' => '#d97706'],
                             };
                             $pdfRouteName = $pdfGenerables[$tipo['nombre']] ?? null;
                             $wordRouteName = $wordGenerables[$tipo['nombre']] ?? null;
                         @endphp
                         <div data-doc-name="{{ $tipo['nombre'] }}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/60 rounded-2xl border {{ $doc ? 'border-gray-100' : 'border-dashed border-gray-250' }} hover:border-[#6BA53A]/20 transition-colors gap-4">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl" style="background: {{ $badge['iconBg'] }}; color: {{ $badge['icon'] }};" data-doc-icon>
+                            <div class="flex items-center gap-4" style="flex: 1 1 0%; min-width: 0;">
+                                <div class="p-3 rounded-xl tono-icon tono-{{ $badge['tono'] }}" style="flex-shrink: 0;" data-doc-icon>
                                     @if($doc && $estatusDoc !== 'rechazado')
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     @elseif($doc && $estatusDoc === 'rechazado')
@@ -306,25 +354,34 @@
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                     @endif
                                 </div>
-                                <div>
+                                <div style="flex: 1 1 0%; min-width: 0;">
                                     <h4 class="font-bold text-gray-900 text-sm">{{ $i + 1 }}. {{ $tipo['nombre'] }}</h4>
                                     <p class="text-xs text-gray-500 font-medium mt-0.5">{{ $tipo['desc'] }}</p>
                                     @if(!empty($tipo['nota']))
                                         <p class="text-[11px] text-gray-400 italic mt-0.5">{{ $tipo['nota'] }}</p>
                                     @endif
-                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mt-1" style="background: {{ $badge['bg'] }}; color: {{ $badge['text'] }}; border: 1px solid {{ $badge['border'] }};" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
-                                        <span class="rounded-full" style="width: 6px; height: 6px; background: {{ $badge['dot'] }};"></span>
+                                    <span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-md text-[10px] font-bold mt-1 tono-badge tono-{{ $badge['tono'] }}" data-doc-status title="{{ $doc && $estatusDoc === 'rechazado' ? $doc->observaciones : '' }}">
+                                        <span class="rounded-full tono-dot tono-{{ $badge['tono'] }}" style="width: 6px; height: 6px;"></span>
                                         {{ $badge['label'] }}{{ $doc ? ' — '.\Carbon\Carbon::parse($doc->fecha_carga)->format('d/m/Y') : '' }}
                                     </span>
-                                    @if($doc && $estatusDoc === 'rechazado')
-                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-red-50 border-red-100">
-                                            <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Documento rechazado por el coordinador</p>
-                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu documento y vuelve a subirlo.' }}</p>
-                                        </div>
-                                    @elseif($doc && $doc->observaciones && $estatusDoc !== 'pendiente')
-                                        <div data-doc-comment class="mt-2 rounded-xl border px-3 py-2 bg-[#6BA53A]/5 border-[#6BA53A]/20">
-                                            <p class="text-[10px] font-bold uppercase tracking-wide text-[#4E7D24]">Comentario del coordinador</p>
-                                            <p class="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{{ $doc->observaciones }}</p>
+                                    @php
+                                        $comentario = null;
+                                        if ($doc && $estatusDoc === 'rechazado') {
+                                            $comentario = ['titulo' => 'Documento rechazado por el coordinador', 'texto' => $doc->observaciones ?: 'El coordinador no dejó un motivo. Revisa tu documento y vuelve a subirlo.', 'bg' => '#fef2f2', 'border' => '#fecaca', 'color' => '#dc2626'];
+                                        } elseif ($doc && $doc->observaciones && $estatusDoc !== 'pendiente') {
+                                            $comentario = ['titulo' => 'Comentario del coordinador', 'texto' => $doc->observaciones, 'bg' => '#f4f9ef', 'border' => '#d3e6c2', 'color' => '#4E7D24'];
+                                        }
+                                    @endphp
+                                    @if($comentario)
+                                        <div>
+                                            <button type="button" data-doc-comment class="doc-comment-btn {{ $estatusDoc === 'rechazado' ? 'is-rechazado' : 'is-comentario' }}"
+                                                    data-titulo="{{ $comentario['titulo'] }}"
+                                                    data-texto="{{ $comentario['texto'] }}"
+                                                    data-color="{{ $comentario['color'] }}"
+                                                    onclick="verComentarioCoordinador(this)">
+                                                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                                Ver comentario del coordinador
+                                            </button>
                                         </div>
                                     @endif
                                 </div>
@@ -336,8 +393,8 @@
                                         {{ $pdfRouteName ? 'Generar PDF' : 'Generar Word' }}
                                     </button>
                                 @elseif($pdfRouteName)
-                                    <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <a href="{{ route($pdfRouteName) }}" target="_blank" class="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" style="padding: 7px 12px; font-size: 11px; white-space: nowrap; justify-content: center;">
+                                        <svg class="w-4 h-4" style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         <span data-generar-pdf-label>{{ $doc ? 'Generar de nuevo PDF' : 'Generar PDF' }}</span>
                                     </a>
                                 @endif
@@ -364,12 +421,12 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </a>
                                     @unless(in_array($estatusDoc, \App\Models\Documento::ESTATUS_VALIDADOS, true))
-                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" style="padding: 7px 10px; font-size: 11px; white-space: nowrap;">
+                                        <svg class="w-4 h-4" style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         Editar
                                     </button>
-                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button type="button" data-docname="{{ e($tipo['nombre']) }}" data-docid="{{ $doc->id }}" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" style="padding: 7px 10px; font-size: 11px; white-space: nowrap;">
+                                        <svg class="w-4 h-4" style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         Eliminar
                                     </button>
                                     @endunless
@@ -458,6 +515,9 @@
     </div>
     @endif
 
+    @if(session('success'))
+        <div id="proyecto-toast-data" hidden data-mensaje="{{ session('success') }}"></div>
+    @endif
     <script>
         var projectEl = document.getElementById('projectData');
         var currentHours = parseInt(projectEl?.dataset.currentHours || 0, 10);
@@ -650,12 +710,12 @@
             return '<a href="' + rutaArchivo + '" target="_blank" class="text-[#4E7D24] hover:bg-[#6BA53A]/10 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" data-doc-action>' +
                     'Ver Archivo <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' +
                 '</a>' +
-                '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>' +
+                '<button type="button" data-docname="' + nombreDoc + '" onclick="openUploadModal(this)" class="bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" style="padding: 7px 10px; font-size: 11px; white-space: nowrap;">' +
+                    '<svg class="w-4 h-4" style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>' +
                     'Editar' +
                 '</button>' +
-                '<button type="button" data-docname="' + nombreDoc + '" data-docid="' + documentoId + '" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>' +
+                '<button type="button" data-docname="' + nombreDoc + '" data-docid="' + documentoId + '" onclick="deleteDocument(this)" class="bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm" style="padding: 7px 10px; font-size: 11px; white-space: nowrap;">' +
+                    '<svg class="w-4 h-4" style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>' +
                     'Eliminar' +
                 '</button>';
         }
@@ -736,9 +796,13 @@
             }
         }
 
-        @if(session('success'))
-            showToast('¡Proyecto registrado!', @json(session('success')));
-        @endif
+        // El mensaje de éxito viene en un atributo data-* para no escribir Blade dentro del script
+        (function() {
+            var toastData = document.getElementById('proyecto-toast-data');
+            if (toastData && toastData.dataset.mensaje) {
+                showToast('¡Proyecto registrado!', toastData.dataset.mensaje);
+            }
+        })();
 
         // Atajo desde Inicio: /estudiante/proyecto?subir=<documento> abre la carga de ese documento
         (function() {
