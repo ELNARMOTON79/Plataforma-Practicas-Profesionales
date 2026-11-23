@@ -171,29 +171,38 @@
         </div>
     </div>
 
+    @php
+        $projectDetails = [];
+        foreach ($proyectos as $proyecto) {
+            $empresa = $proyecto->empresa;
+            $projectDetails[$proyecto->id] = [
+                'id' => (string) $proyecto->id,
+                'titulo' => $proyecto->titulo,
+                'unidad' => $empresa?->nombre_empresa
+                    ? strtoupper($empresa->nombre_empresa) . ($empresa->unidad_receptora ? ' — ' . $empresa->unidad_receptora : '')
+                    : 'Sin Unidad',
+                'unidadId' => (string) $proyecto->unidad_receptora_id,
+                'estudianteId' => (string) ($proyecto->estudiante_id ?? ''),
+                'tipoProyecto' => (string) $proyecto->tipo_proyecto,
+                'tipoModalidad' => (string) $proyecto->tipo_modalidad,
+                'objetivo' => $proyecto->objetivo,
+                'justificacion' => $proyecto->justificacion,
+                'actividades' => $proyecto->actividades,
+                'impactoSocial' => $proyecto->impacto_social,
+                'plan' => (string) $proyecto->plan,
+                'ciclo' => (string) $proyecto->ciclo_escolar,
+                'cupo' => $proyecto->cupos_ocupados . ' / ' . $proyecto->cupos_totales,
+                'cuposTotales' => (string) $proyecto->cupos_totales,
+            ];
+        }
+    @endphp
+    {{-- Datos en un bloque JSON aparte para que el editor no marque la sintaxis Blade como errores de JS --}}
+    <script type="application/json" id="project-details-data">{!! json_encode((object) $projectDetails, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
+
     <script>
         function initProyectosPage() {
-            window.projectDetails = {
-                @foreach($proyectos as $proyecto)
-                    "{{ $proyecto->id }}": {
-                        id: "{{ $proyecto->id }}",
-                        titulo: @json($proyecto->titulo),
-                        unidad: @json(optional($proyecto->empresa)->nombre_empresa ? (strtoupper(optional($proyecto->empresa)->nombre_empresa) . (optional($proyecto->empresa)->unidad_receptora ? ' — ' . optional($proyecto->empresa)->unidad_receptora : '')) : 'Sin Unidad'),
-                        unidadId: "{{ $proyecto->unidad_receptora_id }}",
-                        estudianteId: "{{ $proyecto->estudiante_id ?? '' }}",
-                        tipoProyecto: "{{ $proyecto->tipo_proyecto }}",
-                        tipoModalidad: "{{ $proyecto->tipo_modalidad }}",
-                        objetivo: @json($proyecto->objetivo),
-                        justificacion: @json($proyecto->justificacion),
-                        actividades: @json($proyecto->actividades),
-                        impactoSocial: @json($proyecto->impacto_social),
-                        plan: "{{ $proyecto->plan }}",
-                        ciclo: "{{ $proyecto->ciclo_escolar }}",
-                        cupo: "{{ $proyecto->cupos_ocupados }} / {{ $proyecto->cupos_totales }}",
-                        cuposTotales: "{{ $proyecto->cupos_totales }}"
-                    },
-                @endforeach
-            };
+            const projectDetailsData = document.getElementById('project-details-data');
+            window.projectDetails = projectDetailsData ? JSON.parse(projectDetailsData.textContent) : {};
 
             const successAlert = document.getElementById('successAlert');
             if (successAlert) {
@@ -270,10 +279,14 @@
 
     {{-- Re-open correct modal on validation errors --}}
     @if($errors->any())
+        <div id="reopen-modal-data" hidden
+             data-method="{{ old('_method') }}"
+             data-edit-id="{{ session('edit_proyecto_id') }}"></div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if(old('_method') === 'PUT')
-                    const editProjId = "{{ session('edit_proyecto_id') }}";
+                const reopenData = document.getElementById('reopen-modal-data');
+                if (reopenData && reopenData.dataset.method === 'PUT') {
+                    const editProjId = reopenData.dataset.editId;
                     if (editProjId) {
                         const form = document.getElementById('form-editar-proyecto');
                         if (form) form.action = `/coordinador/proyectos/${editProjId}`;
@@ -284,10 +297,10 @@
                         const editModal = document.getElementById('modal-editar-proyecto');
                         if (editModal) editModal.classList.remove('hidden');
                     }
-                @else
+                } else {
                     const regModal = document.getElementById('modal-registrar-proyecto');
                     if (regModal) regModal.classList.remove('hidden');
-                @endif
+                }
             });
         </script>
     @endif
