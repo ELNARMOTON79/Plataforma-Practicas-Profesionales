@@ -21,13 +21,15 @@
     <div class="glass-card rounded-3xl p-8 fade-in-up">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div class="flex items-center gap-5">
-                <div id="avatar" class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4E7D24] to-[#6BA53A] text-2xl font-extrabold text-white shadow-lg shadow-green-900/20">
+                {{-- Tamaños y colores en línea porque no dependen de clases de Tailwind no compiladas --}}
+                <div id="avatar" class="flex shrink-0 items-center justify-center rounded-full font-extrabold text-white"
+                     style="width: 72px; height: 72px; font-size: 24px; background: linear-gradient(135deg, #4E7D24, #6BA53A); box-shadow: 0 8px 18px rgba(78, 125, 36, .25);">
                     {{ $iniciales }}
                 </div>
-                <div>
-                    <h1 id="hero-name" class="text-2xl font-bold text-gray-900">{{ $nombre }}</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">{{ $carrera }}</p>
-                    <span class="inline-block mt-2 text-xs font-bold text-[#4E7D24] bg-[#6BA53A]/10 border border-[#6BA53A]/20 px-3 py-1 rounded-full">
+                <div style="min-width: 0;">
+                    <h1 id="hero-name" class="text-2xl font-bold text-gray-900" style="line-height: 1.2;">{{ $nombre }}</h1>
+                    <p class="text-sm text-gray-500" style="margin-top: 4px;">{{ $carrera }}</p>
+                    <span style="display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 700; color: #4E7D24; background: #f0f7e9; border: 1px solid #d3e6c2; padding: 4px 12px; border-radius: 999px;">
                         Matrícula: {{ $matricula }}
                     </span>
                 </div>
