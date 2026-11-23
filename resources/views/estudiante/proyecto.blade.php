@@ -27,7 +27,7 @@
                     var t = popup.querySelector('.swal2-title');
                     if (t) { t.style.fontSize = '18px'; t.style.color = '#111827'; }
                     var c = popup.querySelector('.swal2-html-container');
-                    if (c) { c.style.fontSize = '14px'; c.style.color = '#374151'; c.style.textAlign = 'left'; c.style.whiteSpace = 'pre-line'; c.style.lineHeight = '1.55'; }
+                    if (c) { c.style.fontSize = '14px'; c.style.color = '#374151'; c.style.textAlign = 'justify'; c.style.whiteSpace = 'pre-line'; c.style.lineHeight = '1.55'; }
                     var b = popup.querySelector('.swal2-confirm');
                     if (b) { b.style.cssText = 'background:#4E7D24;color:#fff;border:0;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;'; }
                 }
