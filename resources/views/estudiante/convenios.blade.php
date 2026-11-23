@@ -141,15 +141,17 @@
                             <div style="min-width: 0;">
                                 <p class="cv-label">Convenio</p>
                                 <h3 class="cv-folio">{{ $convenio->folio }}</h3>
+                                @if(isset($convenio->fecha_inicio, $convenio->fecha_termino))
                                 <span class="cv-vigencia">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     Vigencia: {{ $convenio->fecha_inicio->format('d/m/Y') }} — {{ $convenio->fecha_termino->format('d/m/Y') }}
                                 </span>
+                                @endif
                             </div>
                         </div>
-                        <span class="cv-status {{ $convenio->vigente ? 'is-vigente' : 'is-vencido' }}">
+                        <span class="cv-status {{ ($convenio->vigente ?? true) ? 'is-vigente' : 'is-vencido' }}">
                             <span class="cv-status-dot"></span>
-                            {{ $convenio->vigente ? 'Vigente' : 'Vencido' }}
+                            {{ isset($convenio->vigente) ? ($convenio->vigente ? 'Vigente' : 'Vencido') : 'Aprobado' }}
                         </span>
                     </div>
 
@@ -327,6 +329,7 @@
         </div>
     </div>
 
+    <div id="solicitud-bloqueo-data" hidden data-mensaje="{{ $bloqueoSolicitud }}"></div>
     <script>
         function validateSearch() {
             var val = document.getElementById('search-input').value.trim();
@@ -424,7 +427,9 @@
             document.body.appendChild(modal);
         }
 
-        var SOLICITUD_BLOQUEO = @json($bloqueoSolicitud);
+        // El mensaje viene en un atributo data-* para no escribir Blade dentro del script
+        var bloqueoData = document.getElementById('solicitud-bloqueo-data');
+        var SOLICITUD_BLOQUEO = (bloqueoData && bloqueoData.dataset.mensaje) || null;
 
         function openSolicitudModal(urId, nombre) {
             if (SOLICITUD_BLOQUEO) {
