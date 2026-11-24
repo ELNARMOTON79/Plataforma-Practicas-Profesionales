@@ -12,35 +12,34 @@
         .cv-alert-link { margin-left: auto; flex-shrink: 0; font-size: 12px; font-weight: 700; color: #92400e; background: #fff; border: 1px solid #fde68a; padding: 7px 14px; border-radius: 10px; text-decoration: none; white-space: nowrap; transition: background .15s; }
         .cv-alert-link:hover { background: #fef3c7; }
 
-        .cv-card { background: #fff; border: 1px solid #eef0f3; border-radius: 24px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(17, 24, 39, .04); }
-        .cv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #f1f2f4; }
-        .cv-head-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
-        .cv-head-icon { width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, #6BA53A, #4E7D24); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 6px 14px rgba(78, 125, 36, .25); }
-        .cv-label { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; margin: 0; }
-        .cv-folio { font-size: 19px; font-weight: 800; color: #111827; margin: 1px 0 0; line-height: 1.2; }
-        .cv-vigencia { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: #6b7280; margin-top: 4px; }
-        .cv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; flex-shrink: 0; }
-        .cv-status-dot { width: 7px; height: 7px; border-radius: 999px; }
+        /* Cuadrícula: una tarjeta por empresa, con el convenio al que pertenece */
+        .cv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+        @media (max-width: 420px) { .cv-grid { grid-template-columns: 1fr; } }
+
+        .cv-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #eef0f3; border-radius: 22px; padding: 18px; box-shadow: 0 4px 20px rgba(17, 24, 39, .04); transition: border-color .2s, box-shadow .2s, transform .2s; }
+        .cv-card:hover { border-color: #cfe3bd; box-shadow: 0 12px 28px rgba(78, 125, 36, .10); transform: translateY(-3px); }
+        .cv-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #f1f2f4; }
+        .cv-folio { display: inline-flex; align-items: center; gap: 7px; min-width: 0; font-size: 12.5px; font-weight: 800; color: #4E7D24; letter-spacing: .02em; }
+        .cv-folio-icon { width: 28px; height: 28px; border-radius: 9px; background: linear-gradient(135deg, #6BA53A, #4E7D24); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cv-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+        .cv-status-dot { width: 6px; height: 6px; border-radius: 999px; }
         .cv-status.is-vigente { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
         .cv-status.is-vigente .cv-status-dot { background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
         .cv-status.is-vencido { color: #6b7280; background: #f3f4f6; border: 1px solid #e5e7eb; }
         .cv-status.is-vencido .cv-status-dot { background: #9ca3af; }
 
-        .cv-section { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-        .cv-count { font-size: 11px; font-weight: 700; color: #4E7D24; background: #f0f7e9; border-radius: 999px; padding: 2px 9px; }
-        .cv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
-        @media (max-width: 420px) { .cv-grid { grid-template-columns: 1fr; } }
-
-        .cv-empresa { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 14px 16px; border-radius: 18px; background: #fafbfa; border: 1px solid #edf0ea; transition: border-color .2s, box-shadow .2s, transform .2s; }
-        .cv-empresa:hover { border-color: #cfe3bd; box-shadow: 0 8px 22px rgba(78, 125, 36, .08); transform: translateY(-2px); }
-        .cv-empresa-top { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 220px; min-width: 0; }
-        .cv-avatar { width: 42px; height: 42px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb; color: #4E7D24; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cv-empresa-top { display: flex; align-items: center; gap: 12px; }
+        .cv-avatar { width: 48px; height: 48px; border-radius: 14px; background: #f0f7e9; border: 1px solid #dcebcd; color: #4E7D24; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .cv-tipo { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
         .cv-tipo.is-moral { color: #1d4ed8; background: #eff6ff; border: 1px solid #dbeafe; }
         .cv-tipo.is-fisica { color: #c2410c; background: #fff7ed; border: 1px solid #fed7aa; }
-        .cv-empresa-name { font-size: 15px; font-weight: 700; color: #111827; margin: 5px 0 0; line-height: 1.3; }
-        .cv-dir { display: flex; align-items: flex-start; gap: 5px; font-size: 12.5px; color: #6b7280; margin: 4px 0 0; }
-        .cv-btn { display: flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; margin-left: auto; white-space: nowrap; font-size: 12.5px; font-weight: 700; color: #4E7D24; background: #fff; border: 1px solid #cfe3bd; padding: 9px 16px; border-radius: 12px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+        .cv-empresa-name { font-size: 15px; font-weight: 700; color: #111827; margin: 14px 0 0; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cv-dir { display: flex; align-items: flex-start; gap: 5px; font-size: 12.5px; color: #6b7280; margin: 6px 0 0; }
+        .cv-dir span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cv-vigencia { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #6b7280; margin: 6px 0 0; }
+        .cv-unidades { font-size: 11.5px; font-weight: 600; color: #6b7280; margin-top: 2px; }
+        .cv-card-foot { margin-top: auto; padding-top: 16px; }
+        .cv-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; white-space: nowrap; font-size: 12.5px; font-weight: 700; color: #4E7D24; background: #fff; border: 1px solid #cfe3bd; padding: 10px 16px; border-radius: 12px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
         .cv-btn:hover { background: #4E7D24; border-color: #4E7D24; color: #fff; }
         .cv-btn svg { transition: transform .2s; }
         .cv-btn:hover svg { transform: translateX(3px); }
@@ -130,73 +129,66 @@
             @endif
         </div>
     @else
-        <div class="space-y-6 fade-in-up delay-200">
+        <div class="cv-grid fade-in-up delay-200">
             @foreach($conveniosAgrupados as $convenio)
-                <div class="cv-card">
-                    <div class="cv-head">
-                        <div class="cv-head-main">
-                            <div class="cv-head-icon">
-                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            </div>
-                            <div style="min-width: 0;">
-                                <p class="cv-label">Convenio</p>
-                                <h3 class="cv-folio">{{ $convenio->folio }}</h3>
-                                @if(isset($convenio->fecha_inicio, $convenio->fecha_termino))
-                                <span class="cv-vigencia">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    Vigencia: {{ $convenio->fecha_inicio->format('d/m/Y') }} — {{ $convenio->fecha_termino->format('d/m/Y') }}
+                @foreach($convenio->empresas as $unidad)
+                    @php
+                        $esMoral   = strtolower($unidad->tipo_persona ?? '') === 'moral';
+                        $tipoLabel = $esMoral ? 'Persona Moral' : 'Persona Física';
+                        $inicialesEmpresa = collect(preg_split('/\s+/', trim($unidad->nombre_empresa ?? '')))
+                            ->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->implode('');
+                        $totalUnidades = $unidad->unidades->count();
+                    @endphp
+                    <article class="cv-card">
+                        <div class="cv-card-top">
+                            <span class="cv-folio" title="Convenio {{ $convenio->folio }}">
+                                <span class="cv-folio-icon">
+                                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </span>
-                                @endif
+                                {{ $convenio->folio }}
+                            </span>
+                            <span class="cv-status {{ ($convenio->vigente ?? true) ? 'is-vigente' : 'is-vencido' }}">
+                                <span class="cv-status-dot"></span>
+                                {{ isset($convenio->vigente) ? ($convenio->vigente ? 'Vigente' : 'Vencido') : 'Aprobado' }}
+                            </span>
+                        </div>
+
+                        <div class="cv-empresa-top">
+                            <div class="cv-avatar">{{ $inicialesEmpresa ?: '—' }}</div>
+                            <div style="min-width: 0;">
+                                <span class="cv-tipo {{ $esMoral ? 'is-moral' : 'is-fisica' }}">{{ $tipoLabel }}</span>
+                                <p class="cv-unidades">{{ $totalUnidades }} unidad{{ $totalUnidades !== 1 ? 'es' : '' }} receptora{{ $totalUnidades !== 1 ? 's' : '' }}</p>
                             </div>
                         </div>
-                        <span class="cv-status {{ ($convenio->vigente ?? true) ? 'is-vigente' : 'is-vencido' }}">
-                            <span class="cv-status-dot"></span>
-                            {{ isset($convenio->vigente) ? ($convenio->vigente ? 'Vigente' : 'Vencido') : 'Aprobado' }}
-                        </span>
-                    </div>
 
-                    <div class="cv-section">
-                        <p class="cv-label">Empresas en este convenio</p>
-                        <span class="cv-count">{{ $convenio->empresas->count() }}</span>
-                    </div>
+                        <h3 class="cv-empresa-name" title="{{ $unidad->nombre_empresa }}">{{ $unidad->nombre_empresa }}</h3>
+                        @if($unidad->direccion)
+                            <p class="cv-dir">
+                                <svg width="14" height="14" style="margin-top: 2px; flex-shrink: 0; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <span>{{ $unidad->direccion }}</span>
+                            </p>
+                        @endif
+                        @if(isset($convenio->fecha_inicio, $convenio->fecha_termino))
+                            <p class="cv-vigencia">
+                                <svg width="14" height="14" style="flex-shrink: 0; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                {{ $convenio->fecha_inicio->format('d/m/Y') }} — {{ $convenio->fecha_termino->format('d/m/Y') }}
+                            </p>
+                        @endif
 
-                    <div class="cv-grid">
-                        @foreach($convenio->empresas as $unidad)
-                            @php
-                                $esMoral   = strtolower($unidad->tipo_persona ?? '') === 'moral';
-                                $tipoLabel = $esMoral ? 'Persona Moral' : 'Persona Física';
-                                $inicialesEmpresa = collect(preg_split('/\s+/', trim($unidad->nombre_empresa ?? '')))
-                                    ->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->implode('');
-                            @endphp
-                            <div class="cv-empresa">
-                                <div class="cv-empresa-top">
-                                    <div class="cv-avatar">{{ $inicialesEmpresa ?: '—' }}</div>
-                                    <div style="min-width: 0;">
-                                        <span class="cv-tipo {{ $esMoral ? 'is-moral' : 'is-fisica' }}">{{ $tipoLabel }}</span>
-                                        <h4 class="cv-empresa-name">{{ $unidad->nombre_empresa }}</h4>
-                                        @if($unidad->direccion)
-                                            <p class="cv-dir">
-                                                <svg width="14" height="14" style="margin-top: 2px; flex-shrink: 0; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                                {{ $unidad->direccion }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    data-empresa="{{ $unidad->nombre_empresa }}"
-                                    data-unidades='{{ json_encode($unidad->unidades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
-                                    onclick="showUnidadesModal(this)"
-                                    class="cv-btn"
-                                >
-                                    Ver unidades receptoras
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+                        <div class="cv-card-foot">
+                            <button
+                                type="button"
+                                data-empresa="{{ $unidad->nombre_empresa }}"
+                                data-unidades='{{ json_encode($unidad->unidades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                onclick="showUnidadesModal(this)"
+                                class="cv-btn"
+                            >
+                                Ver unidades receptoras
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            </button>
+                        </div>
+                    </article>
+                @endforeach
             @endforeach
         </div>
 
