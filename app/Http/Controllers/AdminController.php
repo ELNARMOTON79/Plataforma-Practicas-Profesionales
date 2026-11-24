@@ -132,6 +132,7 @@ class AdminController extends Controller
             $rules['carrera'] = 'required|string|max:150';
             $rules['semestre'] = 'required|integer|min:1|max:12';
             $rules['grupo'] = 'required|string|max:20|regex:/^[a-zA-Z]$/';
+            $rules['sexo'] = 'required|in:Masculino,Femenino';
         } elseif ($request->input('role') == 4) { // Empresa
             $rules['nombre_empresa'] = 'required|string|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,&-]+$/';
             $rules['direccion'] = 'required|string|max:500|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s.,#\/\s-]+$/';
@@ -143,6 +144,8 @@ class AdminController extends Controller
             'nombre_empresa.regex' => 'El nombre de la empresa solo debe contener letras, números, espacios y caracteres permitidos (.,&-).',
             'matricula.regex' => 'La matrícula solo debe contener números.',
             'grupo.regex' => 'El grupo debe ser exactamente una letra.',
+            'sexo.required' => 'El sexo es requerido.',
+            'sexo.in' => 'El sexo debe ser Masculino o Femenino.',
             'direccion.regex' => 'La dirección contiene caracteres no permitidos.',
         ];
 
@@ -174,6 +177,7 @@ class AdminController extends Controller
                 $alumno->carrera = $request->input('carrera');
                 $alumno->semestre = $request->input('semestre');
                 $alumno->grupo = $request->input('grupo');
+                $alumno->sexo = $request->input('sexo');
                 $alumno->activo_practica = 0;
                 $alumno->save();
             } elseif ($user->rol_id == 4) { // Empresa
@@ -396,6 +400,7 @@ class AdminController extends Controller
                 'max:20',
                 'regex:/^[a-zA-Z]$/',
             ];
+            $rules['sexo'] = 'required|in:Masculino,Femenino';
         } elseif ($user->rol_id == 4) { // Empresa
             $rules['direccion'] = [
                 'required',
@@ -412,6 +417,8 @@ class AdminController extends Controller
                 : 'El nombre completo solo debe contener letras y espacios.',
             'matricula.regex' => 'La matrícula solo debe contener números.',
             'grupo.regex' => 'El grupo debe ser exactamente una letra.',
+            'sexo.required' => 'El sexo es requerido.',
+            'sexo.in' => 'El sexo debe ser Masculino o Femenino.',
             'direccion.regex' => 'La dirección contiene caracteres no permitidos.',
         ];
 
@@ -442,6 +449,7 @@ class AdminController extends Controller
             $alumno->carrera = $request->input('carrera');
             $alumno->semestre = $request->input('semestre');
             $alumno->grupo = $request->input('grupo');
+            $alumno->sexo = $request->input('sexo');
             $alumno->save();
         } elseif ($user->rol_id == 4) { // Empresa
             $empresa = $user->empresa;

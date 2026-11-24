@@ -93,6 +93,17 @@
                                     <p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p>
                                 @enderror
                             </div>
+                            <div class="alumno-field-modal hidden">
+                                <label for="sexo" class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                                <select id="sexo" name="sexo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700">
+                                    <option value="">Seleccionar Sexo</option>
+                                    <option value="Masculino" {{ old('sexo') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="Femenino" {{ old('sexo') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
+                                </select>
+                                @error('sexo')
+                                    <p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p>
+                                @enderror
+                            </div>
  
                             <!-- Empresa / Unidad Receptora fields -->
                             <div class="empresa-field-modal hidden">

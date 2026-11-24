@@ -9,6 +9,7 @@
         const inputCarrera = document.getElementById('carrera');
         const inputSemestre = document.getElementById('semestre');
         const inputGrupo = document.getElementById('grupo');
+        const inputSexo = document.getElementById('sexo');
         const inputNombreEmpresa = document.getElementById('nombre_empresa');
         const inputTipoPersona = document.getElementById('tipo_persona');
         const inputDireccion = document.getElementById('direccion');
@@ -22,6 +23,7 @@
         inputCarrera.required = false;
         inputSemestre.required = false;
         inputGrupo.required = false;
+        inputSexo.required = false;
         inputNombreEmpresa.required = false;
         inputTipoPersona.required = false;
         inputDireccion.required = false;
@@ -34,6 +36,7 @@
             inputCarrera.required = true;
             inputSemestre.required = true;
             inputGrupo.required = true;
+            inputSexo.required = true;
         } else if (value === '4') { // Empresa
             dynamicFields.classList.remove('hidden');
             empresaFields.forEach(el => el.classList.remove('hidden'));
@@ -109,6 +112,7 @@
                 const editCarrera = document.getElementById('edit_carrera');
                 const editSemestre = document.getElementById('edit_semestre');
                 const editGrupo = document.getElementById('edit_grupo');
+                const editSexo = document.getElementById('edit_sexo');
                 const editDireccion = document.getElementById('edit_direccion');
                 const editTipoPersona = document.getElementById('edit_tipo_persona');
 
@@ -121,6 +125,7 @@
                 editCarrera.required = false;
                 editSemestre.required = false;
                 editGrupo.required = false;
+                editSexo.required = false;
                 editDireccion.required = false;
                 editTipoPersona.required = false;
 
@@ -132,11 +137,13 @@
                     editCarrera.required = true;
                     editSemestre.required = true;
                     editGrupo.required = true;
+                    editSexo.required = true;
 
                     editMatricula.value = this.getAttribute('data-matricula') || '';
                     editCarrera.value = this.getAttribute('data-carrera') || '';
                     editSemestre.value = this.getAttribute('data-semestre') || '';
                     editGrupo.value = this.getAttribute('data-grupo') || '';
+                    editSexo.value = this.getAttribute('data-sexo') || '';
                 } else if (rolId === '4') { // Empresa
                     dynamicSection.classList.remove('hidden');
                     empresaFields.forEach(el => el.classList.remove('hidden'));
@@ -191,6 +198,7 @@
         const editCarrera = document.getElementById('edit_carrera');
         const editSemestre = document.getElementById('edit_semestre');
         const editGrupo = document.getElementById('edit_grupo');
+        const editSexo = document.getElementById('edit_sexo');
         const editDireccion = document.getElementById('edit_direccion');
         const editTipoPersona = document.getElementById('edit_tipo_persona');
 
@@ -202,6 +210,7 @@
         editCarrera.required = false;
         editSemestre.required = false;
         editGrupo.required = false;
+        editSexo.required = false;
         editDireccion.required = false;
         editTipoPersona.required = false;
 
@@ -212,6 +221,7 @@
             editCarrera.required = true;
             editSemestre.required = true;
             editGrupo.required = true;
+            editSexo.required = true;
         } else if (rolId === '4') { // Empresa
             dynamicSection.classList.remove('hidden');
             empresaFields.forEach(el => el.classList.remove('hidden'));

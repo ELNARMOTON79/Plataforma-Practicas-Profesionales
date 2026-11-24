@@ -96,6 +96,8 @@
                                         data-carrera="{{ $usuario->alumno->carrera ?? '' }}"
                                         data-semestre="{{ $usuario->alumno->semestre ?? '' }}"
                                         data-grupo="{{ $usuario->alumno->grupo ?? '' }}"
+                                        {{-- Solo el valor guardado: en registros antiguos queda vacío para que el administrador lo elija --}}
+                                        data-sexo="{{ $usuario->alumno?->getRawOriginal('sexo') ?? '' }}"
                                     @elseif($usuario->rol_id == 4)
                                         data-direccion="{{ $usuario->empresa->direccion ?? '' }}"
                                         data-tipo-persona="{{ $usuario->empresa->tipo_persona ?? '' }}"

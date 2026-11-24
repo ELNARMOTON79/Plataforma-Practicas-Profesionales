@@ -94,6 +94,17 @@
                                     <p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p>
                                 @enderror
                             </div>
+                            <div class="edit-alumno-field hidden">
+                                <label for="edit_sexo" class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                                <select id="edit_sexo" name="sexo" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#6BA53A] focus:border-[#6BA53A] sm:text-sm transition-colors text-gray-700">
+                                    <option value="">Seleccionar Sexo</option>
+                                    <option value="Masculino" {{ old('sexo') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="Femenino" {{ old('sexo') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
+                                </select>
+                                @error('sexo')
+                                    <p class="text-red-500 text-xs mt-1 font-semibold">{{ $message }}</p>
+                                @enderror
+                            </div>
  
                             <!-- Empresa fields -->
                             <div class="edit-empresa-field hidden md:col-span-2">
@@ -152,7 +163,7 @@
 
         <!-- Modal panel -->
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle glass-card flex flex-col p-6">
+        <div class="relative inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle glass-card flex flex-col p-6">
             <!-- Header -->
             <div class="flex items-center gap-3 mb-4">
                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">

@@ -25,3 +25,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Cachés de Laravel generadas por error en la raíz (las reales viven en bootstrap/cache)
+/cache/
